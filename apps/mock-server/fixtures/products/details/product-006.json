@@ -1,0 +1,58 @@
+{
+  "id": "product-006",
+  "slug": "sensors-and-control",
+  "name": "Sensors & Control",
+  "nameCn": "门控与传感",
+  "subtitleEn": "Door",
+  "summary": "Advanced obstacle detection and smart door controls.",
+  "description": "Advanced obstacle detection and smart door controls for mass transit.",
+  "category": { "id": "door", "name": "Door Systems (IFE)" },
+  "coverImage": {
+    "url": "/mock-assets/products/product-006-cover.png",
+    "alt": "门控与传感",
+    "width": 1200,
+    "height": 800,
+    "aspectRatio": 1.5
+  },
+  "gallery": [
+    {
+      "url": "/mock-assets/products/product-006-cover.png",
+      "alt": "门控与传感细节",
+      "width": 1200,
+      "height": 800,
+      "aspectRatio": 1.5
+    }
+  ],
+  "relatedProducts": [
+    {
+      "name": "E3 Door System",
+      "description": "Space-saving sliding plug doors for metro and regional trains.",
+      "image": {
+        "url": "/mock-assets/products/product-002-cover.png",
+        "alt": "E3 Door System",
+        "width": 1200,
+        "height": 800,
+        "aspectRatio": 1.5
+      }
+    }
+  ],
+  "richContent": [
+    {
+      "id": "block-001",
+      "type": "heading",
+      "level": 2,
+      "text": "智能门控与障碍检测"
+    },
+    {
+      "id": "block-002",
+      "type": "paragraph",
+      "spans": [
+        { "type": "text", "text": "门控与传感方案强调", "marks": [] },
+        { "type": "text", "text": "障碍检测与可靠开关门控制", "marks": ["bold"] },
+        { "type": "text", "text": "。", "marks": [] }
+      ]
+    }
+  ],
+  "relatedIds": ["product-002"],
+  "publishedAt": "2024-03-18T08:00:00.000Z"
+}

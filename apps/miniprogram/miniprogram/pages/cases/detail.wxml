@@ -1,0 +1,29 @@
+<view class="page page--case-detail">
+  <nav-brand title="Case Details" show-back="{{true}}"></nav-brand>
+
+  <view wx:if="{{pageStatus === 'success' && item}}" class="case-detail">
+    <image class="case-detail__cover" src="{{item.image}}" mode="aspectFill" binderror="onCoverImageError"></image>
+    <view class="case-detail__body">
+      <text class="case-detail__title">{{item.title}}</text>
+      <text class="case-detail__meta">{{item.meta}}</text>
+      <text class="case-detail__block">
+        <text class="case-detail__label">Project Background: </text>{{item.background}}
+      </text>
+      <text class="case-detail__block">
+        <text class="case-detail__label">Solution: </text>{{item.solution}}
+      </text>
+      <article-renderer wx:if="{{item.richContent.length}}" blocks="{{item.richContent}}"></article-renderer>
+      <view class="case-detail__btn tap-feedback" bindtap="onSave">Save Case Study</view>
+    </view>
+  </view>
+
+  <view wx:elif="{{pageStatus === 'loading'}}">
+    <empty-state title="正在加载案例"></empty-state>
+  </view>
+  <view wx:elif="{{pageStatus === 'error'}}" bindtap="onRetry">
+    <empty-state title="案例加载失败" description="{{errorText}}"></empty-state>
+  </view>
+  <view wx:else class="case-empty">
+    <empty-state title="未找到该项目案例"></empty-state>
+  </view>
+</view>

@@ -1,0 +1,33 @@
+<view class="page page--event-detail">
+  <nav-brand title="Outings" show-back="{{true}}"></nav-brand>
+
+  <view class="event-detail">
+    <view class="event-detail__card">
+      <view class="event-detail__hero event-detail__hero--outings">
+        <image
+          class="event-detail__hero-icon"
+          src="/assets/images/kb-life/event-outings-white.png"
+          mode="aspectFit"
+        ></image>
+        <text class="event-detail__hero-title">{{event.title}}</text>
+        <text class="event-detail__hero-subtitle">{{event.subtitle}}</text>
+      </view>
+
+      <view class="event-detail__body">
+        <view
+          class="outing-card"
+          wx:for="{{event.activities}}"
+          wx:key="id"
+        >
+          <view class="outing-card__head">
+            <text class="outing-card__title">{{item.title}}</text>
+            <text class="outing-card__badge outing-card__badge--{{item.status}}">{{item.statusText}}</text>
+          </view>
+          <text class="outing-card__desc">{{item.descriptionCn}}</text>
+          <text class="outing-card__desc outing-card__desc--en">{{item.descriptionEn}}</text>
+          <text class="outing-card__time">{{item.timeLabel}}</text>
+        </view>
+      </view>
+    </view>
+  </view>
+</view>

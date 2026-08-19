@@ -1,0 +1,10 @@
+{
+  "navigationStyle": "custom",
+  "backgroundColor": "#ffffff",
+  "usingComponents": {
+    "nav-brand": "/components/common/nav-brand/nav-brand",
+    "section-title": "/components/common/section-title/section-title",
+    "status-feedback": "/components/common/status-feedback/status-feedback",
+    "empty-state": "/components/common/empty-state/empty-state"
+  }
+}

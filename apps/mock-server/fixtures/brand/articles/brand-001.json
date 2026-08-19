@@ -1,0 +1,79 @@
+{
+  "id": "brand-001",
+  "slug": "knorr-bremse-group-story",
+  "title": "Knorr-Bremse Group Story",
+  "subtitle": "安全出行的全球技术伙伴",
+  "summary": "Knorr-Bremse develops, manufactures, and services safety-critical systems for rail and commercial vehicles worldwide.",
+  "category": { "id": "company", "name": "Company News" },
+  "author": { "name": "KB China" },
+  "publishedAt": "2024-01-08T08:00:00.000Z",
+  "coverImage": {
+    "url": "/mock-assets/brand/article-001-cover.png",
+    "alt": "克诺尔集团品牌故事封面",
+    "width": 1200,
+    "height": 675,
+    "aspectRatio": 1.7778
+  },
+  "richContent": [
+    {
+      "id": "block-001",
+      "type": "heading",
+      "level": 2,
+      "text": "全球技术领导力"
+    },
+    {
+      "id": "block-002",
+      "type": "paragraph",
+      "spans": [
+        { "type": "text", "text": "克诺尔在 30 多个国家拥有超过 33,000 名员工，持续推动", "marks": [] },
+        { "type": "text", "text": "最安全、最高效的出行", "marks": ["bold"] },
+        { "type": "text", "text": "。", "marks": [] }
+      ]
+    },
+    {
+      "id": "block-003",
+      "type": "image",
+      "image": {
+        "url": "/mock-assets/brand/article-001-content-01.png",
+        "alt": "品牌故事配图",
+        "width": 1200,
+        "height": 800,
+        "aspectRatio": 1.5
+      },
+      "caption": "克诺尔全球品牌"
+    },
+    {
+      "id": "block-004",
+      "type": "quote",
+      "text": "We deliver what we promise.",
+      "source": "Knorr-Bremse"
+    },
+    {
+      "id": "block-005",
+      "type": "list",
+      "ordered": false,
+      "items": ["Entrepreneurship", "Technological Excellence", "Reliability"]
+    },
+    { "id": "block-006", "type": "divider" },
+    {
+      "id": "block-007",
+      "type": "callout",
+      "variant": "info",
+      "title": "品牌理念",
+      "text": "本文用于开发阶段展示品牌文章结构。"
+    },
+    {
+      "id": "block-008",
+      "type": "link",
+      "text": "返回品牌介绍",
+      "url": "/pages/brand/index",
+      "linkType": "internal"
+    }
+  ],
+  "tags": ["品牌", "Knorr-Bremse"],
+  "relatedIds": [],
+  "share": {
+    "title": "Knorr-Bremse Group Story",
+    "imageUrl": "/mock-assets/brand/article-001-share.png"
+  }
+}

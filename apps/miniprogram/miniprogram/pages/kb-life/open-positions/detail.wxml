@@ -1,0 +1,38 @@
+<view class="page page--job-detail">
+  <nav-brand title="Job Details" show-back="{{true}}"></nav-brand>
+
+  <view wx:if="{{!job}}" class="job-empty">
+    <text class="job-empty__text">未找到该岗位信息</text>
+  </view>
+
+  <view wx:if="{{job}}" class="job-detail">
+    <view class="job-detail__hero">
+      <text class="job-detail__title">{{job.title}}</text>
+      <view class="job-detail__tags">
+        <text class="job-detail__tag">{{job.department}}</text>
+        <text class="job-detail__tag">{{job.location}}</text>
+        <text class="job-detail__tag">{{job.type}}</text>
+      </view>
+    </view>
+
+    <view class="job-detail__section">
+      <view class="job-detail__section-head">
+        <view class="job-detail__bar"></view>
+        <text class="job-detail__section-title">岗位描述 (Job Description)</text>
+      </view>
+      <text class="job-detail__body">{{job.description}}</text>
+    </view>
+
+    <view class="job-detail__section">
+      <view class="job-detail__section-head">
+        <view class="job-detail__bar"></view>
+        <text class="job-detail__section-title">任职要求 (Requirements)</text>
+      </view>
+      <text class="job-detail__body">{{job.requirements}}</text>
+    </view>
+  </view>
+
+  <view wx:if="{{job}}" class="job-detail__apply">
+    <button class="job-detail__btn kb-btn-reset" bindtap="onApply">点击投递简历 (Apply Now)</button>
+  </view>
+</view>

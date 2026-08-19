@@ -1,0 +1,47 @@
+<view class="page page--handbook">
+  <nav-brand title="Employee Handbook" show-back="{{true}}"></nav-brand>
+
+  <view class="handbook">
+    <view class="handbook-hero">
+      <view class="handbook-hero__banner">
+        <image
+          class="handbook-hero__icon"
+          src="/assets/images/kb-life/handbook-white.png"
+          mode="aspectFit"
+        ></image>
+        <text class="handbook-hero__title">KB 员工手册 / Employee Handbook</text>
+        <text class="handbook-hero__edition">2026版 (最新) / 2026 Edition (Latest)</text>
+      </view>
+      <view class="handbook-hero__body">
+        <text class="handbook-hero__intro">{{introCn}}</text>
+        <text class="handbook-hero__intro handbook-hero__intro--en">{{introEn}}</text>
+        <view class="handbook-hero__btn tap-feedback" bindtap="onDownload">
+          <image
+            class="handbook-hero__download"
+            src="/assets/images/kb-life/download-white.png"
+            mode="aspectFit"
+          ></image>
+          <text class="handbook-hero__btn-text">下载 PDF 版 / Download PDF</text>
+        </view>
+      </view>
+    </view>
+
+    <view class="handbook-nav">
+      <text class="handbook-nav__title">快速导航 / Quick Navigation</text>
+      <view
+        class="handbook-nav__item tap-feedback"
+        wx:for="{{chapters}}"
+        wx:key="id"
+        data-id="{{item.id}}"
+        bindtap="onChapterTap"
+      >
+        <text class="handbook-nav__item-title">{{item.title}}</text>
+        <image
+          class="handbook-nav__link"
+          src="/assets/images/kb-life/external-link.png"
+          mode="aspectFit"
+        ></image>
+      </view>
+    </view>
+  </view>
+</view>

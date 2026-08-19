@@ -1,0 +1,37 @@
+<view class="page page--product-detail">
+  <nav-brand title="Product Details" show-back="{{true}}"></nav-brand>
+
+  <view wx:if="{{pageStatus === 'success' && category}}" class="product-detail">
+    <text class="product-detail__title">{{category.title}}</text>
+    <image class="product-detail__cover" src="{{category.image}}" mode="aspectFill" binderror="onCoverImageError"></image>
+    <text class="product-detail__desc">{{category.desc}}</text>
+
+    <text class="product-detail__section">Core Products</text>
+    <view class="core-item" wx:for="{{category.products}}" wx:key="name">
+      <image class="core-item__image" src="{{item.img}}" mode="aspectFill" data-index="{{index}}" binderror="onRelatedImageError"></image>
+      <view class="core-item__meta">
+        <text class="core-item__name">{{item.name}}</text>
+        <text class="core-item__desc">{{item.desc}}</text>
+      </view>
+    </view>
+
+    <article-renderer wx:if="{{category.richContent.length}}" blocks="{{category.richContent}}"></article-renderer>
+
+    <view class="product-detail__btn product-detail__btn--primary tap-feedback" bindtap="onRelatedServices">
+      Related Services (Digital CBM)
+    </view>
+    <view class="product-detail__btn product-detail__btn--ghost tap-feedback" bindtap="onViewCases">
+      View Case Studies
+    </view>
+  </view>
+
+  <view wx:elif="{{pageStatus === 'loading'}}">
+    <empty-state title="正在加载产品"></empty-state>
+  </view>
+  <view wx:elif="{{pageStatus === 'error'}}" bindtap="onRetry">
+    <empty-state title="产品加载失败" description="{{errorText}}"></empty-state>
+  </view>
+  <view wx:else class="product-empty">
+    <empty-state title="未找到该产品分类"></empty-state>
+  </view>
+</view>

@@ -1,0 +1,59 @@
+<view class="article-renderer">
+  <block wx:for="{{renderBlocks}}" wx:key="id">
+    <view wx:if="{{item.type === 'heading'}}" class="ar-heading ar-heading--{{item.level}}">{{item.text}}</view>
+
+    <view wx:elif="{{item.type === 'paragraph'}}" class="ar-paragraph">
+      <block wx:for="{{item.spans}}" wx:for-item="span" wx:for-index="spanIndex" wx:key="*this">
+        <text
+          wx:if="{{span.type === 'link'}}"
+          class="{{span.className}} ar-span--link"
+          data-href="{{span.href}}"
+          catchtap="onSpanLink"
+        >{{span.text}}</text>
+        <text wx:else class="{{span.className}}">{{span.text}}</text>
+      </block>
+    </view>
+
+    <view wx:elif="{{item.type === 'image'}}" class="ar-image">
+      <image
+        wx:if="{{!item.imageFailed}}"
+        class="ar-image__img"
+        src="{{item.image.url}}"
+        mode="widthFix"
+        data-id="{{item.id}}"
+        binderror="onImageError"
+      ></image>
+      <view wx:else class="ar-image__fallback">图片加载失败</view>
+      <text wx:if="{{item.caption}}" class="ar-image__caption">{{item.caption}}</text>
+    </view>
+
+    <view wx:elif="{{item.type === 'quote'}}" class="ar-quote">
+      <text class="ar-quote__text">{{item.text}}</text>
+      <text wx:if="{{item.source}}" class="ar-quote__source">— {{item.source}}</text>
+    </view>
+
+    <view wx:elif="{{item.type === 'list'}}" class="ar-list">
+      <view class="ar-list__item" wx:for="{{item.items}}" wx:for-item="listItem" wx:for-index="listIndex" wx:key="*this">
+        <text class="ar-list__mark">{{item.ordered ? (listIndex + 1) + '.' : '•'}}</text>
+        <text class="ar-list__text">{{listItem}}</text>
+      </view>
+    </view>
+
+    <view wx:elif="{{item.type === 'divider'}}" class="ar-divider"></view>
+
+    <view wx:elif="{{item.type === 'callout'}}" class="ar-callout ar-callout--{{item.variant}}">
+      <text wx:if="{{item.title}}" class="ar-callout__title">{{item.title}}</text>
+      <text class="ar-callout__text">{{item.text}}</text>
+    </view>
+
+    <view
+      wx:elif="{{item.type === 'link'}}"
+      class="ar-link tap-feedback"
+      data-url="{{item.url}}"
+      data-link-type="{{item.linkType}}"
+      bindtap="onInternalLink"
+    >
+      <text class="ar-link__text">{{item.text}}</text>
+    </view>
+  </block>
+</view>

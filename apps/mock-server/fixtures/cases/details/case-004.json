@@ -1,0 +1,38 @@
+{
+  "id": "case-004",
+  "slug": "regional-emu-digital-maintenance",
+  "title": "Regional EMU Digital Maintenance",
+  "summary": "Digital CBM rolled out to improve availability for regional fleets.",
+  "category": { "id": "rail", "name": "Rail" },
+  "coverImage": {
+    "url": "/mock-assets/cases/case-004-cover.png",
+    "alt": "区域动车组数字化运维",
+    "width": 1200,
+    "height": 800,
+    "aspectRatio": 1.5
+  },
+  "region": "China",
+  "industry": "Regional Rail",
+  "meta": "Industry: Regional Rail · Region: China",
+  "background": "Regional operators need earlier fault detection to keep fleets available without increasing workshop load.",
+  "solution": "Rolling out Digital CBM to convert equipment health data into scheduled, condition-based maintenance.",
+  "richContent": [
+    {
+      "id": "block-001",
+      "type": "heading",
+      "level": 2,
+      "text": "区域车队的数字化运维"
+    },
+    {
+      "id": "block-002",
+      "type": "paragraph",
+      "spans": [
+        { "type": "text", "text": "项目将 Digital CBM 部署到区域动车组，用于", "marks": [] },
+        { "type": "text", "text": "提升可用率", "marks": ["bold"] },
+        { "type": "text", "text": "。", "marks": [] }
+      ]
+    }
+  ],
+  "relatedIds": ["case-001"],
+  "publishedAt": "2024-04-12T08:00:00.000Z"
+}

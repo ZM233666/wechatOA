@@ -1,0 +1,26 @@
+<view class="page page--cases">
+  <nav-brand title="Project Cases" show-back="{{true}}"></nav-brand>
+
+  <view class="cases">
+    <text class="cases__heading">Project Cases</text>
+    <empty-state wx:if="{{pageStatus === 'loading'}}" title="正在加载案例"></empty-state>
+    <view wx:elif="{{pageStatus === 'error'}}" bindtap="onRetry">
+      <empty-state title="案例加载失败" description="{{errorText}}"></empty-state>
+    </view>
+    <empty-state wx:elif="{{pageStatus === 'empty'}}" title="暂无项目案例"></empty-state>
+
+    <view
+      class="case-card tap-feedback"
+      wx:for="{{cases}}"
+      wx:key="id"
+      data-id="{{item.id}}"
+      bindtap="onCaseTap"
+    >
+      <image class="case-card__image" src="{{item.image}}" mode="aspectFill" data-id="{{item.id}}" binderror="onCaseImageError"></image>
+      <view class="case-card__body">
+        <text class="case-card__title">{{item.title}}</text>
+        <text class="case-card__desc">{{item.desc}}</text>
+      </view>
+    </view>
+  </view>
+</view>

@@ -1,0 +1,66 @@
+<view class="page page--products">
+  <nav-brand title="Products" show-back="{{true}}"></nav-brand>
+  <empty-state wx:if="{{pageStatus === 'loading'}}" title="正在加载产品"></empty-state>
+  <view wx:elif="{{pageStatus === 'error'}}" bindtap="onRetry">
+    <empty-state title="产品加载失败" description="{{errorText}}"></empty-state>
+  </view>
+  <empty-state wx:elif="{{pageStatus === 'empty'}}" title="暂无产品" description="当前没有可展示的产品分类"></empty-state>
+  <block wx:elif="{{pageStatus === 'success'}}">
+
+  <swiper
+    class="product-hero"
+    autoplay="{{true}}"
+    interval="{{3000}}"
+    circular="{{true}}"
+    indicator-dots="{{true}}"
+    indicator-color="rgba(156, 163, 175, 0.6)"
+    indicator-active-color="#003B70"
+  >
+    <swiper-item wx:for="{{slides}}" wx:key="title">
+      <view class="product-hero__item">
+        <text class="product-hero__title">{{item.title}}</text>
+        <image class="product-hero__image" src="{{item.image}}" mode="aspectFill" data-index="{{index}}" binderror="onSlideImageError"></image>
+      </view>
+    </swiper-item>
+  </swiper>
+
+  <view class="product-search">
+    <input
+      class="product-search__input"
+      value="{{keyword}}"
+      placeholder="可输入产品号、产品名称、参数等"
+      placeholder-class="product-search__placeholder"
+      confirm-type="search"
+      bindinput="onSearchInput"
+      bindconfirm="onSearch"
+    />
+    <image class="product-search__icon" src="/assets/images/kb-life/search.png" mode="aspectFit"></image>
+    <view class="product-search__btn tap-feedback" bindtap="onSearch">查询</view>
+  </view>
+
+  <view class="product-grid">
+    <view
+      class="product-tile tap-feedback"
+      wx:for="{{categories}}"
+      wx:key="id"
+      data-id="{{item.id}}"
+      bindtap="onCategoryTap"
+    >
+      <image class="product-tile__image" src="{{item.image}}" mode="aspectFill" data-id="{{item.id}}" binderror="onCategoryImageError"></image>
+      <view class="product-tile__mask"></view>
+      <view class="product-tile__text">
+        <text class="product-tile__cn">{{item.titleCn}}</text>
+        <text class="product-tile__en">{{item.subtitleEn}}</text>
+      </view>
+    </view>
+  </view>
+
+  <view class="product-contact tap-feedback" bindtap="onContact">
+    <view class="product-contact__text">
+      <text class="product-contact__title">联系我们</text>
+      <text class="product-contact__sub">业务咨询与支持</text>
+    </view>
+    <text class="product-contact__more">查看 ›</text>
+  </view>
+  </block>
+</view>

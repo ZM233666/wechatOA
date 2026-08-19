@@ -1,0 +1,14 @@
+<view class="section-title">
+  <view class="section-title__left">
+    <text class="section-title__title">{{title}}</text>
+    <text wx:if="{{subtitle}}" class="section-title__subtitle">{{subtitle}}</text>
+  </view>
+  <view
+    wx:if="{{showMore}}"
+    class="section-title__more tap-feedback"
+    hover-class="none"
+    bindtap="onMoreTap"
+  >
+    <text class="section-title__more-text">{{moreText}}</text>
+  </view>
+</view>

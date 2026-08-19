@@ -1,0 +1,26 @@
+<view class="page page--jobs">
+  <nav-brand title="Open Positions" show-back="{{true}}"></nav-brand>
+
+  <view class="jobs">
+    <text class="jobs__heading">Open Positions</text>
+
+    <view
+      class="job-card tap-feedback"
+      wx:for="{{positions}}"
+      wx:key="id"
+      data-id="{{item.id}}"
+      bindtap="onJobTap"
+    >
+      <text class="job-card__title">{{item.title}}</text>
+      <view class="job-card__tags">
+        <text class="job-card__tag">{{item.department}}</text>
+        <text class="job-card__tag">{{item.location}}</text>
+        <text class="job-card__tag">{{item.type}}</text>
+      </view>
+      <view class="job-card__foot">
+        <text class="job-card__more">查看详情 (View Details)</text>
+        <text class="job-card__arrow">›</text>
+      </view>
+    </view>
+  </view>
+</view>

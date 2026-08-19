@@ -1,0 +1,96 @@
+<view class="page page--holiday">
+  <nav-brand title="Holiday Calendar" show-back="{{true}}"></nav-brand>
+
+  <view class="holiday">
+    <view class="calendar-card">
+      <view class="calendar-card__nav">
+        <view
+          class="calendar-card__arrow {{canPrev ? '' : 'calendar-card__arrow--disabled'}}"
+          bindtap="onPrevMonth"
+        >
+          <text>‹</text>
+        </view>
+        <view class="calendar-card__month">
+          <text class="calendar-card__year">{{year}}</text>
+          <view class="calendar-card__month-row">
+            <text class="calendar-card__month-cn">{{monthCn}}</text>
+            <text class="calendar-card__month-en">{{monthEn}}</text>
+          </view>
+        </view>
+        <view
+          class="calendar-card__arrow {{canNext ? '' : 'calendar-card__arrow--disabled'}}"
+          bindtap="onNextMonth"
+        >
+          <text>›</text>
+        </view>
+      </view>
+
+      <view class="calendar-card__body">
+        <view class="calendar-week">
+          <text
+            wx:for="{{weekdays}}"
+            wx:key="*this"
+            class="calendar-week__item {{index === 0 || index === 6 ? 'calendar-week__item--weekend' : ''}}"
+          >{{item}}</text>
+        </view>
+        <view class="calendar-grid">
+          <view
+            wx:for="{{cells}}"
+            wx:key="key"
+            class="calendar-cell {{item.empty ? 'calendar-cell--empty' : ''}} calendar-cell--{{item.kind}}"
+          >
+            <block wx:if="{{!item.empty}}">
+              <text wx:if="{{item.kind === 'holiday'}}" class="calendar-cell__badge calendar-cell__badge--rest">休</text>
+              <text wx:if="{{item.kind === 'workday'}}" class="calendar-cell__badge calendar-cell__badge--work">班</text>
+              <text class="calendar-cell__day">{{item.day}}</text>
+              <text wx:if="{{item.holidayName}}" class="calendar-cell__name">{{item.holidayName}}</text>
+            </block>
+          </view>
+        </view>
+      </view>
+
+      <view class="calendar-legend">
+        <view class="calendar-legend__item">
+          <view class="calendar-legend__mark calendar-legend__mark--rest">
+            <text>休</text>
+          </view>
+          <text class="calendar-legend__text">法定节假日 (Holidays)</text>
+        </view>
+        <view class="calendar-legend__item">
+          <view class="calendar-legend__mark calendar-legend__mark--work">
+            <text>班</text>
+          </view>
+          <text class="calendar-legend__text">调休工作日 (Workdays)</text>
+        </view>
+      </view>
+    </view>
+
+    <view class="schedule">
+      <view class="schedule__head">
+        <image class="schedule__icon" src="/assets/images/kb-life/calendar-gold.png" mode="aspectFit"></image>
+        <text class="schedule__title">当月假期安排 (Monthly Schedule)</text>
+      </view>
+
+      <view class="schedule-card">
+        <view wx:if="{{schedules.length === 0}}" class="schedule-empty">
+          <text>本月无国家法定节假日</text>
+          <text>(No statutory holidays this month)</text>
+        </view>
+        <view
+          wx:for="{{schedules}}"
+          wx:key="name"
+          class="schedule-item"
+        >
+          <view class="schedule-item__left">
+            <text class="schedule-item__name">{{item.name}}假期 ({{item.name}} Holiday)</text>
+            <text class="schedule-item__days">共 {{item.days}} 天 (Total {{item.days}} days)</text>
+          </view>
+          <view class="schedule-item__range">
+            <text class="schedule-item__range-cn">{{item.rangeCn}}</text>
+            <text class="schedule-item__range-en">{{item.rangeEn}}</text>
+          </view>
+        </view>
+      </view>
+    </view>
+  </view>
+</view>

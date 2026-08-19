@@ -1,0 +1,61 @@
+.kb-card {
+  background: var(--kb-card);
+  border-radius: var(--kb-radius-card);
+  box-shadow: var(--kb-shadow-card);
+  padding: 28rpx 32rpx;
+}
+
+.kb-card--flush {
+  padding: 0;
+  overflow: hidden;
+}
+
+.kb-title {
+  font-size: var(--kb-font-title);
+  font-weight: 600;
+  color: var(--kb-navy-strong);
+  line-height: 1.35;
+}
+
+.kb-subtitle {
+  font-size: var(--kb-font-en);
+  color: var(--kb-text-muted);
+  line-height: 1.4;
+  margin-top: 4rpx;
+}
+
+.kb-body {
+  font-size: var(--kb-font-body);
+  color: var(--kb-text-secondary);
+  line-height: 1.55;
+}
+
+.kb-caption {
+  font-size: var(--kb-font-caption);
+  color: var(--kb-text-muted);
+  line-height: 1.4;
+}
+
+.kb-section {
+  margin-top: 28rpx;
+}
+
+.kb-divider {
+  height: 1rpx;
+  background: var(--kb-divider);
+}
+
+/* 清除 button 默认边框，仅作视觉入口时使用 */
+.kb-btn-reset {
+  margin: 0;
+  padding: 0;
+  background: transparent;
+  border: none;
+  border-radius: 0;
+  line-height: inherit;
+  font-weight: inherit;
+}
+
+.kb-btn-reset::after {
+  border: none;
+}

@@ -1,0 +1,95 @@
+<view class="page page--home">
+  <nav-brand title="Home"></nav-brand>
+  <view class="home">
+    <empty-state
+      wx:if="{{pageStatus === 'loading'}}"
+      title="正在加载首页"
+      description="正在从 Mock API 获取数据"
+    ></empty-state>
+    <view wx:elif="{{pageStatus === 'error'}}" bindtap="onRetry">
+      <empty-state title="首页加载失败" description="{{errorText}}"></empty-state>
+    </view>
+    <empty-state
+      wx:elif="{{pageStatus === 'empty'}}"
+      title="暂无首页内容"
+      description="当前没有可展示的首页数据"
+    ></empty-state>
+
+    <block wx:if="{{pageStatus === 'success'}}">
+    <view class="home-banner">
+      <swiper
+        class="home-banner__swiper"
+        indicator-dots="{{true}}"
+        indicator-color="rgba(255, 255, 255, 0.5)"
+        indicator-active-color="#003B70"
+        autoplay="{{true}}"
+        interval="{{4200}}"
+        duration="{{500}}"
+        circular="{{true}}"
+      >
+        <swiper-item wx:for="{{banners}}" wx:key="id">
+          <view class="home-banner__item">
+            <image class="home-banner__image" src="{{item.image}}" mode="aspectFill" data-id="{{item.id}}" binderror="onBannerImageError"></image>
+            <view class="home-banner__mask"></view>
+            <view class="home-banner__content">
+              <text class="home-banner__title">{{item.title}}</text>
+              <text class="home-banner__desc">{{item.description}}</text>
+            </view>
+          </view>
+        </swiper-item>
+      </swiper>
+    </view>
+
+    <view class="home-entries">
+      <view
+        class="home-entry tap-feedback"
+        wx:for="{{entries}}"
+        wx:key="id"
+        data-id="{{item.id}}"
+        bindtap="onEntryTap"
+      >
+        <view class="home-entry__icon-wrap">
+          <image class="home-entry__icon" src="{{item.icon}}" mode="aspectFit" data-id="{{item.id}}" binderror="onEntryImageError"></image>
+        </view>
+        <text class="home-entry__title">{{item.title}}</text>
+        <text class="home-entry__subtitle">{{item.subtitle}}</text>
+      </view>
+    </view>
+
+    <view class="home-news">
+      <section-title
+        title="最新资讯"
+        subtitle="Latest News"
+        show-more="{{true}}"
+        more-text="更多 >"
+        bind:more="onNewsMore"
+      ></section-title>
+
+      <view class="home-news__list">
+        <view
+          class="home-news__item tap-feedback"
+          wx:for="{{newsList}}"
+          wx:key="id"
+          data-id="{{item.id}}"
+          bindtap="onNewsTap"
+        >
+          <image class="home-news__thumb" src="{{item.image}}" mode="aspectFill" data-id="{{item.id}}" binderror="onNewsImageError"></image>
+          <view class="home-news__meta">
+            <text class="home-news__title text-ellipsis-2">{{item.title}}</text>
+            <text class="home-news__date">{{item.date}}</text>
+          </view>
+        </view>
+      </view>
+    </view>
+    </block>
+
+    <status-feedback
+      wx:if="{{showDevTools}}"
+      api-base-url="{{apiBaseUrl}}"
+      checking="{{checking}}"
+      status-type="{{statusType}}"
+      status-text="{{statusText}}"
+      bind:check="onCheckHealth"
+    ></status-feedback>
+  </view>
+</view>

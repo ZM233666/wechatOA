@@ -1,0 +1,21 @@
+@import "./styles/variables.wxss";
+@import "./styles/utilities.wxss";
+@import "./styles/components.wxss";
+
+page {
+  background-color: var(--kb-bg);
+  color: var(--kb-text);
+  font-size: var(--kb-font-body);
+  line-height: 1.5;
+  box-sizing: border-box;
+}
+
+view,
+text,
+button,
+image,
+swiper,
+swiper-item,
+scroll-view {
+  box-sizing: border-box;
+}

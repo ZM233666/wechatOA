@@ -1,0 +1,31 @@
+<view class="page page--personal-info">
+  <nav-brand title="Personal Info" show-back="{{true}}"></nav-brand>
+
+  <view class="personal-info">
+    <empty-state wx:if="{{pageStatus === 'loading'}}" title="正在加载个人信息"></empty-state>
+    <empty-state wx:elif="{{pageStatus === 'error'}}" title="加载失败" description="{{errorText}}"></empty-state>
+    <block wx:else>
+    <view class="personal-info__hero">
+      <image class="personal-info__avatar" src="{{user.avatar}}" mode="aspectFill"></image>
+      <text class="personal-info__name">{{user.name}} ({{user.chineseName}})</text>
+      <text class="personal-info__meta">{{user.titleEn}} · {{user.department}}</text>
+      <text class="personal-info__role">Role: {{user.role}}</text>
+    </view>
+
+    <text class="personal-info__section-title">Demo Role Switcher (For Testing)</text>
+
+    <view class="personal-info__roles">
+      <view
+        class="personal-info__role-item tap-feedback {{item.selected ? 'personal-info__role-item--active' : ''}}"
+        wx:for="{{roles}}"
+        wx:key="key"
+        data-key="{{item.key}}"
+        bindtap="onRoleTap"
+      >
+        <text class="personal-info__role-label">{{item.label}}</text>
+        <text wx:if="{{item.selected}}" class="personal-info__role-check">✓</text>
+      </view>
+    </view>
+    </block>
+  </view>
+</view>

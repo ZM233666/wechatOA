@@ -1,0 +1,33 @@
+<view class="page page--profile">
+  <nav-brand title="My Profile"></nav-brand>
+
+  <view class="profile">
+    <empty-state wx:if="{{pageStatus === 'loading'}}" title="正在加载个人中心"></empty-state>
+    <empty-state wx:elif="{{pageStatus === 'error'}}" title="加载失败" description="{{errorText}}"></empty-state>
+    <block wx:else>
+    <view class="profile-hero tap-feedback" bindtap="onProfileTap">
+      <image class="profile-hero__avatar" src="{{user.avatar}}" mode="aspectFill"></image>
+      <text class="profile-hero__name">{{user.chineseName}} · {{user.name}}</text>
+      <text class="profile-hero__title">{{user.titleCn}} / {{user.titleEn}}</text>
+      <text class="profile-hero__dept">{{user.department}}</text>
+      <text class="profile-hero__arrow">›</text>
+    </view>
+
+    <view class="profile-info">
+      <view class="profile-info__head">
+        <text class="profile-info__title">基本信息</text>
+        <text class="profile-info__subtitle">Basic Information</text>
+      </view>
+
+      <view class="profile-info__row" wx:for="{{fields}}" wx:key="id">
+        <image class="profile-info__icon" src="{{item.icon}}" mode="aspectFit"></image>
+        <view class="profile-info__label">
+          <text class="profile-info__label-cn">{{item.labelCn}}</text>
+          <text class="profile-info__label-en">{{item.labelEn}}</text>
+        </view>
+        <text class="profile-info__value">{{item.value}}</text>
+      </view>
+    </view>
+    </block>
+  </view>
+</view>

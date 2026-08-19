@@ -1,0 +1,24 @@
+{
+  "isLoggedIn": false,
+  "user": {
+    "chineseName": "访客",
+    "name": "Guest",
+    "titleCn": "访客",
+    "titleEn": "Visitor",
+    "department": "External",
+    "role": "Visitor",
+    "avatar": {
+      "url": "/mock-assets/avatars/avatar-visitor.png",
+      "alt": "访客头像",
+      "width": 200,
+      "height": 200,
+      "aspectRatio": 1
+    }
+  },
+  "fields": [],
+  "roleOptions": [
+    { "key": "Edward", "label": "Employee" },
+    { "key": "Customer", "label": "Customer" },
+    { "key": "Visitor", "label": "Visitor" }
+  ]
+}

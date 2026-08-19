@@ -1,0 +1,44 @@
+<view class="page page--canteen">
+  <nav-brand title="Canteen Menu" show-back="{{true}}"></nav-brand>
+
+  <view class="canteen-hero">
+    <image
+      class="canteen-hero__image"
+      src="/assets/images/kb-life/canteen-hero.png"
+      mode="aspectFill"
+    ></image>
+    <view class="canteen-hero__mask"></view>
+    <view class="canteen-hero__content">
+      <text class="canteen-hero__title">Knorr-Bremse Canteen</text>
+      <text class="canteen-hero__subtitle">Powered by Sodexo</text>
+    </view>
+  </view>
+
+  <view class="canteen-body">
+    <view class="canteen-card">
+      <view class="canteen-card__head">
+        <image class="canteen-card__info" src="/assets/images/kb-life/info.png" mode="aspectFit"></image>
+        <text class="canteen-card__title canteen-card__title--navy">食堂介绍 (Introduction)</text>
+      </view>
+      <text class="canteen-card__intro">{{intro}}</text>
+    </view>
+
+    <view class="canteen-card">
+      <view class="canteen-card__menu-head">
+        <text class="canteen-card__title">今日美食 (Today's Menu)</text>
+        <text class="canteen-card__badge">午餐 Lunch</text>
+      </view>
+      <view
+        class="menu-item"
+        wx:for="{{menuItems}}"
+        wx:key="id"
+      >
+        <image class="menu-item__image" src="{{item.image}}" mode="aspectFill"></image>
+        <view class="menu-item__meta">
+          <text class="menu-item__title">{{item.title}}</text>
+          <text class="menu-item__desc">{{item.description}}</text>
+        </view>
+      </view>
+    </view>
+  </view>
+</view>

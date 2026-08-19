@@ -1,0 +1,74 @@
+{
+  "isLoggedIn": true,
+  "user": {
+    "chineseName": "爱德华",
+    "name": "Edward",
+    "titleCn": "系统工程师",
+    "titleEn": "Systems Engineer",
+    "department": "Digital Solutions",
+    "role": "Employee",
+    "avatar": {
+      "url": "/mock-assets/avatars/avatar-edward.png",
+      "alt": "爱德华头像",
+      "width": 200,
+      "height": 200,
+      "aspectRatio": 1
+    }
+  },
+  "fields": [
+    {
+      "id": "employee-id",
+      "labelCn": "工号",
+      "labelEn": "Employee ID",
+      "value": "20023333",
+      "icon": { "url": "/mock-assets/avatars/icon-hash.png", "alt": "工号", "width": 48, "height": 48, "aspectRatio": 1 }
+    },
+    {
+      "id": "position",
+      "labelCn": "职位",
+      "labelEn": "Position",
+      "value": "Systems Engineer",
+      "icon": { "url": "/mock-assets/avatars/icon-briefcase.png", "alt": "职位", "width": 48, "height": 48, "aspectRatio": 1 }
+    },
+    {
+      "id": "department",
+      "labelCn": "部门",
+      "labelEn": "Department",
+      "value": "Systems Engineering",
+      "icon": { "url": "/mock-assets/avatars/icon-user.png", "alt": "部门", "width": 48, "height": 48, "aspectRatio": 1 }
+    },
+    {
+      "id": "phone",
+      "labelCn": "工作电话",
+      "labelEn": "Work Phone",
+      "value": "+86 512 6616 0000",
+      "icon": { "url": "/mock-assets/avatars/icon-phone.png", "alt": "工作电话", "width": 48, "height": 48, "aspectRatio": 1 }
+    },
+    {
+      "id": "email",
+      "labelCn": "邮箱",
+      "labelEn": "Email",
+      "value": "xxxxx@knorr-bremse.com",
+      "icon": { "url": "/mock-assets/avatars/icon-mail.png", "alt": "邮箱", "width": 48, "height": 48, "aspectRatio": 1 }
+    },
+    {
+      "id": "company",
+      "labelCn": "公司",
+      "labelEn": "Company",
+      "value": "Knorr-Bremse Systems for Rail Vehicles (Suzhou) Co., Ltd.",
+      "icon": { "url": "/mock-assets/avatars/icon-building.png", "alt": "公司", "width": 48, "height": 48, "aspectRatio": 1 }
+    },
+    {
+      "id": "address",
+      "labelCn": "公司地址",
+      "labelEn": "Company Address",
+      "value": "Suzhou",
+      "icon": { "url": "/mock-assets/avatars/icon-pin.png", "alt": "公司地址", "width": 48, "height": 48, "aspectRatio": 1 }
+    }
+  ],
+  "roleOptions": [
+    { "key": "Edward", "label": "Employee" },
+    { "key": "Customer", "label": "Customer" },
+    { "key": "Visitor", "label": "Visitor" }
+  ]
+}

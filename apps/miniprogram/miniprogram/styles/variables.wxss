@@ -1,0 +1,35 @@
+/**
+ * 品牌与布局设计 Token（WXSS）
+ * 颜色语义与 docs/frontend-demo-analysis.md 保持一致
+ */
+
+page {
+  --kb-brand: #00467f;
+  --kb-navy: #033e70;
+  --kb-navy-strong: #003b70;
+  --kb-gold: #d4a84b;
+  --kb-gold-light: #e8c56a;
+  --kb-gold-dark: #b8892e;
+  --kb-gold-soft: #fff8ed;
+  --kb-bg: #f5f7fa;
+  --kb-card: #ffffff;
+  --kb-text: #1f2937;
+  --kb-text-secondary: #6b7280;
+  --kb-text-muted: #9ca3af;
+  --kb-divider: #eef0f3;
+  --kb-danger: #dc2626;
+  --kb-success: #16a34a;
+  --kb-tab-inactive: #8a94a3;
+
+  --kb-page-padding-x: 32rpx;
+  --kb-radius-card: 24rpx;
+  --kb-radius-sm: 16rpx;
+  --kb-radius-xs: 12rpx;
+  --kb-shadow-card: 0 8rpx 24rpx rgba(3, 62, 112, 0.06);
+
+  --kb-font-title: 32rpx;
+  --kb-font-subtitle: 28rpx;
+  --kb-font-body: 26rpx;
+  --kb-font-caption: 22rpx;
+  --kb-font-en: 20rpx;
+}

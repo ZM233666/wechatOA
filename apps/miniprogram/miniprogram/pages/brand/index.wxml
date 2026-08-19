@@ -1,0 +1,36 @@
+<view class="page page--brand">
+  <nav-brand title="Brand Intro" show-back="{{true}}"></nav-brand>
+
+  <empty-state wx:if="{{pageStatus === 'loading'}}" title="正在加载品牌介绍"></empty-state>
+  <empty-state wx:elif="{{pageStatus === 'error'}}" title="品牌加载失败" description="{{errorText}}"></empty-state>
+  <block wx:else>
+  <image class="brand-hero" src="{{hero}}" mode="aspectFill"></image>
+
+  <view class="brand-body">
+    <text class="brand-title">Knorr-Bremse Group</text>
+    <text class="brand-intro">{{intro}}</text>
+
+    <view class="brand-card">
+      <text class="brand-card__title">Our Vision</text>
+      <text class="brand-card__text">{{vision}}</text>
+    </view>
+
+    <view class="brand-card">
+      <text class="brand-card__title">Our Values</text>
+      <view class="brand-values">
+        <view class="brand-value" wx:for="{{values}}" wx:key="title">
+          <text class="brand-value__title">{{item.title}}</text>
+          <text class="brand-value__desc">{{item.description}}</text>
+        </view>
+      </view>
+    </view>
+
+    <view class="brand-card">
+      <text class="brand-card__title">Core Brands</text>
+      <view class="brand-tags">
+        <text class="brand-tag" wx:for="{{brands}}" wx:key="*this">{{item}}</text>
+      </view>
+    </view>
+  </view>
+  </block>
+</view>

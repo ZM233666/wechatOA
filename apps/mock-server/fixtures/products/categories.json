@@ -1,0 +1,96 @@
+{
+  "slides": [
+    {
+      "title": "空气处理单元",
+      "image": {
+        "url": "/mock-assets/products/hero-001.png",
+        "alt": "空气处理单元",
+        "width": 1200,
+        "height": 675,
+        "aspectRatio": 1.7778
+      }
+    },
+    {
+      "title": "制动控制系统",
+      "image": {
+        "url": "/mock-assets/products/hero-002.png",
+        "alt": "制动控制系统",
+        "width": 1200,
+        "height": 675,
+        "aspectRatio": 1.7778
+      }
+    },
+    {
+      "title": "智能门系统",
+      "image": {
+        "url": "/mock-assets/products/hero-003.png",
+        "alt": "智能门系统",
+        "width": 1200,
+        "height": 675,
+        "aspectRatio": 1.7778
+      }
+    }
+  ],
+  "categories": [
+    {
+      "id": "braking",
+      "name": "Braking Systems",
+      "nameCn": "制动系统",
+      "subtitleEn": "Braking",
+      "description": "Intelligent, highly integrated braking technologies for all types of rail vehicles.",
+      "coverImage": {
+        "url": "/mock-assets/products/product-001-cover.png",
+        "alt": "制动系统",
+        "width": 1200,
+        "height": 800,
+        "aspectRatio": 1.5
+      },
+      "featuredProductId": "product-001"
+    },
+    {
+      "id": "door",
+      "name": "Door Systems (IFE)",
+      "nameCn": "门系统",
+      "subtitleEn": "Door",
+      "description": "Reliable, smart entrance systems for smooth passenger flow.",
+      "coverImage": {
+        "url": "/mock-assets/products/product-002-cover.png",
+        "alt": "门系统",
+        "width": 1200,
+        "height": 800,
+        "aspectRatio": 1.5
+      },
+      "featuredProductId": "product-002"
+    },
+    {
+      "id": "power",
+      "name": "Power Supply Systems (Microelettrica)",
+      "nameCn": "电源系统",
+      "subtitleEn": "Power Supply",
+      "description": "Advanced power components and control solutions for reliable rail vehicle energy management.",
+      "coverImage": {
+        "url": "/mock-assets/products/product-003-cover.png",
+        "alt": "电源系统",
+        "width": 1200,
+        "height": 800,
+        "aspectRatio": 1.5
+      },
+      "featuredProductId": "product-003"
+    },
+    {
+      "id": "digital",
+      "name": "Digital Solutions",
+      "nameCn": "数字化方案",
+      "subtitleEn": "Digital",
+      "description": "Condition-based maintenance and predictive health management platforms.",
+      "coverImage": {
+        "url": "/mock-assets/products/product-004-cover.png",
+        "alt": "数字化方案",
+        "width": 1200,
+        "height": 800,
+        "aspectRatio": 1.5
+      },
+      "featuredProductId": "product-004"
+    }
+  ]
+}

@@ -1,0 +1,80 @@
+{
+  "id": "product-003",
+  "slug": "high-speed-circuit-breakers",
+  "name": "High-Speed Circuit Breakers",
+  "nameCn": "电源系统",
+  "subtitleEn": "Power Supply",
+  "summary": "DC protection devices designed to interrupt short circuit currents rapidly and safely.",
+  "description": "Advanced power components and control solutions for reliable rail vehicle energy management.",
+  "category": { "id": "power", "name": "Power Supply Systems (Microelettrica)" },
+  "coverImage": {
+    "url": "/mock-assets/products/product-003-cover.png",
+    "alt": "高速断路器",
+    "width": 1200,
+    "height": 800,
+    "aspectRatio": 1.5
+  },
+  "gallery": [
+    {
+      "url": "/mock-assets/products/product-003-gallery-01.png",
+      "alt": "高速断路器细节",
+      "width": 1200,
+      "height": 800,
+      "aspectRatio": 1.5
+    }
+  ],
+  "relatedProducts": [
+    {
+      "name": "High-Speed Circuit Breakers",
+      "description": "DC protection devices designed to interrupt short circuit currents rapidly and safely.",
+      "image": {
+        "url": "/mock-assets/products/product-003-related-01.png",
+        "alt": "High-Speed Circuit Breakers",
+        "width": 800,
+        "height": 600,
+        "aspectRatio": 1.3333
+      }
+    },
+    {
+      "name": "Contactors",
+      "description": "Robust AC/DC contactors for traction and auxiliary converters with extended electrical life.",
+      "image": {
+        "url": "/mock-assets/products/product-003-related-02.png",
+        "alt": "Contactors",
+        "width": 800,
+        "height": 600,
+        "aspectRatio": 1.3333
+      }
+    },
+    {
+      "name": "Protection Relays",
+      "description": "Advanced electronic relays for voltage, current, and motor protection monitoring.",
+      "image": {
+        "url": "/mock-assets/products/product-003-related-03.png",
+        "alt": "Protection Relays",
+        "width": 800,
+        "height": 600,
+        "aspectRatio": 1.3333
+      }
+    }
+  ],
+  "richContent": [
+    {
+      "id": "block-001",
+      "type": "heading",
+      "level": 2,
+      "text": "可靠的车辆电能管理"
+    },
+    {
+      "id": "block-002",
+      "type": "paragraph",
+      "spans": [
+        { "type": "text", "text": "Microelettrica 高速断路器用于快速切断短路电流，保障", "marks": [] },
+        { "type": "text", "text": "牵引与辅助系统安全", "marks": ["bold"] },
+        { "type": "text", "text": "。", "marks": [] }
+      ]
+    }
+  ],
+  "relatedIds": ["product-001"],
+  "publishedAt": "2024-02-18T08:00:00.000Z"
+}

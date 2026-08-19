@@ -1,0 +1,174 @@
+.article-renderer {
+  padding: 0;
+}
+
+.ar-heading {
+  display: block;
+  color: #00467f;
+  font-weight: 700;
+  line-height: 1.4;
+  margin: 32rpx 0 16rpx;
+}
+
+.ar-heading--1 {
+  font-size: 40rpx;
+}
+
+.ar-heading--2 {
+  font-size: 34rpx;
+}
+
+.ar-heading--3 {
+  font-size: 30rpx;
+}
+
+.ar-paragraph {
+  margin-bottom: 24rpx;
+  font-size: 28rpx;
+  color: #374151;
+  line-height: 1.7;
+}
+
+.ar-span--bold {
+  font-weight: 700;
+}
+
+.ar-span--italic {
+  font-style: italic;
+}
+
+.ar-span--underline {
+  text-decoration: underline;
+}
+
+.ar-span--link {
+  color: #00467f;
+  text-decoration: underline;
+}
+
+.ar-image {
+  margin: 24rpx 0 32rpx;
+}
+
+.ar-image__img {
+  width: 100%;
+  display: block;
+  border-radius: 16rpx;
+  background: #f3f4f6;
+}
+
+.ar-image__fallback {
+  padding: 48rpx 24rpx;
+  text-align: center;
+  font-size: 24rpx;
+  color: #9ca3af;
+  background: #f5f7fa;
+  border-radius: 16rpx;
+}
+
+.ar-image__caption {
+  display: block;
+  margin-top: 12rpx;
+  font-size: 22rpx;
+  color: #9ca3af;
+  text-align: center;
+}
+
+.ar-quote {
+  margin: 24rpx 0;
+  padding: 24rpx 28rpx;
+  border-left: 6rpx solid #d4a84b;
+  background: #fff8ed;
+  border-radius: 0 16rpx 16rpx 0;
+}
+
+.ar-quote__text {
+  display: block;
+  font-size: 28rpx;
+  color: #1f2937;
+  line-height: 1.6;
+}
+
+.ar-quote__source {
+  display: block;
+  margin-top: 12rpx;
+  font-size: 22rpx;
+  color: #b8892e;
+}
+
+.ar-list {
+  margin: 8rpx 0 28rpx;
+}
+
+.ar-list__item {
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+  margin-bottom: 10rpx;
+}
+
+.ar-list__mark {
+  width: 40rpx;
+  color: #d4a84b;
+  font-size: 28rpx;
+  line-height: 1.6;
+}
+
+.ar-list__text {
+  flex: 1;
+  font-size: 28rpx;
+  color: #374151;
+  line-height: 1.6;
+}
+
+.ar-divider {
+  height: 1rpx;
+  background: #eef0f3;
+  margin: 32rpx 0;
+}
+
+.ar-callout {
+  margin: 24rpx 0;
+  padding: 24rpx;
+  border-radius: 16rpx;
+}
+
+.ar-callout--info {
+  background: #eff6ff;
+  border: 1rpx solid #dbeafe;
+}
+
+.ar-callout--warning {
+  background: #fff8ed;
+  border: 1rpx solid #e8c56a;
+}
+
+.ar-callout--success {
+  background: #f0fdf4;
+  border: 1rpx solid #bbf7d0;
+}
+
+.ar-callout__title {
+  display: block;
+  font-size: 26rpx;
+  font-weight: 700;
+  color: #00467f;
+  margin-bottom: 8rpx;
+}
+
+.ar-callout__text {
+  display: block;
+  font-size: 26rpx;
+  color: #374151;
+  line-height: 1.6;
+}
+
+.ar-link {
+  margin: 16rpx 0 28rpx;
+}
+
+.ar-link__text {
+  font-size: 28rpx;
+  color: #00467f;
+  text-decoration: underline;
+}

@@ -1,0 +1,49 @@
+<view class="page page--care">
+  <nav-brand title="Employee Care" show-back="{{true}}"></nav-brand>
+
+  <view class="care-hero">
+    <image class="care-hero__image" src="{{hero.image}}" mode="aspectFill"></image>
+    <view class="care-hero__mask"></view>
+    <view class="care-hero__content">
+      <text class="care-hero__title">{{hero.title}}</text>
+      <text class="care-hero__subtitle text-ellipsis-2">{{hero.subtitle}}</text>
+    </view>
+  </view>
+
+  <view class="care-body">
+    <view class="care-section">
+      <view class="care-section__head">
+        <view class="care-section__bar"></view>
+        <text class="care-section__title">Latest Initiatives</text>
+      </view>
+
+      <view
+        class="care-card tap-feedback"
+        wx:for="{{initiatives}}"
+        wx:key="id"
+        data-id="{{item.id}}"
+        bindtap="onReadMore"
+      >
+        <view class="care-card__cover">
+          <image class="care-card__image" src="{{item.image}}" mode="aspectFill"></image>
+          <text class="care-card__badge">{{item.category}}</text>
+        </view>
+        <view class="care-card__body">
+          <text class="care-card__title">{{item.title}}</text>
+          <text class="care-card__desc text-ellipsis-2">{{item.description}}</text>
+          <view class="care-card__foot">
+            <view class="care-card__date">
+              <image
+                class="care-card__clock"
+                src="/assets/images/kb-life/clock-gray.png"
+                mode="aspectFit"
+              ></image>
+              <text>{{item.date}}</text>
+            </view>
+            <text class="care-card__more">Read More ></text>
+          </view>
+        </view>
+      </view>
+    </view>
+  </view>
+</view>

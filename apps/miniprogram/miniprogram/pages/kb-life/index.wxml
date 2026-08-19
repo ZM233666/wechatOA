@@ -1,0 +1,111 @@
+<view class="page page--life">
+  <nav-brand title="KB Life"></nav-brand>
+
+  <view class="life">
+    <empty-state wx:if="{{pageStatus === 'loading'}}" title="正在加载 KB Life"></empty-state>
+    <empty-state wx:elif="{{pageStatus === 'error'}}" title="加载失败" description="{{errorText}}"></empty-state>
+    <block wx:if="{{pageStatus === 'success'}}">
+    <view class="life-banner">
+      <swiper
+        class="life-banner__swiper"
+        indicator-dots="{{true}}"
+        indicator-color="rgba(255, 255, 255, 0.45)"
+        indicator-active-color="#003B70"
+        autoplay="{{true}}"
+        interval="{{4200}}"
+        duration="{{500}}"
+        circular="{{true}}"
+      >
+        <swiper-item wx:for="{{banners}}" wx:key="id">
+          <view class="life-banner__item">
+            <image class="life-banner__image" src="{{item.image}}" mode="aspectFill"></image>
+            <view class="life-banner__mask"></view>
+            <view class="life-banner__content">
+              <text class="life-banner__title">{{item.title}}</text>
+              <text class="life-banner__subtitle">{{item.subtitle}}</text>
+            </view>
+          </view>
+        </swiper-item>
+      </swiper>
+    </view>
+
+    <view class="life-body">
+      <view class="life-row">
+        <view class="wetalk tap-feedback" bindtap="onComingSoon">
+          <text class="wetalk__label">WeTalk News</text>
+          <view class="wetalk__cover">
+            <image
+              class="wetalk__cover-image"
+              src="/assets/images/news/news-3.png"
+              mode="aspectFill"
+            ></image>
+            <text class="wetalk__badge">WeTalk</text>
+            <text class="wetalk__cover-title">Innovation at Every Turn</text>
+          </view>
+          <view class="wetalk__btn">
+            <text class="wetalk__btn-text">Read Now</text>
+          </view>
+        </view>
+
+        <view class="campus">
+          <view class="campus__head">
+            <view class="campus__titles">
+              <text class="campus__title">选择地点</text>
+              <text class="campus__subtitle">Location</text>
+            </view>
+            <picker
+              mode="selector"
+              range="{{locations}}"
+              value="{{locationIndex}}"
+              bindchange="onLocationChange"
+            >
+              <view class="campus__picker">
+                <text class="campus__picker-text">{{selectedLocation}}</text>
+                <text class="campus__picker-arrow">▾</text>
+              </view>
+            </picker>
+          </view>
+
+          <view class="campus__grid">
+            <view
+              class="campus__item tap-feedback"
+              wx:for="{{campusServices}}"
+              wx:key="id"
+              data-id="{{item.id}}"
+              bindtap="onCampusTap"
+            >
+              <view class="campus__icon-wrap">
+                <image class="campus__icon" src="{{item.icon}}" mode="aspectFit"></image>
+              </view>
+              <text class="campus__item-title">{{item.title}}</text>
+              <text class="campus__item-sub">{{item.subtitle}}</text>
+            </view>
+          </view>
+        </view>
+      </view>
+
+      <view class="employee">
+        <view class="employee__head">
+          <text class="employee__title">员工服务</text>
+          <text class="employee__subtitle">Employee Services</text>
+        </view>
+        <view class="employee__grid">
+          <view
+            class="employee__item tap-feedback"
+            wx:for="{{employeeServices}}"
+            wx:key="id"
+            data-id="{{item.id}}"
+            bindtap="onEmployeeTap"
+          >
+            <view class="employee__icon-wrap">
+              <image class="employee__icon" src="{{item.icon}}" mode="aspectFit"></image>
+            </view>
+            <text class="employee__item-title">{{item.title}}</text>
+            <text class="employee__item-sub">{{item.subtitle}}</text>
+          </view>
+        </view>
+      </view>
+    </view>
+    </block>
+  </view>
+</view>

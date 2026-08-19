@@ -1,0 +1,36 @@
+<view class="page page--news-detail">
+  <nav-brand title="News Details" show-back="{{true}}"></nav-brand>
+
+  <view wx:if="{{pageStatus === 'success' && news}}" class="news-detail">
+    <image class="news-detail__cover" src="{{news.image}}" mode="aspectFill" binderror="onCoverImageError"></image>
+    <view class="news-detail__body">
+      <text class="news-detail__badge">{{news.category}}</text>
+      <text class="news-detail__title">{{news.title}}</text>
+      <text class="news-detail__meta">{{news.date}} · {{news.author}}</text>
+      <article-renderer blocks="{{news.richContent}}"></article-renderer>
+    </view>
+  </view>
+
+  <view wx:elif="{{pageStatus === 'loading'}}">
+    <empty-state title="正在加载文章"></empty-state>
+  </view>
+  <view wx:elif="{{pageStatus === 'error'}}" bindtap="onRetry">
+    <empty-state title="文章加载失败" description="{{errorText}}"></empty-state>
+  </view>
+  <view wx:else class="news-empty">
+    <empty-state title="未找到该新闻" description="请返回列表重试"></empty-state>
+  </view>
+
+  <view wx:if="{{news}}" class="news-detail__bar">
+    <view class="news-detail__action tap-feedback" bindtap="onToggleFavorite">
+      <image
+        class="news-detail__icon"
+        src="{{favorited ? '/assets/images/content/icon-heart-active.png' : '/assets/images/content/icon-heart.png'}}"
+        mode="aspectFit"
+      ></image>
+    </view>
+    <view class="news-detail__action tap-feedback" bindtap="onShare">
+      <image class="news-detail__icon" src="/assets/images/content/icon-share.png" mode="aspectFit"></image>
+    </view>
+  </view>
+</view>

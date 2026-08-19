@@ -1,0 +1,38 @@
+{
+  "id": "case-006",
+  "slug": "urban-metro-entrance-systems",
+  "title": "Urban Metro Entrance Systems",
+  "summary": "IFE entrance systems supporting high-frequency commuter operation.",
+  "category": { "id": "metro", "name": "Mass Transit" },
+  "coverImage": {
+    "url": "/mock-assets/cases/case-006-cover.png",
+    "alt": "城市地铁门系统",
+    "width": 1200,
+    "height": 800,
+    "aspectRatio": 1.5
+  },
+  "region": "China",
+  "industry": "Mass Transit",
+  "meta": "Industry: Mass Transit · Region: China",
+  "background": "Urban metro lines require entrance systems that keep passenger flow moving during peak commuting hours.",
+  "solution": "Deploying IFE entrance systems designed for high-frequency commuter operation and reliable door cycles.",
+  "richContent": [
+    {
+      "id": "block-001",
+      "type": "heading",
+      "level": 2,
+      "text": "城市地铁入口系统"
+    },
+    {
+      "id": "block-002",
+      "type": "paragraph",
+      "spans": [
+        { "type": "text", "text": "IFE 入口系统服务城市地铁高峰客流，强调", "marks": [] },
+        { "type": "text", "text": "高频次可靠开关门", "marks": ["bold"] },
+        { "type": "text", "text": "。", "marks": [] }
+      ]
+    }
+  ],
+  "relatedIds": ["case-003"],
+  "publishedAt": "2024-03-08T08:00:00.000Z"
+}

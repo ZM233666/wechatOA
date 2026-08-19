@@ -1,0 +1,31 @@
+<view class="page page--event-detail">
+  <nav-brand title="Annual Dinner" show-back="{{true}}"></nav-brand>
+
+  <view class="event-detail">
+    <view class="event-detail__card">
+      <view class="event-detail__hero event-detail__hero--annual">
+        <image
+          class="event-detail__hero-icon"
+          src="/assets/images/kb-life/event-annual-white.png"
+          mode="aspectFit"
+        ></image>
+        <text class="event-detail__hero-title">{{event.title}}</text>
+        <text class="event-detail__hero-subtitle">{{event.subtitle}}</text>
+      </view>
+
+      <view class="event-detail__body">
+        <view class="event-detail__info event-detail__info--annual">
+          <text class="event-detail__info-title">{{event.infoTitle}}</text>
+          <text class="event-detail__info-line">时间 / Time: {{event.time}}</text>
+          <text class="event-detail__info-line">地点 / Venue: {{event.venue}}</text>
+          <text class="event-detail__info-line">着装要求 / Dress Code: {{event.dressCode}}</text>
+        </view>
+
+        <text class="event-detail__section-title">{{event.highlightsTitle}}</text>
+        <view class="event-detail__list">
+          <text class="event-detail__list-item" wx:for="{{event.highlights}}" wx:key="*this">• {{item}}</text>
+        </view>
+      </view>
+    </view>
+  </view>
+</view>

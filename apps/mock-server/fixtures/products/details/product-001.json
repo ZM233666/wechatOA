@@ -1,0 +1,86 @@
+{
+  "id": "product-001",
+  "slug": "ep-compact",
+  "name": "EP Compact",
+  "nameCn": "制动系统",
+  "subtitleEn": "Braking",
+  "summary": "Electronic brake control system ensuring precise and safe braking.",
+  "description": "Intelligent, highly integrated braking technologies for all types of rail vehicles.",
+  "category": { "id": "braking", "name": "Braking Systems" },
+  "coverImage": {
+    "url": "/mock-assets/products/product-001-cover.png",
+    "alt": "EP Compact 制动系统",
+    "width": 1200,
+    "height": 800,
+    "aspectRatio": 1.5
+  },
+  "gallery": [
+    {
+      "url": "/mock-assets/products/product-001-gallery-01.png",
+      "alt": "EP Compact 细节图",
+      "width": 1200,
+      "height": 800,
+      "aspectRatio": 1.5
+    }
+  ],
+  "relatedProducts": [
+    {
+      "name": "EP Compact",
+      "description": "Electronic brake control system ensuring precise and safe braking.",
+      "image": {
+        "url": "/mock-assets/products/product-001-related-01.png",
+        "alt": "EP Compact",
+        "width": 800,
+        "height": 600,
+        "aspectRatio": 1.3333
+      }
+    },
+    {
+      "name": "Bogie Equipment",
+      "description": "Brake calipers, discs, and pads designed for optimal friction.",
+      "image": {
+        "url": "/mock-assets/products/product-001-related-02.png",
+        "alt": "Bogie Equipment",
+        "width": 800,
+        "height": 600,
+        "aspectRatio": 1.3333
+      }
+    },
+    {
+      "name": "Air Supply Units",
+      "description": "Oil-free compressors and air treatment for clean, reliable air.",
+      "image": {
+        "url": "/mock-assets/products/product-001-related-03.png",
+        "alt": "Air Supply Units",
+        "width": 800,
+        "height": 600,
+        "aspectRatio": 1.3333
+      }
+    }
+  ],
+  "richContent": [
+    {
+      "id": "block-001",
+      "type": "heading",
+      "level": 2,
+      "text": "面向高速与城轨的制动控制"
+    },
+    {
+      "id": "block-002",
+      "type": "paragraph",
+      "spans": [
+        { "type": "text", "text": "EP Compact 将", "marks": [] },
+        { "type": "text", "text": "精确制动控制", "marks": ["bold"] },
+        { "type": "text", "text": "与数字化接口结合，帮助运营商降低维护复杂度。", "marks": [] }
+      ]
+    },
+    {
+      "id": "block-003",
+      "type": "list",
+      "ordered": false,
+      "items": ["重量更轻", "可靠性更高", "支持数字集成"]
+    }
+  ],
+  "relatedIds": ["product-005", "product-004"],
+  "publishedAt": "2024-04-25T08:00:00.000Z"
+}

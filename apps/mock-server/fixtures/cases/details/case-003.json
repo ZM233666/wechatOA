@@ -1,0 +1,38 @@
+{
+  "id": "case-003",
+  "slug": "delhi-metro-expansion",
+  "title": "Delhi Metro Expansion",
+  "summary": "Comprehensive door and braking systems for mass transit.",
+  "category": { "id": "metro", "name": "Mass Transit" },
+  "coverImage": {
+    "url": "/mock-assets/cases/case-003-cover.png",
+    "alt": "德里地铁项目",
+    "width": 1200,
+    "height": 800,
+    "aspectRatio": 1.5
+  },
+  "region": "India",
+  "industry": "Mass Transit",
+  "meta": "Industry: Mass Transit · Region: India",
+  "background": "Supporting the rapid expansion of urban mobility in one of the world most populous cities.",
+  "solution": "Delivering highly reliable pneumatic braking systems and IFE entrance systems designed for high-frequency commuter operation.",
+  "richContent": [
+    {
+      "id": "block-001",
+      "type": "heading",
+      "level": 2,
+      "text": "高密度通勤的系统组合"
+    },
+    {
+      "id": "block-002",
+      "type": "paragraph",
+      "spans": [
+        { "type": "text", "text": "项目同时交付制动系统与 IFE 入口系统，服务", "marks": [] },
+        { "type": "text", "text": "高频次地铁运营", "marks": ["bold"] },
+        { "type": "text", "text": "。", "marks": [] }
+      ]
+    }
+  ],
+  "relatedIds": ["case-006"],
+  "publishedAt": "2024-03-28T08:00:00.000Z"
+}

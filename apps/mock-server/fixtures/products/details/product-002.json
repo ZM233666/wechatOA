@@ -1,0 +1,69 @@
+{
+  "id": "product-002",
+  "slug": "e3-door-system",
+  "name": "E3 Door System",
+  "nameCn": "门系统",
+  "subtitleEn": "Door",
+  "summary": "Space-saving sliding plug doors for metro and regional trains.",
+  "description": "Reliable, smart entrance systems for smooth passenger flow.",
+  "category": { "id": "door", "name": "Door Systems (IFE)" },
+  "coverImage": {
+    "url": "/mock-assets/products/product-002-cover.png",
+    "alt": "E3 门系统",
+    "width": 1200,
+    "height": 800,
+    "aspectRatio": 1.5
+  },
+  "gallery": [
+    {
+      "url": "/mock-assets/products/product-002-gallery-01.png",
+      "alt": "E3 门系统细节",
+      "width": 1200,
+      "height": 800,
+      "aspectRatio": 1.5
+    }
+  ],
+  "relatedProducts": [
+    {
+      "name": "E3 Door System",
+      "description": "Space-saving sliding plug doors for metro and regional trains.",
+      "image": {
+        "url": "/mock-assets/products/product-002-related-01.png",
+        "alt": "E3 Door System",
+        "width": 800,
+        "height": 600,
+        "aspectRatio": 1.3333
+      }
+    },
+    {
+      "name": "Sensors & Control",
+      "description": "Advanced obstacle detection and smart door controls.",
+      "image": {
+        "url": "/mock-assets/products/product-002-related-02.png",
+        "alt": "Sensors & Control",
+        "width": 800,
+        "height": 600,
+        "aspectRatio": 1.3333
+      }
+    }
+  ],
+  "richContent": [
+    {
+      "id": "block-001",
+      "type": "heading",
+      "level": 2,
+      "text": "高效客流的入口系统"
+    },
+    {
+      "id": "block-002",
+      "type": "paragraph",
+      "spans": [
+        { "type": "text", "text": "IFE E3 门系统面向地铁与市域列车，强调", "marks": [] },
+        { "type": "text", "text": "可靠开关门与障碍检测", "marks": ["bold"] },
+        { "type": "text", "text": "。", "marks": [] }
+      ]
+    }
+  ],
+  "relatedIds": ["product-006"],
+  "publishedAt": "2024-03-28T08:00:00.000Z"
+}

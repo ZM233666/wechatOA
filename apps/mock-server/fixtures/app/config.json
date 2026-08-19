@@ -1,0 +1,16 @@
+{
+  "appName": "KB China Mini Program",
+  "brandName": "Knorr-Bremse",
+  "locale": "zh-CN",
+  "supportEmail": "support@knorr-bremse.example.com",
+  "featureFlags": {
+    "showHomeBanner": true,
+    "showQuickEntries": true,
+    "showLatestNews": true,
+    "showRecommendedProducts": true,
+    "showRecommendedCases": true,
+    "showServiceEntries": true,
+    "showKbLifeSummary": true,
+    "showBrandInfo": true
+  }
+}

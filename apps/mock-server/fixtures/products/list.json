@@ -1,0 +1,92 @@
+[
+  {
+    "id": "product-001",
+    "name": "EP Compact",
+    "nameCn": "制动系统",
+    "summary": "Electronic brake control system ensuring precise and safe braking.",
+    "category": { "id": "braking", "name": "Braking Systems" },
+    "coverImage": {
+      "url": "/mock-assets/products/product-001-cover.png",
+      "alt": "EP Compact 制动系统",
+      "width": 1200,
+      "height": 800,
+      "aspectRatio": 1.5
+    },
+    "featured": true
+  },
+  {
+    "id": "product-002",
+    "name": "E3 Door System",
+    "nameCn": "门系统",
+    "summary": "Space-saving sliding plug doors for metro and regional trains.",
+    "category": { "id": "door", "name": "Door Systems (IFE)" },
+    "coverImage": {
+      "url": "/mock-assets/products/product-002-cover.png",
+      "alt": "E3 门系统",
+      "width": 1200,
+      "height": 800,
+      "aspectRatio": 1.5
+    },
+    "featured": true
+  },
+  {
+    "id": "product-003",
+    "name": "High-Speed Circuit Breakers",
+    "nameCn": "电源系统",
+    "summary": "DC protection devices designed to interrupt short circuit currents rapidly and safely.",
+    "category": { "id": "power", "name": "Power Supply Systems (Microelettrica)" },
+    "coverImage": {
+      "url": "/mock-assets/products/product-003-cover.png",
+      "alt": "高速断路器",
+      "width": 1200,
+      "height": 800,
+      "aspectRatio": 1.5
+    },
+    "featured": true
+  },
+  {
+    "id": "product-004",
+    "name": "Digital CBM",
+    "nameCn": "数字化方案",
+    "summary": "Condition based maintenance platform for real-time health monitoring.",
+    "category": { "id": "digital", "name": "Digital Solutions" },
+    "coverImage": {
+      "url": "/mock-assets/products/product-004-cover.png",
+      "alt": "Digital CBM",
+      "width": 1200,
+      "height": 800,
+      "aspectRatio": 1.5
+    },
+    "featured": true
+  },
+  {
+    "id": "product-005",
+    "name": "Bogie Equipment",
+    "nameCn": "转向架基础制动",
+    "summary": "Brake calipers, discs, and pads designed for optimal friction.",
+    "category": { "id": "braking", "name": "Braking Systems" },
+    "coverImage": {
+      "url": "/mock-assets/products/product-005-cover.png",
+      "alt": "转向架基础制动",
+      "width": 1200,
+      "height": 800,
+      "aspectRatio": 1.5
+    },
+    "featured": false
+  },
+  {
+    "id": "product-006",
+    "name": "Sensors & Control",
+    "nameCn": "门控与传感",
+    "summary": "Advanced obstacle detection and smart door controls.",
+    "category": { "id": "door", "name": "Door Systems (IFE)" },
+    "coverImage": {
+      "url": "/mock-assets/products/product-006-cover.png",
+      "alt": "门控与传感",
+      "width": 1200,
+      "height": 800,
+      "aspectRatio": 1.5
+    },
+    "featured": false
+  }
+]

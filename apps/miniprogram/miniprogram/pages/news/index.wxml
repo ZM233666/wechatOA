@@ -1,0 +1,26 @@
+<view class="page page--news">
+  <nav-brand title="News Center" show-back="{{true}}"></nav-brand>
+
+  <view class="news-list">
+    <empty-state wx:if="{{pageStatus === 'loading'}}" title="正在加载新闻"></empty-state>
+    <view wx:elif="{{pageStatus === 'error'}}" bindtap="onRetry">
+      <empty-state title="新闻加载失败" description="{{errorText}}"></empty-state>
+    </view>
+    <empty-state wx:elif="{{pageStatus === 'empty'}}" title="暂无新闻" description="当前没有可展示的资讯"></empty-state>
+
+    <view
+      class="news-card tap-feedback"
+      wx:for="{{newsList}}"
+      wx:key="id"
+      data-id="{{item.id}}"
+      bindtap="onNewsTap"
+    >
+      <image class="news-card__image" src="{{item.image}}" mode="aspectFill" data-id="{{item.id}}" binderror="onNewsImageError"></image>
+      <view class="news-card__body">
+        <text class="news-card__badge">{{item.category}}</text>
+        <text class="news-card__title">{{item.title}}</text>
+        <text class="news-card__date">{{item.date}}</text>
+      </view>
+    </view>
+  </view>
+</view>

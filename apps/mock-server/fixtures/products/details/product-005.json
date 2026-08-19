@@ -1,0 +1,58 @@
+{
+  "id": "product-005",
+  "slug": "bogie-equipment",
+  "name": "Bogie Equipment",
+  "nameCn": "转向架基础制动",
+  "subtitleEn": "Braking",
+  "summary": "Brake calipers, discs, and pads designed for optimal friction.",
+  "description": "Brake calipers, discs, and pads designed for optimal friction performance.",
+  "category": { "id": "braking", "name": "Braking Systems" },
+  "coverImage": {
+    "url": "/mock-assets/products/product-005-cover.png",
+    "alt": "转向架基础制动",
+    "width": 1200,
+    "height": 800,
+    "aspectRatio": 1.5
+  },
+  "gallery": [
+    {
+      "url": "/mock-assets/products/product-005-cover.png",
+      "alt": "转向架基础制动细节",
+      "width": 1200,
+      "height": 800,
+      "aspectRatio": 1.5
+    }
+  ],
+  "relatedProducts": [
+    {
+      "name": "EP Compact",
+      "description": "Electronic brake control system ensuring precise and safe braking.",
+      "image": {
+        "url": "/mock-assets/products/product-001-cover.png",
+        "alt": "EP Compact",
+        "width": 1200,
+        "height": 800,
+        "aspectRatio": 1.5
+      }
+    }
+  ],
+  "richContent": [
+    {
+      "id": "block-001",
+      "type": "heading",
+      "level": 2,
+      "text": "面向转向架的基础制动"
+    },
+    {
+      "id": "block-002",
+      "type": "paragraph",
+      "spans": [
+        { "type": "text", "text": "夹钳、制动盘与闸片组合用于", "marks": [] },
+        { "type": "text", "text": "稳定摩擦与可靠制动力", "marks": ["bold"] },
+        { "type": "text", "text": "。", "marks": [] }
+      ]
+    }
+  ],
+  "relatedIds": ["product-001"],
+  "publishedAt": "2024-04-01T08:00:00.000Z"
+}

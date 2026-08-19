@@ -1,0 +1,9 @@
+<view class="app-header">
+  <view class="app-header__main">
+    <text class="app-header__title">{{title}}</text>
+    <text wx:if="{{subtitle}}" class="app-header__subtitle">{{subtitle}}</text>
+  </view>
+  <view wx:if="{{showAction}}" class="app-header__action">
+    <slot name="action"></slot>
+  </view>
+</view>

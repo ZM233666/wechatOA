@@ -1,0 +1,100 @@
+{
+  "banners": [
+    {
+      "id": "life-1",
+      "title": "企业文化：协同 · 创新 · 成长",
+      "subtitle": "Culture: Together We Grow",
+      "image": {
+        "url": "/mock-assets/kb-life/banner-001.png",
+        "alt": "企业文化 Banner",
+        "width": 1200,
+        "height": 540,
+        "aspectRatio": 2.2222
+      }
+    },
+    {
+      "id": "life-2",
+      "title": "敏捷团队：共创辉煌",
+      "subtitle": "Agile Teams: Creating Brilliance",
+      "image": {
+        "url": "/mock-assets/kb-life/banner-002.png",
+        "alt": "敏捷团队 Banner",
+        "width": 1200,
+        "height": 540,
+        "aspectRatio": 2.2222
+      }
+    },
+    {
+      "id": "life-3",
+      "title": "年度优秀表彰大会",
+      "subtitle": "Annual Awards Ceremony",
+      "image": {
+        "url": "/mock-assets/kb-life/banner-003.png",
+        "alt": "年度表彰 Banner",
+        "width": 1200,
+        "height": 540,
+        "aspectRatio": 2.2222
+      }
+    }
+  ],
+  "locations": ["Suzhou", "Qingdao", "Daxing", "Nankou"],
+  "campusServices": [
+    {
+      "id": "campus-map",
+      "title": "园区地图",
+      "subtitle": "Campus Map",
+      "icon": { "url": "/mock-assets/kb-life/map.png", "alt": "园区地图", "width": 96, "height": 96, "aspectRatio": 1 }
+    },
+    {
+      "id": "shuttle-bus",
+      "title": "班车时刻",
+      "subtitle": "Shuttle Bus",
+      "icon": { "url": "/mock-assets/kb-life/bus.png", "alt": "班车时刻", "width": 96, "height": 96, "aspectRatio": 1 },
+      "path": "/pages/kb-life/shuttle-bus/index"
+    },
+    {
+      "id": "cafeteria",
+      "title": "食堂菜单",
+      "subtitle": "Cafeteria",
+      "icon": { "url": "/mock-assets/kb-life/cafeteria.png", "alt": "食堂菜单", "width": 96, "height": 96, "aspectRatio": 1 },
+      "path": "/pages/kb-life/canteen/index"
+    },
+    {
+      "id": "holiday",
+      "title": "假期日历",
+      "subtitle": "Holiday Calendar",
+      "icon": { "url": "/mock-assets/kb-life/calendar.png", "alt": "假期日历", "width": 96, "height": 96, "aspectRatio": 1 },
+      "path": "/pages/kb-life/holiday-calendar/index"
+    }
+  ],
+  "employeeServices": [
+    {
+      "id": "open-positions",
+      "title": "在聘岗位",
+      "subtitle": "Open Positions",
+      "icon": { "url": "/mock-assets/kb-life/positions.png", "alt": "在聘岗位", "width": 96, "height": 96, "aspectRatio": 1 },
+      "path": "/pages/kb-life/open-positions/index"
+    },
+    {
+      "id": "handbook",
+      "title": "员工手册",
+      "subtitle": "Employee Handbook",
+      "icon": { "url": "/mock-assets/kb-life/handbook.png", "alt": "员工手册", "width": 96, "height": 96, "aspectRatio": 1 },
+      "path": "/pages/kb-life/handbook/index"
+    },
+    {
+      "id": "care",
+      "title": "本地/全球关怀",
+      "subtitle": "Local/Global Care",
+      "icon": { "url": "/mock-assets/kb-life/care.png", "alt": "本地全球关怀", "width": 96, "height": 96, "aspectRatio": 1 },
+      "path": "/pages/kb-life/care/index"
+    },
+    {
+      "id": "events",
+      "title": "公司事件",
+      "subtitle": "Company Events",
+      "icon": { "url": "/mock-assets/kb-life/events.png", "alt": "公司事件", "width": 96, "height": 96, "aspectRatio": 1 },
+      "path": "/pages/kb-life/events/index"
+    }
+  ]
+}

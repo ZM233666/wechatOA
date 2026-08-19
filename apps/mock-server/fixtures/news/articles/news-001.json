@@ -1,0 +1,79 @@
+{
+  "id": "news-001",
+  "slug": "cr450-braking-systems-contract",
+  "title": "Knorr-Bremse to Supply Braking Systems for 128 CR450 High-Speed Trains in China",
+  "subtitle": "数字化赋能新一代高速动车组",
+  "summary": "Knorr-Bremse has been awarded a major contract to equip 128 new CR450 high-speed trains for the Chinese market with advanced braking systems.",
+  "category": { "id": "company", "name": "Company News" },
+  "author": { "name": "KB China" },
+  "publishedAt": "2024-05-20T08:00:00.000Z",
+  "coverImage": {
+    "url": "/mock-assets/news/news-001-cover.png",
+    "alt": "CR450 高速列车制动系统新闻封面",
+    "width": 1200,
+    "height": 675,
+    "aspectRatio": 1.7778
+  },
+  "richContent": [
+    {
+      "id": "block-001",
+      "type": "heading",
+      "level": 2,
+      "text": "数字化赋能轨道交通"
+    },
+    {
+      "id": "block-002",
+      "type": "paragraph",
+      "spans": [
+        { "type": "text", "text": "克诺尔集团持续推进", "marks": [] },
+        { "type": "text", "text": "数字化转型", "marks": ["bold"] },
+        { "type": "text", "text": "，为 128 列 CR450 高速动车组提供先进制动系统，进一步巩固在轨道交通领域的领先地位。", "marks": [] }
+      ]
+    },
+    {
+      "id": "block-003",
+      "type": "image",
+      "image": {
+        "url": "/mock-assets/news/news-001-content-01.png",
+        "alt": "数字化产品现场展示",
+        "width": 1200,
+        "height": 800,
+        "aspectRatio": 1.5
+      },
+      "caption": "数字化产品现场展示"
+    },
+    {
+      "id": "block-004",
+      "type": "quote",
+      "text": "创新不仅是技术升级，更是长期价值的创造。",
+      "source": "KB China"
+    },
+    {
+      "id": "block-005",
+      "type": "list",
+      "ordered": false,
+      "items": ["提高设备可用率", "减少非计划停机", "优化全生命周期成本"]
+    },
+    { "id": "block-006", "type": "divider" },
+    {
+      "id": "block-007",
+      "type": "callout",
+      "variant": "info",
+      "title": "相关说明",
+      "text": "本文数据仅用于开发阶段演示。"
+    },
+    {
+      "id": "block-008",
+      "type": "link",
+      "text": "了解更多产品信息",
+      "url": "/pages/products/detail?id=product-001",
+      "linkType": "internal"
+    }
+  ],
+  "tags": ["CR450", "制动系统", "中国"],
+  "relatedIds": ["news-002", "news-004"],
+  "share": {
+    "title": "CR450 制动系统合同",
+    "imageUrl": "/mock-assets/news/news-001-share.png"
+  }
+}

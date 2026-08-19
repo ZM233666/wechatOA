@@ -1,0 +1,5 @@
+[
+  { "id": "rail", "name": "Rail" },
+  { "id": "metro", "name": "Mass Transit" },
+  { "id": "high-speed", "name": "High-Speed Rail" }
+]

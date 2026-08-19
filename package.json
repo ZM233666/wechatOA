@@ -1,0 +1,38 @@
+{
+  "name": "wechat-official-account",
+  "version": "0.1.0",
+  "private": true,
+  "description": "微信小程序 + NestJS 前后端分离 Monorepo 项目框架",
+  "packageManager": "pnpm@10.26.2",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "dev:server": "pnpm --filter @app/server start:dev",
+    "build:server": "pnpm --filter @app/server build",
+    "typecheck": "pnpm --filter @app/server typecheck && pnpm --filter @app/miniprogram typecheck && pnpm --filter @app/shared typecheck",
+    "typecheck:server": "pnpm --filter @app/server typecheck",
+    "typecheck:miniprogram": "pnpm --filter @app/miniprogram typecheck",
+    "dev:mock": "pnpm --filter mock-server dev",
+    "build:shared": "pnpm --filter @app/shared build",
+    "build:mock": "pnpm run build:shared && pnpm --filter mock-server build",
+    "start:mock": "pnpm --filter mock-server start",
+    "typecheck:mock": "pnpm --filter mock-server typecheck",
+    "validate:mock": "pnpm --filter mock-server validate:fixtures",
+    "test:mock": "pnpm --filter mock-server test",
+    "test:start:mock": "pnpm --filter mock-server test:start",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
+    "format": "prettier --write .",
+    "format:check": "prettier --check ."
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.22.0",
+    "eslint": "^9.22.0",
+    "eslint-config-prettier": "^10.1.1",
+    "globals": "^16.0.0",
+    "prettier": "^3.5.3",
+    "typescript": "^5.8.2",
+    "typescript-eslint": "^8.26.1"
+  }
+}

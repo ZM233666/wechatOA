@@ -1,0 +1,46 @@
+{
+  "id": "news-007",
+  "slug": "kb-china-sustainability-forum",
+  "title": "KB China Highlights Sustainability Progress at Industry Forum",
+  "subtitle": "绿色制造与负责任出行",
+  "summary": "The company shared its latest progress on energy efficiency, green manufacturing, and responsible mobility.",
+  "category": { "id": "company", "name": "Company News" },
+  "author": { "name": "KB China" },
+  "publishedAt": "2024-03-08T08:00:00.000Z",
+  "coverImage": {
+    "url": "/mock-assets/news/news-007-cover.png",
+    "alt": "可持续发展论坛新闻封面",
+    "width": 1200,
+    "height": 675,
+    "aspectRatio": 1.7778
+  },
+  "richContent": [
+    {
+      "id": "block-001",
+      "type": "heading",
+      "level": 2,
+      "text": "可持续出行进展"
+    },
+    {
+      "id": "block-002",
+      "type": "paragraph",
+      "spans": [
+        { "type": "text", "text": "KB China 在行业论坛分享了能效提升、绿色制造与", "marks": [] },
+        { "type": "text", "text": "负责任出行", "marks": ["bold"] },
+        { "type": "text", "text": "方面的最新进展。", "marks": [] }
+      ]
+    },
+    {
+      "id": "block-003",
+      "type": "quote",
+      "text": "可持续发展是长期竞争力的一部分。",
+      "source": "KB China"
+    }
+  ],
+  "tags": ["sustainability"],
+  "relatedIds": ["news-001", "news-003"],
+  "share": {
+    "title": "KB China 可持续发展进展",
+    "imageUrl": "/mock-assets/news/news-007-cover.png"
+  }
+}

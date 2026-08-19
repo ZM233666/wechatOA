@@ -1,0 +1,13 @@
+{
+  "name": "@app/miniprogram",
+  "version": "0.1.0",
+  "private": true,
+  "description": "原生微信小程序前端（请使用微信开发者工具导入本目录）",
+  "scripts": {
+    "typecheck": "tsc --noEmit -p tsconfig.json"
+  },
+  "devDependencies": {
+    "miniprogram-api-typings": "^4.0.5",
+    "typescript": "^5.8.2"
+  }
+}

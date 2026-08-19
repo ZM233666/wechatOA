@@ -1,0 +1,42 @@
+<view class="page page--shuttle">
+  <nav-brand title="Shuttle Bus" show-back="{{true}}"></nav-brand>
+
+  <view class="shuttle-head">
+    <text class="shuttle-head__title">班车线路 (Shuttle Bus)</text>
+    <view class="shuttle-search">
+      <image class="shuttle-search__icon" src="/assets/images/kb-life/search.png" mode="aspectFit"></image>
+      <input
+        class="shuttle-search__input"
+        value="{{keyword}}"
+        placeholder="搜索站点或线路 (Search station or route)"
+        placeholder-class="shuttle-search__placeholder"
+        confirm-type="search"
+        bindinput="onSearchInput"
+      />
+    </view>
+  </view>
+
+  <scroll-view class="shuttle-list" scroll-y="{{true}}">
+    <view wx:if="{{routes.length === 0}}" class="shuttle-empty">
+      <view class="shuttle-empty__icon">
+        <image src="/assets/images/kb-life/search.png" mode="aspectFit"></image>
+      </view>
+      <text class="shuttle-empty__text">未找到匹配的线路站点 (No routes found)</text>
+    </view>
+
+    <view wx:for="{{routes}}" wx:key="id" class="route-card">
+      <view class="route-card__head">
+        <text class="route-card__id">{{item.id}}</text>
+        <text class="route-card__name">{{item.name}}</text>
+      </view>
+      <view class="route-card__body">
+        <image class="route-card__pin" src="/assets/images/kb-life/pin.png" mode="aspectFit"></image>
+        <text class="route-card__stations">{{item.stationsText}}</text>
+      </view>
+    </view>
+
+    <view class="shuttle-notice">
+      <text class="shuttle-notice__text">{{notice}}</text>
+    </view>
+  </scroll-view>
+</view>

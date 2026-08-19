@@ -1,0 +1,18 @@
+<view class="status-feedback">
+  <view class="status-feedback__head">
+    <text class="status-feedback__label">开发调试</text>
+    <text class="status-feedback__hint">仅 develop 环境显示</text>
+  </view>
+  <text wx:if="{{apiBaseUrl}}" class="status-feedback__url">API：{{apiBaseUrl}}</text>
+  <button
+    class="status-feedback__btn kb-btn-reset"
+    loading="{{checking}}"
+    disabled="{{checking}}"
+    bindtap="onCheck"
+  >
+    检查后端服务
+  </button>
+  <view class="status-feedback__box status-feedback__box--{{statusType}}">
+    <text class="status-feedback__text">{{statusText}}</text>
+  </view>
+</view>

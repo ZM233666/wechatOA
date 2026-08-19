@@ -1,0 +1,50 @@
+{
+  "id": "case-001",
+  "slug": "cr450-high-speed-train",
+  "title": "CR450 High-Speed Train",
+  "summary": "Next-generation braking systems for the 450 km/h CR450 EMU.",
+  "category": { "id": "high-speed", "name": "High-Speed Rail" },
+  "coverImage": {
+    "url": "/mock-assets/cases/case-001-cover.png",
+    "alt": "CR450 高速列车项目",
+    "width": 1200,
+    "height": 800,
+    "aspectRatio": 1.5
+  },
+  "region": "China",
+  "industry": "High-Speed Rail",
+  "meta": "Industry: High-Speed Rail · Region: China",
+  "background": "Enhancing the next generation of high-speed rail with advanced braking performance capable of operating safely at 400 km/h.",
+  "solution": "Implementation of the highly advanced EP Compact braking systems combined with our Digital CBM platform for predictive maintenance.",
+  "richContent": [
+    {
+      "id": "block-001",
+      "type": "heading",
+      "level": 2,
+      "text": "面向 400 km/h 级运营的制动方案"
+    },
+    {
+      "id": "block-002",
+      "type": "paragraph",
+      "spans": [
+        { "type": "text", "text": "项目将 EP Compact 与 Digital CBM 结合，帮助运营商实现", "marks": [] },
+        { "type": "text", "text": "预测性维护", "marks": ["bold"] },
+        { "type": "text", "text": "。", "marks": [] }
+      ]
+    },
+    {
+      "id": "block-003",
+      "type": "image",
+      "image": {
+        "url": "/mock-assets/cases/case-001-content-01.png",
+        "alt": "CR450 项目现场",
+        "width": 1200,
+        "height": 800,
+        "aspectRatio": 1.5
+      },
+      "caption": "CR450 项目现场"
+    }
+  ],
+  "relatedIds": ["case-002", "case-004"],
+  "publishedAt": "2024-05-20T08:00:00.000Z"
+}

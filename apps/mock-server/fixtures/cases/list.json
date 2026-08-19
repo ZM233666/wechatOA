@@ -1,0 +1,98 @@
+[
+  {
+    "id": "case-001",
+    "title": "CR450 High-Speed Train",
+    "summary": "Next-generation braking systems for the 450 km/h CR450 EMU.",
+    "category": { "id": "high-speed", "name": "High-Speed Rail" },
+    "coverImage": {
+      "url": "/mock-assets/cases/case-001-cover.png",
+      "alt": "CR450 高速列车项目",
+      "width": 1200,
+      "height": 800,
+      "aspectRatio": 1.5
+    },
+    "region": "China",
+    "industry": "High-Speed Rail",
+    "featured": true
+  },
+  {
+    "id": "case-002",
+    "title": "Jakarta-Bandung High-Speed Rail",
+    "summary": "Braking solutions for Southeast Asia first high-speed rail line.",
+    "category": { "id": "high-speed", "name": "High-Speed Rail" },
+    "coverImage": {
+      "url": "/mock-assets/cases/case-002-cover.png",
+      "alt": "雅万高铁项目",
+      "width": 1200,
+      "height": 800,
+      "aspectRatio": 1.5
+    },
+    "region": "Indonesia",
+    "industry": "High-Speed Rail",
+    "featured": true
+  },
+  {
+    "id": "case-003",
+    "title": "Delhi Metro Expansion",
+    "summary": "Comprehensive door and braking systems for mass transit.",
+    "category": { "id": "metro", "name": "Mass Transit" },
+    "coverImage": {
+      "url": "/mock-assets/cases/case-003-cover.png",
+      "alt": "德里地铁项目",
+      "width": 1200,
+      "height": 800,
+      "aspectRatio": 1.5
+    },
+    "region": "India",
+    "industry": "Mass Transit",
+    "featured": true
+  },
+  {
+    "id": "case-004",
+    "title": "Regional EMU Digital Maintenance",
+    "summary": "Digital CBM rolled out to improve availability for regional fleets.",
+    "category": { "id": "rail", "name": "Rail" },
+    "coverImage": {
+      "url": "/mock-assets/cases/case-004-cover.png",
+      "alt": "区域动车组数字化运维",
+      "width": 1200,
+      "height": 800,
+      "aspectRatio": 1.5
+    },
+    "region": "China",
+    "industry": "Regional Rail",
+    "featured": false
+  },
+  {
+    "id": "case-005",
+    "title": "Tropical Climate Brake Package",
+    "summary": "Complete brake package designed for high humidity and temperature.",
+    "category": { "id": "rail", "name": "Rail" },
+    "coverImage": {
+      "url": "/mock-assets/cases/case-005-cover.png",
+      "alt": "热带气候制动方案",
+      "width": 1200,
+      "height": 800,
+      "aspectRatio": 1.5
+    },
+    "region": "Southeast Asia",
+    "industry": "Mainline",
+    "featured": false
+  },
+  {
+    "id": "case-006",
+    "title": "Urban Metro Entrance Systems",
+    "summary": "IFE entrance systems supporting high-frequency commuter operation.",
+    "category": { "id": "metro", "name": "Mass Transit" },
+    "coverImage": {
+      "url": "/mock-assets/cases/case-006-cover.png",
+      "alt": "城市地铁门系统",
+      "width": 1200,
+      "height": 800,
+      "aspectRatio": 1.5
+    },
+    "region": "China",
+    "industry": "Mass Transit",
+    "featured": false
+  }
+]

@@ -1,0 +1,69 @@
+{
+  "pages": [
+    "pages/index/index",
+    "pages/services/index",
+    "pages/kb-life/index",
+    "pages/profile/index",
+    "pages/profile/personal-info/index",
+    "pages/news/index",
+    "pages/news/detail",
+    "pages/brand/index",
+    "pages/products/index",
+    "pages/products/detail",
+    "pages/cases/index",
+    "pages/cases/detail",
+    "pages/kb-life/shuttle-bus/index",
+    "pages/kb-life/canteen/index",
+    "pages/kb-life/holiday-calendar/index",
+    "pages/kb-life/open-positions/index",
+    "pages/kb-life/open-positions/detail",
+    "pages/kb-life/handbook/index",
+    "pages/kb-life/care/index",
+    "pages/kb-life/events/index",
+    "pages/kb-life/events/annual-dinner/index",
+    "pages/kb-life/events/outings/index",
+    "pages/kb-life/events/health/index"
+  ],
+  "window": {
+    "navigationBarTitleText": "Knorr-Bremse",
+    "navigationBarBackgroundColor": "#ffffff",
+    "navigationBarTextStyle": "black",
+    "backgroundTextStyle": "light",
+    "backgroundColor": "#F5F7FA"
+  },
+  "tabBar": {
+    "color": "#8A94A3",
+    "selectedColor": "#003B70",
+    "backgroundColor": "#FFFFFF",
+    "borderStyle": "black",
+    "list": [
+      {
+        "pagePath": "pages/index/index",
+        "text": "Home",
+        "iconPath": "assets/icons/tabbar/tab-home.png",
+        "selectedIconPath": "assets/icons/tabbar/tab-home-active.png"
+      },
+      {
+        "pagePath": "pages/services/index",
+        "text": "Services",
+        "iconPath": "assets/icons/tabbar/tab-services.png",
+        "selectedIconPath": "assets/icons/tabbar/tab-services-active.png"
+      },
+      {
+        "pagePath": "pages/kb-life/index",
+        "text": "KB Life",
+        "iconPath": "assets/icons/tabbar/tab-life.png",
+        "selectedIconPath": "assets/icons/tabbar/tab-life-active.png"
+      },
+      {
+        "pagePath": "pages/profile/index",
+        "text": "My Profile",
+        "iconPath": "assets/icons/tabbar/tab-profile.png",
+        "selectedIconPath": "assets/icons/tabbar/tab-profile-active.png"
+      }
+    ]
+  },
+  "style": "v2",
+  "sitemapLocation": "sitemap.json",
+  "lazyCodeLoading": "requiredComponents"
+}

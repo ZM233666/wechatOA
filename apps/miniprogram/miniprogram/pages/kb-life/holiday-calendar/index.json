@@ -1,0 +1,7 @@
+{
+  "navigationStyle": "custom",
+  "backgroundColor": "#F5F7FA",
+  "usingComponents": {
+    "nav-brand": "/components/common/nav-brand/nav-brand"
+  }
+}

@@ -1,0 +1,29 @@
+<view class="nav-brand">
+  <view
+    class="nav-brand__fixed"
+    style="padding-top: {{statusBarHeight}}px;"
+  >
+    <view
+      class="nav-brand__bar"
+      style="height: {{navBarHeight}}px;"
+    >
+      <view class="nav-brand__logos">
+        <view wx:if="{{showBack}}" class="nav-brand__back" bindtap="onBack">
+          <text class="nav-brand__back-icon">‹</text>
+        </view>
+        <image
+          class="nav-brand__logo nav-brand__logo--kb"
+          src="{{logo}}"
+          mode="aspectFit"
+        ></image>
+        <image
+          class="nav-brand__logo nav-brand__logo--rvs"
+          src="{{secondaryLogo}}"
+          mode="aspectFit"
+        ></image>
+      </view>
+      <text class="nav-brand__title">{{title}}</text>
+    </view>
+  </view>
+  <view style="height: {{statusBarHeight + navBarHeight}}px;"></view>
+</view>

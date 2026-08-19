@@ -1,0 +1,49 @@
+{
+  "items": [
+    {
+      "id": "annual-dinner",
+      "title": "年会 (Annual Dinner)",
+      "subtitle": "年度表彰与晚宴",
+      "icon": { "url": "/mock-assets/kb-life/event-annual.png", "alt": "年会", "width": 96, "height": 96, "aspectRatio": 1 },
+      "iconBg": "#faf5ff",
+      "path": "/pages/kb-life/events/annual-dinner/index"
+    },
+    {
+      "id": "outings",
+      "title": "团建出游 (Outings)",
+      "subtitle": "部门团建与户外活动",
+      "icon": { "url": "/mock-assets/kb-life/event-outings.png", "alt": "团建出游", "width": 96, "height": 96, "aspectRatio": 1 },
+      "iconBg": "#f0fdf4",
+      "path": "/pages/kb-life/events/outings/index"
+    },
+    {
+      "id": "health",
+      "title": "健康体检 (Health Checkup)",
+      "subtitle": "年度员工体检安排",
+      "icon": { "url": "/mock-assets/kb-life/event-health.png", "alt": "健康体检", "width": 96, "height": 96, "aspectRatio": 1 },
+      "iconBg": "#fef2f2",
+      "path": "/pages/kb-life/events/health/index"
+    }
+  ],
+  "annualDinner": {
+    "title": "2026 KB 员工年会 / Annual Dinner",
+    "subtitle": "凝聚力量，共创未来",
+    "time": "2026-01-15T17:30:00.000Z",
+    "location": "苏州园区"
+  },
+  "outings": [
+    {
+      "id": "outing-001",
+      "title": "阳山徒步",
+      "descriptionCn": "周末户外徒步与团队协作",
+      "descriptionEn": "Weekend hiking and team building",
+      "timeLabel": "2026-03-12",
+      "status": "open",
+      "statusText": "报名中"
+    }
+  ],
+  "health": {
+    "title": "年度员工体检",
+    "description": "请按通知预约体检时间，并携带工牌前往指定医院。"
+  }
+}

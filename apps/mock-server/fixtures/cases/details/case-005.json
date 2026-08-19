@@ -1,0 +1,38 @@
+{
+  "id": "case-005",
+  "slug": "tropical-climate-brake-package",
+  "title": "Tropical Climate Brake Package",
+  "summary": "Complete brake package designed for high humidity and temperature.",
+  "category": { "id": "rail", "name": "Rail" },
+  "coverImage": {
+    "url": "/mock-assets/cases/case-005-cover.png",
+    "alt": "热带气候制动方案",
+    "width": 1200,
+    "height": 800,
+    "aspectRatio": 1.5
+  },
+  "region": "Southeast Asia",
+  "industry": "Mainline",
+  "meta": "Industry: Mainline · Region: Southeast Asia",
+  "background": "Mainline operations in tropical climates require braking systems that remain stable under high humidity and temperature.",
+  "solution": "Delivering a complete brake package covering control, bogie equipment, and air supply for tropical conditions.",
+  "richContent": [
+    {
+      "id": "block-001",
+      "type": "heading",
+      "level": 2,
+      "text": "面向高湿高温的制动包"
+    },
+    {
+      "id": "block-002",
+      "type": "paragraph",
+      "spans": [
+        { "type": "text", "text": "完整制动包针对热带气候设计，保障", "marks": [] },
+        { "type": "text", "text": "高湿度与高温环境", "marks": ["bold"] },
+        { "type": "text", "text": "下的稳定制动。", "marks": [] }
+      ]
+    }
+  ],
+  "relatedIds": ["case-002"],
+  "publishedAt": "2024-03-20T08:00:00.000Z"
+}

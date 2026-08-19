@@ -1,0 +1,173 @@
+{
+  "heroCards": [
+    {
+      "id": "digital-cbm",
+      "title": "Digital CBM",
+      "subtitle": "Condition Based Maintenance",
+      "footerTitle": "实时状态监测",
+      "footerHint": "实时数据分析与健康预警",
+      "coverImage": {
+        "url": "/mock-assets/services/digital-cbm-cover.png",
+        "alt": "Digital CBM",
+        "width": 1200,
+        "height": 540,
+        "aspectRatio": 2.2222
+      },
+      "icon": {
+        "url": "/mock-assets/services/icon-monitor.png",
+        "alt": "监测图标",
+        "width": 64,
+        "height": 64,
+        "aspectRatio": 1
+      },
+      "iconTone": "blue",
+      "showOnline": true,
+      "kind": "hero"
+    },
+    {
+      "id": "fast-phm",
+      "title": "FastPHM",
+      "subtitle": "Predictive Health Management",
+      "footerTitle": "预测性维护",
+      "footerHint": "智能故障预测与诊断",
+      "coverImage": {
+        "url": "/mock-assets/services/fast-phm-cover.png",
+        "alt": "FastPHM",
+        "width": 1200,
+        "height": 540,
+        "aspectRatio": 2.2222
+      },
+      "icon": {
+        "url": "/mock-assets/services/icon-alert.png",
+        "alt": "预警图标",
+        "width": 64,
+        "height": 64,
+        "aspectRatio": 1
+      },
+      "iconTone": "gold",
+      "showOnline": false,
+      "kind": "hero"
+    }
+  ],
+  "insightCovers": [
+    {
+      "id": "insight-trend",
+      "title": "2025轨道交通趋势洞察",
+      "subtitle": "KB Insights",
+      "footerTitle": "智库与行业洞察",
+      "footerHint": "探索更多",
+      "coverImage": {
+        "url": "/mock-assets/services/insight-trend-cover.png",
+        "alt": "2025轨道交通趋势洞察",
+        "width": 800,
+        "height": 600,
+        "aspectRatio": 1.3333
+      },
+      "icon": {
+        "url": "/mock-assets/services/icon-monitor.png",
+        "alt": "洞察图标",
+        "width": 64,
+        "height": 64,
+        "aspectRatio": 1
+      },
+      "iconTone": "blue",
+      "showOnline": false,
+      "kind": "insight",
+      "kicker": "KB Insights",
+      "english": "Rail Transit Trend Insight",
+      "caption": "2025轨道交通趋势洞察",
+      "tag": "Gating"
+    },
+    {
+      "id": "insight-lcc",
+      "title": "LCC全生命周期成本分析",
+      "subtitle": "KB Insights",
+      "footerTitle": "智库与行业洞察",
+      "footerHint": "探索更多",
+      "coverImage": {
+        "url": "/mock-assets/services/insight-lcc-cover.png",
+        "alt": "LCC全生命周期成本分析",
+        "width": 800,
+        "height": 600,
+        "aspectRatio": 1.3333
+      },
+      "icon": {
+        "url": "/mock-assets/services/icon-alert.png",
+        "alt": "洞察图标",
+        "width": 64,
+        "height": 64,
+        "aspectRatio": 1
+      },
+      "iconTone": "gold",
+      "showOnline": false,
+      "kind": "insight",
+      "kicker": "KB Insights",
+      "english": "Life Cycle Cost Analysis",
+      "caption": "LCC全生命周期成本分析"
+    }
+  ],
+  "details": [
+    {
+      "id": "digital-cbm",
+      "title": "Digital CBM",
+      "subtitle": "Condition Based Maintenance",
+      "summary": "实时状态监测与健康预警平台。",
+      "coverImage": {
+        "url": "/mock-assets/services/digital-cbm-cover.png",
+        "alt": "Digital CBM",
+        "width": 1200,
+        "height": 540,
+        "aspectRatio": 2.2222
+      },
+      "richContent": [
+        {
+          "id": "block-001",
+          "type": "heading",
+          "level": 2,
+          "text": "基于状态的维护"
+        },
+        {
+          "id": "block-002",
+          "type": "paragraph",
+          "spans": [
+            { "type": "text", "text": "Digital CBM 通过实时数据帮助客户降低", "marks": [] },
+            { "type": "text", "text": "非计划停机", "marks": ["bold"] },
+            { "type": "text", "text": "。", "marks": [] }
+          ]
+        }
+      ],
+      "relatedIds": ["fast-phm"]
+    },
+    {
+      "id": "fast-phm",
+      "title": "FastPHM",
+      "subtitle": "Predictive Health Management",
+      "summary": "智能故障预测与诊断。",
+      "coverImage": {
+        "url": "/mock-assets/services/fast-phm-cover.png",
+        "alt": "FastPHM",
+        "width": 1200,
+        "height": 540,
+        "aspectRatio": 2.2222
+      },
+      "richContent": [
+        {
+          "id": "block-001",
+          "type": "heading",
+          "level": 2,
+          "text": "预测性健康管理"
+        },
+        {
+          "id": "block-002",
+          "type": "paragraph",
+          "spans": [
+            { "type": "text", "text": "FastPHM 面向区域与城轨车队提供", "marks": [] },
+            { "type": "text", "text": "故障预测", "marks": ["bold"] },
+            { "type": "text", "text": "能力。", "marks": [] }
+          ]
+        }
+      ],
+      "relatedIds": ["digital-cbm"]
+    }
+  ]
+}

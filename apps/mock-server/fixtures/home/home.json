@@ -1,0 +1,255 @@
+{
+  "banners": [
+    {
+      "id": "banner-001",
+      "title": "2024年德国柏林国际轨道交通技术展览会",
+      "description": "探索最新轨道交通解决方案与创新技术",
+      "image": {
+        "url": "/mock-assets/banners/banner-001.png",
+        "alt": "柏林轨道交通展览会 Banner",
+        "width": 1200,
+        "height": 540,
+        "aspectRatio": 2.2222
+      },
+      "targetUrl": "/pages/news/index"
+    },
+    {
+      "id": "banner-002",
+      "title": "智能互联：重塑轨道交通未来",
+      "description": "探索数字化解决方案",
+      "image": {
+        "url": "/mock-assets/banners/banner-002.png",
+        "alt": "智能互联 Banner",
+        "width": 1200,
+        "height": 540,
+        "aspectRatio": 2.2222
+      }
+    },
+    {
+      "id": "banner-003",
+      "title": "品牌与创新持续前行",
+      "description": "Knorr-Bremse 持续投入安全关键系统创新",
+      "image": {
+        "url": "/mock-assets/banners/banner-003.png",
+        "alt": "品牌创新 Banner",
+        "width": 1200,
+        "height": 540,
+        "aspectRatio": 2.2222
+      }
+    }
+  ],
+  "quickEntries": [
+    {
+      "id": "news",
+      "title": "新闻中心",
+      "subtitle": "News Center",
+      "icon": {
+        "url": "/mock-assets/banners/icon-news.png",
+        "alt": "新闻中心",
+        "width": 96,
+        "height": 96,
+        "aspectRatio": 1
+      },
+      "target": "NewsList",
+      "path": "/pages/news/index"
+    },
+    {
+      "id": "brand",
+      "title": "品牌介绍",
+      "subtitle": "Brand Introduction",
+      "icon": {
+        "url": "/mock-assets/banners/icon-companies.png",
+        "alt": "品牌介绍",
+        "width": 96,
+        "height": 96,
+        "aspectRatio": 1
+      },
+      "target": "BrandIntro",
+      "path": "/pages/brand/index"
+    },
+    {
+      "id": "product",
+      "title": "产品介绍",
+      "subtitle": "Product Introduction",
+      "icon": {
+        "url": "/mock-assets/banners/icon-train.png",
+        "alt": "产品介绍",
+        "width": 96,
+        "height": 96,
+        "aspectRatio": 1
+      },
+      "target": "ProductList",
+      "path": "/pages/products/index"
+    },
+    {
+      "id": "cases",
+      "title": "项目案例",
+      "subtitle": "Project Cases",
+      "icon": {
+        "url": "/mock-assets/banners/icon-briefcase.png",
+        "alt": "项目案例",
+        "width": 96,
+        "height": 96,
+        "aspectRatio": 1
+      },
+      "target": "ProjectCasesList",
+      "path": "/pages/cases/index"
+    }
+  ],
+  "recommendedProducts": [
+    {
+      "id": "product-001",
+      "name": "EP Compact",
+      "nameCn": "制动系统",
+      "summary": "Electronic brake control system ensuring precise and safe braking.",
+      "coverImage": {
+        "url": "/mock-assets/products/product-001-cover.png",
+        "alt": "EP Compact",
+        "width": 1200,
+        "height": 800,
+        "aspectRatio": 1.5
+      }
+    },
+    {
+      "id": "product-002",
+      "name": "E3 Door System",
+      "nameCn": "门系统",
+      "summary": "Space-saving sliding plug doors for metro and regional trains.",
+      "coverImage": {
+        "url": "/mock-assets/products/product-002-cover.png",
+        "alt": "E3 Door System",
+        "width": 1200,
+        "height": 800,
+        "aspectRatio": 1.5
+      }
+    }
+  ],
+  "recommendedCases": [
+    {
+      "id": "case-001",
+      "title": "CR450 High-Speed Train",
+      "summary": "Next-generation braking systems for the 450 km/h CR450 EMU.",
+      "coverImage": {
+        "url": "/mock-assets/cases/case-001-cover.png",
+        "alt": "CR450 项目",
+        "width": 1200,
+        "height": 800,
+        "aspectRatio": 1.5
+      }
+    },
+    {
+      "id": "case-002",
+      "title": "Jakarta-Bandung High-Speed Rail",
+      "summary": "Braking solutions for Southeast Asia first high-speed rail line.",
+      "coverImage": {
+        "url": "/mock-assets/cases/case-002-cover.png",
+        "alt": "雅万高铁项目",
+        "width": 1200,
+        "height": 800,
+        "aspectRatio": 1.5
+      }
+    }
+  ],
+  "latestNews": [
+    {
+      "id": "news-001",
+      "title": "Knorr-Bremse to Supply Braking Systems for 128 CR450 High-Speed Trains in China",
+      "summary": "Knorr-Bremse has been awarded a major contract to equip 128 new CR450 high-speed trains for the Chinese market with advanced braking systems.",
+      "category": { "id": "company", "name": "Company News" },
+      "publishedAt": "2024-05-20T08:00:00.000Z",
+      "coverImage": {
+        "url": "/mock-assets/news/news-001-cover.png",
+        "alt": "CR450 高速列车制动系统新闻封面",
+        "width": 1200,
+        "height": 675,
+        "aspectRatio": 1.7778
+      },
+      "featured": true,
+      "tags": ["CR450", "制动系统", "中国"]
+    },
+    {
+      "id": "news-002",
+      "title": "Knorr-Bremse Secures Major Contract for Jakarta-Bandung High-Speed Rail Project",
+      "summary": "The Jakarta-Bandung high-speed rail line will be equipped with Knorr-Bremse highly reliable braking systems.",
+      "category": { "id": "project", "name": "Project Delivery" },
+      "publishedAt": "2024-05-15T08:00:00.000Z",
+      "coverImage": {
+        "url": "/mock-assets/news/news-002-cover.png",
+        "alt": "雅万高铁项目新闻封面",
+        "width": 1200,
+        "height": 675,
+        "aspectRatio": 1.7778
+      },
+      "featured": true,
+      "tags": ["雅万高铁", "project"]
+    },
+    {
+      "id": "news-003",
+      "title": "Knorr-Bremse and Chinese Partners Sign Strategic Cooperation Agreement",
+      "summary": "A new strategic cooperation agreement has been signed today, marking a milestone in localization and collaboration.",
+      "category": { "id": "events", "name": "Events" },
+      "publishedAt": "2024-05-10T08:00:00.000Z",
+      "coverImage": {
+        "url": "/mock-assets/news/news-003-cover.png",
+        "alt": "战略合作协议签署新闻封面",
+        "width": 1200,
+        "height": 675,
+        "aspectRatio": 1.7778
+      },
+      "featured": false,
+      "tags": ["合作", "localization"]
+    }
+  ],
+  "serviceEntries": [
+    {
+      "id": "digital-cbm",
+      "title": "Digital CBM",
+      "subtitle": "Condition Based Maintenance",
+      "coverImage": {
+        "url": "/mock-assets/services/digital-cbm-cover.png",
+        "alt": "Digital CBM",
+        "width": 1200,
+        "height": 540,
+        "aspectRatio": 2.2222
+      }
+    },
+    {
+      "id": "fast-phm",
+      "title": "FastPHM",
+      "subtitle": "Predictive Health Management",
+      "coverImage": {
+        "url": "/mock-assets/services/fast-phm-cover.png",
+        "alt": "FastPHM",
+        "width": 1200,
+        "height": 540,
+        "aspectRatio": 2.2222
+      }
+    }
+  ],
+  "kbLifeSummary": {
+    "title": "KB Life",
+    "subtitle": "园区与员工服务",
+    "entryCount": 8
+  },
+  "brandInfo": {
+    "name": "Knorr-Bremse",
+    "summary": "Global market leader for braking systems and safety-critical rail vehicle systems.",
+    "logo": {
+      "url": "/mock-assets/brand/logo.png",
+      "alt": "Knorr-Bremse Logo",
+      "width": 320,
+      "height": 80,
+      "aspectRatio": 4
+    }
+  },
+  "featureFlags": {
+    "showHomeBanner": true,
+    "showQuickEntries": true,
+    "showLatestNews": true,
+    "showRecommendedProducts": true,
+    "showRecommendedCases": true,
+    "showServiceEntries": true,
+    "showKbLifeSummary": true,
+    "showBrandInfo": true
+  }
+}

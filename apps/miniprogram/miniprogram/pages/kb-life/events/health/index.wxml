@@ -1,0 +1,39 @@
+<view class="page page--event-detail">
+  <nav-brand title="Health" show-back="{{true}}"></nav-brand>
+
+  <view class="event-detail">
+    <view class="event-detail__card">
+      <view class="event-detail__hero event-detail__hero--health">
+        <image
+          class="event-detail__hero-icon"
+          src="/assets/images/kb-life/event-health-white.png"
+          mode="aspectFit"
+        ></image>
+        <text class="event-detail__hero-title">{{event.title}}</text>
+        <text class="event-detail__hero-subtitle">{{event.subtitle}}</text>
+      </view>
+
+      <view class="event-detail__body">
+        <view class="event-detail__info event-detail__info--health">
+          <text class="event-detail__info-title">{{event.checkupTitle}}</text>
+          <text class="event-detail__info-desc">{{event.checkupDescriptionCn}}</text>
+          <text class="event-detail__info-desc event-detail__info-desc--en">{{event.checkupDescriptionEn}}</text>
+        </view>
+
+        <text class="event-detail__section-title">{{event.benefitsTitle}}</text>
+        <view
+          class="benefit-item"
+          wx:for="{{event.benefits}}"
+          wx:key="id"
+        >
+          <view class="benefit-item__emoji" style="background: {{item.emojiBg}};">{{item.emoji}}</view>
+          <view class="benefit-item__meta">
+            <text class="benefit-item__title">{{item.title}}</text>
+            <text class="benefit-item__desc">{{item.descriptionCn}}</text>
+            <text class="benefit-item__desc benefit-item__desc--en">{{item.descriptionEn}}</text>
+          </view>
+        </view>
+      </view>
+    </view>
+  </view>
+</view>

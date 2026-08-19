@@ -1,0 +1,79 @@
+{
+  "id": "news-003",
+  "slug": "strategic-cooperation-agreement",
+  "title": "Knorr-Bremse and Chinese Partners Sign Strategic Cooperation Agreement",
+  "subtitle": "深化本地化与长期协作",
+  "summary": "A new strategic cooperation agreement has been signed today, marking a milestone in localization and collaboration.",
+  "category": { "id": "events", "name": "Events" },
+  "author": { "name": "KB China" },
+  "publishedAt": "2024-05-10T08:00:00.000Z",
+  "coverImage": {
+    "url": "/mock-assets/news/news-003-cover.png",
+    "alt": "战略合作协议签署新闻封面",
+    "width": 1200,
+    "height": 675,
+    "aspectRatio": 1.7778
+  },
+  "richContent": [
+    {
+      "id": "block-001",
+      "type": "heading",
+      "level": 2,
+      "text": "与中国伙伴共建安全出行"
+    },
+    {
+      "id": "block-002",
+      "type": "paragraph",
+      "spans": [
+        { "type": "text", "text": "双方签署战略合作协议，标志着克诺尔在华", "marks": [] },
+        { "type": "text", "text": "本地化协作", "marks": ["bold"] },
+        { "type": "text", "text": "进入新阶段，并将持续服务主机厂与运营商。", "marks": [] }
+      ]
+    },
+    {
+      "id": "block-003",
+      "type": "image",
+      "image": {
+        "url": "/mock-assets/news/news-003-content-01.png",
+        "alt": "战略合作签约现场",
+        "width": 1200,
+        "height": 800,
+        "aspectRatio": 1.5
+      },
+      "caption": "战略合作协议签署现场"
+    },
+    {
+      "id": "block-004",
+      "type": "quote",
+      "text": "我们与合作伙伴共同推动更安全、更高效的轨道交通。",
+      "source": "KB China"
+    },
+    {
+      "id": "block-005",
+      "type": "list",
+      "ordered": false,
+      "items": ["联合研发", "售后服务网络", "数字化运维能力"]
+    },
+    { "id": "block-006", "type": "divider" },
+    {
+      "id": "block-007",
+      "type": "callout",
+      "variant": "warning",
+      "title": "演示内容",
+      "text": "外部链接在小程序中不会直接打开网页。"
+    },
+    {
+      "id": "block-008",
+      "type": "link",
+      "text": "了解品牌介绍",
+      "url": "/pages/brand/index",
+      "linkType": "internal"
+    }
+  ],
+  "tags": ["合作", "localization"],
+  "relatedIds": ["news-001", "news-007"],
+  "share": {
+    "title": "战略合作协议签署",
+    "imageUrl": "/mock-assets/news/news-003-share.png"
+  }
+}

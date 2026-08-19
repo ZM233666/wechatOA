@@ -1,0 +1,38 @@
+{
+  "id": "case-002",
+  "slug": "jakarta-bandung-high-speed-rail",
+  "title": "Jakarta-Bandung High-Speed Rail",
+  "summary": "Braking solutions for Southeast Asia first high-speed rail line.",
+  "category": { "id": "high-speed", "name": "High-Speed Rail" },
+  "coverImage": {
+    "url": "/mock-assets/cases/case-002-cover.png",
+    "alt": "雅万高铁项目",
+    "width": 1200,
+    "height": 800,
+    "aspectRatio": 1.5
+  },
+  "region": "Indonesia",
+  "industry": "High-Speed Rail",
+  "meta": "Industry: High-Speed Rail · Region: Indonesia",
+  "background": "Providing safe and reliable operation in tropical climates for the first high-speed railway in Southeast Asia (Whoosh).",
+  "solution": "Supplying complete train braking systems, including EP braking control, bogie equipment, and air supply units.",
+  "richContent": [
+    {
+      "id": "block-001",
+      "type": "heading",
+      "level": 2,
+      "text": "热带气候下的完整制动包"
+    },
+    {
+      "id": "block-002",
+      "type": "paragraph",
+      "spans": [
+        { "type": "text", "text": "方案覆盖 EP 控制、基础制动与空气供给，确保", "marks": [] },
+        { "type": "text", "text": "高湿度环境", "marks": ["bold"] },
+        { "type": "text", "text": "下的稳定运营。", "marks": [] }
+      ]
+    }
+  ],
+  "relatedIds": ["case-001", "case-005"],
+  "publishedAt": "2024-05-15T08:00:00.000Z"
+}

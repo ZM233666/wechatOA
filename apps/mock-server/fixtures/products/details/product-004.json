@@ -1,0 +1,69 @@
+{
+  "id": "product-004",
+  "slug": "digital-cbm",
+  "name": "Digital CBM",
+  "nameCn": "数字化方案",
+  "subtitleEn": "Digital",
+  "summary": "Condition based maintenance platform for real-time health monitoring.",
+  "description": "Condition-based maintenance and predictive health management platforms.",
+  "category": { "id": "digital", "name": "Digital Solutions" },
+  "coverImage": {
+    "url": "/mock-assets/products/product-004-cover.png",
+    "alt": "Digital CBM",
+    "width": 1200,
+    "height": 800,
+    "aspectRatio": 1.5
+  },
+  "gallery": [
+    {
+      "url": "/mock-assets/products/product-004-cover.png",
+      "alt": "Digital CBM 平台",
+      "width": 1200,
+      "height": 800,
+      "aspectRatio": 1.5
+    }
+  ],
+  "relatedProducts": [
+    {
+      "name": "EP Compact",
+      "description": "Electronic brake control system ensuring precise and safe braking.",
+      "image": {
+        "url": "/mock-assets/products/product-001-cover.png",
+        "alt": "EP Compact",
+        "width": 1200,
+        "height": 800,
+        "aspectRatio": 1.5
+      }
+    },
+    {
+      "name": "Bogie Equipment",
+      "description": "Brake calipers, discs, and pads designed for optimal friction.",
+      "image": {
+        "url": "/mock-assets/products/product-005-cover.png",
+        "alt": "Bogie Equipment",
+        "width": 1200,
+        "height": 800,
+        "aspectRatio": 1.5
+      }
+    }
+  ],
+  "richContent": [
+    {
+      "id": "block-001",
+      "type": "heading",
+      "level": 2,
+      "text": "状态修与健康监测"
+    },
+    {
+      "id": "block-002",
+      "type": "paragraph",
+      "spans": [
+        { "type": "text", "text": "Digital CBM 为轨道交通设备提供", "marks": [] },
+        { "type": "text", "text": "实时健康监测与状态修决策", "marks": ["bold"] },
+        { "type": "text", "text": "。", "marks": [] }
+      ]
+    }
+  ],
+  "relatedIds": ["product-001", "product-005"],
+  "publishedAt": "2024-04-12T08:00:00.000Z"
+}
