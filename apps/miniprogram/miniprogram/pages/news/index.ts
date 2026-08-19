@@ -1,10 +1,18 @@
-import { getNewsList, type NewsListItemView } from '../../services/news.service';
+import {
+  getNewsCategories,
+  getNewsList,
+  type NewsCategoryView,
+  type NewsListItemView,
+} from '../../services/news.service';
 import { RequestError } from '../../types/api';
 import { fallbackImageUrl } from '../../utils/format';
 
 Page({
   data: {
     newsList: [] as NewsListItemView[],
+    categories: [] as NewsCategoryView[],
+    activeCategory: 'all',
+    keyword: '',
     pageStatus: 'loading' as 'loading' | 'success' | 'empty' | 'error',
     errorText: '',
     page: 1,
@@ -16,7 +24,7 @@ Page({
 
   onLoad() {
     this.setData({ pageAlive: true });
-    void this.loadNews(true);
+    void this.bootstrap();
   },
 
   onUnload() {
@@ -34,6 +42,24 @@ Page({
       return;
     }
     void this.loadNews(false);
+  },
+
+  async bootstrap() {
+    try {
+      const categories = await getNewsCategories();
+      if (!this.data.pageAlive) {
+        return;
+      }
+      this.setData({ categories: categories.length ? categories : [{ id: 'all', name: '全部', articleCount: 0 }] });
+    } catch {
+      if (!this.data.pageAlive) {
+        return;
+      }
+      this.setData({
+        categories: [{ id: 'all', name: '全部', articleCount: 0 }],
+      });
+    }
+    void this.loadNews(true);
   },
 
   async loadNews(reset: boolean) {
@@ -59,7 +85,12 @@ Page({
     }
     try {
       const page = reset ? 1 : this.data.page + 1;
-      const result = await getNewsList({ page, pageSize: 5 });
+      const result = await getNewsList({
+        page,
+        pageSize: 5,
+        category: this.data.activeCategory,
+        keyword: this.data.keyword.trim() || undefined,
+      });
       if (!this.data.pageAlive) {
         return;
       }
@@ -88,6 +119,23 @@ Page({
         errorText: error instanceof RequestError ? error.message : '新闻加载失败',
       });
     }
+  },
+
+  onCategoryTap(event: WechatMiniprogram.TouchEvent) {
+    const { id } = event.currentTarget.dataset as { id?: string };
+    if (!id || id === this.data.activeCategory || this.data.requesting) {
+      return;
+    }
+    this.setData({ activeCategory: id });
+    void this.loadNews(true);
+  },
+
+  onSearchInput(event: WechatMiniprogram.Input) {
+    this.setData({ keyword: event.detail.value });
+  },
+
+  onSearch() {
+    void this.loadNews(true);
   },
 
   onRetry() {

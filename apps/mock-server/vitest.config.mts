@@ -10,6 +10,7 @@ export default defineConfig({
       MOCK_DELAY_ENABLED: 'false',
       MOCK_DEFAULT_SCENARIO: 'normal',
       MOCK_PORT: '3100',
+      MOCK_NOW: '2026-08-19T06:00:00.000Z',
     },
   },
 });

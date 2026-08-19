@@ -1,12 +1,24 @@
 {
   "id": "news-006",
   "slug": "ife-door-systems-metro-operations",
+  "status": "published",
+  "language": "zh-CN",
   "title": "IFE Door Systems Support High-Frequency Metro Operations",
   "subtitle": "高频次地铁运营的入口系统",
   "summary": "Smart entrance systems continue to improve passenger flow and operational reliability in mass transit.",
-  "category": { "id": "project", "name": "Project Delivery" },
-  "author": { "name": "KB China" },
-  "publishedAt": "2024-03-28T08:00:00.000Z",
+  "category": {
+    "id": "project",
+    "name": "Project Delivery"
+  },
+  "author": {
+    "id": "kb-china",
+    "name": "KB China",
+    "avatar": null
+  },
+  "source": {
+    "name": "KB China",
+    "url": null
+  },
   "coverImage": {
     "url": "/mock-assets/news/news-006-cover.png",
     "alt": "IFE 门系统新闻封面",
@@ -14,6 +26,27 @@
     "height": 675,
     "aspectRatio": 1.7778
   },
+  "tags": [
+    {
+      "id": "ife",
+      "name": "IFE"
+    },
+    {
+      "id": "metro",
+      "name": "地铁"
+    }
+  ],
+  "placement": {
+    "showOnHome": false,
+    "featured": false,
+    "pinned": false,
+    "sortOrder": 50,
+    "showOnBanner": false
+  },
+  "createdAt": "2024-03-24T08:00:00.000Z",
+  "updatedAt": "2024-03-27T08:00:00.000Z",
+  "publishedAt": "2024-03-28T08:00:00.000Z",
+  "scheduledAt": null,
   "richContent": [
     {
       "id": "block-001",
@@ -25,9 +58,23 @@
       "id": "block-002",
       "type": "paragraph",
       "spans": [
-        { "type": "text", "text": "IFE 智能门系统持续改善地铁客流效率，并提升", "marks": [] },
-        { "type": "text", "text": "高频次运营可靠性", "marks": ["bold"] },
-        { "type": "text", "text": "。", "marks": [] }
+        {
+          "type": "text",
+          "text": "IFE 智能门系统持续改善地铁客流效率，并提升",
+          "marks": []
+        },
+        {
+          "type": "text",
+          "text": "高频次运营可靠性",
+          "marks": [
+            "bold"
+          ]
+        },
+        {
+          "type": "text",
+          "text": "。",
+          "marks": []
+        }
       ]
     },
     {
@@ -38,10 +85,13 @@
       "linkType": "internal"
     }
   ],
-  "tags": ["IFE", "metro"],
-  "relatedIds": ["news-002", "news-003"],
+  "relatedArticleIds": [
+    "news-002",
+    "news-003"
+  ],
   "share": {
     "title": "IFE 门系统支持高频地铁运营",
+    "summary": "Smart entrance systems continue to improve passenger flow and operational reliability in mass transit.",
     "imageUrl": "/mock-assets/news/news-006-cover.png"
   }
 }

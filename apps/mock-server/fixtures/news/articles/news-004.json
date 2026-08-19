@@ -1,12 +1,24 @@
 {
   "id": "news-004",
   "slug": "ep-compact-braking-system-launched",
+  "status": "published",
+  "language": "zh-CN",
   "title": "Next-Generation EP Compact Braking System Launched",
   "subtitle": "更轻、更可靠的数字化制动控制",
   "summary": "The new EP Compact braking system provides unprecedented reliability, lower weight, and digital integration.",
-  "category": { "id": "product", "name": "Products" },
-  "author": { "name": "KB China" },
-  "publishedAt": "2024-04-25T08:00:00.000Z",
+  "category": {
+    "id": "product",
+    "name": "Products"
+  },
+  "author": {
+    "id": "kb-china",
+    "name": "KB China",
+    "avatar": null
+  },
+  "source": {
+    "name": "KB China",
+    "url": null
+  },
   "coverImage": {
     "url": "/mock-assets/news/news-004-cover.png",
     "alt": "EP Compact 产品发布封面",
@@ -14,6 +26,27 @@
     "height": 675,
     "aspectRatio": 1.7778
   },
+  "tags": [
+    {
+      "id": "ep-compact",
+      "name": "EP Compact"
+    },
+    {
+      "id": "digitalization",
+      "name": "数字化"
+    }
+  ],
+  "placement": {
+    "showOnHome": false,
+    "featured": true,
+    "pinned": false,
+    "sortOrder": 70,
+    "showOnBanner": false
+  },
+  "createdAt": "2024-04-21T08:00:00.000Z",
+  "updatedAt": "2024-04-24T08:00:00.000Z",
+  "publishedAt": "2024-04-25T08:00:00.000Z",
+  "scheduledAt": null,
   "richContent": [
     {
       "id": "block-001",
@@ -25,22 +58,43 @@
       "id": "block-002",
       "type": "paragraph",
       "spans": [
-        { "type": "text", "text": "新一代 EP Compact 制动系统强调", "marks": [] },
-        { "type": "text", "text": "更轻的重量、更高的可靠性与数字集成", "marks": ["bold"] },
-        { "type": "text", "text": "，面向高速与城轨车辆。", "marks": [] }
+        {
+          "type": "text",
+          "text": "新一代 EP Compact 制动系统强调",
+          "marks": []
+        },
+        {
+          "type": "text",
+          "text": "更轻的重量、更高的可靠性与数字集成",
+          "marks": [
+            "bold"
+          ]
+        },
+        {
+          "type": "text",
+          "text": "，面向高速与城轨车辆。",
+          "marks": []
+        }
       ]
     },
     {
       "id": "block-003",
       "type": "list",
       "ordered": false,
-      "items": ["降低系统重量", "提升可靠性", "支持数字化接口"]
+      "items": [
+        "降低系统重量",
+        "提升可靠性",
+        "支持数字化接口"
+      ]
     }
   ],
-  "tags": ["EP Compact", "数字化"],
-  "relatedIds": ["news-001", "news-005"],
+  "relatedArticleIds": [
+    "news-001",
+    "news-005"
+  ],
   "share": {
     "title": "EP Compact 制动系统发布",
+    "summary": "The new EP Compact braking system provides unprecedented reliability, lower weight, and digital integration.",
     "imageUrl": "/mock-assets/news/news-004-cover.png"
   }
 }

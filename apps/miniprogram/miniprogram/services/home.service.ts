@@ -17,6 +17,8 @@ export async function getHome(): Promise<HomeViewData> {
       title: item.title,
       description: item.description,
       image: toAssetUrl(item.image),
+      newsId: item.newsId,
+      targetUrl: item.targetUrl,
     })),
     entries: data.quickEntries.map((item) => ({
       id: item.id,

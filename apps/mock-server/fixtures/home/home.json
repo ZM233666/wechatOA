@@ -150,56 +150,6 @@
       }
     }
   ],
-  "latestNews": [
-    {
-      "id": "news-001",
-      "title": "Knorr-Bremse to Supply Braking Systems for 128 CR450 High-Speed Trains in China",
-      "summary": "Knorr-Bremse has been awarded a major contract to equip 128 new CR450 high-speed trains for the Chinese market with advanced braking systems.",
-      "category": { "id": "company", "name": "Company News" },
-      "publishedAt": "2024-05-20T08:00:00.000Z",
-      "coverImage": {
-        "url": "/mock-assets/news/news-001-cover.png",
-        "alt": "CR450 高速列车制动系统新闻封面",
-        "width": 1200,
-        "height": 675,
-        "aspectRatio": 1.7778
-      },
-      "featured": true,
-      "tags": ["CR450", "制动系统", "中国"]
-    },
-    {
-      "id": "news-002",
-      "title": "Knorr-Bremse Secures Major Contract for Jakarta-Bandung High-Speed Rail Project",
-      "summary": "The Jakarta-Bandung high-speed rail line will be equipped with Knorr-Bremse highly reliable braking systems.",
-      "category": { "id": "project", "name": "Project Delivery" },
-      "publishedAt": "2024-05-15T08:00:00.000Z",
-      "coverImage": {
-        "url": "/mock-assets/news/news-002-cover.png",
-        "alt": "雅万高铁项目新闻封面",
-        "width": 1200,
-        "height": 675,
-        "aspectRatio": 1.7778
-      },
-      "featured": true,
-      "tags": ["雅万高铁", "project"]
-    },
-    {
-      "id": "news-003",
-      "title": "Knorr-Bremse and Chinese Partners Sign Strategic Cooperation Agreement",
-      "summary": "A new strategic cooperation agreement has been signed today, marking a milestone in localization and collaboration.",
-      "category": { "id": "events", "name": "Events" },
-      "publishedAt": "2024-05-10T08:00:00.000Z",
-      "coverImage": {
-        "url": "/mock-assets/news/news-003-cover.png",
-        "alt": "战略合作协议签署新闻封面",
-        "width": 1200,
-        "height": 675,
-        "aspectRatio": 1.7778
-      },
-      "featured": false,
-      "tags": ["合作", "localization"]
-    }
-  ],
   "serviceEntries": [
     {
       "id": "digital-cbm",

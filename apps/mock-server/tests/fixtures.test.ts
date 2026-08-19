@@ -18,8 +18,15 @@ describe('fixtures', () => {
   it('keeps list and detail ids aligned and assets present', () => {
     const fixtures = loadFixtures();
     const newsIds = new Set(fixtures.newsList.map((item) => item.id));
-    fixtures.newsArticles.forEach((article) => {
-      expect(newsIds.has(article.id)).toBe(true);
+    fixtures.newsList.forEach((item) => {
+      expect(newsIds.has(item.id)).toBe(true);
+      expect(fixtures.newsArticles.some((article) => article.id === item.id && article.status === 'published')).toBe(
+        true,
+      );
+    });
+    const unpublished = fixtures.newsArticles.filter((item) => item.status !== 'published');
+    unpublished.forEach((article) => {
+      expect(newsIds.has(article.id)).toBe(false);
     });
     const assets = collectAssetPaths(fixtures);
     assets.forEach((assetPath) => {

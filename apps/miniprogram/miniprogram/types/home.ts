@@ -6,6 +6,8 @@ export interface HomeBanner {
   title: string;
   description: string;
   image: string;
+  newsId?: string;
+  targetUrl?: string;
   /** 标记为 Demo / 临时占位，便于后续替换正式素材 */
   isPlaceholder?: boolean;
 }
@@ -32,6 +34,7 @@ export interface HomeApiBanner {
   description: string;
   image: ImageResource;
   targetUrl?: string;
+  newsId?: string;
 }
 
 export interface HomeApiQuickEntry {
@@ -54,7 +57,8 @@ export interface HomeData {
     publishedAt: string;
     coverImage: ImageResource;
     featured: boolean;
-    tags: string[];
+    pinned?: boolean;
+    tags: Array<{ id: string; name: string } | string>;
   }>;
   featureFlags: {
     showHomeBanner: boolean;

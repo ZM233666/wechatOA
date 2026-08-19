@@ -8,6 +8,8 @@ export interface HomeBanner {
   description: string;
   image: ImageResource;
   targetUrl?: string;
+  /** 绑定新闻时，小程序点击进入对应详情 */
+  newsId?: string;
 }
 
 export interface HomeQuickEntry {

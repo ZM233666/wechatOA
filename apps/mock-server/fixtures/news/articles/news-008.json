@@ -1,12 +1,24 @@
 {
   "id": "news-008",
   "slug": "fastphm-predictive-diagnostics",
+  "status": "published",
+  "language": "zh-CN",
   "title": "FastPHM Brings Predictive Diagnostics to Regional Fleets",
   "subtitle": "更早发现故障的区域车队方案",
   "summary": "Predictive health management is being rolled out to help regional operators detect faults earlier.",
-  "category": { "id": "product", "name": "Products" },
-  "author": { "name": "KB China" },
-  "publishedAt": "2024-02-18T08:00:00.000Z",
+  "category": {
+    "id": "product",
+    "name": "Products"
+  },
+  "author": {
+    "id": "kb-china",
+    "name": "KB China",
+    "avatar": null
+  },
+  "source": {
+    "name": "KB China",
+    "url": null
+  },
   "coverImage": {
     "url": "/mock-assets/news/news-008-cover.png",
     "alt": "FastPHM 预测性维护新闻封面",
@@ -14,6 +26,27 @@
     "height": 675,
     "aspectRatio": 1.7778
   },
+  "tags": [
+    {
+      "id": "fastphm",
+      "name": "FastPHM"
+    },
+    {
+      "id": "rail",
+      "name": "轨道交通"
+    }
+  ],
+  "placement": {
+    "showOnHome": false,
+    "featured": false,
+    "pinned": false,
+    "sortOrder": 30,
+    "showOnBanner": false
+  },
+  "createdAt": "2024-02-14T08:00:00.000Z",
+  "updatedAt": "2024-02-17T08:00:00.000Z",
+  "publishedAt": "2024-02-18T08:00:00.000Z",
+  "scheduledAt": null,
   "richContent": [
     {
       "id": "block-001",
@@ -25,12 +58,29 @@
       "id": "block-002",
       "type": "paragraph",
       "spans": [
-        { "type": "text", "text": "FastPHM 正在帮助区域运营商", "marks": [] },
-        { "type": "text", "text": "更早识别故障", "marks": ["bold"] },
-        { "type": "text", "text": "，提升车队可用率。", "marks": [] }
+        {
+          "type": "text",
+          "text": "FastPHM 正在帮助区域运营商",
+          "marks": []
+        },
+        {
+          "type": "text",
+          "text": "更早识别故障",
+          "marks": [
+            "bold"
+          ]
+        },
+        {
+          "type": "text",
+          "text": "，提升车队可用率。",
+          "marks": []
+        }
       ]
     },
-    { "id": "block-003", "type": "divider" },
+    {
+      "id": "block-003",
+      "type": "divider"
+    },
     {
       "id": "block-004",
       "type": "link",
@@ -39,10 +89,13 @@
       "linkType": "internal"
     }
   ],
-  "tags": ["FastPHM", "rail"],
-  "relatedIds": ["news-005", "news-004"],
+  "relatedArticleIds": [
+    "news-005",
+    "news-004"
+  ],
   "share": {
     "title": "FastPHM 预测性诊断",
+    "summary": "Predictive health management is being rolled out to help regional operators detect faults earlier.",
     "imageUrl": "/mock-assets/news/news-008-cover.png"
   }
 }

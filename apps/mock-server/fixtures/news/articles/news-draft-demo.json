@@ -1,0 +1,67 @@
+{
+  "id": "news-draft-demo",
+  "slug": "news-draft-demo",
+  "status": "draft",
+  "language": "zh-CN",
+  "title": "草稿演示：尚未对外发布的新闻",
+  "subtitle": "仅用于校验公开 API 可见性",
+  "summary": "这是一篇草稿演示文章，不应出现在首页、列表、搜索和分类统计中。",
+  "category": {
+    "id": "company",
+    "name": "Company News"
+  },
+  "author": {
+    "id": "kb-china",
+    "name": "KB China",
+    "avatar": null
+  },
+  "source": {
+    "name": "KB China",
+    "url": null
+  },
+  "coverImage": {
+    "url": "/mock-assets/news/news-008-cover.png",
+    "alt": "草稿演示封面",
+    "width": 1200,
+    "height": 675,
+    "aspectRatio": 1.7778
+  },
+  "tags": [
+    {
+      "id": "demo",
+      "name": "演示"
+    }
+  ],
+  "placement": {
+    "showOnHome": true,
+    "featured": true,
+    "pinned": true,
+    "sortOrder": 999,
+    "showOnBanner": false
+  },
+  "createdAt": "2026-08-01T08:00:00.000Z",
+  "updatedAt": "2026-08-02T08:00:00.000Z",
+  "publishedAt": null,
+  "scheduledAt": null,
+  "richContent": [
+    {
+      "id": "block-001",
+      "type": "paragraph",
+      "spans": [
+        {
+          "type": "text",
+          "text": "草稿内容不得出现在公开接口。",
+          "marks": []
+        }
+      ]
+    }
+  ],
+  "relatedArticleIds": [
+    "news-001"
+  ],
+  "share": {
+    "title": "草稿演示",
+    "summary": "草稿不应被分享到公开端。",
+    "imageUrl": "/mock-assets/news/news-008-cover.png"
+  }
+}

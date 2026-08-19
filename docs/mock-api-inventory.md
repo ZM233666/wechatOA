@@ -6,10 +6,10 @@
 | --- | --- | --- | --- | --- | --- | --- | --- |
 | GET | `/api/health` | 首页开发检查 | - | `HealthData` | - | 已有不同 payload | Mock 含 `service/mode/version` |
 | GET | `/api/app/config` | 预留 | - | `AppConfig` | `fixtures/app/config.json` | 未实现 | feature flags |
-| GET | `/api/home` | 首页 | - | `HomeData` | `fixtures/home/home.json` | 未实现 | 聚合接口 |
-| GET | `/api/news/categories` | 新闻 | - | `NewsCategory[]` | `fixtures/news/categories.json` | 未实现 | |
-| GET | `/api/news` | 新闻列表 | `page,pageSize,category,keyword,featured` | `PaginatedData<NewsSummary>` | `fixtures/news/list.json` | 未实现 | 不含正文 |
-| GET | `/api/news/:id` | 新闻详情 | `id` | `NewsDetail` | `fixtures/news/articles/*.json` | 未实现 | 含 `richContent` |
+| GET | `/api/home` | 首页 | - | `HomeData` | `fixtures/home/home.json` + 已发布新闻筛选 | 未实现 | `latestNews` 由公开新闻映射，最多 3 条 |
+| GET | `/api/news/categories` | 新闻 | - | `{ items: NewsCategory[] }` | `fixtures/news/categories.json` | 未实现 | `articleCount` 只统计公开文章；含动态 `all` |
+| GET | `/api/news` | 新闻列表 | `page,pageSize,category,keyword,featured,pinned` | `PaginatedData<NewsSummary>` | `fixtures/news/articles/*.json` | 未实现 | 不含正文；由完整文章映射 |
+| GET | `/api/news/:id` | 新闻详情 | `id` 或 `slug` | `NewsDetail` | 同上 | 未实现 | 含 `richContent`；draft/scheduled/archived 为 404 |
 | GET | `/api/brand` | 品牌 | - | Brand overview | `fixtures/brand/overview.json` | 未实现 | |
 | GET | `/api/brand/articles` | 预留 | 分页 | 文章摘要分页 | `fixtures/brand/articles/` | 未实现 | |
 | GET | `/api/brand/articles/:id` | 预留 | `id` | `ArticleDetail` | 同上 | 未实现 | |

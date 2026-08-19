@@ -9,16 +9,22 @@ export interface RichTextSpan {
   marks?: RichTextMark[];
 }
 
+export type TextAlign = 'left' | 'center' | 'right';
+
+export type ImageLayout = 'normal' | 'wide' | 'full';
+
 export interface HeadingBlock {
   id: string;
   type: 'heading';
   level: 1 | 2 | 3;
   text: string;
+  align?: TextAlign;
 }
 
 export interface ParagraphBlock {
   id: string;
   type: 'paragraph';
+  align?: TextAlign;
   spans: RichTextSpan[];
 }
 
@@ -27,6 +33,7 @@ export interface ImageBlock {
   type: 'image';
   image: ImageResource;
   caption?: string;
+  layout?: ImageLayout;
 }
 
 export interface QuoteBlock {
@@ -48,7 +55,7 @@ export interface DividerBlock {
   type: 'divider';
 }
 
-export type CalloutVariant = 'info' | 'warning' | 'success';
+export type CalloutVariant = 'info' | 'warning' | 'success' | 'exclusive';
 
 export interface CalloutBlock {
   id: string;

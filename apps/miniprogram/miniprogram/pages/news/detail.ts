@@ -6,7 +6,7 @@ Page({
   data: {
     newsId: '',
     news: null as NewsDetailView | null,
-    pageStatus: 'loading' as 'loading' | 'success' | 'empty' | 'error',
+    pageStatus: 'loading' as 'loading' | 'success' | 'not-found' | 'error',
     errorText: '',
     favorited: false,
     pageAlive: true,
@@ -22,17 +22,32 @@ Page({
     this.data.pageAlive = false;
   },
 
+  onShareAppMessage() {
+    const news = this.data.news;
+    if (!news) {
+      return {
+        title: '新闻详情',
+        path: '/pages/news/index',
+      };
+    }
+    return {
+      title: news.shareTitle || news.title,
+      path: `/pages/news/detail?id=${news.id}`,
+      imageUrl: news.shareImage || news.image,
+    };
+  },
+
   async loadDetail() {
     if (!this.data.pageAlive || this.data.requesting) {
       return;
     }
     const id = this.data.newsId;
     if (!id) {
-      this.setData({ pageStatus: 'empty', news: null });
+      this.setData({ pageStatus: 'not-found', news: null });
       return;
     }
     this.data.requesting = true;
-    this.setData({ requesting: true, pageStatus: 'loading', errorText: '' });
+    this.setData({ requesting: true, pageStatus: 'loading', errorText: '', favorited: false });
     try {
       const news = await getNewsDetail(id);
       if (!this.data.pageAlive) {
@@ -44,7 +59,7 @@ Page({
       if (!this.data.pageAlive) {
         return;
       }
-      const status = error instanceof RequestError && error.statusCode === 404 ? 'empty' : 'error';
+      const status = error instanceof RequestError && error.statusCode === 404 ? 'not-found' : 'error';
       this.data.requesting = false;
       this.setData({
         news: null,
@@ -71,18 +86,36 @@ Page({
     });
   },
 
+  onRelatedImageError(event: WechatMiniprogram.TouchEvent) {
+    const { id } = event.currentTarget.dataset as { id?: string };
+    if (!id || !this.data.news) {
+      return;
+    }
+    this.setData({
+      news: {
+        ...this.data.news,
+        relatedArticles: this.data.news.relatedArticles.map((item) =>
+          item.id === id ? { ...item, image: fallbackImageUrl(item.image) } : item,
+        ),
+      },
+    });
+  },
+
+  onRelatedTap(event: WechatMiniprogram.TouchEvent) {
+    const { id } = event.currentTarget.dataset as { id?: string };
+    if (!id || id === this.data.newsId) {
+      return;
+    }
+    wx.redirectTo({
+      url: `/pages/news/detail?id=${id}`,
+    });
+  },
+
   onToggleFavorite() {
     const next = !this.data.favorited;
     this.setData({ favorited: next });
     wx.showToast({
       title: next ? '已加入收藏' : '已取消收藏',
-      icon: 'none',
-    });
-  },
-
-  onShare() {
-    wx.showToast({
-      title: 'Shared successfully',
       icon: 'none',
     });
   },

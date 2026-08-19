@@ -1,0 +1,67 @@
+{
+  "id": "news-archived-demo",
+  "slug": "news-archived-demo",
+  "status": "archived",
+  "language": "zh-CN",
+  "title": "归档演示：已下线的新闻",
+  "subtitle": "用于校验归档不可见",
+  "summary": "这是一篇归档演示文章，不应出现在列表中，详情默认返回 404。",
+  "category": {
+    "id": "product",
+    "name": "Products"
+  },
+  "author": {
+    "id": "kb-china",
+    "name": "KB China",
+    "avatar": null
+  },
+  "source": {
+    "name": "KB China",
+    "url": null
+  },
+  "coverImage": {
+    "url": "/mock-assets/news/news-006-cover.png",
+    "alt": "归档演示封面",
+    "width": 1200,
+    "height": 675,
+    "aspectRatio": 1.7778
+  },
+  "tags": [
+    {
+      "id": "demo",
+      "name": "演示"
+    }
+  ],
+  "placement": {
+    "showOnHome": true,
+    "featured": false,
+    "pinned": false,
+    "sortOrder": 10,
+    "showOnBanner": false
+  },
+  "createdAt": "2024-01-01T08:00:00.000Z",
+  "updatedAt": "2024-06-01T08:00:00.000Z",
+  "publishedAt": "2024-01-15T08:00:00.000Z",
+  "scheduledAt": null,
+  "richContent": [
+    {
+      "id": "block-001",
+      "type": "paragraph",
+      "spans": [
+        {
+          "type": "text",
+          "text": "归档内容不得出现在公开接口。",
+          "marks": []
+        }
+      ]
+    }
+  ],
+  "relatedArticleIds": [
+    "news-004"
+  ],
+  "share": {
+    "title": "归档演示",
+    "summary": "归档文章详情应返回统一 404。",
+    "imageUrl": "/mock-assets/news/news-006-cover.png"
+  }
+}

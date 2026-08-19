@@ -2,15 +2,16 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { z, type ZodType } from 'zod';
 import type { AppConfig, ArticleDetail, CaseDetail, CaseSummary, HomeData, NewsSummary, ProductCategoriesData, ProductDetail, ProductSummary, ProfileData, ServiceDetail, ServicesPageData } from '@app/shared';
-import { appConfigSchema, homeDataSchema } from '../schemas/home.schema';
+import { appConfigSchema, homeFileSchema } from '../schemas/home.schema';
 import { brandOverviewFileSchema, type BrandOverview } from '../schemas/brand.schema';
-import { newsArticleSchema, newsCategoriesSchema, newsListSchema } from '../schemas/news.schema';
+import { newsArticleFixtureSchema, newsCategoriesSchema, type NewsArticleFixture } from '../schemas/news.schema';
 import { caseCategorySchema, caseDetailSchema, caseSummarySchema } from '../schemas/case.schema';
 import { productCategoriesFileSchema, productDetailSchema, productSummarySchema } from '../schemas/product.schema';
 import { servicesFileSchema } from '../schemas/service.schema';
 import { activitiesSchema, canteenSchema, kbLifeEntriesSchema, shuttleSchema } from '../schemas/kb-life.schema';
 import { profileSchema } from '../schemas/profile.schema';
 import { articleDetailSchema } from '../schemas/article.schema';
+import { listPublicNews, selectHomeNews, toNewsSummary } from './news.service';
 import { logError } from '../utils/logger';
 
 const ROOT = path.resolve(__dirname, '../../');
@@ -67,7 +68,7 @@ export interface MockFixtureStore {
   home: HomeData;
   newsCategories: Array<{ id: string; name: string }>;
   newsList: NewsSummary[];
-  newsArticles: ArticleDetail[];
+  newsArticles: NewsArticleFixture[];
   brand: BrandOverview;
   brandArticles: ArticleDetail[];
   productCategories: ProductCategoriesData;
@@ -89,10 +90,16 @@ let store: MockFixtureStore | null = null;
 
 export function loadFixtures(): MockFixtureStore {
   const appConfig = readJsonFile('app/config.json', appConfigSchema);
-  const home = readJsonFile('home/home.json', homeDataSchema);
+  const homeFile = readJsonFile('home/home.json', homeFileSchema);
   const newsCategories = readJsonFile('news/categories.json', newsCategoriesSchema);
-  const newsList = readJsonFile('news/list.json', newsListSchema);
-  const newsArticles = listJsonFiles('news/articles').map((file) => readJsonFile(file, newsArticleSchema));
+  const newsArticles = listJsonFiles('news/articles').map((file) =>
+    readJsonFile(file, newsArticleFixtureSchema),
+  );
+  const newsList = listPublicNews(newsArticles).map(toNewsSummary);
+  const home: HomeData = {
+    ...homeFile,
+    latestNews: selectHomeNews(newsArticles),
+  };
   const brand = readJsonFile('brand/overview.json', brandOverviewFileSchema);
   const brandArticleFiles = listJsonFiles('brand/articles');
   const brandArticles = brandArticleFiles.map((file) => readJsonFile(file, articleDetailSchema));
@@ -177,6 +184,83 @@ export function collectAssetPaths(value: unknown, bucket = new Set<string>()): S
   return bucket;
 }
 
+const MINI_PROGRAM_PAGES = new Set([
+  '/pages/index/index',
+  '/pages/services/index',
+  '/pages/kb-life/index',
+  '/pages/profile/index',
+  '/pages/profile/personal-info/index',
+  '/pages/news/index',
+  '/pages/news/detail',
+  '/pages/brand/index',
+  '/pages/products/index',
+  '/pages/products/detail',
+  '/pages/cases/index',
+  '/pages/cases/detail',
+  '/pages/kb-life/shuttle-bus/index',
+  '/pages/kb-life/canteen/index',
+  '/pages/kb-life/holiday-calendar/index',
+  '/pages/kb-life/open-positions/index',
+  '/pages/kb-life/open-positions/detail',
+  '/pages/kb-life/handbook/index',
+  '/pages/kb-life/care/index',
+  '/pages/kb-life/events/index',
+  '/pages/kb-life/events/annual-dinner/index',
+  '/pages/kb-life/events/outings/index',
+  '/pages/kb-life/events/health/index',
+]);
+
+function aspectRatioMismatch(image: { width: number; height: number; aspectRatio: number }): boolean {
+  return Math.abs(image.width / image.height - image.aspectRatio) > 0.05;
+}
+
+function collectArticleLinks(
+  blocks: Array<{
+    type: string;
+    url?: string;
+    linkType?: string;
+    spans?: Array<{ type: string; href?: string }>;
+  }>,
+): Array<{ url: string; linkType: 'internal' | 'external' }> {
+  const links: Array<{ url: string; linkType: 'internal' | 'external' }> = [];
+  blocks.forEach((block) => {
+    if (block.type === 'link' && block.url) {
+      links.push({
+        url: block.url,
+        linkType: block.linkType === 'external' ? 'external' : 'internal',
+      });
+    }
+    if (block.type === 'paragraph' && block.spans) {
+      block.spans.forEach((span) => {
+        if (span.type === 'link' && span.href) {
+          links.push({
+            url: span.href,
+            linkType: span.href.startsWith('/pages/') ? 'internal' : 'external',
+          });
+        }
+      });
+    }
+  });
+  return links;
+}
+
+function validateLink(articleId: string, url: string, linkType: 'internal' | 'external', errors: string[]): void {
+  if (/javascript:/i.test(url) || url.startsWith('data:')) {
+    errors.push(`新闻 ${articleId} 含有非法链接: ${url}`);
+    return;
+  }
+  if (linkType === 'internal') {
+    const pagePath = url.split('?')[0];
+    if (!MINI_PROGRAM_PAGES.has(pagePath)) {
+      errors.push(`新闻 ${articleId} 的内部链接不是合法小程序路径: ${url}`);
+    }
+    return;
+  }
+  if (!/^https?:\/\//i.test(url)) {
+    errors.push(`新闻 ${articleId} 的外部链接必须是 http/https: ${url}`);
+  }
+}
+
 export function assertFixtureIntegrity(data: MockFixtureStore): void {
   const newsListIds = new Set(data.newsList.map((item) => item.id));
   const newsArticleIds = new Set(data.newsArticles.map((item) => item.id));
@@ -192,33 +276,66 @@ export function assertFixtureIntegrity(data: MockFixtureStore): void {
   if (data.home.banners.length < 3) errors.push('首页 Banner 少于 3 条');
   if (data.home.quickEntries.length < 4) errors.push('首页快捷入口少于 4 条');
   if (data.newsCategories.length < 3) errors.push('新闻分类少于 3 个');
-  if (data.newsList.length < 8) errors.push('新闻摘要少于 8 条');
-  if (data.newsArticles.length < 8) errors.push('完整新闻文章少于 8 篇');
+  if (data.newsList.length < 8) errors.push('公开新闻摘要少于 8 条');
+  if (data.newsArticles.filter((item) => item.status === 'published').length < 8) {
+    errors.push('已发布新闻文章少于 8 篇');
+  }
   if (data.products.length < 6) errors.push('产品少于 6 条');
   if (data.productDetails.length < 6) errors.push('产品详情少于 6 条');
   if (data.cases.length < 6) errors.push('案例少于 6 条');
   if (data.caseDetails.length < 6) errors.push('案例详情少于 6 条');
+
+  const newsSlugs = new Set<string>();
+  if (data.newsArticles.length !== newsArticleIds.size) {
+    errors.push('新闻 ID 不唯一');
+  }
+  data.newsArticles.forEach((article) => {
+    if (newsSlugs.has(article.slug)) {
+      errors.push(`新闻 slug 重复: ${article.slug}`);
+    }
+    newsSlugs.add(article.slug);
+    if (!newsCategoryIds.has(article.category.id)) {
+      errors.push(`新闻 ${article.id} 的分类 ${article.category.id} 不存在`);
+    }
+    if (article.status === 'published' && !article.publishedAt) {
+      errors.push(`新闻 ${article.id} 为 published 但缺少 publishedAt`);
+    }
+    if (article.status === 'scheduled' && !article.scheduledAt) {
+      errors.push(`新闻 ${article.id} 为 scheduled 但缺少 scheduledAt`);
+    }
+    if (aspectRatioMismatch(article.coverImage)) {
+      errors.push(`新闻 ${article.id} 封面 aspectRatio 与宽高不一致`);
+    }
+    if (article.thumbnailImage && aspectRatioMismatch(article.thumbnailImage)) {
+      errors.push(`新闻 ${article.id} 缩略图 aspectRatio 与宽高不一致`);
+    }
+    collectDuplicateBlockIds(article.richContent).forEach((blockId) => {
+      errors.push(`新闻 ${article.id} 的 richContent block id 重复: ${blockId}`);
+    });
+    article.relatedArticleIds.forEach((relatedId) => {
+      if (relatedId === article.id) {
+        errors.push(`新闻 ${article.id} 不能关联自身`);
+      }
+      if (!newsArticleIds.has(relatedId)) {
+        errors.push(`新闻 ${article.id} 的 relatedArticleIds 引用了不存在的 ${relatedId}`);
+      }
+    });
+    collectArticleLinks(article.richContent).forEach((link) => {
+      validateLink(article.id, link.url, link.linkType, errors);
+    });
+  });
 
   data.newsList.forEach((item) => {
     if (!newsCategoryIds.has(item.category.id)) {
       errors.push(`新闻 ${item.id} 的分类 ${item.category.id} 不存在`);
     }
     if (!newsArticleIds.has(item.id)) {
-      errors.push(`新闻列表 ${item.id} 缺少对应详情`);
+      errors.push(`公开新闻列表 ${item.id} 缺少对应详情`);
     }
-  });
-  data.newsArticles.forEach((article) => {
-    if (!newsListIds.has(article.id)) {
-      errors.push(`新闻详情 ${article.id} 在列表中不存在`);
+    const article = data.newsArticles.find((entry) => entry.id === item.id);
+    if (article && article.status !== 'published') {
+      errors.push(`公开新闻列表包含非 published 文章: ${item.id}`);
     }
-    collectDuplicateBlockIds(article.richContent).forEach((blockId) => {
-      errors.push(`新闻 ${article.id} 的 richContent block id 重复: ${blockId}`);
-    });
-    article.relatedIds.forEach((relatedId) => {
-      if (!newsListIds.has(relatedId) && !newsArticleIds.has(relatedId)) {
-        errors.push(`新闻 ${article.id} 的 relatedIds 引用了不存在的 ${relatedId}`);
-      }
-    });
   });
 
   data.productCategories.categories.forEach((category) => {
@@ -273,12 +390,29 @@ export function assertFixtureIntegrity(data: MockFixtureStore): void {
     });
   });
 
+  if (data.home.latestNews.length > 3) {
+    errors.push('首页最新资讯超过 3 条');
+  }
   data.home.latestNews.forEach((item) => {
     if (!newsListIds.has(item.id)) {
-      errors.push(`首页最新资讯 ${item.id} 在新闻列表中不存在`);
+      errors.push(`首页最新资讯 ${item.id} 不在公开新闻列表中`);
     }
     if (!newsArticleIds.has(item.id)) {
       errors.push(`首页最新资讯 ${item.id} 无法打开对应详情`);
+    }
+    const article = data.newsArticles.find((entry) => entry.id === item.id);
+    if (article && !article.placement.showOnHome) {
+      errors.push(`首页最新资讯 ${item.id} 未标记 showOnHome`);
+    }
+    if (article && article.status !== 'published') {
+      errors.push(`首页最新资讯 ${item.id} 不是 published 状态`);
+    }
+  });
+  data.newsArticles.forEach((article) => {
+    if (article.placement.showOnBanner && article.status === 'published' && article.publishedAt) {
+      if (!newsListIds.has(article.id)) {
+        errors.push(`首页 Banner 新闻 ${article.id} 不在公开列表中`);
+      }
     }
   });
   data.home.recommendedProducts.forEach((item) => {
@@ -304,6 +438,10 @@ export function assertFixtureIntegrity(data: MockFixtureStore): void {
       errors.push(`静态资源不存在: ${assetPath} -> ${absolute}`);
     }
   });
+
+  if (JSON.stringify(data).includes('127.0.0.1')) {
+    errors.push('Fixture 中不得硬编码 127.0.0.1');
+  }
 
   if (errors.length > 0) {
     const message = `Fixture 完整性校验失败:\n${errors.map((item) => `  - ${item}`).join('\n')}`;

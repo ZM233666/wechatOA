@@ -1,12 +1,24 @@
 {
   "id": "news-002",
   "slug": "jakarta-bandung-high-speed-rail",
+  "status": "published",
+  "language": "zh-CN",
   "title": "Knorr-Bremse Secures Major Contract for Jakarta-Bandung High-Speed Rail Project",
   "subtitle": "东南亚首条高速铁路的安全基石",
   "summary": "The Jakarta-Bandung high-speed rail line will be equipped with Knorr-Bremse highly reliable braking systems.",
-  "category": { "id": "project", "name": "Project Delivery" },
-  "author": { "name": "KB China" },
-  "publishedAt": "2024-05-15T08:00:00.000Z",
+  "category": {
+    "id": "project",
+    "name": "Project Delivery"
+  },
+  "author": {
+    "id": "kb-china",
+    "name": "KB China",
+    "avatar": null
+  },
+  "source": {
+    "name": "KB China",
+    "url": null
+  },
   "coverImage": {
     "url": "/mock-assets/news/news-002-cover.png",
     "alt": "雅万高铁项目新闻封面",
@@ -14,66 +26,142 @@
     "height": 675,
     "aspectRatio": 1.7778
   },
+  "tags": [
+    {
+      "id": "jakarta-bandung",
+      "name": "雅万高铁"
+    },
+    {
+      "id": "project",
+      "name": "项目交付"
+    }
+  ],
+  "placement": {
+    "showOnHome": true,
+    "featured": true,
+    "pinned": false,
+    "sortOrder": 90,
+    "showOnBanner": true
+  },
+  "createdAt": "2024-05-11T08:00:00.000Z",
+  "updatedAt": "2024-05-14T08:00:00.000Z",
+  "publishedAt": "2024-05-15T08:00:00.000Z",
+  "scheduledAt": null,
   "richContent": [
     {
       "id": "block-001",
       "type": "heading",
-      "level": 2,
-      "text": "服务热带气候下的高速运营"
+      "level": 1,
+      "text": "雅万高铁项目中的制动系统交付",
+      "align": "left"
     },
     {
       "id": "block-002",
       "type": "paragraph",
+      "align": "left",
       "spans": [
-        { "type": "text", "text": "雅万高铁是东南亚第一条高速铁路。克诺尔将提供", "marks": [] },
-        { "type": "text", "text": "高可靠性制动系统", "marks": ["bold"] },
-        { "type": "text", "text": "，保障乘客安全与运营效率。", "marks": [] }
+        {
+          "type": "text",
+          "text": "雅万高铁是东南亚第一条高速铁路。克诺尔将提供",
+          "marks": []
+        },
+        {
+          "type": "text",
+          "text": "高可靠性制动系统",
+          "marks": [
+            "bold"
+          ]
+        },
+        {
+          "type": "text",
+          "text": "，帮助线路在热带气候条件下保持安全运营。",
+          "marks": []
+        }
       ]
     },
     {
       "id": "block-003",
+      "type": "heading",
+      "level": 2,
+      "text": "适应气候与运维需求",
+      "align": "left"
+    },
+    {
+      "id": "block-004",
+      "type": "paragraph",
+      "align": "left",
+      "spans": [
+        {
+          "type": "text",
+          "text": "项目关注高温、高湿环境下的系统稳定性和可维护性，并通过数字化手段支持现场服务。",
+          "marks": []
+        }
+      ]
+    },
+    {
+      "id": "block-005",
       "type": "image",
+      "layout": "wide",
+      "caption": "面向热带气候的制动解决方案演示图",
       "image": {
         "url": "/mock-assets/news/news-002-content-01.png",
         "alt": "雅万高铁项目现场",
         "width": 1200,
         "height": 800,
         "aspectRatio": 1.5
-      },
-      "caption": "面向热带气候的制动解决方案"
+      }
     },
     {
-      "id": "block-004",
+      "id": "block-006",
       "type": "quote",
       "text": "可靠的制动性能是高速铁路安全运营的前提。",
       "source": "Project Delivery Team"
     },
     {
-      "id": "block-005",
+      "id": "block-007",
       "type": "list",
       "ordered": true,
-      "items": ["EP 制动控制", "转向架基础制动", "空气供给单元"]
-    },
-    { "id": "block-006", "type": "divider" },
-    {
-      "id": "block-007",
-      "type": "callout",
-      "variant": "success",
-      "title": "项目进展",
-      "text": "系统已按合同节点完成关键交付。"
+      "items": [
+        "EP 制动控制",
+        "转向架基础制动",
+        "空气供给单元"
+      ]
     },
     {
       "id": "block-008",
+      "type": "list",
+      "ordered": false,
+      "items": [
+        "现场培训与技术支持",
+        "备件与服务网络协同"
+      ]
+    },
+    {
+      "id": "block-009",
+      "type": "divider"
+    },
+    {
+      "id": "block-010",
+      "type": "callout",
+      "variant": "info",
+      "title": "相关阅读",
+      "text": "可结合案例中心查看项目交付类演示内容。"
+    },
+    {
+      "id": "block-011",
       "type": "link",
       "text": "查看相关项目案例",
       "url": "/pages/cases/detail?id=case-002",
       "linkType": "internal"
     }
   ],
-  "tags": ["雅万高铁", "project"],
-  "relatedIds": ["news-001", "news-006"],
+  "relatedArticleIds": [
+    "news-001",
+    "news-006"
+  ],
   "share": {
     "title": "雅万高铁制动系统合同",
+    "summary": "The Jakarta-Bandung high-speed rail line will be equipped with Knorr-Bremse highly reliable braking systems.",
     "imageUrl": "/mock-assets/news/news-002-share.png"
   }
 }

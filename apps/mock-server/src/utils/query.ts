@@ -43,12 +43,21 @@ export function parseOptionalString(value: unknown): string | undefined {
     return undefined;
   }
   const trimmed = value.trim();
-  return trimmed ? trimmed : undefined;
+  if (!trimmed || trimmed === 'undefined' || trimmed === 'null') {
+    return undefined;
+  }
+  return trimmed;
 }
 
 export function parseOptionalBoolean(value: unknown): boolean | undefined {
   if (value === undefined || value === null || value === '') {
     return undefined;
+  }
+  if (typeof value === 'string') {
+    const trimmed = value.trim();
+    if (!trimmed || trimmed === 'undefined' || trimmed === 'null') {
+      return undefined;
+    }
   }
   if (value === true || value === 'true' || value === '1') {
     return true;

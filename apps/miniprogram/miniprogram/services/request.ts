@@ -7,6 +7,34 @@ function joinUrl(baseUrl: string, path: string): string {
   return `${normalizedBase}${normalizedPath}`;
 }
 
+/**
+ * 微信小程序会把 JS 的 undefined 序列化成查询字符串 "undefined"，
+ * 服务端会把 featured=undefined 当成非法布尔值并返回 400。发送前去掉空值。
+ */
+function compactRequestData(
+  data: WechatMiniprogram.IAnyObject | string | ArrayBuffer | undefined,
+): WechatMiniprogram.IAnyObject | string | ArrayBuffer | undefined {
+  if (!data || typeof data !== 'object' || data instanceof ArrayBuffer) {
+    return data;
+  }
+  const compact: WechatMiniprogram.IAnyObject = {};
+  Object.entries(data as WechatMiniprogram.IAnyObject).forEach(([key, value]) => {
+    if (value === undefined || value === null) {
+      return;
+    }
+    if (typeof value === 'string') {
+      const trimmed = value.trim();
+      if (!trimmed || trimmed === 'undefined' || trimmed === 'null') {
+        return;
+      }
+      compact[key] = trimmed;
+      return;
+    }
+    compact[key] = value;
+  });
+  return compact;
+}
+
 function buildHeader(customHeader?: Record<string, string>): Record<string, string> {
   const env = getApiEnvironment();
   const version = getCurrentEnvVersion();
@@ -59,7 +87,8 @@ export function request<T>(options: RequestOptions): Promise<T> {
     console.error('[api]', message);
     return Promise.reject(new RequestError(message));
   }
-  const { url, method = 'GET', data, header, timeout = env.timeout } = options;
+  const { url, method = 'GET', header, timeout = env.timeout } = options;
+  const data = compactRequestData(options.data);
   const fullUrl = joinUrl(env.apiBaseUrl, url);
 
   return new Promise<T>((resolve, reject) => {

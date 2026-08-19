@@ -46,8 +46,25 @@
   text-decoration: underline;
 }
 
+.ar-align--left {
+  text-align: left;
+}
+
+.ar-align--center {
+  text-align: center;
+}
+
+.ar-align--right {
+  text-align: right;
+}
+
 .ar-image {
   margin: 24rpx 0 32rpx;
+}
+
+.ar-image--wide .ar-image__img,
+.ar-image--full .ar-image__img {
+  border-radius: 8rpx;
 }
 
 .ar-image__img {
@@ -146,6 +163,11 @@
 .ar-callout--success {
   background: #f0fdf4;
   border: 1rpx solid #bbf7d0;
+}
+
+.ar-callout--exclusive {
+  background: #fff8ed;
+  border: 1rpx solid #e8c56a;
 }
 
 .ar-callout__title {

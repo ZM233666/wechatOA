@@ -151,7 +151,13 @@ async function main(): Promise<void> {
     { url: `${baseUrl}/api/news?page=1&pageSize=3`, expectStatus: 200, label: 'GET /api/news?page=1&pageSize=3' },
     { url: `${baseUrl}/api/news?__scenario=empty`, expectStatus: 200, label: 'GET /api/news?__scenario=empty' },
     { url: `${baseUrl}/api/news?__scenario=error`, expectStatus: 500, label: 'GET /api/news?__scenario=error' },
-    { url: `${baseUrl}/api/news/news-missing`, expectStatus: 404, label: 'GET /api/news/news-missing' },
+    { url: `${baseUrl}/api/news/categories`, expectStatus: 200, label: 'GET /api/news/categories' },
+    { url: `${baseUrl}/api/news?category=company`, expectStatus: 200, label: 'GET /api/news?category=company' },
+    { url: `${baseUrl}/api/news?keyword=%E8%BD%A8%E9%81%93%E4%BA%A4%E9%80%9A`, expectStatus: 200, label: 'GET /api/news?keyword=轨道交通' },
+    { url: `${baseUrl}/api/news?featured=true`, expectStatus: 200, label: 'GET /api/news?featured=true' },
+    { url: `${baseUrl}/api/news/news-draft-demo`, expectStatus: 404, label: 'GET /api/news/news-draft-demo' },
+    { url: `${baseUrl}/api/news/news-scheduled-demo`, expectStatus: 404, label: 'GET /api/news/news-scheduled-demo' },
+    { url: `${baseUrl}/api/news/news-archived-demo`, expectStatus: 404, label: 'GET /api/news/news-archived-demo' },
     { url: `${baseUrl}/mock-assets/banners/banner-001.png`, expectStatus: 200, label: 'GET /mock-assets/banners/banner-001.png' },
   ];
 

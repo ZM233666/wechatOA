@@ -116,6 +116,23 @@ Page({
     });
   },
 
+  onBannerTap(event: WechatMiniprogram.TouchEvent) {
+    const { id } = event.currentTarget.dataset as { id?: string };
+    const banner = this.data.banners.find((item) => item.id === id);
+    if (!banner) {
+      return;
+    }
+    if (banner.newsId) {
+      wx.navigateTo({
+        url: `/pages/news/detail?id=${banner.newsId}`,
+      });
+      return;
+    }
+    if (banner.targetUrl && banner.targetUrl.startsWith('/pages/')) {
+      wx.navigateTo({ url: banner.targetUrl });
+    }
+  },
+
   onEntryTap(event: WechatMiniprogram.TouchEvent) {
     const { id } = event.currentTarget.dataset as { id?: string };
     const path = id ? ENTRY_PATHS[id] : undefined;

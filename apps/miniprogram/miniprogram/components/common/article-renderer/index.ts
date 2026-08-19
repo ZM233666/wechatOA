@@ -28,9 +28,11 @@ interface RenderBlock {
   type: string;
   level?: number;
   text?: string;
+  align?: string;
   spans?: RenderSpan[];
   image?: { url: string; alt: string };
   caption?: string;
+  layout?: string;
   source?: string;
   ordered?: boolean;
   items?: string[];
@@ -62,10 +64,17 @@ function toRenderBlocks(blocks: ArticleContentBlock[]): RenderBlock[] {
       return true;
     })
     .map((block) => {
+      if (block.type === 'heading') {
+        return {
+          ...block,
+          align: block.align || 'left',
+        };
+      }
       if (block.type === 'paragraph') {
         return {
           id: block.id,
           type: block.type,
+          align: block.align || 'left',
           spans: block.spans.map((span) => ({
             ...span,
             className: marksClass(span.marks),
@@ -78,6 +87,7 @@ function toRenderBlocks(blocks: ArticleContentBlock[]): RenderBlock[] {
           type: block.type,
           image: block.image,
           caption: block.caption,
+          layout: block.layout || 'normal',
           imageFailed: false,
         };
       }

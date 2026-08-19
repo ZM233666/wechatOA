@@ -11,6 +11,63 @@ page {
   padding: 24rpx 32rpx calc(32rpx + env(safe-area-inset-bottom));
 }
 
+.news-toolbar {
+  padding: 16rpx 32rpx 0;
+}
+
+.news-search {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  background: #ffffff;
+  border-radius: 16rpx;
+  padding: 8rpx 8rpx 8rpx 24rpx;
+  box-shadow: 0 4rpx 16rpx rgba(3, 62, 112, 0.05);
+}
+
+.news-search__input {
+  flex: 1;
+  height: 64rpx;
+  font-size: 26rpx;
+  color: #111827;
+}
+
+.news-search__placeholder {
+  color: #9ca3af;
+}
+
+.news-search__btn {
+  margin-left: 12rpx;
+  padding: 0 24rpx;
+  height: 64rpx;
+  line-height: 64rpx;
+  border-radius: 12rpx;
+  background: #00467f;
+  color: #ffffff;
+  font-size: 24rpx;
+}
+
+.news-cats {
+  white-space: nowrap;
+  margin-top: 20rpx;
+  padding-bottom: 8rpx;
+}
+
+.news-cat {
+  display: inline-block;
+  margin-right: 16rpx;
+  padding: 10rpx 24rpx;
+  border-radius: 999rpx;
+  font-size: 24rpx;
+  color: #4b5563;
+  background: #ffffff;
+}
+
+.news-cat--active {
+  color: #ffffff;
+  background: #00467f;
+}
+
 .news-card {
   background: #ffffff;
   border-radius: 24rpx;
@@ -30,6 +87,13 @@ page {
   padding: 28rpx;
 }
 
+.news-card__meta {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  margin-bottom: 16rpx;
+}
+
 .news-card__badge {
   display: inline-block;
   font-size: 20rpx;
@@ -38,7 +102,20 @@ page {
   background: #eff6ff;
   padding: 6rpx 14rpx;
   border-radius: 8rpx;
-  margin-bottom: 16rpx;
+}
+
+.news-card__mark {
+  margin-left: 12rpx;
+  font-size: 20rpx;
+  font-weight: 600;
+  padding: 6rpx 14rpx;
+  border-radius: 8rpx;
+}
+
+.news-card__mark--pin,
+.news-card__mark--featured {
+  color: #8a6a24;
+  background: #fff8ed;
 }
 
 .news-card__title {
@@ -50,9 +127,24 @@ page {
   margin-bottom: 12rpx;
 }
 
+.news-card__summary {
+  display: block;
+  font-size: 24rpx;
+  color: #6b7280;
+  line-height: 1.5;
+  margin-bottom: 12rpx;
+}
+
 .news-card__date {
   display: block;
   font-size: 22rpx;
   color: #9ca3af;
+}
+
+.news-list__hint {
+  text-align: center;
+  font-size: 22rpx;
+  color: #9ca3af;
+  padding: 8rpx 0 24rpx;
 }
 

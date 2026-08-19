@@ -96,6 +96,7 @@
 - 列表返回摘要，不含完整 `richContent`
 - 详情返回完整结构化正文
 - 列表 ID 必须能打开对应详情
+- 新闻公开契约详见 `docs/news-content-contract.md`
 
 ## 空值规范
 

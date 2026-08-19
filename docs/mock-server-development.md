@@ -2,12 +2,15 @@
 
 ## 添加一篇新闻
 
-1. 在 `fixtures/news/list.json` 增加摘要，ID 如 `news-009`
-2. 必须同时在 `fixtures/news/articles/news-009.json` 写完整 `richContent`（列表 ID 必须能打开对应详情）
-3. 封面放到 `public/mock-assets/news/`
-4. 分类 ID 必须已存在于 `fixtures/news/categories.json`
-5. `relatedIds` 必须指向真实存在的新闻 ID
-6. 运行 `pnpm validate:mock`
+1. 只在 `fixtures/news/articles/` 增加完整文章 JSON（例如 `news-009.json`），这是列表、首页推荐和详情的单一数据源
+2. 不要再维护 `fixtures/news/list.json`
+3. `status` 为 `published` 且 `publishedAt` 不晚于当前时间，才会进入公开接口
+4. 封面放到 `public/mock-assets/news/`
+5. 分类 ID 必须已存在于 `fixtures/news/categories.json`
+6. `relatedArticleIds` 必须指向真实存在的新闻 ID，且不能引用自身
+7. `placement.showOnHome=true` 的已发布文章才会进入首页最新资讯
+8. `placement.showOnBanner=true` 的已发布文章会作为首页滚动 Banner，点击进入对应详情
+8. 运行 `pnpm validate:mock`
 
 ## 添加产品
 

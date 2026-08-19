@@ -1,8 +1,8 @@
 <view class="article-renderer">
   <block wx:for="{{renderBlocks}}" wx:key="id">
-    <view wx:if="{{item.type === 'heading'}}" class="ar-heading ar-heading--{{item.level}}">{{item.text}}</view>
+    <view wx:if="{{item.type === 'heading'}}" class="ar-heading ar-heading--{{item.level}} ar-align--{{item.align}}">{{item.text}}</view>
 
-    <view wx:elif="{{item.type === 'paragraph'}}" class="ar-paragraph">
+    <view wx:elif="{{item.type === 'paragraph'}}" class="ar-paragraph ar-align--{{item.align}}">
       <block wx:for="{{item.spans}}" wx:for-item="span" wx:for-index="spanIndex" wx:key="*this">
         <text
           wx:if="{{span.type === 'link'}}"
@@ -14,7 +14,7 @@
       </block>
     </view>
 
-    <view wx:elif="{{item.type === 'image'}}" class="ar-image">
+    <view wx:elif="{{item.type === 'image'}}" class="ar-image ar-image--{{item.layout}}">
       <image
         wx:if="{{!item.imageFailed}}"
         class="ar-image__img"

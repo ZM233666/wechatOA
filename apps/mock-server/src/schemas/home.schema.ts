@@ -1,6 +1,6 @@
 import { z } from 'zod';
-import { articleDetailSchema } from './article.schema';
-import { categorySchema, featureFlagsSchema, imageResourceSchema } from './common.schema';
+import { newsSummarySchema } from './news.schema';
+import { featureFlagsSchema, imageResourceSchema } from './common.schema';
 
 export const appConfigSchema = z.object({
   appName: z.string().min(1),
@@ -8,17 +8,6 @@ export const appConfigSchema = z.object({
   locale: z.string().min(1),
   supportEmail: z.string().email(),
   featureFlags: featureFlagsSchema,
-});
-
-export const newsSummarySchema = z.object({
-  id: z.string().min(1),
-  title: z.string().min(1),
-  summary: z.string().min(1),
-  category: categorySchema,
-  publishedAt: z.string().datetime(),
-  coverImage: imageResourceSchema,
-  featured: z.boolean(),
-  tags: z.array(z.string()),
 });
 
 export const homeDataSchema = z.object({
@@ -29,6 +18,7 @@ export const homeDataSchema = z.object({
       description: z.string().min(1),
       image: imageResourceSchema,
       targetUrl: z.string().optional(),
+      newsId: z.string().min(1).optional(),
     }),
   ),
   quickEntries: z.array(
@@ -93,9 +83,6 @@ export const brandOverviewSchema = z.object({
   brands: z.array(z.string().min(1)),
 });
 
-export const newsCategorySchema = z.object({
-  id: z.string().min(1),
-  name: z.string().min(1),
-});
+export { newsSummarySchema } from './news.schema';
 
-export const newsArticleSchema = articleDetailSchema;
+export const homeFileSchema = homeDataSchema.omit({ latestNews: true });

@@ -1,12 +1,24 @@
 {
   "id": "news-001",
   "slug": "cr450-braking-systems-contract",
+  "status": "published",
+  "language": "zh-CN",
   "title": "Knorr-Bremse to Supply Braking Systems for 128 CR450 High-Speed Trains in China",
   "subtitle": "数字化赋能新一代高速动车组",
   "summary": "Knorr-Bremse has been awarded a major contract to equip 128 new CR450 high-speed trains for the Chinese market with advanced braking systems.",
-  "category": { "id": "company", "name": "Company News" },
-  "author": { "name": "KB China" },
-  "publishedAt": "2024-05-20T08:00:00.000Z",
+  "category": {
+    "id": "company",
+    "name": "Company News"
+  },
+  "author": {
+    "id": "kb-china",
+    "name": "KB China",
+    "avatar": null
+  },
+  "source": {
+    "name": "KB China",
+    "url": null
+  },
   "coverImage": {
     "url": "/mock-assets/news/news-001-cover.png",
     "alt": "CR450 高速列车制动系统新闻封面",
@@ -14,66 +26,181 @@
     "height": 675,
     "aspectRatio": 1.7778
   },
+  "tags": [
+    {
+      "id": "cr450",
+      "name": "CR450"
+    },
+    {
+      "id": "braking",
+      "name": "制动系统"
+    },
+    {
+      "id": "china",
+      "name": "中国"
+    }
+  ],
+  "placement": {
+    "showOnHome": true,
+    "featured": true,
+    "pinned": true,
+    "sortOrder": 100,
+    "showOnBanner": true
+  },
+  "createdAt": "2024-05-16T08:00:00.000Z",
+  "updatedAt": "2024-05-19T08:00:00.000Z",
+  "publishedAt": "2024-05-20T08:00:00.000Z",
+  "scheduledAt": null,
   "richContent": [
     {
       "id": "block-001",
       "type": "heading",
-      "level": 2,
-      "text": "数字化赋能轨道交通"
+      "level": 1,
+      "text": "为 CR450 提供先进制动系统",
+      "align": "left"
     },
     {
       "id": "block-002",
       "type": "paragraph",
+      "align": "left",
       "spans": [
-        { "type": "text", "text": "克诺尔集团持续推进", "marks": [] },
-        { "type": "text", "text": "数字化转型", "marks": ["bold"] },
-        { "type": "text", "text": "，为 128 列 CR450 高速动车组提供先进制动系统，进一步巩固在轨道交通领域的领先地位。", "marks": [] }
+        {
+          "type": "text",
+          "text": "克诺尔集团将为新一代 CR450 高速动车组提供制动系统，持续推进",
+          "marks": []
+        },
+        {
+          "type": "text",
+          "text": "数字化转型",
+          "marks": [
+            "bold"
+          ]
+        },
+        {
+          "type": "text",
+          "text": "与全生命周期服务能力建设。本文为开发演示内容，便于验证图文排版。",
+          "marks": []
+        }
       ]
     },
     {
       "id": "block-003",
+      "type": "heading",
+      "level": 2,
+      "text": "面向高速运营的系统方案",
+      "align": "left"
+    },
+    {
+      "id": "block-004",
+      "type": "paragraph",
+      "align": "left",
+      "spans": [
+        {
+          "type": "text",
+          "text": "方案覆盖制动控制、基础制动与空气供给等关键子系统，强调可靠性、可维护性与数字接口。",
+          "marks": []
+        },
+        {
+          "type": "text",
+          "text": "重点能力",
+          "marks": [
+            "bold",
+            "underline"
+          ]
+        },
+        {
+          "type": "text",
+          "text": "包括状态监测、数据贯通和现场服务协同。",
+          "marks": []
+        }
+      ]
+    },
+    {
+      "id": "block-005",
       "type": "image",
+      "layout": "full",
+      "caption": "数字化产品与现场交流演示",
       "image": {
         "url": "/mock-assets/news/news-001-content-01.png",
         "alt": "数字化产品现场展示",
         "width": 1200,
         "height": 800,
         "aspectRatio": 1.5
-      },
-      "caption": "数字化产品现场展示"
+      }
     },
     {
-      "id": "block-004",
+      "id": "block-006",
       "type": "quote",
-      "text": "创新不仅是技术升级，更是长期价值的创造。",
+      "text": "创新不仅是技术升级，也是长期价值的创造。",
       "source": "KB China"
     },
     {
-      "id": "block-005",
-      "type": "list",
-      "ordered": false,
-      "items": ["提高设备可用率", "减少非计划停机", "优化全生命周期成本"]
-    },
-    { "id": "block-006", "type": "divider" },
-    {
       "id": "block-007",
-      "type": "callout",
-      "variant": "info",
-      "title": "相关说明",
-      "text": "本文数据仅用于开发阶段演示。"
+      "type": "heading",
+      "level": 3,
+      "text": "交付关注点",
+      "align": "left"
     },
     {
       "id": "block-008",
+      "type": "list",
+      "ordered": false,
+      "items": [
+        "提高设备可用率",
+        "减少非计划停机",
+        "优化全生命周期成本"
+      ]
+    },
+    {
+      "id": "block-009",
+      "type": "list",
+      "ordered": true,
+      "items": [
+        "明确系统接口与试验计划",
+        "完成关键节点交付与培训",
+        "建立运维数据反馈闭环"
+      ]
+    },
+    {
+      "id": "block-010",
+      "type": "divider"
+    },
+    {
+      "id": "block-011",
+      "type": "callout",
+      "variant": "exclusive",
+      "title": "精选阅读",
+      "text": "可结合产品中心了解制动、门系统与数字化方案。"
+    },
+    {
+      "id": "block-012",
+      "type": "paragraph",
+      "align": "left",
+      "spans": [
+        {
+          "type": "text",
+          "text": "如需了解相关产品，可进入产品详情继续浏览演示数据。",
+          "marks": [
+            "italic"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "block-013",
       "type": "link",
-      "text": "了解更多产品信息",
+      "text": "查看相关产品",
       "url": "/pages/products/detail?id=product-001",
       "linkType": "internal"
     }
   ],
-  "tags": ["CR450", "制动系统", "中国"],
-  "relatedIds": ["news-002", "news-004"],
+  "relatedArticleIds": [
+    "news-002",
+    "news-004"
+  ],
   "share": {
     "title": "CR450 制动系统合同",
+    "summary": "Knorr-Bremse has been awarded a major contract to equip 128 new CR450 high-speed trains for the Chinese market with advanced braking systems.",
     "imageUrl": "/mock-assets/news/news-001-share.png"
   }
 }

@@ -28,7 +28,7 @@
         circular="{{true}}"
       >
         <swiper-item wx:for="{{banners}}" wx:key="id">
-          <view class="home-banner__item">
+          <view class="home-banner__item tap-feedback" data-id="{{item.id}}" bindtap="onBannerTap">
             <image class="home-banner__image" src="{{item.image}}" mode="aspectFill" data-id="{{item.id}}" binderror="onBannerImageError"></image>
             <view class="home-banner__mask"></view>
             <view class="home-banner__content">

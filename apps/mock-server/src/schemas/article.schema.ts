@@ -13,11 +13,13 @@ export const headingBlockSchema = z.object({
   type: z.literal('heading'),
   level: z.union([z.literal(1), z.literal(2), z.literal(3)]),
   text: z.string().min(1),
+  align: z.enum(['left', 'center', 'right']).optional(),
 });
 
 export const paragraphBlockSchema = z.object({
   id: z.string().min(1),
   type: z.literal('paragraph'),
+  align: z.enum(['left', 'center', 'right']).optional(),
   spans: z.array(richTextSpanSchema).min(1),
 });
 
@@ -26,6 +28,7 @@ export const imageBlockSchema = z.object({
   type: z.literal('image'),
   image: imageResourceSchema,
   caption: z.string().optional(),
+  layout: z.enum(['normal', 'wide', 'full']).optional(),
 });
 
 export const quoteBlockSchema = z.object({
@@ -50,7 +53,7 @@ export const dividerBlockSchema = z.object({
 export const calloutBlockSchema = z.object({
   id: z.string().min(1),
   type: z.literal('callout'),
-  variant: z.enum(['info', 'warning', 'success']),
+  variant: z.enum(['info', 'warning', 'success', 'exclusive']),
   title: z.string().optional(),
   text: z.string().min(1),
 });

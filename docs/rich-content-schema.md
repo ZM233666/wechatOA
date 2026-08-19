@@ -14,8 +14,13 @@
 | `quote` | `text` + 可选 `source` |
 | `list` | `ordered` + `items: string[]` |
 | `divider` | 分隔线 |
-| `callout` | `variant`: info/warning/success |
+| `callout` | `variant`: info/warning/success/exclusive |
 | `link` | `text` + `url` + `linkType`: internal/external |
+
+可选排版属性：
+
+- heading/paragraph `align`: left/center/right，缺省 left
+- image `layout`: normal/wide/full，缺省 normal
 
 示例见需求文档与 `fixtures/news/articles/news-001.json`。
 

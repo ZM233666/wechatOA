@@ -1,6 +1,30 @@
 <view class="page page--news">
   <nav-brand title="News Center" show-back="{{true}}"></nav-brand>
 
+  <view class="news-toolbar">
+    <view class="news-search">
+      <input
+        class="news-search__input"
+        value="{{keyword}}"
+        placeholder="搜索标题、摘要或标签"
+        placeholder-class="news-search__placeholder"
+        confirm-type="search"
+        bindinput="onSearchInput"
+        bindconfirm="onSearch"
+      />
+      <view class="news-search__btn tap-feedback" bindtap="onSearch">查询</view>
+    </view>
+    <scroll-view class="news-cats" scroll-x="{{true}}" show-scrollbar="{{false}}">
+      <view
+        class="news-cat tap-feedback {{activeCategory === item.id ? 'news-cat--active' : ''}}"
+        wx:for="{{categories}}"
+        wx:key="id"
+        data-id="{{item.id}}"
+        bindtap="onCategoryTap"
+      >{{item.name}}</view>
+    </scroll-view>
+  </view>
+
   <view class="news-list">
     <empty-state wx:if="{{pageStatus === 'loading'}}" title="正在加载新闻"></empty-state>
     <view wx:elif="{{pageStatus === 'error'}}" bindtap="onRetry">
@@ -8,19 +32,28 @@
     </view>
     <empty-state wx:elif="{{pageStatus === 'empty'}}" title="暂无新闻" description="当前没有可展示的资讯"></empty-state>
 
-    <view
-      class="news-card tap-feedback"
-      wx:for="{{newsList}}"
-      wx:key="id"
-      data-id="{{item.id}}"
-      bindtap="onNewsTap"
-    >
-      <image class="news-card__image" src="{{item.image}}" mode="aspectFill" data-id="{{item.id}}" binderror="onNewsImageError"></image>
-      <view class="news-card__body">
-        <text class="news-card__badge">{{item.category}}</text>
-        <text class="news-card__title">{{item.title}}</text>
-        <text class="news-card__date">{{item.date}}</text>
+    <block wx:elif="{{pageStatus === 'success'}}">
+      <view
+        class="news-card tap-feedback"
+        wx:for="{{newsList}}"
+        wx:key="id"
+        data-id="{{item.id}}"
+        bindtap="onNewsTap"
+      >
+        <image class="news-card__image" src="{{item.image}}" mode="aspectFill" data-id="{{item.id}}" binderror="onNewsImageError"></image>
+        <view class="news-card__body">
+          <view class="news-card__meta">
+            <text class="news-card__badge">{{item.category}}</text>
+            <text wx:if="{{item.pinned}}" class="news-card__mark news-card__mark--pin">置顶</text>
+            <text wx:elif="{{item.featured}}" class="news-card__mark news-card__mark--featured">精选</text>
+          </view>
+          <text class="news-card__title">{{item.title}}</text>
+          <text class="news-card__summary">{{item.summary}}</text>
+          <text class="news-card__date">{{item.date}}</text>
+        </view>
       </view>
-    </view>
+      <view wx:if="{{loadingMore}}" class="news-list__hint">正在加载更多</view>
+      <view wx:elif="{{!hasNext}}" class="news-list__hint">没有更多了</view>
+    </block>
   </view>
 </view>

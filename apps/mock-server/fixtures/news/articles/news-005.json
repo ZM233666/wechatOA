@@ -1,12 +1,24 @@
 {
   "id": "news-005",
   "slug": "digital-cbm-unplanned-downtime",
+  "status": "published",
+  "language": "zh-CN",
   "title": "Digital CBM Platform Helps Operators Cut Unplanned Downtime",
   "subtitle": "状态修帮助提升可用率",
   "summary": "Condition-based maintenance insights are helping rail operators improve availability and lifecycle cost.",
-  "category": { "id": "product", "name": "Products" },
-  "author": { "name": "KB China" },
-  "publishedAt": "2024-04-12T08:00:00.000Z",
+  "category": {
+    "id": "product",
+    "name": "Products"
+  },
+  "author": {
+    "id": "kb-china",
+    "name": "KB China",
+    "avatar": null
+  },
+  "source": {
+    "name": "KB China",
+    "url": null
+  },
   "coverImage": {
     "url": "/mock-assets/news/news-005-cover.png",
     "alt": "Digital CBM 平台新闻封面",
@@ -14,6 +26,27 @@
     "height": 675,
     "aspectRatio": 1.7778
   },
+  "tags": [
+    {
+      "id": "digital-cbm",
+      "name": "Digital CBM"
+    },
+    {
+      "id": "rail",
+      "name": "轨道交通"
+    }
+  ],
+  "placement": {
+    "showOnHome": false,
+    "featured": false,
+    "pinned": false,
+    "sortOrder": 60,
+    "showOnBanner": false
+  },
+  "createdAt": "2024-04-08T08:00:00.000Z",
+  "updatedAt": "2024-04-11T08:00:00.000Z",
+  "publishedAt": "2024-04-12T08:00:00.000Z",
+  "scheduledAt": null,
   "richContent": [
     {
       "id": "block-001",
@@ -25,9 +58,23 @@
       "id": "block-002",
       "type": "paragraph",
       "spans": [
-        { "type": "text", "text": "Digital CBM 将设备健康状态转化为可执行洞察，帮助运营商", "marks": [] },
-        { "type": "text", "text": "减少非计划停机并优化全生命周期成本", "marks": ["bold"] },
-        { "type": "text", "text": "。", "marks": [] }
+        {
+          "type": "text",
+          "text": "Digital CBM 将设备健康状态转化为可执行洞察，帮助运营商",
+          "marks": []
+        },
+        {
+          "type": "text",
+          "text": "减少非计划停机并优化全生命周期成本",
+          "marks": [
+            "bold"
+          ]
+        },
+        {
+          "type": "text",
+          "text": "。",
+          "marks": []
+        }
       ]
     },
     {
@@ -38,10 +85,13 @@
       "text": "本文数据仅用于开发阶段演示。"
     }
   ],
-  "tags": ["Digital CBM", "rail"],
-  "relatedIds": ["news-004", "news-008"],
+  "relatedArticleIds": [
+    "news-004",
+    "news-008"
+  ],
   "share": {
     "title": "Digital CBM 降低非计划停机",
+    "summary": "Condition-based maintenance insights are helping rail operators improve availability and lifecycle cost.",
     "imageUrl": "/mock-assets/news/news-005-cover.png"
   }
 }
