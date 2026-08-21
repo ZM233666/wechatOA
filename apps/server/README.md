@@ -1,6 +1,8 @@
-# NestJS 后端服务
+# 旧 NestJS 骨架（已停扩）
 
-最小可运行的 NestJS RESTful 服务，用于与微信小程序本地联调。
+历史可运行的 NestJS RESTful 骨架，曾用于与微信小程序本地联调。
+
+> **定位**：兼容 / 参考专用。**不要**在此目录继续开发业务。正式后端目标为未来的 `apps/backend`（DVAdmin Django/DRF）；开发联调默认使用 `apps/mock-server`。
 
 ## 环境变量
 
@@ -19,7 +21,7 @@ cp .env.example .env
 
 不要提交真实 `.env`。仓库已忽略 `.env`、`.env.local`、`.env.*.local`，但保留 `.env.example`。
 
-## 启动方式
+## 启动方式（兼容命令）
 
 在仓库根目录：
 
@@ -33,7 +35,7 @@ pnpm dev:server
 pnpm start:dev
 ```
 
-- 监听地址：`0.0.0.0`（便于后续局域网真机调试，不代表对公网开放）
+- 监听地址：`0.0.0.0`（便于局域网访问，不代表对公网开放）
 - 本地访问：`http://127.0.0.1:3000`
 
 ## 构建方式
@@ -67,12 +69,11 @@ GET http://127.0.0.1:3000/api/health
 }
 ```
 
-## 后续新增 NestJS 模块
+## 退役原则
 
-1. 在 `src/modules/<name>/` 下创建 module / controller / service
-2. 在 `src/app.module.ts` 中 `imports` 注册该模块
-3. 控制器路径会自动带上全局前缀 `api`
-4. 共享响应类型可从 `@app/shared` 以 `import type` 方式引用
-5. 数据库相关代码放在 `src/database/`（当前未接入）
+1. **禁止**新增业务 module / controller / service
+2. 根目录 `dev:server` / `build:server` / `typecheck:server` 仅保留兼容验证
+3. 数据库与正式业务接入以未来 `apps/backend` 为准
+4. 正式 Django 稳定后，可按需归档或删除本目录
 
-当前**未实现**：用户系统、JWT、微信登录、支付、订单、文件上传、Redis、消息队列、Docker。
+当前**未实现**：用户系统、JWT、微信登录、支付、订单、文件上传、Redis、消息队列、Docker。这些能力由未来 Django 栈承担，而非本 NestJS 骨架。

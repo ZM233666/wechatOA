@@ -2,7 +2,7 @@
   "name": "@app/server",
   "version": "0.1.0",
   "private": true,
-  "description": "NestJS 后端服务",
+  "description": "旧 NestJS 原型骨架（已停扩，仅兼容/参考；非正式后端）",
   "scripts": {
     "build": "nest build",
     "start": "nest start",

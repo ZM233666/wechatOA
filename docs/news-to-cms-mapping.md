@@ -34,7 +34,7 @@
 
 ## 发布结果
 
-正式后端（NestJS）应输出与现有公开契约相同的 JSON：
+正式后端（Django/DRF Mini API）应输出与现有公开契约相同的 JSON：
 
 - 列表：NewsSummary，无正文
 - 详情：NewsDetail，含 `richContent` 与 `relatedArticles`

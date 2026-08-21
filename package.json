@@ -2,7 +2,7 @@
   "name": "wechat-official-account",
   "version": "0.1.0",
   "private": true,
-  "description": "微信小程序 + NestJS 前后端分离 Monorepo 项目框架",
+  "description": "微信小程序 + DVAdmin Portal + Django/DRF 后端 Monorepo（开发阶段含 Mock API；apps/server 为停扩的旧 NestJS 骨架）",
   "packageManager": "pnpm@10.26.2",
   "engines": {
     "node": ">=20"
@@ -25,6 +25,14 @@
     "lint:fix": "eslint . --fix",
     "format": "prettier --write .",
     "format:check": "prettier --check ."
+  },
+  "_scriptNotes": {
+    "dev:server": "兼容/参考：启动旧 NestJS 骨架（已停扩，非正式后端）",
+    "build:server": "兼容/参考：构建旧 NestJS 骨架",
+    "typecheck:server": "兼容/参考：仅检查旧 NestJS 骨架类型",
+    "dev:mock": "开发默认：启动 Mock API（小程序联调）",
+    "build:mock": "构建 Mock Server（含 shared）",
+    "start:mock": "启动已构建的 Mock Server"
   },
   "devDependencies": {
     "@eslint/js": "^9.22.0",

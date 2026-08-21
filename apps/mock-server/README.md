@@ -1,6 +1,6 @@
 # Mock API Server
 
-开发阶段独立 Mock API 服务，**不是**正式后端，也**不是** NestJS `apps/server` 的一部分。
+开发阶段独立 Mock API 服务，**不是**正式后端，也**不是**旧 NestJS `apps/server` 的一部分。正式后端目标为 DVAdmin Django/DRF（未来 `apps/backend`）。
 
 ## 定位
 
@@ -12,13 +12,14 @@
 - 列表分页 / 筛选 / 详情
 - empty / error / slow / unauthorized / not-found 等测试场景
 
-小程序通过 `wx.request` 访问本服务。未来 NestJS 实现同一路径后，只需改 `apiBaseUrl`。
+小程序通过 `wx.request` 访问本服务。未来 Django Mini API（`/api/v1/mini/*`）实现同一契约后，只需改 `apiBaseUrl`（及必要的前缀对齐）。
 
-## 为什么不放进 NestJS
+## 为什么独立于正式后端 / 旧 NestJS
 
-- 避免污染正式后端模块、守卫和数据库预留目录
+- 避免污染正式 Django 模块、权限与基础设施接入
+- 避免污染已停扩的 NestJS 骨架（`apps/server`）
 - Mock 场景、随机延迟、fixture 热数据不应进入生产代码路径
-- 删除 Mock Server 时不应改动 `apps/server`
+- 删除 Mock Server 时不应改动 `apps/server`；正式实现落在 `apps/backend`
 
 ## 安装和启动
 
@@ -123,7 +124,8 @@ curl 'http://127.0.0.1:3100/api/news?__scenario=empty'
 
 ## 停止使用 Mock Server
 
-1. NestJS 按同一契约实现接口
+1. Django/DRF（`apps/backend`）按同一契约实现 Mini API（`/api/v1/mini/*`）
 2. 将小程序 `apiBaseUrl` 改为正式 HTTPS 地址，`dataSource: 'real-server'`
 3. 停止 `pnpm dev:mock`
-4. 不要改页面和 services 的路径约定
+4. 不要改页面业务逻辑；路径约定仅做前缀对齐
+5. **不要**把迁移目标写成 NestJS / `apps/server`

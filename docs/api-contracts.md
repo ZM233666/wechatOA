@@ -1,6 +1,6 @@
 # API 契约
 
-本文件描述 Mock Server 与未来 NestJS 共用的响应约定。类型定义在 `packages/shared`。
+本文件描述 Mock Server 与未来 Django/DRF（DVAdmin）共用的响应约定。类型定义在 `packages/shared`（未来逐步改为 OpenAPI 生成）。
 
 ## ApiResponse
 
@@ -14,7 +14,7 @@
 }
 ```
 
-`requestId`、`timestamp` 为可选扩展字段。NestJS 现有 health 接口可以暂不返回它们。
+`requestId`、`timestamp` 为可选扩展字段。旧 NestJS 骨架的 health 接口可以暂不返回它们；正式 Mini/Admin API 建议齐全。
 
 ## ErrorResponse
 
@@ -53,7 +53,7 @@
 
 约束：
 
-- Mock-only 参数不得进入正式 NestJS API
+- Mock-only 参数不得进入正式 Django API（`/api/v1/mini/*`、`/api/v1/admin/*`）
 - 小程序生产环境（trial / release）不得发送 `X-Mock-Scenario`
 - 正式后端不实现 `__scenario`，也不根据 `loggedIn` 切换夹具
 

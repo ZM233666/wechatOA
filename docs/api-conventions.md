@@ -2,8 +2,10 @@
 
 ## 前缀
 
-- 所有业务接口使用全局前缀：`/api`
-- 由环境变量 `API_PREFIX` 控制，默认 `api`
+### 当前（Mock / 旧 NestJS 骨架）
+
+- 业务接口全局前缀：`/api`
+- Mock 与旧骨架由环境变量 `API_PREFIX` 控制，默认 `api`
 
 示例：
 
@@ -11,6 +13,16 @@
 GET /api/health
 ```
 
+### 正式后端（未来 Django/DRF）
+
+小程序与 Portal 共用同一套业务后端，按端隔离：
+
+| 端 | 前缀 | 调用方 |
+| --- | --- | --- |
+| Mini API | `/api/v1/mini/*` | 微信小程序 |
+| Admin API | `/api/v1/admin/*` | DVAdmin Portal |
+
+迁移时以契约字段为准；路径前缀从 Mock 的 `/api/...` 对齐到 Mini/Admin 版本化前缀。
 ## RESTful 路径规范
 
 - 使用名词复数或资源名：`/api/users`、`/api/orders`
