@@ -76,7 +76,8 @@
       "kicker": "KB Insights",
       "english": "Rail Transit Trend Insight",
       "caption": "2025轨道交通趋势洞察",
-      "tag": "Gating"
+      "tag": "Gating",
+      "gating": false
     },
     {
       "id": "insight-lcc",
@@ -103,7 +104,8 @@
       "kind": "insight",
       "kicker": "KB Insights",
       "english": "Life Cycle Cost Analysis",
-      "caption": "LCC全生命周期成本分析"
+      "caption": "LCC全生命周期成本分析",
+      "gating": true
     }
   ],
   "details": [

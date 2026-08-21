@@ -14,6 +14,25 @@ export function getServices(req: Request, res: Response): void {
   success(res, withAbsoluteAssets(req, { heroCards, insightCovers }), req.requestId);
 }
 
+export function getInsightReports(req: Request, res: Response): void {
+  const items = getFixtures().insightReports.map(({ pages: _pages, ...summary }) => summary);
+  if (req.mockScenario === 'empty') {
+    success(res, { items: [] }, req.requestId);
+    return;
+  }
+  success(res, withAbsoluteAssets(req, { items }), req.requestId);
+}
+
+export function getInsightReportDetail(req: Request, res: Response): void {
+  const report = getFixtures().insightReports.find((item) => item.id === req.params.id);
+  if (!report) {
+    throw new HttpError(404, 'Resource not found', ERROR_CODES.RESOURCE_NOT_FOUND, {
+      id: req.params.id,
+    });
+  }
+  success(res, withAbsoluteAssets(req, report), req.requestId);
+}
+
 export function getServiceDetail(req: Request, res: Response): void {
   const detail = getFixtures().services.details.find((item) => item.id === req.params.id);
   if (!detail) {

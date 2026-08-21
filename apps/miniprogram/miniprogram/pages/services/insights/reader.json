@@ -1,0 +1,9 @@
+{
+  "navigationStyle": "custom",
+  "backgroundColor": "#111111",
+  "enableShareAppMessage": true,
+  "usingComponents": {
+    "nav-brand": "/components/common/nav-brand/nav-brand",
+    "insight-reader": "/components/services/insight-reader/index"
+  }
+}

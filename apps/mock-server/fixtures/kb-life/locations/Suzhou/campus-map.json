@@ -1,0 +1,10 @@
+{
+  "title": "园区地图 · Suzhou (Campus Map)",
+  "image": {
+    "url": "/mock-assets/kb-life/campus-map-suzhou.png",
+    "alt": "园区地图",
+    "width": 1200,
+    "height": 900,
+    "aspectRatio": 1.3333
+  }
+}

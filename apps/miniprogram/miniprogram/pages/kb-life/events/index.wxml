@@ -8,8 +8,9 @@
       class="event-card tap-feedback"
       wx:for="{{events}}"
       wx:key="id"
-      data-path="{{item.path}}"
-      bindtap="onEventTap"
+      data-id="{{item.id}}"
+      hover-stop-propagation="{{true}}"
+      catchtap="onEventTap"
     >
       <view class="event-card__icon-wrap" style="background: {{item.iconBg}};">
         <image class="event-card__icon" src="{{item.icon}}" mode="aspectFit"></image>

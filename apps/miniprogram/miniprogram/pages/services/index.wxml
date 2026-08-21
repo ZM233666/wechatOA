@@ -1,7 +1,46 @@
-<view class="page page--services">
-  <nav-brand title="Services"></nav-brand>
+<view class="page page--services {{readerVisible ? 'page--services-reading' : ''}}">
+  <nav-brand
+    title="{{navTitle}}"
+    show-back="{{listVisible && !readerVisible}}"
+    back-as-event="{{listVisible}}"
+    bind:back="onListBack"
+  ></nav-brand>
 
-  <view class="services">
+  <insight-reader
+    visible="{{readerVisible}}"
+    report-id="{{readerReportId}}"
+    with-tab-bar="{{true}}"
+    bind:close="onReaderClose"
+  ></insight-reader>
+
+  <view wx:if="{{!readerVisible && listVisible}}" class="insights-panel">
+    <empty-state wx:if="{{listStatus === 'loading'}}" title="正在加载洞察"></empty-state>
+    <empty-state wx:elif="{{listStatus === 'error'}}" title="加载失败" description="{{listErrorText}}"></empty-state>
+    <empty-state wx:elif="{{listStatus === 'empty'}}" title="暂无洞察报告"></empty-state>
+    <view wx:if="{{listStatus === 'success'}}" class="insights-panel__grid">
+      <view
+        class="insight-cover tap-feedback"
+        wx:for="{{insightItems}}"
+        wx:key="id"
+        data-id="{{item.id}}"
+        data-gating="{{item.gating}}"
+        bindtap="onInsightTap"
+      >
+        <view class="insight-cover__frame">
+          <view class="insight-cover__meta">
+            <text class="insight-cover__kicker">{{item.kicker}}</text>
+            <text class="insight-cover__name">{{item.title}}</text>
+            <text class="insight-cover__en">{{item.english}}</text>
+          </view>
+          <image class="insight-cover__image" src="{{item.image}}" mode="aspectFill"></image>
+          <text wx:if="{{item.tag}}" class="insight-cover__tag">{{item.tag}}</text>
+        </view>
+        <text class="insight-cover__caption">{{item.caption}}</text>
+      </view>
+    </view>
+  </view>
+
+  <view wx:if="{{!readerVisible && !listVisible}}" class="services">
     <empty-state wx:if="{{pageStatus === 'loading'}}" title="正在加载服务"></empty-state>
     <empty-state wx:elif="{{pageStatus === 'error'}}" title="服务加载失败" description="{{errorText}}"></empty-state>
     <empty-state wx:elif="{{pageStatus === 'empty'}}" title="暂无服务内容"></empty-state>
@@ -52,7 +91,9 @@
           class="insight-cover tap-feedback"
           wx:for="{{insightCovers}}"
           wx:key="id"
-          bindtap="onComingSoon"
+          data-id="{{item.id}}"
+          data-gating="{{item.gating}}"
+          bindtap="onInsightTap"
         >
           <view class="insight-cover__frame">
             <view class="insight-cover__meta">
@@ -67,7 +108,7 @@
         </view>
       </view>
 
-      <view class="insights-card__more tap-feedback" bindtap="onComingSoon">
+      <view class="insights-card__more tap-feedback" bindtap="onExploreMore">
         <text class="insights-card__more-text">探索更多</text>
       </view>
     </view>

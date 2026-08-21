@@ -10,7 +10,7 @@ export interface OpenPosition {
 
 export const OPEN_POSITIONS: OpenPosition[] = [
   {
-    id: '1',
+    id: 'systems-engineer',
     title: '系统工程师 (Systems Engineer)',
     department: 'Systems Engineering',
     location: 'Suzhou, China',
@@ -21,7 +21,7 @@ export const OPEN_POSITIONS: OpenPosition[] = [
       '1. Bachelor degree or above in Mechanical, Electrical, Mechatronics Engineering.\n2. 3+ years experience in system engineering, preferably in rail or automotive industry.\n3. Good English communication skills.\n4. Strong problem-solving abilities and teamwork spirit.',
   },
   {
-    id: '2',
+    id: 'software-engineer',
     title: '软件工程师 (Software Engineer)',
     department: 'Software Development',
     location: 'Suzhou, China',
@@ -32,7 +32,7 @@ export const OPEN_POSITIONS: OpenPosition[] = [
       '1. Bachelor degree or above in Computer Science, Software Engineering or related.\n2. Proficient in C/C++ programming for embedded systems.\n3. Experience with RTOS and microcontrollers.\n4. Knowledge of EN 50128 or ISO 26262 is a plus.',
   },
   {
-    id: '3',
+    id: 'quality-engineer',
     title: '质量工程师 (Quality Engineer)',
     department: 'Quality Assurance',
     location: 'Suzhou, China',
@@ -45,5 +45,8 @@ export const OPEN_POSITIONS: OpenPosition[] = [
 ];
 
 export function getOpenPositionById(id: string): OpenPosition | undefined {
+  if (!id) {
+    return undefined;
+  }
   return OPEN_POSITIONS.find((item) => item.id === id);
 }

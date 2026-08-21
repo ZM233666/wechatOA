@@ -28,14 +28,6 @@ export interface NewsListItemView {
   pinned: boolean;
 }
 
-export interface NewsRelatedView {
-  id: string;
-  title: string;
-  date: string;
-  image: string;
-  category: string;
-}
-
 export interface NewsDetailView {
   id: string;
   title: string;
@@ -48,7 +40,6 @@ export interface NewsDetailView {
   source: string;
   tags: string[];
   richContent: ArticleContentBlock[];
-  relatedArticles: NewsRelatedView[];
   shareTitle: string;
   shareSummary: string;
   shareImage: string;
@@ -134,13 +125,6 @@ export async function getNewsDetail(id: string): Promise<NewsDetailView> {
     source: data.source.name,
     tags: data.tags.map((tag) => tag.name),
     richContent: data.richContent,
-    relatedArticles: data.relatedArticles.slice(0, 3).map((item) => ({
-      id: item.id,
-      title: item.title,
-      date: formatDisplayDate(item.publishedAt),
-      image: toAssetUrl(item.thumbnailImage ?? item.coverImage),
-      category: item.category.name,
-    })),
     shareTitle: data.share?.title || data.title,
     shareSummary: data.share?.summary || data.summary,
     shareImage: data.share?.imageUrl ? toAssetUrl(data.share.imageUrl) : cover,

@@ -1,0 +1,46 @@
+{
+  "id": "insight-smart-maintenance",
+  "title": "智能运维白皮书",
+  "titleEn": "Smart Maintenance Whitepaper",
+  "caption": "智能运维白皮书",
+  "kicker": "KB Insights",
+  "english": "Smart Maintenance Whitepaper",
+  "coverImage": {
+    "url": "/mock-assets/services/insight-trend-cover.png",
+    "alt": "智能运维白皮书",
+    "width": 800,
+    "height": 1000,
+    "aspectRatio": 0.8
+  },
+  "gating": true,
+  "tag": "Gating",
+  "pages": [
+    {
+      "id": "sm-cover",
+      "type": "cover",
+      "title": "Cover",
+      "coverImage": {
+        "url": "/mock-assets/services/insight-trend-cover.png",
+        "alt": "封面",
+        "width": 800,
+        "height": 1000,
+        "aspectRatio": 0.8
+      },
+      "headlineCn": ["智能运维", "白皮书"],
+      "headlineEn": "SMART MAINTENANCE WHITEPAPER",
+      "institute": "KB Insights Research Institute",
+      "brand": "KNORR-BREMSE"
+    },
+    {
+      "id": "sm-content",
+      "type": "content",
+      "title": "Overview",
+      "chapterLabel": "01 Overview",
+      "chapterTitle": "概览",
+      "paragraphs": [
+        "智能运维强调以数据驱动检修决策，缩短故障定位时间并提升车队可用度。",
+        "本白皮书给出从传感器、边缘网关到云端分析平台的分层落地路径。"
+      ]
+    }
+  ]
+}

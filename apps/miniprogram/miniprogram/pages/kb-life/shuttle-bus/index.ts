@@ -4,9 +4,11 @@ import {
   type ShuttleRoute,
 } from '../../../services/kb-life.service';
 import { RequestError } from '../../../types/api';
+import { resolveCampusLocation } from '../../../utils/campus-location';
 
 Page({
   data: {
+    location: '',
     keyword: '',
     routes: [] as ShuttleRoute[],
     allRoutes: [] as ShuttleRoute[],
@@ -15,15 +17,20 @@ Page({
     errorText: '',
   },
 
-  onLoad() {
+  onLoad(query: Record<string, string | undefined>) {
+    this.location = resolveCampusLocation(query.location);
+    this.setData({ location: this.location });
     void this.loadShuttle();
   },
+
+  location: '' as string,
 
   async loadShuttle() {
     this.setData({ pageStatus: 'loading' });
     try {
-      const result = await getShuttle();
+      const result = await getShuttle(this.location);
       this.setData({
+        location: result.location,
         notice: result.notice,
         allRoutes: result.routes,
         routes: filterShuttleRoutes(result.routes, this.data.keyword),

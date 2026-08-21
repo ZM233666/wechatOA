@@ -1,0 +1,8 @@
+page {
+  background: #111111;
+}
+
+.page--insight-reader-host {
+  min-height: 100vh;
+  background: #111111;
+}

@@ -1,0 +1,40 @@
+{
+  "id": "vol21",
+  "title": "WETALK VOL.21",
+  "date": "2024 / Issue 21",
+  "coverImage": {
+    "url": "/mock-assets/services/insight-trend-cover.png",
+    "alt": "WETALK VOL.21",
+    "width": 800,
+    "height": 1000,
+    "aspectRatio": 0.8
+  },
+  "pages": [
+    {
+      "id": "vol21-cover",
+      "type": "cover",
+      "title": "Cover",
+      "coverImage": {
+        "url": "/mock-assets/services/insight-trend-cover.png",
+        "alt": "封面",
+        "width": 800,
+        "height": 1000,
+        "aspectRatio": 0.8
+      },
+      "headlineCn": ["WETALK", "聚力"],
+      "headlineEn": "BETTER TOGETHER",
+      "institute": "克诺尔中国区双月刊",
+      "brand": "KNORR-BREMSE"
+    },
+    {
+      "id": "vol21-content",
+      "type": "content",
+      "title": "Overview",
+      "chapterLabel": "01 Highlights",
+      "chapterTitle": "本期速览",
+      "paragraphs": [
+        "VOL.21 聚焦年度重点项目复盘与跨工厂经验分享。"
+      ]
+    }
+  ]
+}

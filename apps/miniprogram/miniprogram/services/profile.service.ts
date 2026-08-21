@@ -6,6 +6,8 @@ import { get } from './request';
 
 export type ProfileRoleKey = 'Edward' | 'Customer' | 'Visitor';
 
+export const PROFILE_ROLE_STORAGE_KEY = 'profileRoleKey';
+
 export interface ProfileUser {
   chineseName: string;
   name: string;
@@ -61,6 +63,31 @@ const emptyUser: ProfileUser = {
   avatar: '',
 };
 
+export function resolveProfileRoleKey(value: unknown): ProfileRoleKey {
+  if (value === 'Customer' || value === 'Visitor' || value === 'Edward') {
+    return value;
+  }
+  return 'Visitor';
+}
+
+export function getStoredProfileRole(): ProfileRoleKey {
+  try {
+    return resolveProfileRoleKey(wx.getStorageSync(PROFILE_ROLE_STORAGE_KEY));
+  } catch {
+    return 'Visitor';
+  }
+}
+
+export function setStoredProfileRole(roleKey: ProfileRoleKey): ProfileRoleKey {
+  const resolved = resolveProfileRoleKey(roleKey);
+  try {
+    wx.setStorageSync(PROFILE_ROLE_STORAGE_KEY, resolved);
+  } catch {
+    // ignore storage write errors; caller still uses resolved key this session
+  }
+  return resolved;
+}
+
 function mapProfile(data: ProfileDto, selectedKey: ProfileRoleKey): {
   user: ProfileUser;
   fields: ProfileField[];
@@ -94,9 +121,14 @@ function mapProfile(data: ProfileDto, selectedKey: ProfileRoleKey): {
   };
 }
 
-export async function getProfile(loggedIn = false, selectedKey: ProfileRoleKey = 'Visitor') {
+export async function getProfile(selectedKey: ProfileRoleKey = getStoredProfileRole()) {
   const query =
-    getCurrentEnvVersion() === 'develop' && loggedIn ? { loggedIn: 'true' } : undefined;
+    getCurrentEnvVersion() === 'develop'
+      ? {
+          role: selectedKey,
+          ...(selectedKey !== 'Visitor' ? { loggedIn: 'true' } : {}),
+        }
+      : undefined;
   const data = await get<ProfileDto>(API_ENDPOINTS.profile, query);
   return mapProfile(data, selectedKey);
 }

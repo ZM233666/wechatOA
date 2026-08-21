@@ -1,0 +1,7 @@
+{
+  "navigationStyle": "custom",
+  "backgroundColor": "#000000",
+  "usingComponents": {
+    "empty-state": "/components/common/empty-state/empty-state"
+  }
+}

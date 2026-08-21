@@ -1,5 +1,5 @@
 <view class="page page--canteen">
-  <nav-brand title="Canteen Menu" show-back="{{true}}"></nav-brand>
+  <nav-brand title="Canteen Menu · {{location}}" show-back="{{true}}"></nav-brand>
 
   <view class="canteen-hero">
     <image

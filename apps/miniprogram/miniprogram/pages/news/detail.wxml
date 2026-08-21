@@ -9,25 +9,6 @@
       <text wx:if="{{news.subtitle}}" class="news-detail__subtitle">{{news.subtitle}}</text>
       <text class="news-detail__meta">{{news.source || news.author}} · {{news.date}}</text>
       <article-renderer blocks="{{news.richContent}}"></article-renderer>
-      <view wx:if="{{news.tags.length}}" class="news-detail__tags">
-        <text class="news-detail__tag" wx:for="{{news.tags}}" wx:key="*this">{{item}}</text>
-      </view>
-      <view wx:if="{{news.relatedArticles.length}}" class="news-related">
-        <text class="news-related__title">相关阅读</text>
-        <view
-          class="news-related__item tap-feedback"
-          wx:for="{{news.relatedArticles}}"
-          wx:key="id"
-          data-id="{{item.id}}"
-          bindtap="onRelatedTap"
-        >
-          <image class="news-related__thumb" src="{{item.image}}" mode="aspectFill" data-id="{{item.id}}" binderror="onRelatedImageError"></image>
-          <view class="news-related__meta">
-            <text class="news-related__name">{{item.title}}</text>
-            <text class="news-related__date">{{item.date}}</text>
-          </view>
-        </view>
-      </view>
     </view>
   </view>
 
@@ -43,11 +24,7 @@
 
   <view wx:if="{{news}}" class="news-detail__bar">
     <view class="news-detail__action tap-feedback" bindtap="onToggleFavorite">
-      <image
-        class="news-detail__icon"
-        src="{{favorited ? '/assets/images/content/icon-heart-active.png' : '/assets/images/content/icon-heart.png'}}"
-        mode="aspectFit"
-      ></image>
+      <text class="news-detail__star {{favorited ? 'news-detail__star--on' : ''}}">★</text>
     </view>
     <button class="news-detail__action news-detail__share tap-feedback" open-type="share">
       <image class="news-detail__icon" src="/assets/images/content/icon-share.png" mode="aspectFit"></image>

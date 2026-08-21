@@ -18,6 +18,7 @@ export interface ServiceSummary {
   english?: string;
   caption?: string;
   tag?: string;
+  gating?: boolean;
 }
 
 export interface ServiceDetail {
@@ -33,4 +34,46 @@ export interface ServiceDetail {
 export interface ServicesPageData {
   heroCards: ServiceSummary[];
   insightCovers: ServiceSummary[];
+}
+
+export type InsightReportPageType = 'cover' | 'contents' | 'content';
+
+export interface InsightTocItem {
+  index: string;
+  titleEn: string;
+  titleCn: string;
+  lines: string[];
+}
+
+export interface InsightReportPage {
+  id: string;
+  type: InsightReportPageType;
+  title: string;
+  coverImage?: ImageResource;
+  headlineCn?: string[];
+  headlineEn?: string;
+  institute?: string;
+  brand?: string;
+  toc?: InsightTocItem[];
+  chapterLabel?: string;
+  chapterTitle?: string;
+  bodyImage?: ImageResource;
+  paragraphs?: string[];
+  bullets?: string[];
+}
+
+export interface InsightReportSummary {
+  id: string;
+  title: string;
+  titleEn: string;
+  caption: string;
+  kicker: string;
+  english: string;
+  coverImage: ImageResource;
+  gating: boolean;
+  tag?: string;
+}
+
+export interface InsightReport extends InsightReportSummary {
+  pages: InsightReportPage[];
 }

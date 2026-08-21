@@ -1,0 +1,29 @@
+{
+  "intro": "南口园区食堂主打家常北方菜与员工定制套餐，支持预约加班餐。",
+  "menuItems": [
+    {
+      "id": "nk-set",
+      "title": "北方套餐 (Northern Set)",
+      "description": "红烧牛肉、土豆丝、主食",
+      "image": {
+        "url": "/mock-assets/kb-life/menu-set-a.png",
+        "alt": "北方套餐 (Northern Set)",
+        "width": 800,
+        "height": 600,
+        "aspectRatio": 1.3333
+      }
+    },
+    {
+      "id": "nk-ot",
+      "title": "加班简餐 (OT Meal)",
+      "description": "需提前预约的加班夜宵套餐",
+      "image": {
+        "url": "/mock-assets/kb-life/menu-healthy.png",
+        "alt": "加班简餐 (OT Meal)",
+        "width": 800,
+        "height": 600,
+        "aspectRatio": 1.3333
+      }
+    }
+  ]
+}

@@ -4,10 +4,47 @@ page {
 
 .page--services {
   background: #f5f7fa;
+  min-height: 100vh;
+}
+
+.page--services.page--services-reading {
+  background: #111111;
 }
 
 .services {
   padding: 24rpx 24rpx calc(24rpx + env(safe-area-inset-bottom));
+}
+
+.insights-panel {
+  padding: 24rpx 32rpx calc(32rpx + env(safe-area-inset-bottom));
+}
+
+.insights-panel__grid {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  background: linear-gradient(160deg, #f8fafc, #f1f5f9);
+  border-radius: 24rpx;
+  padding: 24rpx;
+}
+
+.insights-panel .insight-cover {
+  width: 48%;
+  margin-bottom: 28rpx;
+}
+
+.insights-panel .insight-cover__frame {
+  aspect-ratio: 3 / 4;
+  display: flex;
+  flex-direction: column;
+  padding: 0;
+}
+
+.insights-panel .insight-cover__image {
+  flex: 1;
+  height: auto;
+  min-height: 0;
 }
 
 .hero-card {

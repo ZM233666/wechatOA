@@ -1,0 +1,52 @@
+<view class="page page--campus-map">
+  <view class="campus-map__header" style="padding-top: {{statusBarHeight}}px;">
+    <view class="campus-map__bar" style="height: {{navBarHeight}}px;">
+      <view class="campus-map__back tap-feedback" bindtap="onBack">
+        <text class="campus-map__back-icon">‹</text>
+      </view>
+      <text class="campus-map__title">{{title}}</text>
+      <view class="campus-map__bar-spacer"></view>
+    </view>
+  </view>
+
+  <view class="campus-map__body">
+    <empty-state wx:if="{{pageStatus === 'loading'}}" title="正在加载园区地图"></empty-state>
+    <empty-state
+      wx:elif="{{pageStatus === 'error'}}"
+      title="加载失败"
+      description="{{errorText}}"
+    ></empty-state>
+    <view wx:elif="{{pageStatus === 'success'}}" class="campus-map__stage">
+      <movable-area class="campus-map__area" scale-area>
+        <movable-view
+          class="campus-map__view"
+          direction="all"
+          scale="{{true}}"
+          scale-min="{{0.5}}"
+          scale-max="{{3}}"
+          scale-value="{{scale}}"
+          inertia="{{true}}"
+          bindscale="onScale"
+        >
+          <image class="campus-map__image" src="{{image}}" mode="widthFix" show-menu-by-longpress></image>
+        </movable-view>
+      </movable-area>
+    </view>
+  </view>
+
+  <view class="campus-map__toolbar">
+    <view class="campus-map__tool tap-feedback" bindtap="onZoomIn">
+      <text class="campus-map__tool-icon">＋</text>
+    </view>
+    <view class="campus-map__tool tap-feedback" bindtap="onZoomOut">
+      <text class="campus-map__tool-icon">－</text>
+    </view>
+    <view class="campus-map__tool tap-feedback" bindtap="onDownload">
+      <image
+        class="campus-map__tool-img"
+        src="/assets/images/kb-life/download-white.png"
+        mode="aspectFit"
+      ></image>
+    </view>
+  </view>
+</view>

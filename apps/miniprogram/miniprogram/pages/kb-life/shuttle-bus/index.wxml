@@ -1,5 +1,5 @@
 <view class="page page--shuttle">
-  <nav-brand title="Shuttle Bus" show-back="{{true}}"></nav-brand>
+  <nav-brand title="Shuttle Bus · {{location}}" show-back="{{true}}"></nav-brand>
 
   <view class="shuttle-head">
     <text class="shuttle-head__title">班车线路 (Shuttle Bus)</text>

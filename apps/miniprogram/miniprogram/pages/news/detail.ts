@@ -86,31 +86,6 @@ Page({
     });
   },
 
-  onRelatedImageError(event: WechatMiniprogram.TouchEvent) {
-    const { id } = event.currentTarget.dataset as { id?: string };
-    if (!id || !this.data.news) {
-      return;
-    }
-    this.setData({
-      news: {
-        ...this.data.news,
-        relatedArticles: this.data.news.relatedArticles.map((item) =>
-          item.id === id ? { ...item, image: fallbackImageUrl(item.image) } : item,
-        ),
-      },
-    });
-  },
-
-  onRelatedTap(event: WechatMiniprogram.TouchEvent) {
-    const { id } = event.currentTarget.dataset as { id?: string };
-    if (!id || id === this.data.newsId) {
-      return;
-    }
-    wx.redirectTo({
-      url: `/pages/news/detail?id=${id}`,
-    });
-  },
-
   onToggleFavorite() {
     const next = !this.data.favorited;
     this.setData({ favorited: next });

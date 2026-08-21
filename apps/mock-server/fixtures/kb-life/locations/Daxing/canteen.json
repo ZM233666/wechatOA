@@ -1,0 +1,29 @@
+{
+  "intro": "大兴园区食堂提供京味家常菜与清真窗口，关注营养均衡与食品安全。",
+  "menuItems": [
+    {
+      "id": "dx-set",
+      "title": "京味套餐 (Beijing Set)",
+      "description": "京酱肉丝、拍黄瓜、小米粥",
+      "image": {
+        "url": "/mock-assets/kb-life/menu-set-a.png",
+        "alt": "京味套餐 (Beijing Set)",
+        "width": 800,
+        "height": 600,
+        "aspectRatio": 1.3333
+      }
+    },
+    {
+      "id": "dx-halal",
+      "title": "清真窗口 (Halal)",
+      "description": "牛肉面、烤羊肉串简餐",
+      "image": {
+        "url": "/mock-assets/kb-life/menu-healthy.png",
+        "alt": "清真窗口 (Halal)",
+        "width": 800,
+        "height": 600,
+        "aspectRatio": 1.3333
+      }
+    }
+  ]
+}

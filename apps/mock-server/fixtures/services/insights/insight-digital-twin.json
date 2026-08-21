@@ -1,0 +1,46 @@
+{
+  "id": "insight-digital-twin",
+  "title": "数字孪生系统应用",
+  "titleEn": "Digital Twin Applications",
+  "caption": "数字孪生系统应用",
+  "kicker": "KB Insights",
+  "english": "Digital Twin Applications",
+  "coverImage": {
+    "url": "/mock-assets/services/insight-lcc-cover.png",
+    "alt": "数字孪生系统应用",
+    "width": 800,
+    "height": 1000,
+    "aspectRatio": 0.8
+  },
+  "gating": true,
+  "tag": "Gating",
+  "pages": [
+    {
+      "id": "dt-cover",
+      "type": "cover",
+      "title": "Cover",
+      "coverImage": {
+        "url": "/mock-assets/services/insight-lcc-cover.png",
+        "alt": "封面",
+        "width": 800,
+        "height": 1000,
+        "aspectRatio": 0.8
+      },
+      "headlineCn": ["数字孪生", "系统应用"],
+      "headlineEn": "DIGITAL TWIN APPLICATIONS",
+      "institute": "KB Insights Research Institute",
+      "brand": "KNORR-BREMSE"
+    },
+    {
+      "id": "dt-content",
+      "type": "content",
+      "title": "Overview",
+      "chapterLabel": "01 Overview",
+      "chapterTitle": "应用场景",
+      "paragraphs": [
+        "数字孪生可用于虚拟联调、故障注入与维护策略仿真，缩短现场试验时间。",
+        "与车队运行数据结合后，可形成从设计到运维的持续优化闭环。"
+      ]
+    }
+  ]
+}

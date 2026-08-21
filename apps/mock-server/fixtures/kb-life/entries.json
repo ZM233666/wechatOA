@@ -43,7 +43,8 @@
       "id": "campus-map",
       "title": "园区地图",
       "subtitle": "Campus Map",
-      "icon": { "url": "/mock-assets/kb-life/map.png", "alt": "园区地图", "width": 96, "height": 96, "aspectRatio": 1 }
+      "icon": { "url": "/mock-assets/kb-life/map.png", "alt": "园区地图", "width": 96, "height": 96, "aspectRatio": 1 },
+      "path": "/pages/kb-life/campus-map/index"
     },
     {
       "id": "shuttle-bus",

@@ -1,0 +1,41 @@
+{
+  "notice": "南口园区班车连接昌平与南口厂区。(Nankou campus shuttle schedule.)",
+  "routes": [
+    {
+      "id": "NK01",
+      "name": "昌平线",
+      "stops": [
+        {
+          "name": "昌平东关",
+          "time": "7:05"
+        },
+        {
+          "name": "南口火车站",
+          "time": "7:35"
+        },
+        {
+          "name": "公司"
+        }
+      ],
+      "stationsText": "7:05 昌平东关，7:35 南口火车站，公司"
+    },
+    {
+      "id": "NK02",
+      "name": "回龙观线",
+      "stops": [
+        {
+          "name": "回龙观东大街",
+          "time": "6:55"
+        },
+        {
+          "name": "南口镇",
+          "time": "7:40"
+        },
+        {
+          "name": "公司"
+        }
+      ],
+      "stationsText": "6:55 回龙观东大街，7:40 南口镇，公司"
+    }
+  ]
+}

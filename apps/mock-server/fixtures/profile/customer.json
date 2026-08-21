@@ -1,0 +1,60 @@
+{
+  "isLoggedIn": true,
+  "user": {
+    "chineseName": "李娜",
+    "name": "Li Na",
+    "titleCn": "车队经理",
+    "titleEn": "Fleet Manager",
+    "department": "Metro Rail",
+    "role": "Customer",
+    "avatar": {
+      "url": "/mock-assets/avatars/avatar-customer.png",
+      "alt": "李娜头像",
+      "width": 200,
+      "height": 200,
+      "aspectRatio": 1
+    }
+  },
+  "fields": [
+    {
+      "id": "position",
+      "labelCn": "职位",
+      "labelEn": "Position",
+      "value": "Fleet Manager",
+      "icon": { "url": "/mock-assets/avatars/icon-briefcase.png", "alt": "职位", "width": 48, "height": 48, "aspectRatio": 1 }
+    },
+    {
+      "id": "department",
+      "labelCn": "部门",
+      "labelEn": "Department",
+      "value": "Metro Rail",
+      "icon": { "url": "/mock-assets/avatars/icon-user.png", "alt": "部门", "width": 48, "height": 48, "aspectRatio": 1 }
+    },
+    {
+      "id": "phone",
+      "labelCn": "联系电话",
+      "labelEn": "Phone",
+      "value": "+86 138 0000 0000",
+      "icon": { "url": "/mock-assets/avatars/icon-phone.png", "alt": "联系电话", "width": 48, "height": 48, "aspectRatio": 1 }
+    },
+    {
+      "id": "email",
+      "labelCn": "邮箱",
+      "labelEn": "Email",
+      "value": "lina@example.com",
+      "icon": { "url": "/mock-assets/avatars/icon-mail.png", "alt": "邮箱", "width": 48, "height": 48, "aspectRatio": 1 }
+    },
+    {
+      "id": "company",
+      "labelCn": "公司",
+      "labelEn": "Company",
+      "value": "Metro Rail Operator",
+      "icon": { "url": "/mock-assets/avatars/icon-building.png", "alt": "公司", "width": 48, "height": 48, "aspectRatio": 1 }
+    }
+  ],
+  "roleOptions": [
+    { "key": "Edward", "label": "Employee" },
+    { "key": "Customer", "label": "Customer" },
+    { "key": "Visitor", "label": "Visitor" }
+  ]
+}

@@ -2,7 +2,11 @@
   "pages": [
     "pages/index/index",
     "pages/services/index",
+    "pages/services/insights/index",
+    "pages/services/insights/reader",
+    "pages/services/insights/access-denied/index",
     "pages/kb-life/index",
+    "pages/kb-life/campus-map/index",
     "pages/profile/index",
     "pages/profile/personal-info/index",
     "pages/news/index",

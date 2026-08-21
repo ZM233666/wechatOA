@@ -145,6 +145,16 @@ page {
   background: #f3f4f6;
 }
 
+.calendar-cell--today {
+  border-color: #003b70;
+  box-shadow: inset 0 0 0 2rpx #003b70;
+}
+
+.calendar-cell--today .calendar-cell__day {
+  color: #003b70;
+  font-weight: 700;
+}
+
 .calendar-cell__day {
   font-size: 26rpx;
   color: #1f2937;

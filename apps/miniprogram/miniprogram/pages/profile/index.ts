@@ -1,4 +1,9 @@
-import { getProfile, type ProfileField, type ProfileUser } from '../../services/profile.service';
+import {
+  getProfile,
+  getStoredProfileRole,
+  type ProfileField,
+  type ProfileUser,
+} from '../../services/profile.service';
 import { RequestError } from '../../types/api';
 
 Page({
@@ -24,7 +29,7 @@ Page({
   async loadProfile() {
     this.setData({ pageStatus: 'loading' });
     try {
-      const result = await getProfile(false, 'Visitor');
+      const result = await getProfile(getStoredProfileRole());
       this.setData({
         user: result.user,
         fields: result.fields,

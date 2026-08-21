@@ -54,76 +54,17 @@ page {
   margin-bottom: 40rpx;
 }
 
-.news-detail__tags {
-  display: flex;
-  flex-direction: row;
-  flex-wrap: wrap;
-  margin: 24rpx 0 8rpx;
-}
-
-.news-detail__tag {
-  margin: 0 12rpx 12rpx 0;
-  padding: 8rpx 16rpx;
-  font-size: 22rpx;
-  color: #00467f;
-  background: #eff6ff;
-  border-radius: 8rpx;
-}
-
-.news-related {
-  margin-top: 24rpx;
-  padding-top: 24rpx;
-  border-top: 1rpx solid #eef0f3;
-}
-
-.news-related__title {
-  display: block;
-  font-size: 30rpx;
-  font-weight: 700;
-  color: #111827;
-  margin-bottom: 24rpx;
-}
-
-.news-related__item {
-  display: flex;
-  flex-direction: row;
-  margin-bottom: 24rpx;
-}
-
-.news-related__thumb {
-  width: 168rpx;
-  height: 112rpx;
-  border-radius: 12rpx;
-  flex-shrink: 0;
-  background: #f3f4f6;
-}
-
-.news-related__meta {
-  flex: 1;
-  min-width: 0;
-  margin-left: 20rpx;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-}
-
-.news-related__name {
-  font-size: 26rpx;
-  color: #111827;
-  line-height: 1.4;
-}
-
-.news-related__date {
-  font-size: 22rpx;
-  color: #9ca3af;
-}
-
 .news-detail__share {
+  width: 72rpx !important;
+  min-width: 72rpx !important;
+  max-width: 72rpx;
+  height: 72rpx;
   margin: 0;
   padding: 0;
   background: transparent;
   border: none;
   line-height: 1;
+  box-sizing: border-box;
 }
 
 .news-detail__share::after {
@@ -147,29 +88,40 @@ page {
 
 .news-detail__bar {
   position: fixed;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  padding: 16rpx 32rpx calc(16rpx + env(safe-area-inset-bottom));
+  right: 24rpx;
+  bottom: calc(24rpx + env(safe-area-inset-bottom));
+  padding: 4rpx;
   background: #ffffff;
-  border-top: 1rpx solid #f3f4f6;
-  display: flex;
+  border: 1rpx solid #f3f4f6;
+  border-radius: 48rpx;
+  box-shadow: 0 8rpx 24rpx rgba(3, 62, 112, 0.12);
+  display: inline-flex;
   flex-direction: row;
-  justify-content: flex-end;
+  align-items: center;
   z-index: 20;
 }
 
 .news-detail__action {
   width: 72rpx;
   height: 72rpx;
-  margin-left: 16rpx;
   border-radius: 36rpx;
   display: flex;
   align-items: center;
   justify-content: center;
+  flex-shrink: 0;
 }
 
 .news-detail__icon {
   width: 48rpx;
   height: 48rpx;
+}
+
+.news-detail__star {
+  font-size: 44rpx;
+  line-height: 1;
+  color: #9ca3af;
+}
+
+.news-detail__star--on {
+  color: #d4a84b;
 }

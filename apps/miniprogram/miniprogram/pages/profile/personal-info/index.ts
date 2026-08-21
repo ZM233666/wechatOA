@@ -1,19 +1,12 @@
 import {
   getProfile,
+  getStoredProfileRole,
+  setStoredProfileRole,
   type ProfileRoleKey,
   type ProfileRoleOption,
   type ProfileUser,
 } from '../../../services/profile.service';
 import { RequestError } from '../../../types/api';
-
-const ROLE_STORAGE_KEY = 'profileRoleKey';
-
-function resolveRoleKey(value: unknown): ProfileRoleKey {
-  if (value === 'Customer' || value === 'Visitor' || value === 'Edward') {
-    return value;
-  }
-  return 'Visitor';
-}
 
 Page({
   data: {
@@ -33,15 +26,13 @@ Page({
   },
 
   onShow() {
-    const stored = resolveRoleKey(wx.getStorageSync(ROLE_STORAGE_KEY));
-    void this.loadRole(stored);
+    void this.loadRole(getStoredProfileRole());
   },
 
   async loadRole(roleKey: ProfileRoleKey) {
     this.setData({ pageStatus: 'loading', currentRole: roleKey });
     try {
-      const loggedIn = roleKey !== 'Visitor';
-      const result = await getProfile(loggedIn, roleKey);
+      const result = await getProfile(roleKey);
       this.setData({
         user: result.user,
         roles: result.roles,
@@ -61,11 +52,7 @@ Page({
     if (key !== 'Edward' && key !== 'Customer' && key !== 'Visitor') {
       return;
     }
-    try {
-      wx.setStorageSync(ROLE_STORAGE_KEY, key);
-    } catch {
-      // ignore
-    }
-    void this.loadRole(key);
+    const roleKey = setStoredProfileRole(key);
+    void this.loadRole(roleKey);
   },
 });

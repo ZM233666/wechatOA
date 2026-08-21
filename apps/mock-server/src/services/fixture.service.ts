@@ -1,14 +1,22 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { z, type ZodType } from 'zod';
-import type { AppConfig, ArticleDetail, CaseDetail, CaseSummary, HomeData, NewsSummary, ProductCategoriesData, ProductDetail, ProductSummary, ProfileData, ServiceDetail, ServicesPageData } from '@app/shared';
+import type { AppConfig, ArticleDetail, CaseDetail, CaseSummary, CampusMapData, CanteenData, HolidayCalendarData, HomeData, InsightReport, NewsSummary, ProductCategoriesData, ProductDetail, ProductSummary, ProfileData, ServiceDetail, ServicesPageData, ShuttleData, WetalkIssue } from '@app/shared';
 import { appConfigSchema, homeFileSchema } from '../schemas/home.schema';
 import { brandOverviewFileSchema, type BrandOverview } from '../schemas/brand.schema';
 import { newsArticleFixtureSchema, newsCategoriesSchema, type NewsArticleFixture } from '../schemas/news.schema';
 import { caseCategorySchema, caseDetailSchema, caseSummarySchema } from '../schemas/case.schema';
 import { productCategoriesFileSchema, productDetailSchema, productSummarySchema } from '../schemas/product.schema';
-import { servicesFileSchema } from '../schemas/service.schema';
-import { activitiesSchema, canteenSchema, kbLifeEntriesSchema, shuttleSchema } from '../schemas/kb-life.schema';
+import { insightReportSchema, servicesFileSchema } from '../schemas/service.schema';
+import {
+  activitiesSchema,
+  campusMapSchema,
+  canteenSchema,
+  holidayCalendarSchema,
+  kbLifeEntriesSchema,
+  shuttleSchema,
+  wetalkIssueSchema,
+} from '../schemas/kb-life.schema';
 import { profileSchema } from '../schemas/profile.schema';
 import { articleDetailSchema } from '../schemas/article.schema';
 import { listPublicNews, selectHomeNews, toNewsSummary } from './news.service';
@@ -63,6 +71,28 @@ function listJsonFiles(relativeDir: string): string[] {
     .map((name) => path.join(relativeDir, name));
 }
 
+function loadCampusLocationResources(locations: string[]): {
+  canteenByLocation: Record<string, CanteenData>;
+  shuttleByLocation: Record<string, ShuttleData>;
+  campusMapByLocation: Record<string, CampusMapData>;
+  holidayByLocation: Record<string, HolidayCalendarData>;
+} {
+  const canteenByLocation: Record<string, CanteenData> = {};
+  const shuttleByLocation: Record<string, ShuttleData> = {};
+  const campusMapByLocation: Record<string, CampusMapData> = {};
+  const holidayByLocation: Record<string, HolidayCalendarData> = {};
+
+  locations.forEach((location) => {
+    const base = `kb-life/locations/${location}`;
+    canteenByLocation[location] = readJsonFile(`${base}/canteen.json`, canteenSchema);
+    shuttleByLocation[location] = readJsonFile(`${base}/shuttle.json`, shuttleSchema);
+    campusMapByLocation[location] = readJsonFile(`${base}/campus-map.json`, campusMapSchema);
+    holidayByLocation[location] = readJsonFile(`${base}/holiday.json`, holidayCalendarSchema);
+  });
+
+  return { canteenByLocation, shuttleByLocation, campusMapByLocation, holidayByLocation };
+}
+
 export interface MockFixtureStore {
   appConfig: AppConfig;
   home: HomeData;
@@ -79,11 +109,16 @@ export interface MockFixtureStore {
   caseDetails: CaseDetail[];
   services: ServicesPageData & { details: ServiceDetail[] };
   kbLifeEntries: ReturnType<typeof kbLifeEntriesSchema.parse>;
-  canteen: ReturnType<typeof canteenSchema.parse>;
-  shuttle: ReturnType<typeof shuttleSchema.parse>;
+  canteenByLocation: Record<string, CanteenData>;
+  shuttleByLocation: Record<string, ShuttleData>;
+  campusMapByLocation: Record<string, CampusMapData>;
+  holidayByLocation: Record<string, HolidayCalendarData>;
   activities: ReturnType<typeof activitiesSchema.parse>;
   profileGuest: ProfileData;
   profileLoggedIn: ProfileData;
+  profileCustomer: ProfileData;
+  insightReports: InsightReport[];
+  wetalkIssues: WetalkIssue[];
 }
 
 let store: MockFixtureStore | null = null;
@@ -113,11 +148,22 @@ export function loadFixtures(): MockFixtureStore {
   const caseDetails = listJsonFiles('cases/details').map((file) => readJsonFile(file, caseDetailSchema));
   const servicesFile = readJsonFile('services/services.json', servicesFileSchema);
   const kbLifeEntries = readJsonFile('kb-life/entries.json', kbLifeEntriesSchema);
-  const canteen = readJsonFile('kb-life/canteen.json', canteenSchema);
-  const shuttle = readJsonFile('kb-life/shuttle.json', shuttleSchema);
+  const {
+    canteenByLocation,
+    shuttleByLocation,
+    campusMapByLocation,
+    holidayByLocation,
+  } = loadCampusLocationResources(kbLifeEntries.locations);
   const activities = readJsonFile('kb-life/activities.json', activitiesSchema);
   const profileGuest = readJsonFile('profile/guest.json', profileSchema);
   const profileLoggedIn = readJsonFile('profile/logged-in.json', profileSchema);
+  const profileCustomer = readJsonFile('profile/customer.json', profileSchema);
+  const insightReports = listJsonFiles('services/insights').map((file) =>
+    readJsonFile(file, insightReportSchema),
+  );
+  const wetalkIssues = listJsonFiles('kb-life/wetalk')
+    .map((file) => readJsonFile(file, wetalkIssueSchema))
+    .sort((a, b) => b.id.localeCompare(a.id));
 
   store = {
     appConfig,
@@ -135,11 +181,16 @@ export function loadFixtures(): MockFixtureStore {
     caseDetails,
     services: servicesFile,
     kbLifeEntries,
-    canteen,
-    shuttle,
+    canteenByLocation,
+    shuttleByLocation,
+    campusMapByLocation,
+    holidayByLocation,
     activities,
     profileGuest,
     profileLoggedIn,
+    profileCustomer,
+    insightReports,
+    wetalkIssues,
   };
   return store;
 }
@@ -187,6 +238,9 @@ export function collectAssetPaths(value: unknown, bucket = new Set<string>()): S
 const MINI_PROGRAM_PAGES = new Set([
   '/pages/index/index',
   '/pages/services/index',
+  '/pages/services/insights/index',
+  '/pages/services/insights/reader',
+  '/pages/services/insights/access-denied/index',
   '/pages/kb-life/index',
   '/pages/profile/index',
   '/pages/profile/personal-info/index',

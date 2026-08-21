@@ -1,7 +1,14 @@
 <view class="page page--holiday">
-  <nav-brand title="Holiday Calendar" show-back="{{true}}"></nav-brand>
+  <nav-brand title="{{navTitle}}" show-back="{{true}}"></nav-brand>
 
   <view class="holiday">
+    <empty-state wx:if="{{pageStatus === 'loading'}}" title="正在加载假期日历"></empty-state>
+    <empty-state
+      wx:elif="{{pageStatus === 'error'}}"
+      title="加载失败"
+      description="{{errorText}}"
+    ></empty-state>
+    <block wx:if="{{pageStatus === 'success'}}">
     <view class="calendar-card">
       <view class="calendar-card__nav">
         <view
@@ -37,7 +44,7 @@
           <view
             wx:for="{{cells}}"
             wx:key="key"
-            class="calendar-cell {{item.empty ? 'calendar-cell--empty' : ''}} calendar-cell--{{item.kind}}"
+            class="calendar-cell {{item.empty ? 'calendar-cell--empty' : ''}} calendar-cell--{{item.kind}} {{item.isToday ? 'calendar-cell--today' : ''}}"
           >
             <block wx:if="{{!item.empty}}">
               <text wx:if="{{item.kind === 'holiday'}}" class="calendar-cell__badge calendar-cell__badge--rest">休</text>
@@ -92,5 +99,6 @@
         </view>
       </view>
     </view>
+    </block>
   </view>
 </view>

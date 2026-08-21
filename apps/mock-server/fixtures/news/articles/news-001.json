@@ -164,34 +164,6 @@
     {
       "id": "block-010",
       "type": "divider"
-    },
-    {
-      "id": "block-011",
-      "type": "callout",
-      "variant": "exclusive",
-      "title": "精选阅读",
-      "text": "可结合产品中心了解制动、门系统与数字化方案。"
-    },
-    {
-      "id": "block-012",
-      "type": "paragraph",
-      "align": "left",
-      "spans": [
-        {
-          "type": "text",
-          "text": "如需了解相关产品，可进入产品详情继续浏览演示数据。",
-          "marks": [
-            "italic"
-          ]
-        }
-      ]
-    },
-    {
-      "id": "block-013",
-      "type": "link",
-      "text": "查看相关产品",
-      "url": "/pages/products/detail?id=product-001",
-      "linkType": "internal"
     }
   ],
   "relatedArticleIds": [

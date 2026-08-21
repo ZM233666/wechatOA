@@ -1,0 +1,110 @@
+{
+  "id": "vol23",
+  "title": "WETALK VOL.23",
+  "date": "2025 / Issue 23",
+  "coverImage": {
+    "url": "/mock-assets/news/news-003-cover.png",
+    "alt": "WETALK VOL.23",
+    "width": 800,
+    "height": 1000,
+    "aspectRatio": 0.8
+  },
+  "pages": [
+    {
+      "id": "vol23-cover",
+      "type": "cover",
+      "title": "Cover",
+      "coverImage": {
+        "url": "/mock-assets/news/news-003-cover.png",
+        "alt": "封面",
+        "width": 800,
+        "height": 1000,
+        "aspectRatio": 0.8
+      },
+      "headlineCn": ["WETALK", "为拓"],
+      "headlineEn": "KNORR-BREMSE CHINA BIMONTHLY",
+      "institute": "克诺尔中国区双月刊",
+      "brand": "KNORR-BREMSE"
+    },
+    {
+      "id": "vol23-contents",
+      "type": "contents",
+      "title": "Contents",
+      "toc": [
+        {
+          "index": "01",
+          "titleEn": "Foreword",
+          "titleCn": "卷首语",
+          "lines": ["本期寄语与编辑手记"]
+        },
+        {
+          "index": "02",
+          "titleEn": "News",
+          "titleCn": "要闻",
+          "lines": ["业务拓展动态", "项目交付亮点"]
+        },
+        {
+          "index": "03",
+          "titleEn": "Story",
+          "titleCn": "故事",
+          "lines": ["团队故事：Innovation at Every Turn"]
+        }
+      ]
+    },
+    {
+      "id": "vol23-foreword",
+      "type": "content",
+      "title": "Foreword",
+      "chapterLabel": "01 Foreword",
+      "chapterTitle": "卷首语",
+      "paragraphs": [
+        "欢迎阅读 WeTalk VOL.23。本期聚焦业务深耕、团队协作与数字化服务能力建设。",
+        "希望每一位同事都能在变革中找到属于自己的成长坐标。"
+      ]
+    },
+    {
+      "id": "vol23-news-1",
+      "type": "content",
+      "title": "News - 1",
+      "chapterLabel": "02 News",
+      "chapterTitle": "持续深耕陕汽业务",
+      "bodyImage": {
+        "url": "/mock-assets/news/news-001-cover.png",
+        "alt": "业务拓展",
+        "width": 800,
+        "height": 450,
+        "aspectRatio": 1.7778
+      },
+      "paragraphs": [
+        "在行业竞争日趋激烈、客户需求持续演变的背景下，重庆工厂团队与西安办销售团队紧密协作，持续推进客户业务的拓展与深化。",
+        "面对客户多个部门的复杂需求与严苛标准，团队以钉钉子精神推进商务谈判与技术方案优化。"
+      ]
+    },
+    {
+      "id": "vol23-news-2",
+      "type": "content",
+      "title": "News - 2",
+      "chapterLabel": "02 News",
+      "chapterTitle": "稳步拓展市场版图",
+      "paragraphs": [
+        "近期项目中，销售与工程团队协同作战，成功促成关键里程碑交付，为后续市场拓展奠定基础。"
+      ],
+      "bullets": [
+        "跨区域协同更紧密",
+        "技术方案响应更快",
+        "客户满意度持续提升"
+      ]
+    },
+    {
+      "id": "vol23-story",
+      "type": "content",
+      "title": "Story",
+      "chapterLabel": "03 Story",
+      "chapterTitle": "Innovation at Every Turn",
+      "paragraphs": [
+        "创新不只发生在实验室，也发生在每一次现场联调、每一次客户沟通与每一次跨部门协作之中。",
+        "本期故事记录一线团队如何把复杂挑战转化为可复制的经验，让创新成为日常。"
+      ]
+    }
+  ]
+}

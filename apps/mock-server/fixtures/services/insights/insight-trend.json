@@ -1,0 +1,110 @@
+{
+  "id": "insight-trend",
+  "title": "2025轨道交通趋势洞察",
+  "titleEn": "Rail Transit Trend Insight",
+  "caption": "2025轨道交通趋势洞察",
+  "kicker": "KB Insights",
+  "english": "Rail Transit Trend Insight",
+  "coverImage": {
+    "url": "/mock-assets/services/insight-trend-cover.png",
+    "alt": "2025轨道交通趋势洞察",
+    "width": 800,
+    "height": 1000,
+    "aspectRatio": 0.8
+  },
+  "gating": false,
+  "tag": "Gating",
+  "pages": [
+    {
+      "id": "trend-cover",
+      "type": "cover",
+      "title": "Cover",
+      "coverImage": {
+        "url": "/mock-assets/services/insight-trend-cover.png",
+        "alt": "封面",
+        "width": 800,
+        "height": 1000,
+        "aspectRatio": 0.8
+      },
+      "headlineCn": ["2025", "轨道交通", "趋势洞察"],
+      "headlineEn": "RAIL TRANSIT TREND INSIGHT",
+      "institute": "KB Insights Research Institute",
+      "brand": "KNORR-BREMSE"
+    },
+    {
+      "id": "trend-contents",
+      "type": "contents",
+      "title": "Contents",
+      "toc": [
+        {
+          "index": "01",
+          "titleEn": "Executive",
+          "titleCn": "执行摘要",
+          "lines": ["04 智能化与绿色化转型概览"]
+        },
+        {
+          "index": "02",
+          "titleEn": "Technology",
+          "titleCn": "技术演进",
+          "lines": ["08 下一代制动控制：机电一体化", "12 数字孪生在虚拟仿真中的应用"]
+        },
+        {
+          "index": "03",
+          "titleEn": "Market",
+          "titleCn": "市场趋势",
+          "lines": ["20 亚太市场高速铁路发展预判", "24 ESG合规驱动的材料革新"]
+        }
+      ]
+    },
+    {
+      "id": "trend-exec",
+      "type": "content",
+      "title": "Executive Summary",
+      "chapterLabel": "01 Executive Summary",
+      "chapterTitle": "执行摘要",
+      "bodyImage": {
+        "url": "/mock-assets/services/insight-trend-cover.png",
+        "alt": "执行摘要配图",
+        "width": 800,
+        "height": 450,
+        "aspectRatio": 1.7778
+      },
+      "paragraphs": [
+        "轨道交通正同时经历智能化与绿色化双重转型。运营商更关注全生命周期成本、可用性与碳排放目标。",
+        "本报告梳理制动、门系统与预测性维护等关键技术路径，并给出亚太市场的近中期判断。"
+      ],
+      "bullets": [
+        "智能运维从“故障响应”转向“健康管理”",
+        "机电一体与数字孪生缩短验证周期",
+        "ESG 要求加速材料与能耗优化"
+      ]
+    },
+    {
+      "id": "trend-tech",
+      "type": "content",
+      "title": "Technology",
+      "chapterLabel": "02 Technology",
+      "chapterTitle": "技术演进",
+      "paragraphs": [
+        "下一代制动控制正从传统气控向机电一体化演进，强调更高诊断覆盖率与可预测的维护窗口。",
+        "边缘计算与云端模型结合，使制动策略可依据天气、轨道条件与列车载荷动态优化。"
+      ],
+      "bullets": [
+        "更高诊断覆盖与远程参数下发",
+        "数字孪生支撑虚拟联调与回归测试",
+        "数据闭环反哺产品迭代"
+      ]
+    },
+    {
+      "id": "trend-market",
+      "type": "content",
+      "title": "Market",
+      "chapterLabel": "03 Market",
+      "chapterTitle": "市场趋势",
+      "paragraphs": [
+        "亚太高铁与城轨仍保持稳健投资节奏，项目更强调系统集成能力与本地化服务网络。",
+        "运营商采购正从单点设备转向可用性合同与数字化增值服务包。"
+      ]
+    }
+  ]
+}

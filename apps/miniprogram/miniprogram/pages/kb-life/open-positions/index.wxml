@@ -8,8 +8,9 @@
       class="job-card tap-feedback"
       wx:for="{{positions}}"
       wx:key="id"
-      data-id="{{item.id}}"
-      bindtap="onJobTap"
+      data-job-id="{{item.id}}"
+      hover-stop-propagation="{{true}}"
+      catchtap="onJobTap"
     >
       <text class="job-card__title">{{item.title}}</text>
       <view class="job-card__tags">

@@ -1,0 +1,45 @@
+{
+  "notice": "青岛园区班车时刻仅供参考，遇恶劣天气可能调整。(Qingdao campus shuttle schedule for reference.)",
+  "routes": [
+    {
+      "id": "QD01",
+      "name": "黄岛线",
+      "stops": [
+        {
+          "name": "薛家岛公交枢纽",
+          "time": "7:20"
+        },
+        {
+          "name": "长江中路",
+          "time": "7:35"
+        },
+        {
+          "name": "香江路",
+          "time": "7:50"
+        },
+        {
+          "name": "公司"
+        }
+      ],
+      "stationsText": "7:20 薛家岛公交枢纽，7:35 长江中路，7:50 香江路，公司"
+    },
+    {
+      "id": "QD02",
+      "name": "城阳线",
+      "stops": [
+        {
+          "name": "流亭机场北",
+          "time": "7:10"
+        },
+        {
+          "name": "正阳中路",
+          "time": "7:40"
+        },
+        {
+          "name": "公司"
+        }
+      ],
+      "stationsText": "7:10 流亭机场北，7:40 正阳中路，公司"
+    }
+  ]
+}

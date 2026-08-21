@@ -1,0 +1,40 @@
+{
+  "id": "vol20",
+  "title": "WETALK VOL.20",
+  "date": "2024 / Issue 20",
+  "coverImage": {
+    "url": "/mock-assets/services/insight-lcc-cover.png",
+    "alt": "WETALK VOL.20",
+    "width": 800,
+    "height": 1000,
+    "aspectRatio": 0.8
+  },
+  "pages": [
+    {
+      "id": "vol20-cover",
+      "type": "cover",
+      "title": "Cover",
+      "coverImage": {
+        "url": "/mock-assets/services/insight-lcc-cover.png",
+        "alt": "封面",
+        "width": 800,
+        "height": 1000,
+        "aspectRatio": 0.8
+      },
+      "headlineCn": ["WETALK", "新程"],
+      "headlineEn": "A NEW CHAPTER",
+      "institute": "克诺尔中国区双月刊",
+      "brand": "KNORR-BREMSE"
+    },
+    {
+      "id": "vol20-content",
+      "type": "content",
+      "title": "Overview",
+      "chapterLabel": "01 Highlights",
+      "chapterTitle": "本期速览",
+      "paragraphs": [
+        "VOL.20 回顾新产品导入与客户共创案例，展现团队在变革中的韧性。"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,29 @@
+{
+  "intro": "青岛园区食堂由本地餐饮服务商运营，提供鲁菜、海鲜与健康轻食，每日供应早午晚三餐。",
+  "menuItems": [
+    {
+      "id": "qd-set",
+      "title": "鲁味套餐 (Shandong Set)",
+      "description": "葱烧海参风味小炒、时蔬、例汤",
+      "image": {
+        "url": "/mock-assets/kb-life/menu-set-a.png",
+        "alt": "鲁味套餐 (Shandong Set)",
+        "width": 800,
+        "height": 600,
+        "aspectRatio": 1.3333
+      }
+    },
+    {
+      "id": "qd-seafood",
+      "title": "海鲜简餐 (Seafood)",
+      "description": "清蒸鲈鱼、蒜蓉西兰花、米饭",
+      "image": {
+        "url": "/mock-assets/kb-life/menu-healthy.png",
+        "alt": "海鲜简餐 (Seafood)",
+        "width": 800,
+        "height": 600,
+        "aspectRatio": 1.3333
+      }
+    }
+  ]
+}

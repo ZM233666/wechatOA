@@ -1,0 +1,10 @@
+{
+  "title": "园区地图 · Daxing (Campus Map)",
+  "image": {
+    "url": "/mock-assets/kb-life/campus-map-daxing.png",
+    "alt": "Daxing Campus Map",
+    "width": 1200,
+    "height": 900,
+    "aspectRatio": 1.3333
+  }
+}

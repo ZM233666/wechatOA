@@ -1,0 +1,6 @@
+{
+  "component": true,
+  "usingComponents": {
+    "empty-state": "/components/common/empty-state/empty-state"
+  }
+}

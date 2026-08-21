@@ -1,0 +1,45 @@
+{
+  "id": "insight-brake-control",
+  "title": "下一代制动控制技术",
+  "titleEn": "Next-Gen Brake Control",
+  "caption": "下一代制动控制技术",
+  "kicker": "KB Insights",
+  "english": "Next-Gen Brake Control",
+  "coverImage": {
+    "url": "/mock-assets/services/digital-cbm-cover.png",
+    "alt": "下一代制动控制技术",
+    "width": 800,
+    "height": 1000,
+    "aspectRatio": 0.8
+  },
+  "gating": false,
+  "pages": [
+    {
+      "id": "bc-cover",
+      "type": "cover",
+      "title": "Cover",
+      "coverImage": {
+        "url": "/mock-assets/services/digital-cbm-cover.png",
+        "alt": "封面",
+        "width": 800,
+        "height": 1000,
+        "aspectRatio": 0.8
+      },
+      "headlineCn": ["下一代制动", "控制技术"],
+      "headlineEn": "NEXT-GEN BRAKE CONTROL",
+      "institute": "KB Insights Research Institute",
+      "brand": "KNORR-BREMSE"
+    },
+    {
+      "id": "bc-content",
+      "type": "content",
+      "title": "Overview",
+      "chapterLabel": "01 Overview",
+      "chapterTitle": "技术要点",
+      "paragraphs": [
+        "机电一体化制动控制提升诊断深度，并支持更细粒度的健康评估。",
+        "标准化接口使车载系统与地面运维平台更容易打通。"
+      ]
+    }
+  ]
+}

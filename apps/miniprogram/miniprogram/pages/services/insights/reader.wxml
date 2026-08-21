@@ -1,0 +1,8 @@
+<view class="page page--insight-reader-host">
+  <nav-brand title="Services" show-back="{{true}}"></nav-brand>
+  <insight-reader
+    visible="{{readerVisible}}"
+    report-id="{{reportId}}"
+    bind:close="onReaderClose"
+  ></insight-reader>
+</view>

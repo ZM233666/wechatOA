@@ -1,0 +1,45 @@
+{
+  "id": "insight-sustainable",
+  "title": "可持续轨道交通发展",
+  "titleEn": "Sustainable Rail Transit",
+  "caption": "可持续轨道交通发展",
+  "kicker": "KB Insights",
+  "english": "Sustainable Rail Transit",
+  "coverImage": {
+    "url": "/mock-assets/services/fast-phm-cover.png",
+    "alt": "可持续轨道交通发展",
+    "width": 800,
+    "height": 1000,
+    "aspectRatio": 0.8
+  },
+  "gating": false,
+  "pages": [
+    {
+      "id": "sus-cover",
+      "type": "cover",
+      "title": "Cover",
+      "coverImage": {
+        "url": "/mock-assets/services/fast-phm-cover.png",
+        "alt": "封面",
+        "width": 800,
+        "height": 1000,
+        "aspectRatio": 0.8
+      },
+      "headlineCn": ["可持续轨道", "交通发展"],
+      "headlineEn": "SUSTAINABLE RAIL TRANSIT",
+      "institute": "KB Insights Research Institute",
+      "brand": "KNORR-BREMSE"
+    },
+    {
+      "id": "sus-content",
+      "type": "content",
+      "title": "Overview",
+      "chapterLabel": "01 Overview",
+      "chapterTitle": "可持续发展",
+      "paragraphs": [
+        "减排、噪声与材料循环利用成为新项目评估的核心指标。",
+        "通过轻量化与高效能耗管理，可在不牺牲安全冗余的前提下降低全寿命碳足迹。"
+      ]
+    }
+  ]
+}

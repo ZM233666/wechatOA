@@ -85,3 +85,63 @@ export interface ActivitiesData {
     description: string;
   };
 }
+
+export type WetalkPageType = 'cover' | 'contents' | 'content';
+
+export interface WetalkTocItem {
+  index: string;
+  titleEn: string;
+  titleCn: string;
+  lines: string[];
+}
+
+export interface WetalkPage {
+  id: string;
+  type: WetalkPageType;
+  title: string;
+  coverImage?: ImageResource;
+  headlineCn?: string[];
+  headlineEn?: string;
+  institute?: string;
+  brand?: string;
+  toc?: WetalkTocItem[];
+  chapterLabel?: string;
+  chapterTitle?: string;
+  bodyImage?: ImageResource;
+  paragraphs?: string[];
+  bullets?: string[];
+}
+
+export interface WetalkIssueSummary {
+  id: string;
+  title: string;
+  date: string;
+  coverImage: ImageResource;
+}
+
+export interface WetalkIssue extends WetalkIssueSummary {
+  pages: WetalkPage[];
+}
+
+export interface CampusMapData {
+  title: string;
+  image: ImageResource;
+}
+
+export interface HolidayMarkData {
+  name: string;
+  type: 'holiday' | 'workday';
+}
+
+export interface HolidayCalendarData {
+  year: number;
+  location: string;
+  marks: Record<string, HolidayMarkData>;
+}
+
+export type CampusLocationResources = {
+  canteen: CanteenData;
+  shuttle: ShuttleData;
+  campusMap: CampusMapData;
+  holiday: HolidayCalendarData;
+};

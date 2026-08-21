@@ -1,7 +1,57 @@
-<view class="page page--life">
-  <nav-brand title="KB Life"></nav-brand>
+<view class="page page--life {{readerVisible ? 'page--life-reading' : ''}}">
+  <nav-brand
+    title="{{navTitle}}"
+    show-back="{{(listVisible || deniedVisible) && !readerVisible}}"
+    back-as-event="{{listVisible || deniedVisible}}"
+    bind:back="onListBack"
+  ></nav-brand>
 
-  <view class="life">
+  <insight-reader
+    visible="{{readerVisible}}"
+    report-id="{{readerIssueId}}"
+    source="wetalk"
+    with-tab-bar="{{true}}"
+    bind:close="onReaderClose"
+  ></insight-reader>
+
+  <view wx:if="{{!readerVisible && deniedVisible}}" class="wetalk-denied">
+    <view class="wetalk-denied__icon">
+      <text class="wetalk-denied__icon-text">!</text>
+    </view>
+    <text class="wetalk-denied__title">Internal Only</text>
+    <text class="wetalk-denied__desc">此功能仅面向KB员工开放。</text>
+    <text class="wetalk-denied__desc-en">This feature is only open to KB employees.</text>
+    <view class="wetalk-denied__btn tap-feedback" bindtap="onDeniedRequest">
+      <text class="wetalk-denied__btn-text">点击申请权限 (Request Access)</text>
+    </view>
+  </view>
+
+  <view wx:if="{{!readerVisible && listVisible}}" class="wetalk-panel">
+    <empty-state wx:if="{{listStatus === 'loading'}}" title="正在加载 WeTalk"></empty-state>
+    <empty-state wx:elif="{{listStatus === 'error'}}" title="加载失败" description="{{listErrorText}}"></empty-state>
+    <empty-state wx:elif="{{listStatus === 'empty'}}" title="暂无电子杂志"></empty-state>
+    <view wx:if="{{listStatus === 'success'}}" class="wetalk-panel__grid">
+      <view
+        class="wetalk-issue tap-feedback"
+        wx:for="{{wetalkItems}}"
+        wx:key="id"
+        data-id="{{item.id}}"
+        bindtap="onWetalkIssueTap"
+      >
+        <view class="wetalk-issue__cover">
+          <image class="wetalk-issue__image" src="{{item.image}}" mode="aspectFill"></image>
+          <view class="wetalk-issue__mask"></view>
+          <text class="wetalk-issue__badge">WeTalk</text>
+        </view>
+        <view class="wetalk-issue__meta">
+          <text class="wetalk-issue__title">{{item.title}}</text>
+          <text class="wetalk-issue__date">{{item.date}}</text>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <view wx:if="{{!readerVisible && !listVisible && !deniedVisible}}" class="life">
     <empty-state wx:if="{{pageStatus === 'loading'}}" title="正在加载 KB Life"></empty-state>
     <empty-state wx:elif="{{pageStatus === 'error'}}" title="加载失败" description="{{errorText}}"></empty-state>
     <block wx:if="{{pageStatus === 'success'}}">
@@ -31,7 +81,7 @@
 
     <view class="life-body">
       <view class="life-row">
-        <view class="wetalk tap-feedback" bindtap="onComingSoon">
+        <view class="wetalk tap-feedback" bindtap="onWetalkTap">
           <text class="wetalk__label">WeTalk News</text>
           <view class="wetalk__cover">
             <image

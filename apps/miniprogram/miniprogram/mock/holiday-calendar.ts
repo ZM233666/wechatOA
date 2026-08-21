@@ -12,6 +12,7 @@ export interface CalendarCell {
   dateKey?: string;
   kind?: 'normal' | 'weekend' | 'holiday' | 'workday';
   holidayName?: string;
+  isToday?: boolean;
 }
 
 export interface MonthScheduleItem {
@@ -55,7 +56,7 @@ export const MONTHS_EN = [
   'December',
 ];
 
-/** 2026 法定节假日与调休，来源对齐 Demo */
+/** 2026 法定节假日与调休（苏州默认，实际以接口按地点返回为准） */
 export const HOLIDAY_MARKS: Record<string, HolidayMark> = {
   '2026-01-01': { name: '元旦', type: 'holiday' },
   '2026-01-02': { name: '元旦', type: 'holiday' },
@@ -95,6 +96,7 @@ export const HOLIDAY_MARKS: Record<string, HolidayMark> = {
   '2026-10-06': { name: '国庆', type: 'holiday' },
   '2026-10-07': { name: '国庆', type: 'holiday' },
   '2026-10-10': { name: '班', type: 'workday' },
+  '2026-12-25': { name: '厂休', type: 'holiday' },
 };
 
 function pad(value: number): string {
@@ -105,7 +107,26 @@ export function toDateKey(year: number, monthIndex: number, day: number): string
   return `${year}-${pad(monthIndex + 1)}-${pad(day)}`;
 }
 
-export function buildCalendarCells(year: number, monthIndex: number): CalendarCell[] {
+export function getDefaultMonthIndex(now: Date = new Date()): number {
+  if (now.getFullYear() < HOLIDAY_YEAR) {
+    return 0;
+  }
+  if (now.getFullYear() > HOLIDAY_YEAR) {
+    return 11;
+  }
+  return now.getMonth();
+}
+
+export function getTodayDateKey(now: Date = new Date()): string {
+  return toDateKey(now.getFullYear(), now.getMonth(), now.getDate());
+}
+
+export function buildCalendarCells(
+  year: number,
+  monthIndex: number,
+  todayKey: string = getTodayDateKey(),
+  marks: Record<string, HolidayMark> = HOLIDAY_MARKS,
+): CalendarCell[] {
   const firstDay = new Date(year, monthIndex, 1).getDay();
   const daysInMonth = new Date(year, monthIndex + 1, 0).getDate();
   const cells: CalendarCell[] = [];
@@ -119,7 +140,7 @@ export function buildCalendarCells(year: number, monthIndex: number): CalendarCe
 
   for (let day = 1; day <= daysInMonth; day += 1) {
     const dateKey = toDateKey(year, monthIndex, day);
-    const mark = HOLIDAY_MARKS[dateKey];
+    const mark = marks[dateKey];
     const weekday = new Date(year, monthIndex, day).getDay();
     const isWeekend = weekday === 0 || weekday === 6;
 
@@ -139,17 +160,22 @@ export function buildCalendarCells(year: number, monthIndex: number): CalendarCe
       dateKey,
       kind,
       holidayName: mark?.type === 'holiday' ? mark.name : undefined,
+      isToday: dateKey === todayKey,
     });
   }
 
   return cells;
 }
 
-export function buildMonthSchedule(year: number, monthIndex: number): MonthScheduleItem[] {
+export function buildMonthSchedule(
+  year: number,
+  monthIndex: number,
+  marks: Record<string, HolidayMark> = HOLIDAY_MARKS,
+): MonthScheduleItem[] {
   const prefix = `${year}-${pad(monthIndex + 1)}-`;
   const grouped: Array<{ name: string; days: number[] }> = [];
 
-  Object.entries(HOLIDAY_MARKS)
+  Object.entries(marks)
     .filter(([dateKey, mark]) => mark.type === 'holiday' && dateKey.startsWith(prefix))
     .sort(([left], [right]) => left.localeCompare(right))
     .forEach(([dateKey, mark]) => {

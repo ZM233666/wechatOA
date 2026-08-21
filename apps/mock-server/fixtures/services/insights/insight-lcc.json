@@ -1,0 +1,86 @@
+{
+  "id": "insight-lcc",
+  "title": "LCC全生命周期成本分析",
+  "titleEn": "Life Cycle Cost Analysis",
+  "caption": "LCC全生命周期成本分析",
+  "kicker": "KB Insights",
+  "english": "Life Cycle Cost Analysis",
+  "coverImage": {
+    "url": "/mock-assets/services/insight-lcc-cover.png",
+    "alt": "LCC全生命周期成本分析",
+    "width": 800,
+    "height": 1000,
+    "aspectRatio": 0.8
+  },
+  "gating": true,
+  "pages": [
+    {
+      "id": "lcc-cover",
+      "type": "cover",
+      "title": "Cover",
+      "coverImage": {
+        "url": "/mock-assets/services/insight-lcc-cover.png",
+        "alt": "封面",
+        "width": 800,
+        "height": 1000,
+        "aspectRatio": 0.8
+      },
+      "headlineCn": ["LCC", "全生命周期", "成本分析"],
+      "headlineEn": "LIFE CYCLE COST ANALYSIS",
+      "institute": "KB Insights Research Institute",
+      "brand": "KNORR-BREMSE"
+    },
+    {
+      "id": "lcc-contents",
+      "type": "contents",
+      "title": "Contents",
+      "toc": [
+        {
+          "index": "01",
+          "titleEn": "Framework",
+          "titleCn": "分析框架",
+          "lines": ["购置、运维、能耗与残值四层模型"]
+        },
+        {
+          "index": "02",
+          "titleEn": "Drivers",
+          "titleCn": "成本驱动",
+          "lines": ["可用性、备件策略与检修周期"]
+        },
+        {
+          "index": "03",
+          "titleEn": "Actions",
+          "titleCn": "优化建议",
+          "lines": ["预测性维护与合同化服务"]
+        }
+      ]
+    },
+    {
+      "id": "lcc-framework",
+      "type": "content",
+      "title": "Framework",
+      "chapterLabel": "01 Framework",
+      "chapterTitle": "分析框架",
+      "paragraphs": [
+        "全生命周期成本（LCC）覆盖购置、安装调试、计划/非计划维护、能耗与退役残值。",
+        "对制动与门系统而言，运维与停机损失往往超过初始采购成本，是决策关键变量。"
+      ],
+      "bullets": [
+        "统一口径：TCO / LCC / RAMS",
+        "区分固定成本与可变运维成本",
+        "把可用性目标量化进合同"
+      ]
+    },
+    {
+      "id": "lcc-actions",
+      "type": "content",
+      "title": "Actions",
+      "chapterLabel": "03 Actions",
+      "chapterTitle": "优化建议",
+      "paragraphs": [
+        "通过状态监测与预测性维护，可减少非计划检修并优化备件库存水位。",
+        "建议将数字化服务与备件物流纳入同一服务水平协议（SLA），形成可审计的成本闭环。"
+      ]
+    }
+  ]
+}

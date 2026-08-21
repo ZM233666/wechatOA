@@ -16,6 +16,11 @@ Component({
       type: Boolean,
       value: false,
     },
+    /** 为 true 时点击返回只抛出 back 事件，由页面自行处理 */
+    backAsEvent: {
+      type: Boolean,
+      value: false,
+    },
   },
   data: {
     statusBarHeight: 20,
@@ -40,6 +45,10 @@ Component({
       });
     },
     onBack() {
+      if (this.properties.backAsEvent) {
+        this.triggerEvent('back');
+        return;
+      }
       wx.navigateBack({
         fail() {
           wx.switchTab({

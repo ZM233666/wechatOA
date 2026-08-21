@@ -1,0 +1,40 @@
+{
+  "id": "vol22",
+  "title": "WETALK VOL.22",
+  "date": "2025 / Issue 22",
+  "coverImage": {
+    "url": "/mock-assets/news/news-002-cover.png",
+    "alt": "WETALK VOL.22",
+    "width": 800,
+    "height": 1000,
+    "aspectRatio": 0.8
+  },
+  "pages": [
+    {
+      "id": "vol22-cover",
+      "type": "cover",
+      "title": "Cover",
+      "coverImage": {
+        "url": "/mock-assets/news/news-002-cover.png",
+        "alt": "封面",
+        "width": 800,
+        "height": 1000,
+        "aspectRatio": 0.8
+      },
+      "headlineCn": ["WETALK", "同行"],
+      "headlineEn": "GROWING TOGETHER",
+      "institute": "克诺尔中国区双月刊",
+      "brand": "KNORR-BREMSE"
+    },
+    {
+      "id": "vol22-content",
+      "type": "content",
+      "title": "Overview",
+      "chapterLabel": "01 Highlights",
+      "chapterTitle": "本期速览",
+      "paragraphs": [
+        "VOL.22 记录了工厂精益改进、数字化试点与员工关怀活动的最新进展。"
+      ]
+    }
+  ]
+}
