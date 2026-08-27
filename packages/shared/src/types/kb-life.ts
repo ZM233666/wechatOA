@@ -86,7 +86,7 @@ export interface ActivitiesData {
   };
 }
 
-export type WetalkPageType = 'cover' | 'contents' | 'content';
+export type WetalkPageType = 'cover' | 'contents' | 'content' | 'sheet';
 
 export interface WetalkTocItem {
   index: string;
@@ -117,15 +117,31 @@ export interface WetalkIssueSummary {
   title: string;
   date: string;
   coverImage: ImageResource;
+  /**
+   * PDF 源文件访问路径（相对 `/mock-assets/...`，经 mock 层转为绝对 URL）。
+   * 阅读统一走小程序内翻页阅读器；`pdfUrl` 可用于下载等辅助能力。
+   */
+  pdfUrl?: string;
 }
 
 export interface WetalkIssue extends WetalkIssueSummary {
+  /** 翻页阅读器内容；可由 JSON pages 或 PDF 渲出的 sheet 页组成 */
   pages: WetalkPage[];
+}
+
+export interface CampusMapPage {
+  id: string;
+  type: 'sheet';
+  title: string;
+  coverImage: ImageResource;
 }
 
 export interface CampusMapData {
   title: string;
   image: ImageResource;
+  /** PDF 源访问路径；有 PDF 时前端走页内翻页阅读器 */
+  pdfUrl?: string;
+  pages?: CampusMapPage[];
 }
 
 export interface HolidayMarkData {

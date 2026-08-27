@@ -161,12 +161,13 @@ pnpm dev:server
 
 ## 迁移计划（摘要）
 
-1. **现在**：小程序继续对接 `apps/mock-server`；冻结 `packages/shared` 与文档中的公开契约
+1. **现在**：小程序继续对接 `apps/mock-server`；冻结公开契约（页面与 Service 不重写）
 2. **接入 DVAdmin**：创建 `apps/backend`（Django/DRF）与 `apps/portal`（Vue）；实现 `/api/v1/admin/*` 与 `/api/v1/mini/*`
-3. **切换小程序**：将 `apiBaseUrl` 指向正式 Mini API，`dataSource: 'real-server'`；页面与 services 路径约定不变
-4. **退役**：`apps/server` 仅作参考，不承接新业务；Mock 可在正式接口稳定后降级为契约样例
+3. **切换小程序**：主要通过 `config/env.ts` 将 `apiBaseUrl` 指向正式 Mini API，`dataSource: 'real-server'`；请求仍走 `services/request.ts`
+4. **保留 Mock**：正式后端完成后仍保留 `apps/mock-server`，用于独立开发、异常场景与自动化测试（不打包进正式小程序）
+5. **退役 NestJS**：`apps/server` 仅作兼容/参考，不承接正式业务；生产回滚禁止切回本机 Mock
 
-详见 [目标架构](docs/target-architecture.md) 与 [Mock 迁移到正式后端](docs/mock-to-real-backend.md)。
+完整映射表、分阶段方案、上线清单与回滚原则见 [Mock 迁移到 DVAdmin Django/DRF](docs/mock-to-real-backend.md)；架构基线见 [目标架构](docs/target-architecture.md)。
 
 ## 后续开发建议
 

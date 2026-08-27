@@ -24,6 +24,8 @@ export interface InsightCover {
   image: string;
   tag?: string;
   gating: boolean;
+  /** 有值时优先打开系统 PDF 阅读器 */
+  pdfUrl?: string;
 }
 
 export interface InsightTocItem {
@@ -35,7 +37,7 @@ export interface InsightTocItem {
 
 export interface InsightReportPageView {
   id: string;
-  type: 'cover' | 'contents' | 'content';
+  type: 'cover' | 'contents' | 'content' | 'sheet';
   title: string;
   coverImage?: string;
   headlineCn?: string[];
@@ -48,7 +50,7 @@ export interface InsightReportPageView {
   bodyImage?: string;
   paragraphs?: string[];
   bullets?: string[];
-  thumbTone: 'cover' | 'contents' | 'content';
+  thumbTone: 'cover' | 'contents' | 'content' | 'sheet';
 }
 
 export interface InsightReportView {
@@ -61,6 +63,7 @@ export interface InsightReportView {
   image: string;
   gating: boolean;
   tag?: string;
+  pdfUrl?: string;
   pages: InsightReportPageView[];
 }
 
@@ -91,9 +94,10 @@ interface InsightReportDto {
   coverImage: ImageResource;
   gating: boolean;
   tag?: string;
-  pages: Array<{
+  pdfUrl?: string;
+  pages?: Array<{
     id: string;
-    type: 'cover' | 'contents' | 'content';
+    type: 'cover' | 'contents' | 'content' | 'sheet';
     title: string;
     coverImage?: ImageResource;
     headlineCn?: string[];
@@ -124,7 +128,9 @@ function mapInsightCover(item: {
   coverImage: ImageResource;
   tag?: string;
   gating?: boolean;
+  pdfUrl?: string;
 }): InsightCover {
+  const pdfUrl = item.pdfUrl;
   return {
     id: item.id,
     kicker: item.kicker ?? 'KB Insights',
@@ -132,8 +138,9 @@ function mapInsightCover(item: {
     english: item.english ?? item.subtitle ?? item.title,
     caption: item.caption ?? item.title,
     image: toAssetUrl(item.coverImage),
-    tag: item.tag,
+    tag: item.tag ?? (pdfUrl ? 'PDF' : undefined),
     gating: Boolean(item.gating),
+    pdfUrl,
   };
 }
 
@@ -167,6 +174,7 @@ export async function getInsightReports(): Promise<InsightCover[]> {
 
 export async function getInsightReport(id: string): Promise<InsightReportView> {
   const data = await get<InsightReportDto>(API_ENDPOINTS.serviceInsightDetail(id));
+  const pages = data.pages ?? [];
   return {
     id: data.id,
     title: data.title,
@@ -177,7 +185,8 @@ export async function getInsightReport(id: string): Promise<InsightReportView> {
     image: toAssetUrl(data.coverImage),
     gating: data.gating,
     tag: data.tag,
-    pages: data.pages.map((page) => ({
+    pdfUrl: data.pdfUrl,
+    pages: pages.map((page) => ({
       id: page.id,
       type: page.type,
       title: page.title,

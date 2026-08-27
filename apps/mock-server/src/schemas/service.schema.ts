@@ -29,7 +29,7 @@ export const insightTocItemSchema = z.object({
 
 export const insightReportPageSchema = z.object({
   id: z.string().min(1),
-  type: z.enum(['cover', 'contents', 'content']),
+  type: z.enum(['cover', 'contents', 'content', 'sheet']),
   title: z.string().min(1),
   coverImage: imageResourceSchema.optional(),
   headlineCn: z.array(z.string().min(1)).optional(),
@@ -44,18 +44,35 @@ export const insightReportPageSchema = z.object({
   bullets: z.array(z.string().min(1)).optional(),
 });
 
-export const insightReportSchema = z.object({
-  id: z.string().min(1),
-  title: z.string().min(1),
-  titleEn: z.string().min(1),
-  caption: z.string().min(1),
-  kicker: z.string().min(1),
-  english: z.string().min(1),
-  coverImage: imageResourceSchema,
-  gating: z.boolean(),
-  tag: z.string().optional(),
-  pages: z.array(insightReportPageSchema).min(1),
-});
+export const insightReportSchema = z
+  .object({
+    id: z.string().min(1),
+    title: z.string().min(1),
+    titleEn: z.string().min(1),
+    caption: z.string().min(1),
+    kicker: z.string().min(1),
+    english: z.string().min(1),
+    coverImage: imageResourceSchema,
+    gating: z.boolean(),
+    tag: z.string().optional(),
+    /** 相对 `files/` 的 PDF 文件名（建议 ASCII；也支持中文文件名） */
+    pdfFile: z
+      .string()
+      .regex(/^[^/\\]+\.pdf$/i, 'pdfFile 必须是 files/ 下的 .pdf 文件名（不可含路径）')
+      .optional(),
+    pages: z.array(insightReportPageSchema).optional(),
+  })
+  .superRefine((data, ctx) => {
+    const hasPdf = Boolean(data.pdfFile);
+    const hasPages = Boolean(data.pages && data.pages.length > 0);
+    if (!hasPdf && !hasPages) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: 'insight 报告至少需要 pdfFile 或 pages 之一',
+        path: ['pdfFile'],
+      });
+    }
+  });
 
 export const servicesFileSchema = z.object({
   heroCards: z.array(serviceSummarySchema),

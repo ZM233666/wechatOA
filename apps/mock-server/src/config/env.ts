@@ -24,6 +24,38 @@ const envSchema = z
     MOCK_DELAY_MAX: z.coerce.number().int().min(0).default(350),
     MOCK_DEFAULT_SCENARIO: z.enum(SCENARIOS).default('normal'),
     CORS_ORIGINS: z.string().min(1).default('*'),
+    MINIO_ENABLED: z
+      .union([z.boolean(), z.enum(['true', 'false', '1', '0'])])
+      .default('false')
+      .transform((value) => value === true || value === 'true' || value === '1'),
+    MINIO_ENDPOINT: z.string().min(1).default('127.0.0.1'),
+    MINIO_PORT: z.coerce.number().int().min(1).max(65535).default(9000),
+    MINIO_USE_SSL: z
+      .union([z.boolean(), z.enum(['true', 'false', '1', '0'])])
+      .default('false')
+      .transform((value) => value === true || value === 'true' || value === '1'),
+    MINIO_ACCESS_KEY: z.string().default(''),
+    MINIO_SECRET_KEY: z.string().default(''),
+    MINIO_BUCKET: z.string().min(1).default('wechat-official-account'),
+    /** KB Insights PDF 前缀，对应 bucket 内路径如 kb-insights/ */
+    MINIO_INSIGHTS_PREFIX: z.string().default('kb-insights/'),
+    MINIO_WETALK_PREFIX: z.string().default('wetalk/'),
+    MINIO_SUZHOU_CAMPUS_MAP_PREFIX: z.string().default('suzhou/campus-map/'),
+    MINIO_SUZHOU_SHUTTLE_BUS_PREFIX: z.string().default('suzhou/shuttle-bus/'),
+    NEWS_ARTICLE_ENABLED: z
+      .union([z.boolean(), z.enum(['true', 'false', '1', '0'])])
+      .default('false')
+      .transform((value) => value === true || value === 'true' || value === '1'),
+    NEWS_ARTICLE_API_BASE_URL: z.string().min(1).default('http://127.0.0.1:8000'),
+    NEWS_ARTICLE_MEDIA_BASE_URL: z.string().default('http://127.0.0.1:8000'),
+    NEWS_ARTICLE_USERNAME: z.string().default('superadmin'),
+    NEWS_ARTICLE_PASSWORD: z.string().default('admin123456'),
+    NEWS_ARTICLE_INCLUDE_DRAFTS: z
+      .union([z.boolean(), z.enum(['true', 'false', '1', '0'])])
+      .default('false')
+      .transform((value) => value === true || value === 'true' || value === '1'),
+    NEWS_ARTICLE_LIMIT: z.coerce.number().int().min(1).max(200).default(50),
+    NEWS_ARTICLE_MAX_IMAGES: z.coerce.number().int().min(1).max(200).default(40),
   })
   .superRefine((value, ctx) => {
     if (value.MOCK_DELAY_MAX < value.MOCK_DELAY_MIN) {
@@ -32,6 +64,22 @@ const envSchema = z
         path: ['MOCK_DELAY_MAX'],
         message: `MOCK_DELAY_MAX (${value.MOCK_DELAY_MAX}) 必须大于或等于 MOCK_DELAY_MIN (${value.MOCK_DELAY_MIN})`,
       });
+    }
+    if (value.MINIO_ENABLED) {
+      if (!value.MINIO_ACCESS_KEY) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          path: ['MINIO_ACCESS_KEY'],
+          message: 'MINIO_ENABLED=true 时必须提供 MINIO_ACCESS_KEY',
+        });
+      }
+      if (!value.MINIO_SECRET_KEY) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          path: ['MINIO_SECRET_KEY'],
+          message: 'MINIO_ENABLED=true 时必须提供 MINIO_SECRET_KEY',
+        });
+      }
     }
   });
 

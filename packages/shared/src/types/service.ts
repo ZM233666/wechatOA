@@ -36,7 +36,7 @@ export interface ServicesPageData {
   insightCovers: ServiceSummary[];
 }
 
-export type InsightReportPageType = 'cover' | 'contents' | 'content';
+export type InsightReportPageType = 'cover' | 'contents' | 'content' | 'sheet';
 
 export interface InsightTocItem {
   index: string;
@@ -72,8 +72,14 @@ export interface InsightReportSummary {
   coverImage: ImageResource;
   gating: boolean;
   tag?: string;
+  /**
+   * PDF 源文件访问路径（相对 `/mock-assets/...`，经 mock 层转为绝对 URL）。
+   * 阅读统一走小程序内翻页阅读器；`pdfUrl` 可用于下载等辅助能力。
+   */
+  pdfUrl?: string;
 }
 
 export interface InsightReport extends InsightReportSummary {
+  /** 翻页阅读器内容；可由 JSON pages 或 PDF 渲出的 sheet 页组成 */
   pages: InsightReportPage[];
 }

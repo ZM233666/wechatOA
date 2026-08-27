@@ -1,8 +1,8 @@
 <view class="page page--shuttle">
-  <nav-brand title="Shuttle Bus · {{location}}" show-back="{{true}}"></nav-brand>
+  <nav-brand title="Shuttle Bus" show-back="{{true}}"></nav-brand>
 
   <view class="shuttle-head">
-    <text class="shuttle-head__title">班车线路 (Shuttle Bus)</text>
+    <text class="shuttle-head__title">班车线路 (Shuttle Bus) · {{location}}</text>
     <view class="shuttle-search">
       <image class="shuttle-search__icon" src="/assets/images/kb-life/search.png" mode="aspectFit"></image>
       <input
@@ -31,7 +31,15 @@
       </view>
       <view class="route-card__body">
         <image class="route-card__pin" src="/assets/images/kb-life/pin.png" mode="aspectFit"></image>
-        <text class="route-card__stations">{{item.stationsText}}</text>
+        <view class="route-card__stations">
+          <text
+            class="route-card__stop"
+            wx:for="{{item.stopLines}}"
+            wx:for-item="line"
+            wx:for-index="lineIndex"
+            wx:key="lineIndex"
+          >{{line}}</text>
+        </view>
       </view>
     </view>
 

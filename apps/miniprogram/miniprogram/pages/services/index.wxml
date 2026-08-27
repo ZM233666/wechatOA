@@ -33,7 +33,7 @@
             <text class="insight-cover__en">{{item.english}}</text>
           </view>
           <image class="insight-cover__image" src="{{item.image}}" mode="aspectFill"></image>
-          <text wx:if="{{item.tag}}" class="insight-cover__tag">{{item.tag}}</text>
+          <text wx:if="{{item.tag || item.pdfUrl}}" class="insight-cover__tag">{{item.tag || 'PDF'}}</text>
         </view>
         <text class="insight-cover__caption">{{item.caption}}</text>
       </view>
@@ -102,7 +102,7 @@
               <text class="insight-cover__en">{{item.english}}</text>
             </view>
             <image class="insight-cover__image" src="{{item.image}}" mode="aspectFill"></image>
-            <text wx:if="{{item.tag}}" class="insight-cover__tag">{{item.tag}}</text>
+            <text wx:if="{{item.tag || item.pdfUrl}}" class="insight-cover__tag">{{item.tag || 'PDF'}}</text>
           </view>
           <text class="insight-cover__caption">{{item.caption}}</text>
         </view>

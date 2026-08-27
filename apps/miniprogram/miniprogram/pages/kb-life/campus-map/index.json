@@ -1,7 +1,8 @@
 {
   "navigationStyle": "custom",
-  "backgroundColor": "#000000",
+  "backgroundColor": "#111111",
   "usingComponents": {
-    "empty-state": "/components/common/empty-state/empty-state"
+    "empty-state": "/components/common/empty-state/empty-state",
+    "insight-reader": "/components/services/insight-reader/index"
   }
 }

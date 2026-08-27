@@ -3,7 +3,7 @@ import {
   type InsightReportPageView,
   type InsightReportView,
 } from '../../../services/services.service';
-import { getWetalkIssueAsReport } from '../../../services/kb-life.service';
+import { getCampusMapAsReport, getWetalkIssueAsReport } from '../../../services/kb-life.service';
 import { RequestError } from '../../../types/api';
 
 function withThumbLabels(pages: InsightReportPageView[]) {
@@ -13,8 +13,11 @@ function withThumbLabels(pages: InsightReportPageView[]) {
   }));
 }
 
-function measureReaderHeight(): number {
+function measureReaderHeight(fullWindow = false): number {
   const windowInfo = wx.getWindowInfo();
+  if (fullWindow) {
+    return Math.max(Math.floor(windowInfo.windowHeight), 320);
+  }
   const menuButton = wx.getMenuButtonBoundingClientRect();
   const statusBarHeight = windowInfo.statusBarHeight || 20;
   const gap = Math.max(menuButton.top - statusBarHeight, 4);
@@ -34,7 +37,7 @@ Component({
       type: String,
       value: '',
     },
-    /** insights | wetalk */
+    /** insights | wetalk | campus-map */
     source: {
       type: String,
       value: 'insights',
@@ -56,6 +59,9 @@ Component({
     shareTitle: '',
     shareImage: '',
     readerHeight: 0,
+    chromeTop: 12,
+    isMapMode: false,
+    hideDock: false,
   },
 
   lifetimes: {
@@ -82,6 +88,8 @@ Component({
           canNext: false,
           pageStatus: 'idle',
           errorText: '',
+          isMapMode: false,
+          hideDock: false,
         });
       }
     },
@@ -89,7 +97,19 @@ Component({
 
   methods: {
     refreshLayout() {
-      this.setData({ readerHeight: measureReaderHeight() });
+      const isMapMode = this.properties.source === 'campus-map';
+      const withTabBar = Boolean(this.properties.withTabBar);
+      // Tab 页内打开时保留底部导航：高度按 Tab 页计算，控件相对阅读器顶部
+      const fullWindow = isMapMode && !withTabBar;
+      const menuButton = wx.getMenuButtonBoundingClientRect();
+      const chromeTop = fullWindow
+        ? Math.max(Math.ceil(menuButton.bottom + 8), 48)
+        : 12;
+      this.setData({
+        readerHeight: measureReaderHeight(fullWindow),
+        chromeTop,
+        isMapMode,
+      });
     },
 
     async loadReport(id: string) {
@@ -99,8 +119,27 @@ Component({
         const report =
           this.properties.source === 'wetalk'
             ? await getWetalkIssueAsReport(id)
-            : await getInsightReport(id);
-        const pages = withThumbLabels(report.pages);
+            : this.properties.source === 'campus-map'
+              ? await getCampusMapAsReport(id)
+              : await getInsightReport(id);
+
+        const isMapMode = this.properties.source === 'campus-map';
+        const pages = withThumbLabels(report.pages).map((page, index) => ({
+          ...page,
+          thumbLabel: isMapMode
+            ? report.pages.length <= 1
+              ? 'MAP'
+              : String(index + 1)
+            : page.thumbLabel,
+        }));
+        if (!pages.length) {
+          this.setData({
+            pageStatus: 'error',
+            errorText: '暂无内容',
+          });
+          return;
+        }
+
         this.setData({
           report,
           pages,
@@ -110,6 +149,8 @@ Component({
           pageStatus: 'success',
           shareTitle: report.title,
           shareImage: report.image,
+          isMapMode,
+          hideDock: isMapMode && pages.length <= 1,
         });
       } catch (error) {
         this.setData({

@@ -20,7 +20,28 @@ import {
 import { profileSchema } from '../schemas/profile.schema';
 import { articleDetailSchema } from '../schemas/article.schema';
 import { listPublicNews, selectHomeNews, toNewsSummary } from './news.service';
-import { logError } from '../utils/logger';
+import {
+  buildSyntheticInsight,
+  buildSyntheticWetalk,
+  pickLatestInsightCovers,
+} from './pdf-catalog.service';
+import {
+  findSuzhouCampusMapPdfFileName,
+  listInsightPdfFileNames,
+  listWetalkPdfFileNames,
+  refreshAllMinioPdfsInBackground,
+  resolveInsightPdfAbsolute,
+  resolveSuzhouCampusMapPdfAbsolute,
+  resolveWetalkPdfAbsolute,
+  SUZHOU_MINIO_LOCATION,
+} from './minio-pdf.service';
+import { ensurePdfSheets, PdfSheetRenderError } from './pdf-sheet.service';
+import {
+  loadShuttleDataFromPdf,
+  SHUTTLE_PDF_LOCATIONS,
+  ShuttlePdfParseError,
+} from './shuttle-pdf.service';
+import { logError, logWarn } from '../utils/logger';
 
 const ROOT = path.resolve(__dirname, '../../');
 export const FIXTURES_DIR = path.join(ROOT, 'fixtures');
@@ -85,9 +106,25 @@ function loadCampusLocationResources(locations: string[]): {
   locations.forEach((location) => {
     const base = `kb-life/locations/${location}`;
     canteenByLocation[location] = readJsonFile(`${base}/canteen.json`, canteenSchema);
-    shuttleByLocation[location] = readJsonFile(`${base}/shuttle.json`, shuttleSchema);
-    campusMapByLocation[location] = readJsonFile(`${base}/campus-map.json`, campusMapSchema);
+    campusMapByLocation[location] = resolveCampusMap(
+      location,
+      readJsonFile(`${base}/campus-map.json`, campusMapSchema),
+    );
     holidayByLocation[location] = readJsonFile(`${base}/holiday.json`, holidayCalendarSchema);
+
+    if (SHUTTLE_PDF_LOCATIONS.has(location)) {
+      try {
+        const fromPdf = loadShuttleDataFromPdf();
+        if (fromPdf) {
+          shuttleByLocation[location] = fromPdf;
+          return;
+        }
+      } catch (error) {
+        const message = error instanceof Error ? error.message : String(error);
+        logWarn(`Shuttle PDF unavailable for ${location}, fallback to JSON`, { message });
+      }
+    }
+    shuttleByLocation[location] = readJsonFile(`${base}/shuttle.json`, shuttleSchema);
   });
 
   return { canteenByLocation, shuttleByLocation, campusMapByLocation, holidayByLocation };
@@ -159,10 +196,10 @@ export function loadFixtures(): MockFixtureStore {
   const profileLoggedIn = readJsonFile('profile/logged-in.json', profileSchema);
   const profileCustomer = readJsonFile('profile/customer.json', profileSchema);
   const insightReports = listJsonFiles('services/insights').map((file) =>
-    readJsonFile(file, insightReportSchema),
+    resolveInsightReport(file, readJsonFile(file, insightReportSchema)),
   );
   const wetalkIssues = listJsonFiles('kb-life/wetalk')
-    .map((file) => readJsonFile(file, wetalkIssueSchema))
+    .map((file) => resolveWetalkIssue(file, readJsonFile(file, wetalkIssueSchema)))
     .sort((a, b) => b.id.localeCompare(a.id));
 
   store = {
@@ -192,6 +229,7 @@ export function loadFixtures(): MockFixtureStore {
     insightReports,
     wetalkIssues,
   };
+  syncPdfDrivenCatalogs();
   return store;
 }
 
@@ -200,6 +238,152 @@ export function getFixtures(): MockFixtureStore {
     store = loadFixtures();
   }
   return store;
+}
+
+/**
+ * 扫描 Insight PDF（MinIO kb-insights 缓存 + 本地 files/）与 WeTalk files/*.pdf：
+ * 无对应 JSON 的 PDF 自动进列表；已配置 pdfFile 的按磁盘重渲。
+ * 列表 / 首页接口每次调用；MinIO 按 TTL 后台刷新。
+ */
+export function syncPdfDrivenCatalogs(): void {
+  const fixtures = getFixtures();
+  refreshAllMinioPdfsInBackground();
+
+  const insightJsonFiles = listJsonFiles('services/insights');
+  const insightFromJson = insightJsonFiles.map((file) => {
+    const raw = readJsonFile(file, insightReportSchema);
+    return { raw, resolved: resolveInsightReport(file, raw) };
+  });
+  const claimedInsightPdfs = new Set(
+    insightFromJson.map((item) => item.raw.pdfFile).filter((name): name is string => Boolean(name)),
+  );
+  const insightIdSet = new Set(insightFromJson.map((item) => item.resolved.id));
+
+  const orphanInsightPdfs = listInsightPdfFileNames().filter((item) => {
+    if (claimedInsightPdfs.has(item.fileName)) {
+      return false;
+    }
+    const id = item.fileName.replace(/\.pdf$/i, '');
+    // ASCII 同名 JSON 已存在则不重复合成
+    if (/^[A-Za-z0-9._-]+$/.test(id) && insightIdSet.has(id)) {
+      return false;
+    }
+    return true;
+  });
+
+  const syntheticInsights = orphanInsightPdfs.map((item) => {
+    const raw = insightReportSchema.parse(buildSyntheticInsight(item.fileName));
+    return resolveInsightReport(`services/insights/${raw.id}.pdf-auto`, raw);
+  });
+
+  const insightMtimes = new Map(listInsightPdfFileNames().map((item) => [item.fileName, item.mtimeMs]));
+  fixtures.insightReports = [...insightFromJson.map((item) => item.resolved), ...syntheticInsights].sort(
+    (a, b) => {
+      const score = (item: InsightReport): number => {
+        if (!item.pdfUrl) {
+          return 0;
+        }
+        const fileName = decodeURIComponent(item.pdfUrl.split('/').pop() || '');
+        return insightMtimes.get(fileName) ?? 0;
+      };
+      return score(b) - score(a) || b.id.localeCompare(a.id);
+    },
+  );
+  const servicesBaseline = readJsonFile('services/services.json', servicesFileSchema);
+  fixtures.services.insightCovers = pickLatestInsightCovers(
+    fixtures.insightReports,
+    servicesBaseline.insightCovers,
+    2,
+  );
+
+  const wetalkJsonFiles = listJsonFiles('kb-life/wetalk');
+  const wetalkFromJson = wetalkJsonFiles.map((file) => {
+    const raw = readJsonFile(file, wetalkIssueSchema);
+    return { raw, resolved: resolveWetalkIssue(file, raw) };
+  });
+  const claimedWetalkPdfs = new Set(
+    wetalkFromJson.map((item) => item.raw.pdfFile).filter((name): name is string => Boolean(name)),
+  );
+  const wetalkIdSet = new Set(wetalkFromJson.map((item) => item.resolved.id));
+
+  const orphanWetalkPdfs = listWetalkPdfFileNames().filter((item) => {
+    if (claimedWetalkPdfs.has(item.fileName)) {
+      return false;
+    }
+    const id = item.fileName.replace(/\.pdf$/i, '');
+    if (/^[A-Za-z0-9._-]+$/.test(id) && wetalkIdSet.has(id)) {
+      return false;
+    }
+    return true;
+  });
+
+  const syntheticWetalk = orphanWetalkPdfs.map((item) => {
+    const raw = wetalkIssueSchema.parse(buildSyntheticWetalk(item.fileName));
+    return resolveWetalkIssue(`kb-life/wetalk/${raw.id}.pdf-auto`, raw);
+  });
+
+  const wetalkMtimes = new Map(listWetalkPdfFileNames().map((item) => [item.fileName, item.mtimeMs]));
+  fixtures.wetalkIssues = [...wetalkFromJson.map((item) => item.resolved), ...syntheticWetalk].sort(
+    (a, b) => {
+      const score = (item: WetalkIssue): number => {
+        if (!item.pdfUrl) {
+          return 0;
+        }
+        const fileName = decodeURIComponent(item.pdfUrl.split('/').pop() || '');
+        return wetalkMtimes.get(fileName) ?? 0;
+      };
+      return score(b) - score(a) || b.id.localeCompare(a.id);
+    },
+  );
+}
+
+/** 打开详情时同步目录并返回最新条目（含新建 PDF） */
+export function refreshInsightReportFromDisk(id: string): InsightReport | undefined {
+  syncPdfDrivenCatalogs();
+  return getFixtures().insightReports.find((item) => item.id === id);
+}
+
+/** 打开详情时同步目录并返回最新条目（含新建 PDF） */
+export function refreshWetalkIssueFromDisk(id: string): WetalkIssue | undefined {
+  syncPdfDrivenCatalogs();
+  return getFixtures().wetalkIssues.find((item) => item.id === id);
+}
+
+/** 打开班车接口时按 PDF 刷新苏州时刻（替换 PDF 后无需重启） */
+export function refreshShuttleFromPdf(location: string): void {
+  if (!SHUTTLE_PDF_LOCATIONS.has(location)) {
+    return;
+  }
+  refreshAllMinioPdfsInBackground();
+  const fixtures = getFixtures();
+  try {
+    const fromPdf = loadShuttleDataFromPdf();
+    if (fromPdf) {
+      fixtures.shuttleByLocation[location] = fromPdf;
+    }
+  } catch (error) {
+    if (error instanceof ShuttlePdfParseError) {
+      logWarn(`Shuttle PDF refresh failed for ${location}`, { message: error.message });
+      return;
+    }
+    throw error;
+  }
+}
+
+/** 打开园区地图时按 PDF 刷新苏州地图（仅 Suzhou；其他地点不动） */
+export function refreshCampusMapFromPdf(location: string): void {
+  if (location !== SUZHOU_MINIO_LOCATION) {
+    return;
+  }
+  refreshAllMinioPdfsInBackground();
+  const fixtures = getFixtures();
+  try {
+    const raw = readJsonFile(`kb-life/locations/${location}/campus-map.json`, campusMapSchema);
+    fixtures.campusMapByLocation[location] = resolveCampusMap(location, raw);
+  } catch (error) {
+    const message = error instanceof Error ? error.message : String(error);
+    logWarn(`Campus map PDF refresh failed for ${location}`, { message });
+  }
 }
 
 export function resetFixtureStore(): void {
@@ -219,6 +403,297 @@ function collectDuplicateBlockIds(blocks: Array<{ id: string }>): string[] {
   return duplicates;
 }
 
+const INSIGHT_PDF_URL_PREFIX = '/mock-assets/services/insights/files/';
+const INSIGHT_SHEETS_URL_PREFIX = '/mock-assets/services/insights/sheets/';
+const WETALK_PDF_URL_PREFIX = '/mock-assets/kb-life/wetalk/files/';
+const WETALK_SHEETS_URL_PREFIX = '/mock-assets/kb-life/wetalk/sheets/';
+const CAMPUS_MAP_PDF_URL_PREFIX = '/mock-assets/kb-life/campus-maps/files/';
+const CAMPUS_MAP_SHEETS_URL_PREFIX = '/mock-assets/kb-life/campus-maps/sheets/';
+
+type SheetPage = {
+  id: string;
+  type: 'sheet';
+  title: string;
+  coverImage: NonNullable<InsightReport['pages'][number]['coverImage']>;
+};
+
+function buildSheetPagesFromDisk(options: {
+  id: string;
+  sheetsDirRelative: string;
+  sheetsUrlPrefix: string;
+}): SheetPage[] {
+  const sheetsDir = path.join(PUBLIC_DIR, options.sheetsDirRelative, options.id);
+  if (!fs.existsSync(sheetsDir)) {
+    return [];
+  }
+  const files = fs
+    .readdirSync(sheetsDir)
+    .filter((name) => /\.png$/i.test(name))
+    .sort();
+  return files.map((fileName, index) => {
+    const absolute = path.join(sheetsDir, fileName);
+    // 读取尺寸可选；用固定宽高比即可通过 schema
+    let width = 1080;
+    let height = 764;
+    try {
+      // PNG IHDR：宽高在偏移 16/20
+      const buffer = fs.readFileSync(absolute);
+      if (buffer.length >= 24) {
+        width = buffer.readUInt32BE(16) || width;
+        height = buffer.readUInt32BE(20) || height;
+      }
+    } catch {
+      // keep defaults
+    }
+    return {
+      id: `${options.id}-sheet-${index + 1}`,
+      type: 'sheet' as const,
+      title: index === 0 ? 'Cover' : `Page ${index}`,
+      coverImage: {
+        url: `${options.sheetsUrlPrefix}${options.id}/${fileName}`,
+        alt: `${options.id} page ${index + 1}`,
+        width,
+        height,
+        aspectRatio: Number((width / height).toFixed(4)),
+      },
+    };
+  });
+}
+
+/** Insight JSON（含可选 pdfFile）→ 运行时 InsightReport（含 pdfUrl / sheet pages） */
+function resolveInsightReport(
+  relativePath: string,
+  raw: ReturnType<typeof insightReportSchema.parse>,
+): InsightReport {
+  const { pdfFile, pages, ...rest } = raw;
+  const declaredPages = pages ?? [];
+
+  if (!pdfFile) {
+    return {
+      ...rest,
+      pages: declaredPages,
+    };
+  }
+
+  const pdfAbsolute = resolveInsightPdfAbsolute(pdfFile);
+  if (!pdfAbsolute) {
+    throw new FixtureValidationError(
+      `Insight PDF 不存在: ${relativePath} 声明了 pdfFile="${pdfFile}"，MinIO 缓存与本地 fixtures/services/insights/files 均未找到`,
+    );
+  }
+
+  const sheetsDir = path.join(PUBLIC_DIR, 'mock-assets/services/insights/sheets', rest.id);
+  try {
+    if (!declaredPages.length) {
+      ensurePdfSheets({ id: rest.id, pdfAbsolute, sheetsDir });
+    }
+  } catch (error) {
+    if (error instanceof PdfSheetRenderError) {
+      throw new FixtureValidationError(error.message);
+    }
+    throw error;
+  }
+
+  const sheetPages = declaredPages.length
+    ? []
+    : buildSheetPagesFromDisk({
+        id: rest.id,
+        sheetsDirRelative: 'mock-assets/services/insights/sheets',
+        sheetsUrlPrefix: INSIGHT_SHEETS_URL_PREFIX,
+      });
+  const resolvedPages = declaredPages.length ? declaredPages : sheetPages;
+
+  if (!resolvedPages.length) {
+    throw new FixtureValidationError(
+      `Insight ${rest.id} 有 pdfFile 但渲页后仍无 pages: ${sheetsDir}`,
+    );
+  }
+
+  return {
+    ...rest,
+    coverImage: sheetPages[0]?.coverImage ?? rest.coverImage,
+    tag: rest.tag ?? 'PDF',
+    pages: resolvedPages,
+    pdfUrl: `${INSIGHT_PDF_URL_PREFIX}${encodeURIComponent(pdfFile)}`,
+  };
+}
+
+/** WeTalk JSON（含可选 pdfFile）→ 运行时 WetalkIssue（含 pdfUrl / sheet pages） */
+function resolveWetalkIssue(
+  relativePath: string,
+  raw: ReturnType<typeof wetalkIssueSchema.parse>,
+): WetalkIssue {
+  const { pdfFile, pages, ...rest } = raw;
+  const declaredPages = pages ?? [];
+
+  if (!pdfFile) {
+    return {
+      ...rest,
+      pages: declaredPages,
+    };
+  }
+
+  const pdfAbsolute = resolveWetalkPdfAbsolute(pdfFile);
+  if (!pdfAbsolute) {
+    throw new FixtureValidationError(
+      `WeTalk PDF 不存在: ${relativePath} 声明了 pdfFile="${pdfFile}"，MinIO 缓存与本地 fixtures/kb-life/wetalk/files 均未找到`,
+    );
+  }
+
+  const sheetsDir = path.join(PUBLIC_DIR, 'mock-assets/kb-life/wetalk/sheets', rest.id);
+  try {
+    if (!declaredPages.length) {
+      ensurePdfSheets({ id: rest.id, pdfAbsolute, sheetsDir });
+    }
+  } catch (error) {
+    if (error instanceof PdfSheetRenderError) {
+      throw new FixtureValidationError(error.message);
+    }
+    throw error;
+  }
+
+  const sheetPages = declaredPages.length
+    ? []
+    : buildSheetPagesFromDisk({
+        id: rest.id,
+        sheetsDirRelative: 'mock-assets/kb-life/wetalk/sheets',
+        sheetsUrlPrefix: WETALK_SHEETS_URL_PREFIX,
+      });
+  const resolvedPages = declaredPages.length ? declaredPages : sheetPages;
+
+  if (!resolvedPages.length) {
+    throw new FixtureValidationError(
+      `WeTalk ${rest.id} 有 pdfFile 但渲页后仍无 pages: ${sheetsDir}`,
+    );
+  }
+
+  return {
+    ...rest,
+    coverImage: sheetPages[0]?.coverImage ?? rest.coverImage,
+    pages: resolvedPages,
+    pdfUrl: `${WETALK_PDF_URL_PREFIX}${encodeURIComponent(pdfFile)}`,
+  };
+}
+
+function findCampusMapPdfFileName(location: string, declared?: string): string | null {
+  // 仅苏州走 MinIO suzhou/campus-map；其他地点仍读本地 Map/
+  if (location === SUZHOU_MINIO_LOCATION) {
+    return findSuzhouCampusMapPdfFileName(declared);
+  }
+  const mapDir = path.join(FIXTURES_DIR, 'kb-life/locations', location, 'Map');
+  if (!fs.existsSync(mapDir)) {
+    return null;
+  }
+  if (declared) {
+    const absolute = path.join(mapDir, declared);
+    return fs.existsSync(absolute) ? declared : null;
+  }
+  const files = fs
+    .readdirSync(mapDir)
+    .filter((name) => name.toLowerCase().endsWith('.pdf') && !name.startsWith('.'));
+  if (!files.length) {
+    return null;
+  }
+  const preferred = files.find((name) => name.toLowerCase() === 'park-map.pdf');
+  if (preferred) {
+    return preferred;
+  }
+  return files
+    .map((fileName) => ({
+      fileName,
+      mtimeMs: fs.statSync(path.join(mapDir, fileName)).mtimeMs,
+    }))
+    .sort((a, b) => b.mtimeMs - a.mtimeMs)[0]?.fileName ?? null;
+}
+
+function resolveCampusMapPdfAbsolute(location: string, fileName: string): string | null {
+  if (location === SUZHOU_MINIO_LOCATION) {
+    return resolveSuzhouCampusMapPdfAbsolute(fileName);
+  }
+  const absolute = path.join(FIXTURES_DIR, 'kb-life/locations', location, 'Map', fileName);
+  return fs.existsSync(absolute) ? absolute : null;
+}
+
+/** campus-map.json + 可选 Map/*.pdf → 运行时 CampusMapData（含 sheet pages） */
+function resolveCampusMap(
+  location: string,
+  raw: ReturnType<typeof campusMapSchema.parse>,
+): CampusMapData {
+  const { pdfFile, pages, ...rest } = raw;
+  const declaredPages = pages ?? [];
+  const resolvedPdfFile = findCampusMapPdfFileName(location, pdfFile);
+
+  if (!resolvedPdfFile) {
+    return {
+      ...rest,
+      pages: declaredPages.length ? declaredPages : undefined,
+    };
+  }
+
+  const pdfAbsolute = resolveCampusMapPdfAbsolute(location, resolvedPdfFile);
+  if (!pdfAbsolute) {
+    return {
+      ...rest,
+      pages: declaredPages.length ? declaredPages : undefined,
+    };
+  }
+  const sheetsDir = path.join(PUBLIC_DIR, 'mock-assets/kb-life/campus-maps/sheets', location);
+  try {
+    if (!declaredPages.length) {
+      ensurePdfSheets({ id: `campus-map-${location}`, pdfAbsolute, sheetsDir });
+    }
+  } catch (error) {
+    if (error instanceof PdfSheetRenderError) {
+      throw new FixtureValidationError(error.message);
+    }
+    throw error;
+  }
+
+  const sheetPages = declaredPages.length
+    ? declaredPages
+    : buildSheetPagesFromDisk({
+        id: location,
+        sheetsDirRelative: 'mock-assets/kb-life/campus-maps/sheets',
+        sheetsUrlPrefix: CAMPUS_MAP_SHEETS_URL_PREFIX,
+      });
+
+  if (!sheetPages.length) {
+    throw new FixtureValidationError(
+      `园区地图 ${location} 有 PDF 但渲页后仍无 pages: ${sheetsDir}`,
+    );
+  }
+
+  return {
+    ...rest,
+    image: sheetPages[0]?.coverImage ?? rest.image,
+    pages: sheetPages,
+    pdfUrl: `${CAMPUS_MAP_PDF_URL_PREFIX}${encodeURIComponent(location)}/${encodeURIComponent(resolvedPdfFile)}`,
+  };
+}
+
+/** 将 `/mock-assets/...` 解析为磁盘绝对路径（Insight / WeTalk / 园区地图 PDF 来自 fixtures） */
+export function resolveMockAssetAbsolutePath(assetPath: string): string {
+  if (assetPath.startsWith(INSIGHT_PDF_URL_PREFIX)) {
+    const fileName = decodeURIComponent(assetPath.slice(INSIGHT_PDF_URL_PREFIX.length));
+    return resolveInsightPdfAbsolute(fileName) ?? path.join(FIXTURES_DIR, 'services/insights/files', fileName);
+  }
+  if (assetPath.startsWith(WETALK_PDF_URL_PREFIX)) {
+    const fileName = decodeURIComponent(assetPath.slice(WETALK_PDF_URL_PREFIX.length));
+    return resolveWetalkPdfAbsolute(fileName) ?? path.join(FIXTURES_DIR, 'kb-life/wetalk/files', fileName);
+  }
+  if (assetPath.startsWith(CAMPUS_MAP_PDF_URL_PREFIX)) {
+    const rest = assetPath.slice(CAMPUS_MAP_PDF_URL_PREFIX.length);
+    const slash = rest.indexOf('/');
+    const location = decodeURIComponent(slash >= 0 ? rest.slice(0, slash) : rest);
+    const fileName = decodeURIComponent(slash >= 0 ? rest.slice(slash + 1) : '');
+    return (
+      resolveCampusMapPdfAbsolute(location, fileName) ??
+      path.join(FIXTURES_DIR, 'kb-life/locations', location, 'Map', fileName)
+    );
+  }
+  return path.join(PUBLIC_DIR, assetPath.replace(/^\//, ''));
+}
+
 export function collectAssetPaths(value: unknown, bucket = new Set<string>()): Set<string> {
   if (Array.isArray(value)) {
     value.forEach((item) => collectAssetPaths(item, bucket));
@@ -226,7 +701,11 @@ export function collectAssetPaths(value: unknown, bucket = new Set<string>()): S
   }
   if (value && typeof value === 'object') {
     Object.entries(value as Record<string, unknown>).forEach(([key, nested]) => {
-      if ((key === 'url' || key === 'imageUrl') && typeof nested === 'string' && nested.startsWith('/mock-assets/')) {
+      if (
+        (key === 'url' || key === 'imageUrl' || key === 'pdfUrl') &&
+        typeof nested === 'string' &&
+        nested.startsWith('/mock-assets/')
+      ) {
         bucket.add(nested);
       }
       collectAssetPaths(nested, bucket);
@@ -329,10 +808,13 @@ export function assertFixtureIntegrity(data: MockFixtureStore): void {
 
   if (data.home.banners.length < 3) errors.push('首页 Banner 少于 3 条');
   if (data.home.quickEntries.length < 4) errors.push('首页快捷入口少于 4 条');
-  if (data.newsCategories.length < 3) errors.push('新闻分类少于 3 个');
-  if (data.newsList.length < 8) errors.push('公开新闻摘要少于 8 条');
-  if (data.newsArticles.filter((item) => item.status === 'published').length < 8) {
-    errors.push('已发布新闻文章少于 8 篇');
+  // 新闻已迁到管理端 article-content；本地 fixtures/news 可为空（仅作关闭远程时的空回退）
+  if (data.newsArticles.length > 0) {
+    if (data.newsCategories.length < 1) errors.push('存在新闻文章但分类为空');
+    if (data.newsList.length < 1) errors.push('存在新闻文章但公开摘要为空');
+    if (data.newsArticles.filter((item) => item.status === 'published').length < 1) {
+      errors.push('存在新闻文章但没有已发布条目');
+    }
   }
   if (data.products.length < 6) errors.push('产品少于 6 条');
   if (data.productDetails.length < 6) errors.push('产品详情少于 6 条');
@@ -487,9 +969,20 @@ export function assertFixtureIntegrity(data: MockFixtureStore): void {
   });
   const assetPaths = collectAssetPaths(data);
   assetPaths.forEach((assetPath) => {
-    const absolute = path.join(PUBLIC_DIR, assetPath.replace(/^\//, ''));
+    const absolute = resolveMockAssetAbsolutePath(assetPath);
     if (!fs.existsSync(absolute)) {
       errors.push(`静态资源不存在: ${assetPath} -> ${absolute}`);
+    }
+  });
+
+  data.insightReports.forEach((report) => {
+    if (!report.pdfUrl && report.pages.length === 0) {
+      errors.push(`Insight ${report.id} 既无 pdfUrl 也无 pages`);
+    }
+  });
+  data.wetalkIssues.forEach((issue) => {
+    if (!issue.pdfUrl && issue.pages.length === 0) {
+      errors.push(`WeTalk ${issue.id} 既无 pdfUrl 也无 pages`);
     }
   });
 

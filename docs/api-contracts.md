@@ -2,6 +2,18 @@
 
 本文件描述 Mock Server 与未来 Django/DRF（DVAdmin）共用的响应约定。类型定义在 `packages/shared`（未来逐步改为 OpenAPI 生成）。
 
+迁移路径、Mini 路径映射、分阶段方案与回滚原则见 [mock-to-real-backend.md](./mock-to-real-backend.md)。正式小程序请求前缀为 `/api/v1/mini/*`；Portal 为 `/api/v1/admin/*`。
+
+## 迁移期冻结规则（摘要）
+
+下列项在 Mock → Django 迁移中不得随意改动：
+
+- `ApiResponse<T>` / 错误外壳与 `error.code`
+- 分页结构；空列表为 `[]` 而非 `null`
+- 日期 ISO 8601；稳定公开 ID（不暴露自增主键）
+- `ImageResource`；`richContent` Block 字段
+- 列表不含完整 `richContent`；详情才含；列表与详情 ID 一致
+
 ## ApiResponse
 
 ```json
@@ -36,12 +48,21 @@
 
 ## KB Life 路径
 
-接口文档必须使用完整路径，禁止省略 `/api/kb-life` 前缀：
+接口文档必须使用完整路径，禁止省略业务前缀。
+
+当前 Mock：
 
 - `/api/kb-life/entries`
 - `/api/kb-life/canteen`
 - `/api/kb-life/shuttle`
 - `/api/kb-life/activities`
+
+正式 Mini API：
+
+- `/api/v1/mini/kb-life/entries`
+- `/api/v1/mini/kb-life/canteen`
+- `/api/v1/mini/kb-life/shuttle`
+- `/api/v1/mini/kb-life/activities`
 
 ## Mock-only 能力边界
 
@@ -91,12 +112,15 @@
 
 服务端返回前将 `url` 转为绝对地址。禁止 Base64、本机绝对路径、硬编码 `127.0.0.1`。
 
+正式环境：`url` 应为 CDN / 对象存储公网 HTTPS（如 `https://static.example.com/...`）；库内存 `object_key` / `media_id`，小程序不拼接存储内部路径。详见迁移文档「图片迁移规则」。
+
 ## 列表与详情
 
 - 列表返回摘要，不含完整 `richContent`
 - 详情返回完整结构化正文
 - 列表 ID 必须能打开对应详情
 - 新闻公开契约详见 `docs/news-content-contract.md`
+- Mini API 只读已发布快照；草稿 / 未到发布时间 / 归档不对小程序暴露
 
 ## 空值规范
 

@@ -15,11 +15,10 @@ export interface ShuttleRoute {
 function toStationsText(stops: ShuttleStop[]): string {
   return stops
     .map((stop) => {
-      const time = stop.time ? `${stop.time} ` : '';
-      const note = stop.note ? `（${stop.note}）` : '';
-      return `${time}${stop.name}${note}`;
+      const place = stop.note ? `${stop.name}（${stop.note}）` : stop.name;
+      return stop.time ? `${stop.time} ${place}` : place;
     })
-    .join('，');
+    .join('\n');
 }
 
 function route(id: string, name: string, stops: ShuttleStop[]): ShuttleRoute {

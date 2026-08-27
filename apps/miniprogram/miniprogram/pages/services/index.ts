@@ -6,7 +6,7 @@ import {
   type ServiceHeroCard,
 } from '../../services/services.service';
 import { RequestError } from '../../types/api';
-import { openInsightAccessDenied, shouldBlockInsightForVisitor } from '../../utils/insights';
+import { openInsightContent } from '../../utils/insights';
 
 Page({
   data: {
@@ -27,6 +27,16 @@ Page({
 
   onLoad() {
     void this.loadServices();
+  },
+
+  onShow() {
+    if (this.data.pageStatus === 'loading') {
+      return;
+    }
+    void this.loadServices();
+    if (this.data.listVisible) {
+      void this.loadInsightList();
+    }
   },
 
   onShareAppMessage() {
@@ -77,13 +87,15 @@ Page({
       return;
     }
     const isGated = gating === true || gating === 'true';
-    if (shouldBlockInsightForVisitor(isGated)) {
-      openInsightAccessDenied(id);
-      return;
-    }
-    this.setData({
-      readerVisible: true,
-      readerReportId: id,
+    void openInsightContent({
+      id,
+      gating: isGated,
+      onOpenReader: (reportId) => {
+        this.setData({
+          readerVisible: true,
+          readerReportId: reportId,
+        });
+      },
     });
   },
 
@@ -99,9 +111,7 @@ Page({
       listVisible: true,
       navTitle: 'KB Insights',
     });
-    if (this.data.listStatus === 'idle' || this.data.listStatus === 'error') {
-      void this.loadInsightList();
-    }
+    void this.loadInsightList();
   },
 
   onListBack() {

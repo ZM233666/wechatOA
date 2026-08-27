@@ -113,9 +113,16 @@ page {
 .route-card__stations {
   flex: 1;
   min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.route-card__stop {
+  display: block;
   font-size: 24rpx;
   color: #4b5563;
-  line-height: 1.65;
+  line-height: 1.7;
+  word-break: break-word;
 }
 
 .shuttle-empty {

@@ -1,16 +1,19 @@
 <view
   wx:if="{{visible}}"
-  class="insight-reader"
+  class="insight-reader {{isMapMode ? 'insight-reader--map' : ''}} {{hideDock ? 'insight-reader--no-dock' : ''}}"
   style="height: {{readerHeight}}px;"
 >
-  <empty-state wx:if="{{pageStatus === 'loading'}}" title="正在打开报告"></empty-state>
+  <empty-state wx:if="{{pageStatus === 'loading'}}" title="{{isMapMode ? '正在打开园区地图' : '正在打开报告'}}"></empty-state>
   <view wx:elif="{{pageStatus === 'error'}}" class="insight-reader__error" bindtap="onClose">
-    <empty-state title="报告加载失败" description="{{errorText}}"></empty-state>
+    <empty-state title="{{isMapMode ? '地图加载失败' : '报告加载失败'}}" description="{{errorText}}"></empty-state>
   </view>
 
   <block wx:elif="{{pageStatus === 'success' && report}}">
     <view class="insight-reader__stage">
-      <view class="insight-reader__chrome insight-reader__chrome--top">
+      <view
+        class="insight-reader__chrome insight-reader__chrome--top"
+        style="top: {{chromeTop}}px;"
+      >
         <view class="insight-reader__btn tap-feedback" bindtap="onClose">
           <text class="insight-reader__btn-text">✕</text>
         </view>
@@ -91,6 +94,36 @@
               </view>
             </block>
 
+            <block wx:elif="{{item.type === 'sheet'}}">
+              <view class="insight-reader__sheet-stage">
+                <movable-area wx:if="{{isMapMode}}" class="insight-reader__map-area" scale-area>
+                  <movable-view
+                    class="insight-reader__map-view"
+                    direction="all"
+                    scale="{{true}}"
+                    scale-min="{{0.8}}"
+                    scale-max="{{4}}"
+                    scale-value="{{1}}"
+                    inertia="{{true}}"
+                  >
+                    <image
+                      class="insight-reader__sheet-fit"
+                      src="{{item.coverImage}}"
+                      mode="aspectFit"
+                      show-menu-by-longpress
+                    ></image>
+                  </movable-view>
+                </movable-area>
+                <image
+                  wx:else
+                  class="insight-reader__sheet-fit"
+                  src="{{item.coverImage}}"
+                  mode="aspectFit"
+                  show-menu-by-longpress
+                ></image>
+              </view>
+            </block>
+
             <block wx:else>
               <scroll-view scroll-y class="insight-reader__scroll">
                 <image
@@ -141,7 +174,7 @@
       </view>
     </view>
 
-    <view class="insight-reader__dock">
+    <view wx:if="{{!hideDock}}" class="insight-reader__dock">
       <text class="insight-reader__meta">Page {{current + 1}} of {{pages.length}}</text>
       <scroll-view scroll-x class="insight-reader__thumbs" enable-flex="{{true}}">
         <view

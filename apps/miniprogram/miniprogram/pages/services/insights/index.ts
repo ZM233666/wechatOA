@@ -1,6 +1,6 @@
 import { getInsightReports, type InsightCover } from '../../../services/services.service';
 import { RequestError } from '../../../types/api';
-import { openInsightAccessDenied, shouldBlockInsightForVisitor } from '../../../utils/insights';
+import { openInsightContent } from '../../../utils/insights';
 
 Page({
   data: {
@@ -45,13 +45,15 @@ Page({
       return;
     }
     const isGated = gating === true || gating === 'true';
-    if (shouldBlockInsightForVisitor(isGated)) {
-      openInsightAccessDenied(id);
-      return;
-    }
-    this.setData({
-      readerVisible: true,
-      readerReportId: id,
+    void openInsightContent({
+      id,
+      gating: isGated,
+      onOpenReader: (reportId) => {
+        this.setData({
+          readerVisible: true,
+          readerReportId: reportId,
+        });
+      },
     });
   },
 

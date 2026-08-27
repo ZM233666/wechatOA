@@ -104,7 +104,7 @@ export const wetalkTocItemSchema = z.object({
 
 export const wetalkPageSchema = z.object({
   id: z.string().min(1),
-  type: z.enum(['cover', 'contents', 'content']),
+  type: z.enum(['cover', 'contents', 'content', 'sheet']),
   title: z.string().min(1),
   coverImage: imageResourceSchema.optional(),
   headlineCn: z.array(z.string().min(1)).optional(),
@@ -119,17 +119,47 @@ export const wetalkPageSchema = z.object({
   bullets: z.array(z.string().min(1)).optional(),
 });
 
-export const wetalkIssueSchema = z.object({
+export const wetalkIssueSchema = z
+  .object({
+    id: z.string().min(1),
+    title: z.string().min(1),
+    date: z.string().min(1),
+    coverImage: imageResourceSchema,
+    /** 相对 `files/` 的 PDF 文件名（建议 ASCII；也支持中文文件名） */
+    pdfFile: z
+      .string()
+      .regex(/^[^/\\]+\.pdf$/i, 'pdfFile 必须是 files/ 下的 .pdf 文件名（不可含路径）')
+      .optional(),
+    pages: z.array(wetalkPageSchema).optional(),
+  })
+  .superRefine((data, ctx) => {
+    const hasPdf = Boolean(data.pdfFile);
+    const hasPages = Boolean(data.pages && data.pages.length > 0);
+    if (!hasPdf && !hasPages) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: 'WeTalk 期次至少需要 pdfFile 或 pages 之一',
+        path: ['pdfFile'],
+      });
+    }
+  });
+
+export const campusMapPageSchema = z.object({
   id: z.string().min(1),
+  type: z.literal('sheet'),
   title: z.string().min(1),
-  date: z.string().min(1),
   coverImage: imageResourceSchema,
-  pages: z.array(wetalkPageSchema).min(1),
 });
 
 export const campusMapSchema = z.object({
   title: z.string().min(1),
   image: imageResourceSchema,
+  /** 相对 `locations/{Location}/Map/` 的 PDF 文件名；也可由目录自动发现 */
+  pdfFile: z
+    .string()
+    .regex(/^[^/\\]+\.pdf$/i, 'pdfFile 必须是 Map/ 下的 .pdf 文件名')
+    .optional(),
+  pages: z.array(campusMapPageSchema).optional(),
 });
 
 export const holidayMarkSchema = z.object({

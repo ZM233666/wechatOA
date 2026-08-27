@@ -1,7 +1,7 @@
 import type { Request } from 'express';
 import { mockEnv } from '../config/env';
 
-const ASSET_KEYS = new Set(['url', 'imageUrl']);
+const ASSET_KEYS = new Set(['url', 'imageUrl', 'pdfUrl']);
 
 function joinBase(baseUrl: string, assetPath: string): string {
   if (/^https?:\/\//i.test(assetPath)) {

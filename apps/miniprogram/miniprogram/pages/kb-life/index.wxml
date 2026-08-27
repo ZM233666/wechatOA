@@ -9,7 +9,7 @@
   <insight-reader
     visible="{{readerVisible}}"
     report-id="{{readerIssueId}}"
-    source="wetalk"
+    source="{{readerSource}}"
     with-tab-bar="{{true}}"
     bind:close="onReaderClose"
   ></insight-reader>
@@ -86,11 +86,11 @@
           <view class="wetalk__cover">
             <image
               class="wetalk__cover-image"
-              src="/assets/images/news/news-3.png"
+              src="{{wetalkFeatured ? wetalkFeatured.image : '/assets/images/news/news-3.png'}}"
               mode="aspectFill"
             ></image>
             <text class="wetalk__badge">WeTalk</text>
-            <text class="wetalk__cover-title">Innovation at Every Turn</text>
+            <text class="wetalk__cover-title">{{wetalkFeatured ? wetalkFeatured.title : 'WeTalk E-Magazine'}}</text>
           </view>
           <view class="wetalk__btn">
             <text class="wetalk__btn-text">Read Now</text>

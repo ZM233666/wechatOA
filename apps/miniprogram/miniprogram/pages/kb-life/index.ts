@@ -1,5 +1,6 @@
 import { COMING_SOON_TOAST } from '../../constants/routes';
 import {
+  getCampusMap,
   getKbLifeEntries,
   getWetalkIssues,
   type CampusService,
@@ -28,6 +29,9 @@ Page({
     deniedVisible: false,
     readerVisible: false,
     readerIssueId: '',
+    readerSource: 'wetalk' as 'wetalk' | 'campus-map',
+    /** 上层页面展示的最近 1 期 */
+    wetalkFeatured: null as WetalkCover | null,
     wetalkItems: [] as WetalkCover[],
     listStatus: 'idle' as 'idle' | 'loading' | 'success' | 'empty' | 'error',
     listErrorText: '',
@@ -37,6 +41,22 @@ Page({
 
   onLoad() {
     void this.loadEntries();
+  },
+
+  onShow() {
+    void this.loadWetalkFeatured();
+    if (this.data.listVisible) {
+      void this.loadWetalkList();
+    }
+    const pendingMap = wx.getStorageSync('kbLifeOpenCampusMap') as string | undefined;
+    if (pendingMap) {
+      wx.removeStorageSync('kbLifeOpenCampusMap');
+      const location = String(pendingMap);
+      if (location) {
+        this.setData({ selectedLocation: location });
+        void this.openCampusMapReader();
+      }
+    }
   },
 
   onShareAppMessage() {
@@ -50,7 +70,7 @@ Page({
   async loadEntries() {
     this.setData({ pageStatus: 'loading' });
     try {
-      const result = await getKbLifeEntries();
+      const [result] = await Promise.all([getKbLifeEntries(), this.loadWetalkFeatured()]);
       const selectedLocation = getStoredCampusLocation(result.locations);
       const locationIndex = Math.max(result.locations.indexOf(selectedLocation), 0);
       setStoredCampusLocation(selectedLocation, result.locations);
@@ -71,12 +91,30 @@ Page({
     }
   },
 
+  /** 上层卡片：仅最近 1 个（接口已按 PDF 时间倒序） */
+  async loadWetalkFeatured() {
+    try {
+      const items = await getWetalkIssues();
+      const featured = items[0] ?? null;
+      this.setData({
+        wetalkFeatured: featured,
+        shareTitle: featured?.title || 'WeTalk E-Magazine',
+        shareImage: featured?.image || '',
+      });
+      return featured;
+    } catch {
+      this.setData({ wetalkFeatured: null });
+      return null;
+    }
+  },
+
   async loadWetalkList() {
     this.setData({ listStatus: 'loading', listErrorText: '' });
     try {
       const items = await getWetalkIssues();
       this.setData({
         wetalkItems: items,
+        wetalkFeatured: items[0] ?? null,
         listStatus: items.length ? 'success' : 'empty',
       });
     } catch (error) {
@@ -101,6 +139,10 @@ Page({
 
   onCampusTap(event: WechatMiniprogram.TouchEvent) {
     const { id } = event.currentTarget.dataset as { id?: string };
+    if (id === 'campus-map') {
+      void this.openCampusMapReader();
+      return;
+    }
     const target = this.data.campusServices.find((item) => item.id === id);
     if (target?.path) {
       wx.navigateTo({
@@ -109,6 +151,33 @@ Page({
       return;
     }
     this.onComingSoon();
+  },
+
+  /** PDF 地图在 Tab 页内打开以保留底部导航；无 PDF 时仍进独立缩放页 */
+  async openCampusMapReader() {
+    const location = this.data.selectedLocation || getStoredCampusLocation();
+    try {
+      wx.showLoading({ title: '加载中', mask: true });
+      const map = await getCampusMap(location);
+      wx.hideLoading();
+      if (map.pdfUrl && map.pages.length) {
+        this.setData({
+          readerVisible: true,
+          readerIssueId: map.location,
+          readerSource: 'campus-map',
+          listVisible: false,
+          deniedVisible: false,
+          shareTitle: map.title,
+          shareImage: map.image,
+        });
+        return;
+      }
+    } catch {
+      wx.hideLoading();
+    }
+    wx.navigateTo({
+      url: withCampusLocationQuery('/pages/kb-life/campus-map/index', location),
+    });
   },
 
   onEmployeeTap(event: WechatMiniprogram.TouchEvent) {
@@ -132,6 +201,20 @@ Page({
       });
       return;
     }
+    const featured = this.data.wetalkFeatured;
+    if (featured) {
+      this.setData({
+        readerVisible: true,
+        readerIssueId: featured.id,
+        readerSource: 'wetalk',
+        deniedVisible: false,
+        listVisible: false,
+        shareTitle: featured.title,
+        shareImage: featured.image,
+        navTitle: 'WeTalk E-Magazine',
+      });
+      return;
+    }
     this.setData({
       listVisible: true,
       deniedVisible: false,
@@ -139,9 +222,7 @@ Page({
       readerIssueId: '',
       navTitle: 'WeTalk E-Magazine',
     });
-    if (this.data.listStatus === 'idle' || this.data.listStatus === 'error') {
-      void this.loadWetalkList();
-    }
+    void this.loadWetalkList();
   },
 
   onWetalkIssueTap(event: WechatMiniprogram.TouchEvent) {
@@ -162,6 +243,7 @@ Page({
     this.setData({
       readerVisible: true,
       readerIssueId: id,
+      readerSource: 'wetalk',
       shareTitle: issue?.title || 'WeTalk E-Magazine',
       shareImage: issue?.image || '',
     });
@@ -171,6 +253,7 @@ Page({
     this.setData({
       readerVisible: false,
       readerIssueId: '',
+      readerSource: 'wetalk',
     });
   },
 
@@ -180,6 +263,7 @@ Page({
       deniedVisible: false,
       readerVisible: false,
       readerIssueId: '',
+      readerSource: 'wetalk',
       navTitle: 'KB Life',
     });
   },

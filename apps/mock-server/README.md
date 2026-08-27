@@ -19,7 +19,7 @@
 - 避免污染正式 Django 模块、权限与基础设施接入
 - 避免污染已停扩的 NestJS 骨架（`apps/server`）
 - Mock 场景、随机延迟、fixture 热数据不应进入生产代码路径
-- 删除 Mock Server 时不应改动 `apps/server`；正式实现落在 `apps/backend`
+- 正式后端完成后**仍保留**本目录（独立开发 / 异常场景 / 自动化测试）；正式实现落在 `apps/backend`
 
 ## 安装和启动
 
@@ -56,6 +56,17 @@ pnpm test:mock
 | `MOCK_DELAY_MIN` / `MAX` | `100` / `350` | 模拟延迟，MAX < MIN 时启动失败 |
 | `MOCK_DEFAULT_SCENARIO` | `normal` | 默认场景 |
 | `CORS_ORIGINS` | `*` | CORS |
+| `MINIO_ENABLED` | `false` | 是否从 MinIO 拉取 Insights / WeTalk / 苏州地图与班车 PDF |
+| `MINIO_ENDPOINT` / `PORT` | `127.0.0.1` / `9000` | S3 API 地址（控制台多为 9001，API 用 9000） |
+| `MINIO_ACCESS_KEY` / `SECRET_KEY` | - | MinIO 账号 |
+| `MINIO_BUCKET` | `wechat-official-account` | Bucket |
+| `MINIO_INSIGHTS_PREFIX` | `kb-insights/` | Insights PDF 前缀 |
+| `MINIO_WETALK_PREFIX` | `wetalk/` | WeTalk PDF 前缀 |
+| `MINIO_SUZHOU_CAMPUS_MAP_PREFIX` | `suzhou/campus-map/` | 苏州园区地图 PDF 前缀 |
+| `MINIO_SUZHOU_SHUTTLE_BUS_PREFIX` | `suzhou/shuttle-bus/` | 苏州班车时刻 PDF 前缀 |
+| `NEWS_ARTICLE_ENABLED` | `false` | 新闻中心改从管理端 `article-content` 拉取 |
+| `NEWS_ARTICLE_API_BASE_URL` | `http://127.0.0.1:8000` | 管理端 API |
+| `NEWS_ARTICLE_INCLUDE_DRAFTS` | `false` | 为 true 时联调包含 draft；默认只显示 published |
 
 Fixture JSON **禁止**硬编码 `http://127.0.0.1:3100`，只保存 `/mock-assets/...` 相对路径。
 
@@ -65,7 +76,8 @@ Fixture JSON **禁止**硬编码 `http://127.0.0.1:3100`，只保存 `/mock-asse
 curl http://127.0.0.1:3100/api/health
 curl http://127.0.0.1:3100/api/home
 curl 'http://127.0.0.1:3100/api/news?page=1&pageSize=3'
-curl http://127.0.0.1:3100/api/news/news-001
+# 开启 NEWS_ARTICLE_ENABLED 后，id 形如 article-2（管理端主键）
+curl http://127.0.0.1:3100/api/news/article-2
 curl 'http://127.0.0.1:3100/api/news?__scenario=empty'
 ```
 
@@ -73,12 +85,43 @@ curl 'http://127.0.0.1:3100/api/news?__scenario=empty'
 
 ## 图片目录
 
-静态文件位于 `public/mock-assets/`，与小程序包内 `miniprogram/assets` 相互独立，删除 Mock Server 不会带走小程序本地图标。
+静态文件位于 `public/mock-assets/`，与小程序包内 `miniprogram/assets` 相互独立；正式小程序不打包本服务，本地图标不受影响。
+
+## KB Insights / WeTalk / Shuttle PDF
+
+| 模块 | 来源 |
+| --- | --- |
+| KB Insights | **MinIO** `wechat-official-account/kb-insights/`（同步到 `runtime/minio/kb-insights/`）；本地 `fixtures/services/insights/files/` 作兜底 |
+| WeTalk | **MinIO** `wechat-official-account/wetalk/`（同步到 `runtime/minio/wetalk/`）；本地 `fixtures/kb-life/wetalk/files/` 作兜底 |
+| 园区地图（苏州） | **MinIO** `wechat-official-account/suzhou/campus-map/`（`runtime/minio/suzhou/campus-map/`）；其他地点仍用本地 `locations/{Location}/Map/` |
+| 班车时刻（苏州） | **MinIO** `wechat-official-account/suzhou/shuttle-bus/`（`runtime/minio/suzhou/shuttle-bus/`）；本地 `fixtures/kb-life/Shuttlebus/` 作兜底 |
+
+开启 `MINIO_ENABLED=true` 后，启动时会从 MinIO 拉取 `kb-insights/`、`wetalk/`、`suzhou/campus-map/`、`suzhou/shuttle-bus/`；列表/详情接口也会按 TTL 后台刷新。其他地点园区资源仍读本地 fixtures。
+
+```text
+/mock-assets/services/insights/files/{filename}.pdf
+/mock-assets/kb-life/wetalk/files/{filename}.pdf
+```
+
+对外提供下载；详情接口中的 `pdfUrl` 会转为绝对地址。阅读统一走小程序内翻页阅读器；打开详情时用 PyMuPDF 渲页。未配置 `pdfFile` 且仅有 JSON `pages` 时仍走 JSON 翻页。详见各目录下 `README.md`。
+
+
+## 新闻中心（article-content）
+
+开启 `NEWS_ARTICLE_ENABLED=true` 后，`/api/news*` 与首页 `latestNews` 优先读管理端：
+
+- 登录：`POST /api/token/`（默认 `superadmin`）
+- 列表：`GET /api/article-content/content/?content_type=article`
+- 正文 `content_html` 会转成小程序 `richContent`；base64 图片落到 `runtime/news/media/`
+
+关闭或同步失败时回退本地 `fixtures/news/`（迁移后该目录默认空壳，列表为空）。
+
+本地已不再提交 news 文章 JSON、Insights/WeTalk/苏州地图/班车 PDF；这些一律以远程源为准，fixtures 目录仅保留空壳与 README。
 
 ## 修改 Fixture
 
-1. 编辑 `fixtures/` 下 JSON
-2. 图片放到 `public/mock-assets/` 对应分类
+1. 编辑仍在本地维护的 `fixtures/` JSON（产品/案例/品牌/食堂等）
+2. 图片放到 `public/mock-assets/` 对应分类；PDF 上传到 MinIO 对应前缀（Insights / WeTalk / 苏州地图 / 苏州班车），或临时放入本地 `files/` / `Map/` / `Shuttlebus/` 兜底
 3. 运行 `pnpm validate:mock`
 4. 重启 `pnpm dev:mock`
 
@@ -122,10 +165,10 @@ curl 'http://127.0.0.1:3100/api/news?__scenario=empty'
 | 真机请求失败 | 改局域网 IP，确认电脑与手机同一网络 |
 | 端口/延迟配置报错 | 检查 `MOCK_PORT`、`MOCK_DELAY_MIN/MAX` |
 
-## 停止使用 Mock Server
+## 切换到正式后端后如何使用本服务
 
 1. Django/DRF（`apps/backend`）按同一契约实现 Mini API（`/api/v1/mini/*`）
-2. 将小程序 `apiBaseUrl` 改为正式 HTTPS 地址，`dataSource: 'real-server'`
-3. 停止 `pnpm dev:mock`
-4. 不要改页面业务逻辑；路径约定仅做前缀对齐
-5. **不要**把迁移目标写成 NestJS / `apps/server`
+2. trial / release 将小程序 `apiBaseUrl` 改为正式 HTTPS，`dataSource: 'real-server'`
+3. 日常正式联调可停止 `pnpm dev:mock`；**本仓库仍保留** `apps/mock-server` 供独立开发、场景演示与自动化测试
+4. 不要改页面业务逻辑；路径约定仅做 `/api/v1/mini` 前缀对齐
+5. **不要**把迁移目标写成 NestJS / `apps/server`；详见 `docs/mock-to-real-backend.md`

@@ -59,13 +59,14 @@ PostgreSQL           Redis         对象存储 + CDN
 
 ## Mock Server → Django 迁移路径
 
-1. 冻结 `packages/shared` + 文档契约
-2. 在 `apps/backend` 按契约实现 Mini/Admin API
+1. 冻结 `packages/shared` + 文档契约（页面与 Service 不重写）
+2. 在 `apps/backend` 按契约实现 Mini/Admin API（路径见迁移文档映射表）
 3. 落地 PostgreSQL、Redis、对象存储、Celery/RabbitMQ
-4. 小程序切换 `apiBaseUrl` / Mini 前缀；Portal 对接 Admin API
-5. Mock 降级为样例或移除；页面不感知数据源
+4. 小程序通过环境配置切换 `apiBaseUrl` → `/api/v1/mini/*`；Portal 对接 Admin API
+5. **保留** `apps/mock-server`：前端独立开发、异常场景与自动化测试；正式小程序不打包 Mock
+6. 生产回滚走网关 / 后端版本 / PublishedSnapshot，**禁止**正式包切回本机 Mock
 
-详见 [mock-to-real-backend.md](./mock-to-real-backend.md)。
+分阶段方案、对比测试、上线清单与禁止事项见 [mock-to-real-backend.md](./mock-to-real-backend.md)。
 
 ## `apps/server` 退役原则
 

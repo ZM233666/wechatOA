@@ -1,7 +1,6 @@
 import { ERROR_CODES } from '@app/shared';
 import type { Request, Response } from 'express';
 import { withAbsoluteAssets } from '../services/asset-url.service';
-import { getFixtures } from '../services/fixture.service';
 import {
   isPubliclyVisible,
   listPublicNews,
@@ -10,6 +9,11 @@ import {
   toNewsSummary,
 } from '../services/news.service';
 import type { NewsArticleFixture } from '../schemas/news.schema';
+import {
+  findNewsArticle,
+  getNewsArticlesForRequest,
+  getNewsCategoriesForRequest,
+} from '../services/news-source.service';
 import { emptyPage, paginate } from '../services/pagination.service';
 import { HttpError } from '../middleware/error-handler.middleware';
 import { parseOptionalBoolean, parseOptionalString, parsePaginationQuery } from '../utils/query';
@@ -20,14 +24,15 @@ export function getNewsCategories(req: Request, res: Response): void {
     success(res, { items: [] }, req.requestId);
     return;
   }
-  const publicNews = listPublicNews(getFixtures().newsArticles);
+  const articles = getNewsArticlesForRequest();
+  const publicNews = listPublicNews(articles);
   const counts = new Map<string, number>();
   publicNews.forEach((article) => {
     counts.set(article.category.id, (counts.get(article.category.id) ?? 0) + 1);
   });
   const items = [
     { id: 'all', name: '全部', articleCount: publicNews.length },
-    ...getFixtures().newsCategories.map((category) => ({
+    ...getNewsCategoriesForRequest().map((category) => ({
       ...category,
       articleCount: counts.get(category.id) ?? 0,
     })),
@@ -45,7 +50,7 @@ export function getNewsList(req: Request, res: Response): void {
   const keyword = parseOptionalString(req.query.keyword);
   const featured = parseOptionalBoolean(req.query.featured);
   const pinned = parseOptionalBoolean(req.query.pinned);
-  const filtered = listPublicNews(getFixtures().newsArticles).filter((item) => {
+  const filtered = listPublicNews(getNewsArticlesForRequest()).filter((item) => {
     if (category && category !== 'all' && item.category.id !== category) {
       return false;
     }
@@ -62,8 +67,9 @@ export function getNewsList(req: Request, res: Response): void {
 }
 
 export function getNewsDetail(req: Request, res: Response): void {
-  const idOrSlug = req.params.id;
-  const article = getFixtures().newsArticles.find((item) => item.id === idOrSlug || item.slug === idOrSlug);
+  const idOrSlug = String(req.params.id);
+  const articles = getNewsArticlesForRequest();
+  const article = findNewsArticle(articles, idOrSlug);
   if (!article || !isPubliclyVisible(article)) {
     throw new HttpError(404, 'Resource not found', ERROR_CODES.RESOURCE_NOT_FOUND, {
       id: idOrSlug,
@@ -71,9 +77,23 @@ export function getNewsDetail(req: Request, res: Response): void {
   }
   const related: NewsArticleFixture[] = [];
   for (const relatedId of article.relatedArticleIds) {
-    const found = getFixtures().newsArticles.find((item) => item.id === relatedId);
+    const found = findNewsArticle(articles, relatedId);
     if (found && isPubliclyVisible(found)) {
       related.push(found);
+    }
+  }
+  // 无显式关联时，用同分类其他公开文章补齐
+  if (!related.length) {
+    for (const candidate of listPublicNews(articles)) {
+      if (candidate.id === article.id) {
+        continue;
+      }
+      if (candidate.category.id === article.category.id) {
+        related.push(candidate);
+      }
+      if (related.length >= 3) {
+        break;
+      }
     }
   }
   success(res, withAbsoluteAssets(req, toNewsDetail(article, related)), req.requestId);

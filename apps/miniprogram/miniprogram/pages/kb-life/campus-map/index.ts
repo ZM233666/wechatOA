@@ -12,6 +12,8 @@ Page({
     title: '园区地图 (Campus Map)',
     image: '',
     scale: 1,
+    useReader: false,
+    readerVisible: false,
     pageStatus: 'loading' as 'loading' | 'success' | 'error',
     errorText: '',
     statusBarHeight: 20,
@@ -25,7 +27,7 @@ Page({
     const statusBarHeight = windowInfo.statusBarHeight || 20;
     const gap = Math.max(menuButton.top - statusBarHeight, 4);
     const navBarHeight = menuButton.height + gap * 2;
-    this.setData({ statusBarHeight, navBarHeight });
+    this.setData({ statusBarHeight, navBarHeight, location: this.location });
     void this.loadMap();
   },
 
@@ -35,16 +37,40 @@ Page({
     this.setData({ pageStatus: 'loading' });
     try {
       const result = await getCampusMap(this.location);
+      const useReader = Boolean(result.pdfUrl && result.pages.length);
+      // PDF 阅读改回 KB Life Tab 页，以保留底部导航
+      if (useReader) {
+        wx.setStorageSync('kbLifeOpenCampusMap', result.location);
+        wx.switchTab({
+          url: '/pages/kb-life/index',
+          fail: () => {
+            this.setData({
+              location: result.location,
+              title: result.title,
+              image: result.image,
+              scale: 1,
+              useReader: true,
+              readerVisible: true,
+              pageStatus: 'success',
+            });
+          },
+        });
+        return;
+      }
       this.setData({
         location: result.location,
         title: result.title,
         image: result.image,
         scale: 1,
+        useReader: false,
+        readerVisible: false,
         pageStatus: 'success',
       });
     } catch (error) {
       this.setData({
         pageStatus: 'error',
+        useReader: false,
+        readerVisible: false,
         errorText: error instanceof RequestError ? error.message : '园区地图加载失败',
       });
     }

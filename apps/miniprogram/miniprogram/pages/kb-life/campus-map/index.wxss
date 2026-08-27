@@ -10,6 +10,12 @@ page {
   box-sizing: border-box;
 }
 
+.page--campus-map-reading {
+  height: 100vh;
+  background: #111111;
+  overflow: hidden;
+}
+
 .campus-map__header {
   background: rgba(0, 0, 0, 0.88);
   border-bottom: 1rpx solid #1f2937;

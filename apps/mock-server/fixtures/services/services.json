@@ -51,17 +51,17 @@
   ],
   "insightCovers": [
     {
-      "id": "insight-trend",
-      "title": "2025轨道交通趋势洞察",
+      "id": "insight-placeholder",
+      "title": "KB Insights",
       "subtitle": "KB Insights",
       "footerTitle": "智库与行业洞察",
       "footerHint": "探索更多",
       "coverImage": {
-        "url": "/mock-assets/services/insight-trend-cover.png",
-        "alt": "2025轨道交通趋势洞察",
+        "url": "/mock-assets/services/digital-cbm-cover.png",
+        "alt": "KB Insights",
         "width": 800,
-        "height": 600,
-        "aspectRatio": 1.3333
+        "height": 1000,
+        "aspectRatio": 0.8
       },
       "icon": {
         "url": "/mock-assets/services/icon-monitor.png",
@@ -74,38 +74,10 @@
       "showOnline": false,
       "kind": "insight",
       "kicker": "KB Insights",
-      "english": "Rail Transit Trend Insight",
-      "caption": "2025轨道交通趋势洞察",
-      "tag": "Gating",
+      "english": "Industry Insights",
+      "caption": "KB Insights",
+      "tag": "PDF",
       "gating": false
-    },
-    {
-      "id": "insight-lcc",
-      "title": "LCC全生命周期成本分析",
-      "subtitle": "KB Insights",
-      "footerTitle": "智库与行业洞察",
-      "footerHint": "探索更多",
-      "coverImage": {
-        "url": "/mock-assets/services/insight-lcc-cover.png",
-        "alt": "LCC全生命周期成本分析",
-        "width": 800,
-        "height": 600,
-        "aspectRatio": 1.3333
-      },
-      "icon": {
-        "url": "/mock-assets/services/icon-alert.png",
-        "alt": "洞察图标",
-        "width": 64,
-        "height": 64,
-        "aspectRatio": 1
-      },
-      "iconTone": "gold",
-      "showOnline": false,
-      "kind": "insight",
-      "kicker": "KB Insights",
-      "english": "Life Cycle Cost Analysis",
-      "caption": "LCC全生命周期成本分析",
-      "gating": true
     }
   ],
   "details": [
@@ -132,13 +104,29 @@
           "id": "block-002",
           "type": "paragraph",
           "spans": [
-            { "type": "text", "text": "Digital CBM 通过实时数据帮助客户降低", "marks": [] },
-            { "type": "text", "text": "非计划停机", "marks": ["bold"] },
-            { "type": "text", "text": "。", "marks": [] }
+            {
+              "type": "text",
+              "text": "Digital CBM 通过实时数据帮助客户降低",
+              "marks": []
+            },
+            {
+              "type": "text",
+              "text": "非计划停机",
+              "marks": [
+                "bold"
+              ]
+            },
+            {
+              "type": "text",
+              "text": "。",
+              "marks": []
+            }
           ]
         }
       ],
-      "relatedIds": ["fast-phm"]
+      "relatedIds": [
+        "fast-phm"
+      ]
     },
     {
       "id": "fast-phm",
@@ -163,13 +151,29 @@
           "id": "block-002",
           "type": "paragraph",
           "spans": [
-            { "type": "text", "text": "FastPHM 面向区域与城轨车队提供", "marks": [] },
-            { "type": "text", "text": "故障预测", "marks": ["bold"] },
-            { "type": "text", "text": "能力。", "marks": [] }
+            {
+              "type": "text",
+              "text": "FastPHM 面向区域与城轨车队提供",
+              "marks": []
+            },
+            {
+              "type": "text",
+              "text": "故障预测",
+              "marks": [
+                "bold"
+              ]
+            },
+            {
+              "type": "text",
+              "text": "能力。",
+              "marks": []
+            }
           ]
         }
       ],
-      "relatedIds": ["digital-cbm"]
+      "relatedIds": [
+        "digital-cbm"
+      ]
     }
   ]
 }
