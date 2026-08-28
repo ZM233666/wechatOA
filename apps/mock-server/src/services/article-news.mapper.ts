@@ -2,7 +2,9 @@ import type { ImageResource } from '@app/shared';
 import { mockEnv } from '../config/env';
 import type { NewsArticleFixture } from '../schemas/news.schema';
 import type { ArticleContentRow } from './article-content.client';
-import { absoluteMediaUrl, htmlToRichContent } from './html-to-rich-content';
+import { extractPlainTextFromHtml, prepareArticleHtml } from './article-html.service';
+import { absoluteMediaUrl } from './article-html-media';
+import { htmlToRichContent } from './html-to-rich-content';
 
 const DEFAULT_COVER: ImageResource = {
   url: '/mock-assets/news/news-001-cover.png',
@@ -128,7 +130,10 @@ export function mapArticleRowToNewsFixture(row: ArticleContentRow): NewsArticleF
   const id = String(row.id);
   const title = (row.title_zh || row.title_en || `文章 ${id}`).trim().slice(0, 160);
   const mediaBaseUrl = mockEnv.NEWS_ARTICLE_MEDIA_BASE_URL || mockEnv.NEWS_ARTICLE_API_BASE_URL;
-  const { blocks, firstImageUrl, plainText } = htmlToRichContent(id, row.content_html || '');
+  const rawHtml = row.content_html || '';
+  const contentHtml = prepareArticleHtml(id, rawHtml, { mediaBaseUrl });
+  const plainText = extractPlainTextFromHtml(rawHtml);
+  const { blocks, firstImageUrl } = htmlToRichContent(id, rawHtml);
   const coverImage = resolveCover({
     coverUrl: row.cover_url,
     firstImageUrl,
@@ -187,6 +192,8 @@ export function mapArticleRowToNewsFixture(row: ArticleContentRow): NewsArticleF
     updatedAt,
     publishedAt,
     scheduledAt: null,
+    contentHtml,
+    bodyFormat: 'html',
     richContent: blocks,
     relatedArticleIds: [],
     share: {

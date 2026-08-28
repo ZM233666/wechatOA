@@ -62,6 +62,8 @@ export const newsArticleFixtureSchema = z
     updatedAt: z.string().datetime(),
     publishedAt: z.string().datetime().nullable(),
     scheduledAt: z.string().datetime().nullable(),
+    contentHtml: z.string().min(1).optional(),
+    bodyFormat: z.enum(['html', 'blocks']).optional(),
     richContent: z.array(articleContentBlockSchema).min(1),
     relatedArticleIds: z.array(z.string()),
     share: z.object({

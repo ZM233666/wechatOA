@@ -57,7 +57,12 @@ export interface NewsSummary {
 export interface NewsDetail extends NewsSummary {
   author: NewsAuthor;
   source: NewsSource;
+  /** 结构化正文（产品/案例/fixture 或兼容回退） */
   richContent: ArticleContentBlock[];
+  /** wangEditor HTML，经服务端消毒与资源处理后下发；优先于 richContent 渲染 */
+  contentHtml?: string;
+  /** `html` 时使用 contentHtml；`blocks` 时使用 richContent */
+  bodyFormat?: 'html' | 'blocks';
   relatedArticles: NewsSummary[];
   share: NewsShare;
 }

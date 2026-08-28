@@ -38,7 +38,9 @@
 | --- | --- |
 | `author` | `{ id, name, avatar }` |
 | `source` | `{ name, url }` |
-| `richContent` | 结构化 Block，不是 HTML |
+| `richContent` | 结构化 Block（产品/案例/fixture 或兼容回退） |
+| `contentHtml` | 可选。wangEditor HTML 经服务端消毒与资源处理后下发；`bodyFormat=html` 时优先渲染 |
+| `bodyFormat` | 可选。`html` \| `blocks`，默认 `blocks` |
 | `relatedArticles` | 最多 3 条 NewsSummary，不含当前文章 |
 | `share` | `{ title, summary, imageUrl }` |
 

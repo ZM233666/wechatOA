@@ -112,7 +112,8 @@ curl 'http://127.0.0.1:3100/api/news?__scenario=empty'
 
 - 登录：`POST /api/token/`（默认 `superadmin`）
 - 列表：`GET /api/article-content/content/?content_type=article`
-- 正文 `content_html` 会转成小程序 `richContent`；base64 图片落到 `runtime/news/media/`
+- 正文 `content_html` 经 `prepareArticleHtml` 转为 `contentHtml`（保留 wangEditor 样式/表格等）；同时保留 `richContent` 作兼容回退
+- base64 图片落到 `runtime/news/media/`
 
 关闭或同步失败时回退本地 `fixtures/news/`（迁移后该目录默认空壳，列表为空）。
 

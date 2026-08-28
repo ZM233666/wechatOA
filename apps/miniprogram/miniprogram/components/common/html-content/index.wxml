@@ -1,0 +1,4 @@
+<view class="html-content">
+  <rich-text wx:if="{{html}}" nodes="{{html}}"></rich-text>
+  <text wx:else class="html-content__empty">暂无正文</text>
+</view>

@@ -40,6 +40,8 @@ export interface NewsDetailView {
   source: string;
   tags: string[];
   richContent: ArticleContentBlock[];
+  contentHtml?: string;
+  bodyFormat?: 'html' | 'blocks';
   shareTitle: string;
   shareSummary: string;
   shareImage: string;
@@ -69,6 +71,8 @@ interface NewsDetailDto extends NewsSummaryDto {
   author: { id: string; name: string; avatar: ImageResource | null };
   source: { name: string; url: string | null };
   richContent: ArticleContentBlock[];
+  contentHtml?: string;
+  bodyFormat?: 'html' | 'blocks';
   relatedArticles: NewsSummaryDto[];
   share: { title: string; summary: string; imageUrl: string };
 }
@@ -125,6 +129,8 @@ export async function getNewsDetail(id: string): Promise<NewsDetailView> {
     source: data.source.name,
     tags: data.tags.map((tag) => tag.name),
     richContent: data.richContent,
+    contentHtml: data.contentHtml,
+    bodyFormat: data.bodyFormat,
     shareTitle: data.share?.title || data.title,
     shareSummary: data.share?.summary || data.summary,
     shareImage: data.share?.imageUrl ? toAssetUrl(data.share.imageUrl) : cover,

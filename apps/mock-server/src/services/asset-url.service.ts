@@ -1,5 +1,6 @@
 import type { Request } from 'express';
 import { mockEnv } from '../config/env';
+import { absolutizeHtmlAssetUrls } from './article-html.service';
 
 const ASSET_KEYS = new Set(['url', 'imageUrl', 'pdfUrl']);
 
@@ -24,6 +25,16 @@ export function rewriteAssetUrls<T>(value: T, baseUrl: string): T {
   }
   if (value && typeof value === 'object') {
     const entries = Object.entries(value as Record<string, unknown>).map(([key, nested]) => {
+      if (key === 'contentHtml' && typeof nested === 'string') {
+        return [
+          key,
+          absolutizeHtmlAssetUrls(
+            nested,
+            baseUrl,
+            mockEnv.NEWS_ARTICLE_MEDIA_BASE_URL || mockEnv.NEWS_ARTICLE_API_BASE_URL,
+          ),
+        ];
+      }
       if (ASSET_KEYS.has(key) && typeof nested === 'string' && nested.startsWith('/mock-assets/')) {
         return [key, joinBase(baseUrl, nested)];
       }

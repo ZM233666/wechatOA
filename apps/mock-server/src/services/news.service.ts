@@ -77,6 +77,9 @@ export function toNewsDetail(
     author: article.author,
     source: article.source,
     richContent: article.richContent,
+    ...(article.contentHtml
+      ? { contentHtml: article.contentHtml, bodyFormat: article.bodyFormat ?? 'html' }
+      : { bodyFormat: article.bodyFormat ?? 'blocks' }),
     relatedArticles: related
       .filter((item) => item.id !== article.id)
       .slice(0, 3)

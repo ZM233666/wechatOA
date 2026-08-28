@@ -8,7 +8,8 @@
       <text class="news-detail__title">{{news.title}}</text>
       <text wx:if="{{news.subtitle}}" class="news-detail__subtitle">{{news.subtitle}}</text>
       <text class="news-detail__meta">{{news.source || news.author}} · {{news.date}}</text>
-      <article-renderer blocks="{{news.richContent}}"></article-renderer>
+      <html-content wx:if="{{news.bodyFormat === 'html' && news.contentHtml}}" html="{{news.contentHtml}}"></html-content>
+      <article-renderer wx:else blocks="{{news.richContent}}"></article-renderer>
     </view>
   </view>
 

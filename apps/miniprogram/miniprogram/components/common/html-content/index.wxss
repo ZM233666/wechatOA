@@ -1,0 +1,12 @@
+.html-content {
+  font-size: 28rpx;
+  color: #374151;
+  line-height: 1.75;
+  word-break: break-word;
+}
+
+.html-content__empty {
+  display: block;
+  color: #9ca3af;
+  font-size: 26rpx;
+}

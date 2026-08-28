@@ -5,6 +5,7 @@
   "usingComponents": {
     "nav-brand": "/components/common/nav-brand/nav-brand",
     "article-renderer": "/components/common/article-renderer/index",
+    "html-content": "/components/common/html-content/index",
     "empty-state": "/components/common/empty-state/empty-state"
   }
 }
