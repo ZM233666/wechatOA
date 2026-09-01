@@ -10,7 +10,7 @@ Component({
     },
     secondaryLogo: {
       type: String,
-      value: '/assets/images/brand/RVSChinaDT_Logo.png',
+      value: '/assets/images/brand/RAIL-ChinaDT_Logo.png',
     },
     showBack: {
       type: Boolean,
