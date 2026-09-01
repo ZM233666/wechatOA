@@ -90,7 +90,7 @@ type NewsPublicationStatus = 'draft' | 'scheduled' | 'published' | 'archived';
 | GET | `/api/news/categories` | 分类 + 公开文章计数 |
 | GET | `/api/news` | 公开列表分页 |
 | GET | `/api/news/:id` | 详情，`:id` 可为稳定 id 或 slug |
-| GET | `/api/home` | 聚合首页：`latestNews` 最多 3 条；`banners` 由 `showOnBanner` 新闻生成 |
+| GET | `/api/home` | 聚合首页：`latestNews` 与 `banners` 均由 CMS `is_home_recommended`（`showOnHome` / `showOnBanner`）决定，最多各 3 条 |
 
 列表查询：`page`、`pageSize`、`category`、`keyword`、`featured`、`pinned`、`sort=latest`。
 

@@ -7,6 +7,7 @@ import {
   isArticleNewsEnabled,
 } from './article-content.client';
 import { mapArticleRowToNewsFixture } from './article-news.mapper';
+import { hydrateArticleMedia } from './article-media-mirror.service';
 
 type SyncState = {
   lastAttemptMs: number;
@@ -56,7 +57,9 @@ export async function syncArticleNews(options?: {
     state.lastAttemptMs = Date.now();
     try {
       const rows = await fetchNewsArticlesFromBackend();
-      const articles = rows.map((row) => mapArticleRowToNewsFixture(row));
+      const articles = await Promise.all(
+        rows.map(async (row) => hydrateArticleMedia(row, mapArticleRowToNewsFixture(row))),
+      );
       state.articles = articles;
       state.categories = deriveCategories(articles);
       state.lastSuccessMs = Date.now();

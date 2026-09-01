@@ -22,6 +22,11 @@ export type ArticleContentRow = {
   create_datetime?: string;
   update_datetime?: string;
   volume_no?: string;
+  attachments?: Array<{
+    url?: string;
+    attachment_type?: string;
+    file?: number;
+  }>;
 };
 
 type LoginData = {

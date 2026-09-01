@@ -33,7 +33,7 @@
             <view class="home-banner__mask"></view>
             <view class="home-banner__content">
               <text class="home-banner__title">{{item.title}}</text>
-              <text class="home-banner__desc">{{item.description}}</text>
+              <text wx:if="{{item.description}}" class="home-banner__desc">{{item.description}}</text>
             </view>
           </view>
         </swiper-item>

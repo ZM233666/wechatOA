@@ -15,7 +15,7 @@ export const homeDataSchema = z.object({
     z.object({
       id: z.string().min(1),
       title: z.string().min(1),
-      description: z.string().min(1),
+      description: z.string().min(1).optional(),
       image: imageResourceSchema,
       targetUrl: z.string().optional(),
       newsId: z.string().min(1).optional(),

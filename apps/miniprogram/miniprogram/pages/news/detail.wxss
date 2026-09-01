@@ -8,15 +8,21 @@ page {
   padding-bottom: calc(140rpx + env(safe-area-inset-bottom));
 }
 
+.news-detail {
+  padding: 24rpx 48rpx 0;
+  box-sizing: border-box;
+}
+
 .news-detail__cover {
   width: 100%;
   height: 448rpx;
   display: block;
+  border-radius: var(--kb-radius-sm);
   background: #f3f4f6;
 }
 
 .news-detail__body {
-  padding: 40rpx 40rpx 24rpx;
+  padding: 40rpx 0 24rpx;
 }
 
 .news-detail__badge {
@@ -80,7 +86,7 @@ page {
 }
 
 .news-empty {
-  padding: 80rpx 32rpx;
+  padding: 80rpx 48rpx;
   text-align: center;
   font-size: 26rpx;
   color: #9ca3af;

@@ -1,4 +1,5 @@
 import type { HomeBanner, NewsDetail, NewsSummary } from '@app/shared';
+import { mockEnv } from '../config/env';
 import type { NewsArticleFixture } from '../schemas/news.schema';
 import { getMockNow } from '../utils/clock';
 
@@ -10,6 +11,15 @@ export function isPubliclyVisible(article: NewsArticleFixture, at: Date = getMoc
     return false;
   }
   return Date.parse(article.publishedAt) <= at.getTime();
+}
+
+/** 开发联调：NEWS_ARTICLE_INCLUDE_DRAFTS 时允许列表/详情预览草稿，但不进首页聚合 */
+export function isDevDraftPreview(article: NewsArticleFixture): boolean {
+  return mockEnv.NEWS_ARTICLE_INCLUDE_DRAFTS && article.status === 'draft';
+}
+
+export function isNewsListVisible(article: NewsArticleFixture, at: Date = getMockNow()): boolean {
+  return isPubliclyVisible(article, at) || isDevDraftPreview(article);
 }
 
 export function comparePublicNews(a: NewsArticleFixture, b: NewsArticleFixture): number {
@@ -44,24 +54,28 @@ export function toNewsSummary(article: NewsArticleFixture): NewsSummary {
 }
 
 export function listPublicNews(articles: NewsArticleFixture[], at: Date = getMockNow()): NewsArticleFixture[] {
-  return articles.filter((item) => isPubliclyVisible(item, at)).sort(comparePublicNews);
+  return articles.filter((item) => isNewsListVisible(item, at)).sort(comparePublicNews);
 }
 
 export function selectHomeNews(articles: NewsArticleFixture[], at: Date = getMockNow()): NewsSummary[] {
-  return listPublicNews(articles, at)
+  return articles
+    .filter((item) => isPubliclyVisible(item, at))
     .filter((item) => item.placement.showOnHome)
+    .sort(comparePublicNews)
     .slice(0, HOME_NEWS_LIMIT)
     .map(toNewsSummary);
 }
 
 export function selectHomeBanners(articles: NewsArticleFixture[], at: Date = getMockNow()): HomeBanner[] {
-  return listPublicNews(articles, at)
+  return articles
+    .filter((item) => isPubliclyVisible(item, at))
     .filter((item) => item.placement.showOnBanner)
+    .sort(comparePublicNews)
     .slice(0, HOME_BANNER_LIMIT)
     .map((article) => ({
       id: article.id,
       title: article.title,
-      description: article.subtitle || article.summary,
+      ...(article.explicitSummary ? { description: article.explicitSummary } : {}),
       image: article.coverImage,
       targetUrl: `/pages/news/detail?id=${article.id}`,
       newsId: article.id,

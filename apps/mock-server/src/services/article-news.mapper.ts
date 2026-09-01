@@ -70,11 +70,10 @@ function summarize(text: string, title: string): string {
 
 function resolveCover(options: {
   coverUrl?: string;
-  firstImageUrl?: string;
   title: string;
   mediaBaseUrl: string;
 }): ImageResource {
-  const raw = options.coverUrl || options.firstImageUrl || '';
+  const raw = (options.coverUrl || '').trim();
   if (!raw) {
     return { ...DEFAULT_COVER, alt: options.title };
   }
@@ -124,7 +123,7 @@ function categoryFromRow(row: ArticleContentRow): { id: string; name: string } {
 
 /**
  * 将 article-content 行映射为 mock NewsArticleFixture。
- * 草稿在 NEWS_ARTICLE_INCLUDE_DRAFTS 时对外视为 published，便于小程序联调。
+ * 草稿在 NEWS_ARTICLE_INCLUDE_DRAFTS 时可进列表/详情预览，但不进首页 Banner / latestNews。
  */
 export function mapArticleRowToNewsFixture(row: ArticleContentRow): NewsArticleFixture {
   const id = String(row.id);
@@ -133,25 +132,21 @@ export function mapArticleRowToNewsFixture(row: ArticleContentRow): NewsArticleF
   const rawHtml = row.content_html || '';
   const contentHtml = prepareArticleHtml(id, rawHtml, { mediaBaseUrl });
   const plainText = extractPlainTextFromHtml(rawHtml);
-  const { blocks, firstImageUrl } = htmlToRichContent(id, rawHtml);
+  const { blocks } = htmlToRichContent(id, rawHtml);
   const coverImage = resolveCover({
     coverUrl: row.cover_url,
-    firstImageUrl,
     title,
     mediaBaseUrl,
   });
   const createdAt = toIsoDateTime(row.create_datetime);
   const updatedAt = toIsoDateTime(row.update_datetime || row.create_datetime);
-  const includeDrafts = mockEnv.NEWS_ARTICLE_INCLUDE_DRAFTS;
   const rawStatus = (row.status || 'draft').toLowerCase();
   const isPublished = rawStatus === 'published';
-  const visibleAsPublished = isPublished || includeDrafts;
   const publishedAt = isPublished
     ? toIsoDateTime(row.publish_time || row.update_datetime || row.create_datetime)
-    : includeDrafts
-      ? updatedAt
-      : null;
-  const summary = summarize(row.summary || plainText, title);
+    : null;
+  const explicitSummary = (row.summary || '').trim();
+  const summary = explicitSummary || summarize(plainText, title);
   const category = categoryFromRow(row);
   const authorName = (row.author || 'KB China').trim() || 'KB China';
   const sourceName = (row.source || authorName).trim() || authorName;
@@ -162,7 +157,7 @@ export function mapArticleRowToNewsFixture(row: ArticleContentRow): NewsArticleF
   return {
     id: `article-${id}`,
     slug: slugify(title, id),
-    status: visibleAsPublished ? 'published' : rawStatus === 'archived' ? 'archived' : 'draft',
+    status: isPublished ? 'published' : rawStatus === 'archived' ? 'archived' : 'draft',
     language: 'zh-CN',
     title,
     subtitle: (row.title_en || '').trim(),
@@ -181,9 +176,8 @@ export function mapArticleRowToNewsFixture(row: ArticleContentRow): NewsArticleF
     thumbnailImage: coverImage,
     tags: normalizeTags(row.tags),
     placement: {
-      // 未打首页推荐标时，已发布文章仍可进首页 latestNews（条数仍受 selectHomeNews 限制）
-      showOnHome: Boolean(row.is_home_recommended) || visibleAsPublished,
-      showOnBanner: Boolean(row.is_home_recommended),
+      showOnHome: isPublished && Boolean(row.is_home_recommended),
+      showOnBanner: isPublished && Boolean(row.is_home_recommended),
       featured: Boolean(row.is_home_recommended),
       pinned: Boolean(row.is_top),
       sortOrder: Number(row.views ?? 0),
@@ -196,6 +190,7 @@ export function mapArticleRowToNewsFixture(row: ArticleContentRow): NewsArticleF
     bodyFormat: 'html',
     richContent: blocks,
     relatedArticleIds: [],
+    explicitSummary: explicitSummary || undefined,
     share: {
       title,
       summary,

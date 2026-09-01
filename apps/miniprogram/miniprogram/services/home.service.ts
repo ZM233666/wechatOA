@@ -15,7 +15,7 @@ export async function getHome(): Promise<HomeViewData> {
     banners: data.banners.map((item) => ({
       id: item.id,
       title: item.title,
-      description: item.description,
+      ...(item.description ? { description: item.description } : {}),
       image: toAssetUrl(item.image),
       newsId: item.newsId,
       targetUrl: item.targetUrl,

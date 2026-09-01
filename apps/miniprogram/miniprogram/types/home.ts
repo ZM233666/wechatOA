@@ -4,7 +4,7 @@ import type { ImageResource } from './content';
 export interface HomeBanner {
   id: string;
   title: string;
-  description: string;
+  description?: string;
   image: string;
   newsId?: string;
   targetUrl?: string;
@@ -31,7 +31,7 @@ export interface NewsSummary {
 export interface HomeApiBanner {
   id: string;
   title: string;
-  description: string;
+  description?: string;
   image: ImageResource;
   targetUrl?: string;
   newsId?: string;

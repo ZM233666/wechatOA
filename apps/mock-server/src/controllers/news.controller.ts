@@ -2,6 +2,7 @@ import { ERROR_CODES } from '@app/shared';
 import type { Request, Response } from 'express';
 import { withAbsoluteAssets } from '../services/asset-url.service';
 import {
+  isDevDraftPreview,
   isPubliclyVisible,
   listPublicNews,
   matchesNewsKeyword,
@@ -70,7 +71,7 @@ export function getNewsDetail(req: Request, res: Response): void {
   const idOrSlug = String(req.params.id);
   const articles = getNewsArticlesForRequest();
   const article = findNewsArticle(articles, idOrSlug);
-  if (!article || !isPubliclyVisible(article)) {
+  if (!article || (!isPubliclyVisible(article) && !isDevDraftPreview(article))) {
     throw new HttpError(404, 'Resource not found', ERROR_CODES.RESOURCE_NOT_FOUND, {
       id: idOrSlug,
     });

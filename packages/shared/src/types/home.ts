@@ -5,7 +5,7 @@ import type { AppFeatureFlags } from './api';
 export interface HomeBanner {
   id: string;
   title: string;
-  description: string;
+  description?: string;
   image: ImageResource;
   targetUrl?: string;
   /** 绑定新闻时，小程序点击进入对应详情 */

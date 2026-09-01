@@ -66,6 +66,8 @@ export const newsArticleFixtureSchema = z
     bodyFormat: z.enum(['html', 'blocks']).optional(),
     richContent: z.array(articleContentBlockSchema).min(1),
     relatedArticleIds: z.array(z.string()),
+    /** CMS 填写的摘要原文；Banner 仅展示此字段，为空则不显示副文案 */
+    explicitSummary: z.string().optional(),
     share: z.object({
       title: z.string().min(1),
       summary: z.string().min(1),
