@@ -22,6 +22,14 @@ export function isNewsListVisible(article: NewsArticleFixture, at: Date = getMoc
   return isPubliclyVisible(article, at) || isDevDraftPreview(article);
 }
 
+export function compareByPublishedAtDesc(a: NewsArticleFixture, b: NewsArticleFixture): number {
+  const publishedDiff = Date.parse(b.publishedAt ?? '') - Date.parse(a.publishedAt ?? '');
+  if (publishedDiff !== 0) {
+    return publishedDiff;
+  }
+  return a.id.localeCompare(b.id);
+}
+
 export function comparePublicNews(a: NewsArticleFixture, b: NewsArticleFixture): number {
   if (a.placement.pinned !== b.placement.pinned) {
     return a.placement.pinned ? -1 : 1;
@@ -60,8 +68,7 @@ export function listPublicNews(articles: NewsArticleFixture[], at: Date = getMoc
 export function selectHomeNews(articles: NewsArticleFixture[], at: Date = getMockNow()): NewsSummary[] {
   return articles
     .filter((item) => isPubliclyVisible(item, at))
-    .filter((item) => item.placement.showOnHome)
-    .sort(comparePublicNews)
+    .sort(compareByPublishedAtDesc)
     .slice(0, HOME_NEWS_LIMIT)
     .map(toNewsSummary);
 }

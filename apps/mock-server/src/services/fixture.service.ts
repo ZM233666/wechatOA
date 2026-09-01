@@ -937,9 +937,6 @@ export function assertFixtureIntegrity(data: MockFixtureStore): void {
       errors.push(`首页最新资讯 ${item.id} 无法打开对应详情`);
     }
     const article = data.newsArticles.find((entry) => entry.id === item.id);
-    if (article && !article.placement.showOnHome) {
-      errors.push(`首页最新资讯 ${item.id} 未标记 showOnHome`);
-    }
     if (article && article.status !== 'published') {
       errors.push(`首页最新资讯 ${item.id} 不是 published 状态`);
     }

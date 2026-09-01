@@ -77,23 +77,37 @@ describe('home news selection', () => {
     expect(banners[0]?.description).toBeUndefined();
   });
 
-  it('excludes pinned-only articles from banners and latestNews', () => {
+  it('excludes pinned-only articles from banners but includes them in latestNews by date', () => {
     const articles = [
       makeArticle({
         id: 'news-top-only',
         title: '仅置顶',
+        publishedAt: '2026-01-10T00:00:00.000Z',
         placement: { pinned: true, showOnHome: false, showOnBanner: false, featured: false, sortOrder: 0 },
       }),
       makeArticle({
         id: 'news-recommended',
         title: '首页推荐',
+        publishedAt: '2026-01-05T00:00:00.000Z',
         placement: { pinned: false, showOnHome: true, showOnBanner: true, featured: true, sortOrder: 0 },
       }),
     ];
     expect(selectHomeBanners(articles)).toHaveLength(1);
     expect(selectHomeBanners(articles)[0]?.id).toBe('news-recommended');
-    expect(selectHomeNews(articles)).toHaveLength(1);
-    expect(selectHomeNews(articles)[0]?.id).toBe('news-recommended');
+    expect(selectHomeNews(articles)).toHaveLength(2);
+    expect(selectHomeNews(articles)[0]?.id).toBe('news-top-only');
+    expect(selectHomeNews(articles)[1]?.id).toBe('news-recommended');
+  });
+
+  it('returns the three most recently published articles', () => {
+    const articles = [
+      makeArticle({ id: 'news-old', title: '较早', publishedAt: '2026-01-01T00:00:00.000Z' }),
+      makeArticle({ id: 'news-newest', title: '最新', publishedAt: '2026-01-20T00:00:00.000Z' }),
+      makeArticle({ id: 'news-middle', title: '中间', publishedAt: '2026-01-10T00:00:00.000Z' }),
+      makeArticle({ id: 'news-extra', title: '第四条', publishedAt: '2026-01-15T00:00:00.000Z' }),
+    ];
+    const latest = selectHomeNews(articles);
+    expect(latest.map((item) => item.id)).toEqual(['news-newest', 'news-extra', 'news-middle']);
   });
 
   it('excludes drafts from latestNews even when marked showOnHome', () => {
