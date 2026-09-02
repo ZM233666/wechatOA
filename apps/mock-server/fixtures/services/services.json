@@ -26,13 +26,13 @@
     },
     {
       "id": "fast-phm",
-      "title": "FastPHM",
+      "title": "MyDashboard",
       "subtitle": "Predictive Health Management",
       "footerTitle": "预测性维护",
       "footerHint": "智能故障预测与诊断",
       "coverImage": {
         "url": "/mock-assets/services/fast-phm-cover.png",
-        "alt": "FastPHM",
+        "alt": "MyDashboard",
         "width": 1200,
         "height": 540,
         "aspectRatio": 2.2222
@@ -130,12 +130,12 @@
     },
     {
       "id": "fast-phm",
-      "title": "FastPHM",
+      "title": "MyDashboard",
       "subtitle": "Predictive Health Management",
       "summary": "智能故障预测与诊断。",
       "coverImage": {
         "url": "/mock-assets/services/fast-phm-cover.png",
-        "alt": "FastPHM",
+        "alt": "MyDashboard",
         "width": 1200,
         "height": 540,
         "aspectRatio": 2.2222
@@ -153,7 +153,7 @@
           "spans": [
             {
               "type": "text",
-              "text": "FastPHM 面向区域与城轨车队提供",
+              "text": "MyDashboard 面向区域与城轨车队提供",
               "marks": []
             },
             {

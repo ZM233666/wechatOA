@@ -210,7 +210,6 @@ page {
   align-items: center;
   justify-content: space-between;
   padding: 16rpx 24rpx;
-  border-bottom: 1rpx solid #f3f4f6;
 }
 
 .insights-card__head-left {
@@ -238,13 +237,20 @@ page {
   color: #6b7280;
 }
 
+.insights-card__body {
+  background: #ffffff;
+  padding: 0 24rpx 4rpx;
+}
+
 .insights-card__grid {
   display: flex;
   flex-direction: row;
   flex-wrap: wrap;
   justify-content: space-between;
-  padding: 20rpx;
-  background: linear-gradient(180deg, #f8fafc 0%, #f1f5f9 100%);
+  padding: 20rpx 16rpx 12rpx;
+  background: linear-gradient(180deg, #eef2f6 0%, #e3e9f0 100%);
+  border-radius: 16rpx;
+  border: 1rpx solid #e5e7eb;
 }
 
 .insight-cover {
@@ -360,7 +366,7 @@ page {
   display: flex;
   justify-content: flex-end;
   padding: 12rpx 24rpx 16rpx;
-  border-top: 1rpx solid #f9fafb;
+  background: #ffffff;
 }
 
 .insights-card__more-text {

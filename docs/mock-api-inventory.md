@@ -19,7 +19,7 @@
 | GET | `/api/cases/categories` | 预留 | - | `CaseCategory[]` | `fixtures/cases/categories.json` | 未实现 | |
 | GET | `/api/cases` | 案例列表 | `page,pageSize,category,keyword` | `PaginatedData<CaseSummary>` | `fixtures/cases/list.json` | 未实现 | |
 | GET | `/api/cases/:id` | 案例详情 | `id` | `CaseDetail` | `fixtures/cases/details/` | 未实现 | |
-| GET | `/api/services` | 服务 Tab | - | `ServicesPageData` | `fixtures/services/services.json` | 未实现 | Digital CBM / FastPHM / Insights |
+| GET | `/api/services` | 服务 Tab | - | `ServicesPageData` | `fixtures/services/services.json` | 未实现 | Digital CBM / MyDashboard / Insights |
 | GET | `/api/services/insights` | KB Insights 列表 | - | `{ items: InsightReportSummary[] }` | `fixtures/services/insights/*.json` + MinIO `kb-insights/`（缓存 `runtime/minio/kb-insights/`）/ 可选本地 `files/*.pdf` | 未实现 | 有 `pdfFile` 时返回绝对化 `pdfUrl` |
 | GET | `/api/services/insights/:id` | KB Insights 详情 | `id` | `InsightReport` | 同上 | 未实现 | PDF 渲成 `sheet` 页走页内阅读器；无 PDF 时回退 JSON `pages` |
 | GET | `/api/services/:id` | 预留 | `id` | `ServiceDetail` | 同上 `details` | 未实现 | |

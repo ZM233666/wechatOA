@@ -28,7 +28,7 @@
 2. 首页正式 Banner（2～3 张）及对应文案确认
 3. 新闻列表缩略图
 5. TabBar 其余三套正式图标（Home / Services / My Profile；KB Life 已用心形占位）
-6. 服务页 Digital CBM / FastPHM / KB Insights 如需插图
+6. 服务页 Digital CBM / MyDashboard / KB Insights 如需插图
 
 首页顶栏已使用 `images/brand/KB_Logo.png`，置于 Home 标题左侧。
 

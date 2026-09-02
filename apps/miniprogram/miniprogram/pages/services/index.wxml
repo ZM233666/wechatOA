@@ -86,6 +86,7 @@
         <text class="insights-card__hint">智库与行业洞察</text>
       </view>
 
+      <view class="insights-card__body">
       <view class="insights-card__grid">
         <view
           class="insight-cover tap-feedback"
@@ -106,6 +107,7 @@
           </view>
           <text class="insight-cover__caption">{{item.caption}}</text>
         </view>
+      </view>
       </view>
 
       <view class="insights-card__more tap-feedback" bindtap="onExploreMore">

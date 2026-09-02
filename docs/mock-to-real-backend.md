@@ -79,7 +79,7 @@ WeChat Miniprogram
 | `/api/cases/categories` | `/api/v1/mini/cases/categories` | GET | 否 | `cases` | 未实现 | 预留 |
 | `/api/cases` | `/api/v1/mini/cases` | GET | 否 | `cases` | 未实现 | |
 | `/api/cases/:id` | `/api/v1/mini/cases/:id` | GET | 否 | `cases` | 未实现 | |
-| `/api/services` | `/api/v1/mini/services` | GET | 否 | `services` | 未实现 | Digital CBM / FastPHM / Insights |
+| `/api/services` | `/api/v1/mini/services` | GET | 否 | `services` | 未实现 | Digital CBM / MyDashboard / Insights |
 | `/api/services/:id` | `/api/v1/mini/services/:id` | GET | 否 | `services` | 未实现 | 预留 |
 | `/api/kb-life/entries` | `/api/v1/mini/kb-life/entries` | GET | 否 | `kb_life` | 未实现 | |
 | `/api/kb-life/canteen` | `/api/v1/mini/kb-life/canteen` | GET | 否 | `kb_life` | 未实现 | |

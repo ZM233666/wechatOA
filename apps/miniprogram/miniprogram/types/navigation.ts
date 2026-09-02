@@ -17,7 +17,7 @@ export type FutureRouteKey =
   | 'ProjectCasesList'
   | 'ProjectCaseDetail'
   | 'DigitalCbm'
-  | 'FastPhm'
+  | 'MyDashboard'
   | 'KbInsights'
   | 'WeTalk'
   | 'EmployeeServices'

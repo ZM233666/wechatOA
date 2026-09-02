@@ -165,11 +165,11 @@
     },
     {
       "id": "fast-phm",
-      "title": "FastPHM",
+      "title": "MyDashboard",
       "subtitle": "Predictive Health Management",
       "coverImage": {
         "url": "/mock-assets/services/fast-phm-cover.png",
-        "alt": "FastPHM",
+        "alt": "MyDashboard",
         "width": 1200,
         "height": 540,
         "aspectRatio": 2.2222

@@ -113,7 +113,7 @@ Demo CSS/JS 中高频色还包括 `#003B70`、`#cda96a`，本阶段映射到 nav
 - 产品列表 / 产品详情
 - 项目案例列表 / 案例详情
 - Digital CBM（含访客介绍、资产等）
-- FastPHM（预测健康管理）
+- MyDashboard（预测健康管理）
 - KB Insights
 - WeTalk
 - 员工服务

@@ -34,7 +34,7 @@ export const SERVICE_HERO_CARDS: ServiceHeroCard[] = [
   },
   {
     id: 'fast-phm',
-    title: 'FastPHM',
+    title: 'MyDashboard',
     subtitle: 'Predictive Health Management',
     footerTitle: '预测性维护',
     footerHint: '智能故障预测与诊断',
