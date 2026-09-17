@@ -1,0 +1,67 @@
+{
+  "id": "news-scheduled-demo",
+  "slug": "news-scheduled-demo",
+  "status": "scheduled",
+  "language": "zh-CN",
+  "title": "定时发布演示：尚未到点的新闻",
+  "subtitle": "用于校验发布时间过滤",
+  "summary": "这是一篇定时发布演示文章，在 scheduledAt 之前不得出现在公开接口。",
+  "category": {
+    "id": "events",
+    "name": "Events"
+  },
+  "author": {
+    "id": "kb-china",
+    "name": "KB China",
+    "avatar": null
+  },
+  "source": {
+    "name": "KB China",
+    "url": null
+  },
+  "coverImage": {
+    "url": "/mock-assets/news/news-007-cover.png",
+    "alt": "定时发布演示封面",
+    "width": 1200,
+    "height": 675,
+    "aspectRatio": 1.7778
+  },
+  "tags": [
+    {
+      "id": "demo",
+      "name": "演示"
+    }
+  ],
+  "placement": {
+    "showOnHome": true,
+    "featured": true,
+    "pinned": false,
+    "sortOrder": 998,
+    "showOnBanner": false
+  },
+  "createdAt": "2026-08-01T08:00:00.000Z",
+  "updatedAt": "2026-08-02T08:00:00.000Z",
+  "publishedAt": "2099-01-01T00:00:00.000Z",
+  "scheduledAt": "2099-01-01T00:00:00.000Z",
+  "richContent": [
+    {
+      "id": "block-001",
+      "type": "paragraph",
+      "spans": [
+        {
+          "type": "text",
+          "text": "未到发布时间的文章详情应返回 404。",
+          "marks": []
+        }
+      ]
+    }
+  ],
+  "relatedArticleIds": [
+    "news-002"
+  ],
+  "share": {
+    "title": "定时发布演示",
+    "summary": "未到时间不得对外展示。",
+    "imageUrl": "/mock-assets/news/news-007-cover.png"
+  }
+}
