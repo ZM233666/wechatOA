@@ -1,7 +1,6 @@
 import {
   getProductCategories,
   type ProductCategoryView,
-  type ProductHeroSlide,
 } from '../../services/products.service';
 import { RequestError } from '../../types/api';
 import { fallbackImageUrl } from '../../utils/format';
@@ -19,7 +18,6 @@ function filterCategories(list: ProductCategoryView[], keyword: string): Product
 
 Page({
   data: {
-    slides: [] as ProductHeroSlide[],
     keyword: '',
     categories: [] as ProductCategoryView[],
     allCategories: [] as ProductCategoryView[],
@@ -27,6 +25,13 @@ Page({
     errorText: '',
     pageAlive: true,
     requesting: false,
+    contactVisible: false,
+    contactInfo: {
+      phone: '待补充',
+      email: '待补充',
+      address: '待补充',
+      hours: '待补充',
+    },
   },
 
   onLoad() {
@@ -52,11 +57,10 @@ Page({
       const categories = filterCategories(result.categories, this.data.keyword);
       this.data.requesting = false;
       this.setData({
-        slides: result.slides,
         allCategories: result.categories,
         categories,
         requesting: false,
-        pageStatus: result.categories.length === 0 ? 'empty' : 'success',
+        pageStatus: categories.length === 0 ? 'empty' : 'success',
       });
     } catch (error) {
       if (!this.data.pageAlive) {
@@ -73,18 +77,6 @@ Page({
 
   onRetry() {
     void this.loadProducts();
-  },
-
-  onSlideImageError(event: WechatMiniprogram.TouchEvent) {
-    const index = Number((event.currentTarget.dataset as { index?: number }).index);
-    if (Number.isNaN(index) || !this.data.slides[index]) {
-      return;
-    }
-    this.setData({
-      slides: this.data.slides.map((item, itemIndex) =>
-        itemIndex === index ? { ...item, image: fallbackImageUrl(item.image) } : item,
-      ),
-    });
   },
 
   onCategoryImageError(event: WechatMiniprogram.TouchEvent) {
@@ -125,9 +117,14 @@ Page({
   },
 
   onContact() {
-    wx.showToast({
-      title: '联系我们页面开发中',
-      icon: 'none',
-    });
+    this.setData({ contactVisible: true });
+  },
+
+  onCloseContact() {
+    this.setData({ contactVisible: false });
+  },
+
+  onContactPanelTap() {
+    // 阻止点击弹窗内容时关闭
   },
 });

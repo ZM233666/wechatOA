@@ -85,15 +85,11 @@ Page({
     });
   },
 
-  onRelatedServices() {
-    wx.switchTab({
-      url: '/pages/services/index',
-    });
-  },
-
-  onViewCases() {
-    wx.navigateTo({
-      url: '/pages/cases/index',
+  onMoreProducts() {
+    wx.navigateBack({
+      fail: () => {
+        wx.navigateTo({ url: '/pages/products/index' });
+      },
     });
   },
 });

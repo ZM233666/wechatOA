@@ -55,16 +55,18 @@ export async function getProductCategories(): Promise<{
   categories: ProductCategoryView[];
 }> {
   const data = await get<ProductCategoriesDto>(API_ENDPOINTS.productCategories);
-  const categories = data.categories.map((item) => ({
-    id: item.featuredProductId,
-    title: item.name,
-    titleCn: item.nameCn,
-    subtitleEn: item.subtitleEn,
-    desc: item.description,
-    image: toAssetUrl(item.coverImage),
-    products: [],
-    richContent: [],
-  }));
+  const categories = data.categories
+    .filter((item) => item.id !== 'digital' && item.featuredProductId !== 'product-004')
+    .map((item) => ({
+      id: item.featuredProductId,
+      title: item.name,
+      titleCn: item.nameCn,
+      subtitleEn: item.subtitleEn,
+      desc: item.description,
+      image: toAssetUrl(item.coverImage),
+      products: [],
+      richContent: [],
+    }));
   return {
     slides: data.slides.map((item) => ({
       title: item.title,
@@ -88,6 +90,6 @@ export async function getProductDetail(id: string): Promise<ProductCategoryView>
       desc: item.description,
       img: toAssetUrl(item.image),
     })),
-    richContent: data.richContent,
+    richContent: [],
   };
 }

@@ -5,35 +5,34 @@ import { createApp } from '../src/app';
 const app = createApp();
 
 /**
- * Vitest 下 NEWS_ARTICLE 强制关闭，新闻仅回退本地 fixtures。
- * 数据源迁移后 fixtures/news 为空，此处校验空源契约与场景切换。
+ * Vitest 下 NEWS_ARTICLE 强制关闭，新闻回退本地 fixtures。
  */
-describe('news API (empty local fixtures)', () => {
-  it('returns empty paginated news list', async () => {
+describe('news API (local fixtures fallback)', () => {
+  it('returns paginated news list from fixtures', async () => {
     const response = await request(app).get('/api/news').query({ page: 1, pageSize: 3 });
     expect(response.status).toBe(200);
     expect(response.body.success).toBe(true);
-    expect(response.body.data.items).toEqual([]);
+    expect(response.body.data.items.length).toBeGreaterThan(0);
     expect(response.body.data.pagination).toMatchObject({
       page: 1,
       pageSize: 3,
-      total: 0,
     });
+    expect(response.body.data.pagination.total).toBeGreaterThan(0);
   });
 
-  it('returns only the synthetic all category when fixtures are empty', async () => {
+  it('returns categories with article counts', async () => {
     const response = await request(app).get('/api/news/categories');
     expect(response.status).toBe(200);
-    expect(response.body.data.items).toEqual([
-      { id: 'all', name: '全部', articleCount: 0 },
-    ]);
+    const items = response.body.data.items as Array<{ id: string; articleCount: number }>;
+    expect(items[0]).toMatchObject({ id: 'all' });
+    expect(items[0].articleCount).toBeGreaterThan(0);
   });
 
-  it('returns 404 for any news detail id', async () => {
+  it('returns news detail for fixture id', async () => {
     const response = await request(app).get('/api/news/news-001');
-    expect(response.status).toBe(404);
-    expect(response.body.error.code).toBe('RESOURCE_NOT_FOUND');
-    expect(response.body.message).toBe('Resource not found');
+    expect(response.status).toBe(200);
+    expect(response.body.data.id).toBe('news-001');
+    expect(response.body.data.richContent?.length).toBeGreaterThan(0);
   });
 
   it('returns empty list for empty scenario', async () => {
@@ -50,12 +49,12 @@ describe('news API (empty local fixtures)', () => {
     expect(response.body.error.code).toBe('MOCK_INTERNAL_ERROR');
   });
 
-  it('returns empty home latestNews and falls back to fixture banners', async () => {
+  it('returns home latestNews from fixtures', async () => {
     const response = await request(app).get('/api/home');
     expect(response.status).toBe(200);
-    expect(response.body.data.latestNews).toEqual([]);
+    expect(response.body.data.latestNews.length).toBeGreaterThan(0);
     const banners = response.body.data.banners as Array<{ id: string; image: { url: string } }>;
-    expect(banners).toHaveLength(3);
+    expect(banners.length).toBeGreaterThan(0);
     banners.forEach((item) => {
       expect(item.image.url).toMatch(/^https?:\/\//);
     });

@@ -7,23 +7,6 @@
   <empty-state wx:elif="{{pageStatus === 'empty'}}" title="暂无产品" description="当前没有可展示的产品分类"></empty-state>
   <block wx:elif="{{pageStatus === 'success'}}">
 
-  <swiper
-    class="product-hero"
-    autoplay="{{true}}"
-    interval="{{3000}}"
-    circular="{{true}}"
-    indicator-dots="{{true}}"
-    indicator-color="rgba(156, 163, 175, 0.6)"
-    indicator-active-color="#003B70"
-  >
-    <swiper-item wx:for="{{slides}}" wx:key="title">
-      <view class="product-hero__item">
-        <text class="product-hero__title">{{item.title}}</text>
-        <image class="product-hero__image" src="{{item.image}}" mode="aspectFill" data-index="{{index}}" binderror="onSlideImageError"></image>
-      </view>
-    </swiper-item>
-  </swiper>
-
   <view class="product-search">
     <input
       class="product-search__input"
@@ -63,4 +46,37 @@
     <text class="product-contact__more">查看 ›</text>
   </view>
   </block>
+
+  <view
+    wx:if="{{contactVisible}}"
+    class="product-contact-modal"
+    catchtap="onCloseContact"
+  >
+    <view class="product-contact-modal__panel" catchtap="onContactPanelTap">
+      <view class="product-contact-modal__head">
+        <text class="product-contact-modal__title">联系我们</text>
+        <text class="product-contact-modal__subtitle">Contact Us</text>
+        <view class="product-contact-modal__close tap-feedback" catchtap="onCloseContact">×</view>
+      </view>
+
+      <view class="product-contact-modal__body">
+        <view class="product-contact-modal__item">
+          <text class="product-contact-modal__label">电话 / Phone</text>
+          <text class="product-contact-modal__value">{{contactInfo.phone}}</text>
+        </view>
+        <view class="product-contact-modal__item">
+          <text class="product-contact-modal__label">邮箱 / Email</text>
+          <text class="product-contact-modal__value">{{contactInfo.email}}</text>
+        </view>
+        <view class="product-contact-modal__item">
+          <text class="product-contact-modal__label">地址 / Address</text>
+          <text class="product-contact-modal__value">{{contactInfo.address}}</text>
+        </view>
+        <view class="product-contact-modal__item">
+          <text class="product-contact-modal__label">工作时间 / Business Hours</text>
+          <text class="product-contact-modal__value">{{contactInfo.hours}}</text>
+        </view>
+      </view>
+    </view>
+  </view>
 </view>

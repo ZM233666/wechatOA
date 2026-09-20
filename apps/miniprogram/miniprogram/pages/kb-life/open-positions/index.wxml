@@ -4,6 +4,11 @@
   <view class="jobs">
     <text class="jobs__heading">Open Positions</text>
 
+    <!--
+      岗位列表示例（后续开发启用）
+      数据：mock/open-positions.ts → OPEN_POSITIONS
+      点击：onJobTap → /pages/kb-life/open-positions/detail?id=
+
     <view
       class="job-card tap-feedback"
       wx:for="{{positions}}"
@@ -22,6 +27,12 @@
         <text class="job-card__more">查看详情 (View Details)</text>
         <text class="job-card__arrow">›</text>
       </view>
+    </view>
+    -->
+
+    <view class="jobs-notice">
+      <text class="jobs-notice__title">更多优质岗位，敬请期待</text>
+      <text class="jobs-notice__subtitle">More quality positions coming soon. Stay tuned.</text>
     </view>
   </view>
 </view>

@@ -45,21 +45,6 @@
     "featured": true
   },
   {
-    "id": "product-004",
-    "name": "Digital CBM",
-    "nameCn": "数字化方案",
-    "summary": "Condition based maintenance platform for real-time health monitoring.",
-    "category": { "id": "digital", "name": "Digital Solutions" },
-    "coverImage": {
-      "url": "/mock-assets/products/product-004-cover.png",
-      "alt": "Digital CBM",
-      "width": 1200,
-      "height": 800,
-      "aspectRatio": 1.5
-    },
-    "featured": true
-  },
-  {
     "id": "product-005",
     "name": "Bogie Equipment",
     "nameCn": "转向架基础制动",

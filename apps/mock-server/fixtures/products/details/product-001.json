@@ -58,29 +58,7 @@
       }
     }
   ],
-  "richContent": [
-    {
-      "id": "block-001",
-      "type": "heading",
-      "level": 2,
-      "text": "面向高速与城轨的制动控制"
-    },
-    {
-      "id": "block-002",
-      "type": "paragraph",
-      "spans": [
-        { "type": "text", "text": "EP Compact 将", "marks": [] },
-        { "type": "text", "text": "精确制动控制", "marks": ["bold"] },
-        { "type": "text", "text": "与数字化接口结合，帮助运营商降低维护复杂度。", "marks": [] }
-      ]
-    },
-    {
-      "id": "block-003",
-      "type": "list",
-      "ordered": false,
-      "items": ["重量更轻", "可靠性更高", "支持数字集成"]
-    }
-  ],
-  "relatedIds": ["product-005", "product-004"],
+  "richContent": [],
+  "relatedIds": ["product-005"],
   "publishedAt": "2024-04-25T08:00:00.000Z"
 }

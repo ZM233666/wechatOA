@@ -76,21 +76,6 @@
         "aspectRatio": 1.5
       },
       "featuredProductId": "product-003"
-    },
-    {
-      "id": "digital",
-      "name": "Digital Solutions",
-      "nameCn": "数字化方案",
-      "subtitleEn": "Digital",
-      "description": "Condition-based maintenance and predictive health management platforms.",
-      "coverImage": {
-        "url": "/mock-assets/products/product-004-cover.png",
-        "alt": "数字化方案",
-        "width": 1200,
-        "height": 800,
-        "aspectRatio": 1.5
-      },
-      "featuredProductId": "product-004"
     }
   ]
 }

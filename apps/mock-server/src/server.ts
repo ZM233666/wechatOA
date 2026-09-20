@@ -37,14 +37,29 @@ async function bootstrap(): Promise<void> {
       base: mockEnv.NEWS_ARTICLE_API_BASE_URL,
       includeDrafts: mockEnv.NEWS_ARTICLE_INCLUDE_DRAFTS,
     });
-    await syncArticleNews({ force: true });
-    const status = getArticleNewsStatus();
-    if (status.lastError) {
-      logWarn('Article news sync reported error; news APIs will fall back to fixtures until cache fills', {
-        message: status.lastError,
-      });
-    } else {
-      logInfo('Article news ready', { count: status.count });
+    // 管理端常晚于 Mock 启动：失败时短暂重试，仍失败则回退本地 fixtures
+    const maxAttempts = 3;
+    for (let attempt = 1; attempt <= maxAttempts; attempt += 1) {
+      await syncArticleNews({ force: true });
+      const status = getArticleNewsStatus();
+      if (!status.lastError) {
+        logInfo('Article news ready', { count: status.count, attempt });
+        break;
+      }
+      if (attempt < maxAttempts) {
+        const waitMs = attempt * 1000;
+        logWarn('Article news sync failed; retrying', {
+          attempt,
+          waitMs,
+          message: status.lastError,
+        });
+        await new Promise((resolve) => setTimeout(resolve, waitMs));
+        continue;
+      }
+      logWarn(
+        'Article news sync reported error; news APIs will fall back to fixtures until cache fills',
+        { message: status.lastError },
+      );
     }
   }
 

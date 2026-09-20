@@ -84,8 +84,8 @@
     {
       "id": "block-004",
       "type": "link",
-      "text": "了解数字化方案",
-      "url": "/pages/products/detail?id=product-004",
+      "text": "了解数字化服务",
+      "url": "/pages/services/index",
       "linkType": "internal"
     }
   ],

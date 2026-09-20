@@ -9,11 +9,11 @@ import {
 } from '../src/services/fixture.service';
 
 describe('fixtures', () => {
-  it('loads and validates fixture files (news fixtures may be empty after migration)', () => {
+  it('loads and validates fixture files', () => {
     const fixtures = loadFixtures();
     expect(() => assertFixtureIntegrity(fixtures)).not.toThrow();
-    expect(fixtures.newsArticles).toEqual([]);
-    expect(fixtures.newsList).toEqual([]);
+    expect(fixtures.newsArticles.length).toBeGreaterThan(0);
+    expect(fixtures.newsList.length).toBeGreaterThan(0);
     expect(fixtures.insightReports).toEqual([]);
     expect(fixtures.wetalkIssues).toEqual([]);
     expect(fixtures.products.length).toBeGreaterThanOrEqual(6);

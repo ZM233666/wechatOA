@@ -15,13 +15,8 @@
       </view>
     </view>
 
-    <article-renderer wx:if="{{category.richContent.length}}" blocks="{{category.richContent}}"></article-renderer>
-
-    <view class="product-detail__btn product-detail__btn--primary tap-feedback" bindtap="onRelatedServices">
-      Related Services (Digital CBM)
-    </view>
-    <view class="product-detail__btn product-detail__btn--ghost tap-feedback" bindtap="onViewCases">
-      View Case Studies
+    <view class="product-detail__btn product-detail__btn--primary tap-feedback" bindtap="onMoreProducts">
+      更多产品 / More Products
     </view>
   </view>
 

@@ -58,23 +58,7 @@
       }
     }
   ],
-  "richContent": [
-    {
-      "id": "block-001",
-      "type": "heading",
-      "level": 2,
-      "text": "可靠的车辆电能管理"
-    },
-    {
-      "id": "block-002",
-      "type": "paragraph",
-      "spans": [
-        { "type": "text", "text": "Microelettrica 高速断路器用于快速切断短路电流，保障", "marks": [] },
-        { "type": "text", "text": "牵引与辅助系统安全", "marks": ["bold"] },
-        { "type": "text", "text": "。", "marks": [] }
-      ]
-    }
-  ],
+  "richContent": [],
   "relatedIds": ["product-001"],
   "publishedAt": "2024-02-18T08:00:00.000Z"
 }

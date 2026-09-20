@@ -47,23 +47,7 @@
       }
     }
   ],
-  "richContent": [
-    {
-      "id": "block-001",
-      "type": "heading",
-      "level": 2,
-      "text": "高效客流的入口系统"
-    },
-    {
-      "id": "block-002",
-      "type": "paragraph",
-      "spans": [
-        { "type": "text", "text": "IFE E3 门系统面向地铁与市域列车，强调", "marks": [] },
-        { "type": "text", "text": "可靠开关门与障碍检测", "marks": ["bold"] },
-        { "type": "text", "text": "。", "marks": [] }
-      ]
-    }
-  ],
+  "richContent": [],
   "relatedIds": ["product-006"],
   "publishedAt": "2024-03-28T08:00:00.000Z"
 }

@@ -250,10 +250,13 @@ Page({
   },
 
   onReaderClose() {
+    // 阅读器关闭后若已回到主页，需把导航标题从 WeTalk / 地图改回 KB Life
+    const stayInWetalk = this.data.listVisible || this.data.deniedVisible;
     this.setData({
       readerVisible: false,
       readerIssueId: '',
       readerSource: 'wetalk',
+      navTitle: stayInWetalk ? 'WeTalk E-Magazine' : 'KB Life',
     });
   },
 

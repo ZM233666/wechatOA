@@ -5,13 +5,21 @@ import {
   getArticleNewsArticles,
   getArticleNewsCategories,
   refreshArticleNewsInBackground,
+  syncArticleNews,
 } from './article-news.service';
 
-/** 请求路径上刷新 article 缓存，并返回当前新闻文章集合 */
-export function getNewsArticlesForRequest(): NewsArticleFixture[] {
+/**
+ * 优先使用管理端 article-content 缓存；缓存为空时同步等待一次拉取。
+ * 远程仍失败时回退本地 fixtures（联调离线可用）。
+ */
+export async function getNewsArticlesForRequest(): Promise<NewsArticleFixture[]> {
   if (isArticleNewsEnabled()) {
-    refreshArticleNewsInBackground();
-    const articles = getArticleNewsArticles();
+    let articles = getArticleNewsArticles();
+    if (!articles.length) {
+      articles = await syncArticleNews({ force: true });
+    } else {
+      refreshArticleNewsInBackground();
+    }
     if (articles.length) {
       return articles;
     }
@@ -19,12 +27,11 @@ export function getNewsArticlesForRequest(): NewsArticleFixture[] {
   return getFixtures().newsArticles;
 }
 
-export function getNewsCategoriesForRequest(): Array<{ id: string; name: string }> {
+export async function getNewsCategoriesForRequest(): Promise<Array<{ id: string; name: string }>> {
   if (isArticleNewsEnabled()) {
-    refreshArticleNewsInBackground();
-    const categories = getArticleNewsCategories();
-    if (getArticleNewsArticles().length) {
-      return categories;
+    const articles = await getNewsArticlesForRequest();
+    if (articles.length && getArticleNewsArticles().length) {
+      return getArticleNewsCategories();
     }
   }
   return getFixtures().newsCategories;
