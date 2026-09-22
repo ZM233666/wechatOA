@@ -71,6 +71,7 @@ export const homeDataSchema = z.object({
 });
 
 export const brandOverviewSchema = z.object({
+  companyName: z.string().min(1).optional(),
   hero: imageResourceSchema,
   intro: z.string().min(1),
   vision: z.string().min(1),

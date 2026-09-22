@@ -8,6 +8,8 @@ import {
 } from './services/minio-pdf.service';
 import { isArticleNewsEnabled } from './services/article-content.client';
 import { getArticleNewsStatus, syncArticleNews } from './services/article-news.service';
+import { isBrandIntroEnabled } from './services/brand-intro.client';
+import { getBrandIntroStatus, syncBrandIntro } from './services/brand-intro.service';
 import { logError, logInfo, logWarn } from './utils/logger';
 
 async function bootstrap(): Promise<void> {
@@ -58,6 +60,36 @@ async function bootstrap(): Promise<void> {
       }
       logWarn(
         'Article news sync reported error; news APIs will fall back to fixtures until cache fills',
+        { message: status.lastError },
+      );
+    }
+  }
+
+  if (isBrandIntroEnabled()) {
+    logInfo('Syncing brand intro from public API before boot', {
+      base: mockEnv.BRAND_INTRO_API_BASE_URL,
+      path: mockEnv.BRAND_INTRO_PUBLIC_PATH,
+    });
+    const maxAttempts = 3;
+    for (let attempt = 1; attempt <= maxAttempts; attempt += 1) {
+      await syncBrandIntro({ force: true });
+      const status = getBrandIntroStatus();
+      if (!status.lastError) {
+        logInfo('Brand intro ready', { count: status.count, attempt });
+        break;
+      }
+      if (attempt < maxAttempts) {
+        const waitMs = attempt * 1000;
+        logWarn('Brand intro sync failed; retrying', {
+          attempt,
+          waitMs,
+          message: status.lastError,
+        });
+        await new Promise((resolve) => setTimeout(resolve, waitMs));
+        continue;
+      }
+      logWarn(
+        'Brand intro sync reported error; brand API will fall back to fixtures until cache fills',
         { message: status.lastError },
       );
     }

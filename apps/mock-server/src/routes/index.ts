@@ -4,6 +4,7 @@ import { homeRouter } from './home.routes';
 import { newsRouter } from './news.routes';
 import { brandRouter } from './brand.routes';
 import { productsRouter } from './products.routes';
+import { productIntroRouter } from './product-intro.routes';
 import { casesRouter } from './cases.routes';
 import { servicesRouter } from './services.routes';
 import { kbLifeRouter } from './kb-life.routes';
@@ -15,6 +16,7 @@ export function createApiRouter(): Router {
   router.use(homeRouter);
   router.use(newsRouter);
   router.use(brandRouter);
+  router.use(productIntroRouter);
   router.use(productsRouter);
   router.use(casesRouter);
   router.use(servicesRouter);

@@ -46,19 +46,6 @@ page {
   color: #111827;
 }
 
-.case-detail__btn {
-  margin-top: 24rpx;
-  height: 88rpx;
-  border-radius: 16rpx;
-  background: #c29b62;
-  color: #ffffff;
-  font-size: 28rpx;
-  font-weight: 700;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
 .case-empty {
   padding: 80rpx 32rpx;
   text-align: center;

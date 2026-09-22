@@ -30,6 +30,11 @@ interface CaseDetailDto extends CaseSummaryDto {
   richContent: ArticleContentBlock[];
 }
 
+function formatWriterMeta(author: string): string {
+  const writer = author.trim();
+  return writer ? `Writer: ${writer}` : '';
+}
+
 export async function getCases(): Promise<ProjectCaseView[]> {
   const data = await get<PaginatedData<CaseSummaryDto>>(API_ENDPOINTS.cases, {
     page: 1,
@@ -40,7 +45,7 @@ export async function getCases(): Promise<ProjectCaseView[]> {
     title: item.title,
     desc: item.summary,
     image: toAssetUrl(item.coverImage),
-    meta: `Industry: ${item.industry} · Region: ${item.region}`,
+    meta: formatWriterMeta(item.region),
     background: '',
     solution: '',
     richContent: [],
@@ -54,7 +59,7 @@ export async function getCaseDetail(id: string): Promise<ProjectCaseView> {
     title: data.title,
     desc: data.summary,
     image: toAssetUrl(data.coverImage),
-    meta: data.meta,
+    meta: formatWriterMeta(data.region),
     background: data.background,
     solution: data.solution,
     richContent: data.richContent,

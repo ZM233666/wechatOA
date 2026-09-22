@@ -1,7 +1,45 @@
-import type { ArticleContentBlock, ImageResource } from '../types/content';
+import type { ArticleContentBlock, ImageResource, PaginatedData } from '../types/content';
 import { toAssetUrl } from '../utils/format';
 import { API_ENDPOINTS } from './endpoints';
 import { get } from './request';
+
+const PRODUCT_SYSTEM_ALIASES: Record<string, string> = {
+  braking: 'braking',
+  door: 'door',
+  'power-supply': 'power-supply',
+  power: 'power-supply',
+  'product-001': 'braking',
+  'product-002': 'door',
+  'product-003': 'power-supply',
+};
+
+export function resolveProductSystemId(id?: string): string | undefined {
+  if (!id) {
+    return undefined;
+  }
+  const normalized = id.trim().toLowerCase();
+  return PRODUCT_SYSTEM_ALIASES[normalized];
+}
+
+export function getProductSystemHeading(system?: string): { cn: string; en: string } {
+  switch (system) {
+    case 'braking':
+      return { cn: '制动系统产品', en: 'Braking Products' };
+    case 'door':
+      return { cn: '门系统产品', en: 'Door Products' };
+    case 'power-supply':
+      return { cn: '电源系统产品', en: 'Power Supply Products' };
+    default:
+      return { cn: '全部产品', en: 'All Products' };
+  }
+}
+
+const PRODUCT_CATEGORY_CN: Record<string, string> = {
+  braking: '制动系统',
+  door: '门系统',
+  power: '电源系统',
+  'power-supply': '电源系统',
+};
 
 export interface ProductHeroSlide {
   title: string;
@@ -23,6 +61,23 @@ export interface ProductCategoryView {
   image: string;
   products: ProductItem[];
   richContent: ArticleContentBlock[];
+}
+
+export interface ProductListItemView {
+  id: string;
+  name: string;
+  summary: string;
+  image: string;
+  categoryId: string;
+  categoryName: string;
+  featured: boolean;
+}
+
+export interface ProductListQuery {
+  page?: number;
+  pageSize?: number;
+  category?: string;
+  keyword?: string;
 }
 
 interface ProductCategoriesDto {
@@ -50,6 +105,32 @@ interface ProductDetailDto {
   richContent: ArticleContentBlock[];
 }
 
+interface ProductSummaryDto {
+  id: string;
+  name: string;
+  nameCn: string;
+  summary: string;
+  category: { id: string; name: string };
+  coverImage: ImageResource;
+  featured: boolean;
+}
+
+function resolveCategoryName(categoryId: string, nameCn?: string): string {
+  return PRODUCT_CATEGORY_CN[categoryId] || nameCn || categoryId;
+}
+
+function mapProductSummary(item: ProductSummaryDto): ProductListItemView {
+  return {
+    id: item.id,
+    name: item.name,
+    summary: item.summary,
+    image: toAssetUrl(item.coverImage),
+    categoryId: item.category.id,
+    categoryName: resolveCategoryName(item.category.id, item.nameCn),
+    featured: item.featured,
+  };
+}
+
 export async function getProductCategories(): Promise<{
   slides: ProductHeroSlide[];
   categories: ProductCategoryView[];
@@ -62,8 +143,8 @@ export async function getProductCategories(): Promise<{
       title: item.name,
       titleCn: item.nameCn,
       subtitleEn: item.subtitleEn,
-      desc: item.description,
-      image: toAssetUrl(item.coverImage),
+      desc: item.description.trim() === '' ? '' : item.description,
+      image: item.coverImage.url ? toAssetUrl(item.coverImage) : '',
       products: [],
       richContent: [],
     }));
@@ -83,13 +164,28 @@ export async function getProductDetail(id: string): Promise<ProductCategoryView>
     title: data.name,
     titleCn: data.nameCn,
     subtitleEn: data.subtitleEn,
-    desc: data.description,
-    image: toAssetUrl(data.coverImage),
+    desc: data.description.trim() === ' ' ? '' : data.description,
+    image: data.coverImage.url ? toAssetUrl(data.coverImage) : '',
     products: data.relatedProducts.map((item) => ({
       name: item.name,
       desc: item.description,
       img: toAssetUrl(item.image),
     })),
     richContent: [],
+  };
+}
+
+export async function getProductList(
+  query: ProductListQuery = {},
+): Promise<{ items: ProductListItemView[]; hasNext: boolean }> {
+  const data = await get<PaginatedData<ProductSummaryDto>>(API_ENDPOINTS.products, {
+    page: query.page ?? 1,
+    pageSize: query.pageSize ?? 20,
+    category: query.category,
+    keyword: query.keyword,
+  });
+  return {
+    items: data.items.map(mapProductSummary),
+    hasNext: data.pagination.hasNext,
   };
 }

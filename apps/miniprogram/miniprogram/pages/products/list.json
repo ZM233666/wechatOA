@@ -1,8 +1,7 @@
 {
   "navigationStyle": "custom",
-  "backgroundColor": "#F5F7FA",
+  "backgroundColor": "#FFFFFF",
   "enablePullDownRefresh": true,
-  "backgroundTextStyle": "dark",
   "usingComponents": {
     "nav-brand": "/components/common/nav-brand/nav-brand",
     "empty-state": "/components/common/empty-state/empty-state"

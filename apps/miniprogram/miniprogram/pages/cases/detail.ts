@@ -69,11 +69,4 @@ Page({
       },
     });
   },
-
-  onSave() {
-    wx.showToast({
-      title: 'Added to Favorites',
-      icon: 'none',
-    });
-  },
 });

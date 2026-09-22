@@ -9,6 +9,7 @@ export interface BrandValue {
 }
 
 export interface BrandViewData {
+  companyName: string;
   hero: string;
   intro: string;
   vision: string;
@@ -17,6 +18,7 @@ export interface BrandViewData {
 }
 
 interface BrandDto {
+  companyName?: string;
   hero: ImageResource;
   intro: string;
   vision: string;
@@ -24,13 +26,22 @@ interface BrandDto {
   brands: string[];
 }
 
+function filterValues(values: BrandValue[]): BrandValue[] {
+  return values.filter((item) => item.title?.trim() || item.description?.trim());
+}
+
+function filterBrands(brands: string[]): string[] {
+  return brands.filter((item) => item?.trim());
+}
+
 export async function getBrand(): Promise<BrandViewData> {
   const data = await get<BrandDto>(API_ENDPOINTS.brand);
   return {
+    companyName: data.companyName?.trim() || 'Knorr-Bremse Group',
     hero: toAssetUrl(data.hero),
-    intro: data.intro,
-    vision: data.vision,
-    values: data.values,
-    brands: data.brands,
+    intro: data.intro?.trim() || '',
+    vision: data.vision?.trim() || '',
+    values: filterValues(data.values ?? []),
+    brands: filterBrands(data.brands ?? []),
   };
 }

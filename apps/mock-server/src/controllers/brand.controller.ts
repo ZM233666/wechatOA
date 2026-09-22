@@ -1,14 +1,23 @@
-import { ERROR_CODES } from '@app/shared';
-import type { Request, Response } from 'express';
+import type { NextFunction, Request, Response } from 'express';
 import { withAbsoluteAssets } from '../services/asset-url.service';
+import { getBrandForRequest } from '../services/brand-source.service';
 import { getFixtures } from '../services/fixture.service';
 import { emptyPage, paginate } from '../services/pagination.service';
 import { HttpError } from '../middleware/error-handler.middleware';
+import { ERROR_CODES } from '@app/shared';
 import { matchesKeyword, parseOptionalString, parsePaginationQuery } from '../utils/query';
 import { success } from '../utils/response';
 
-export function getBrand(req: Request, res: Response): void {
-  success(res, withAbsoluteAssets(req, getFixtures().brand), req.requestId);
+export async function getBrand(req: Request, res: Response, next: NextFunction): Promise<void> {
+  try {
+    if (req.mockScenario === 'empty') {
+      throw new HttpError(404, 'Brand intro not published', ERROR_CODES.RESOURCE_NOT_FOUND);
+    }
+    const brand = await getBrandForRequest();
+    success(res, withAbsoluteAssets(req, brand), req.requestId);
+  } catch (error) {
+    next(error);
+  }
 }
 
 export function getBrandArticles(req: Request, res: Response): void {

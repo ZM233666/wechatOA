@@ -56,6 +56,43 @@ const envSchema = z
       .transform((value) => value === true || value === 'true' || value === '1'),
     NEWS_ARTICLE_LIMIT: z.coerce.number().int().min(1).max(200).default(50),
     NEWS_ARTICLE_MAX_IMAGES: z.coerce.number().int().min(1).max(200).default(40),
+    BRAND_INTRO_ENABLED: z
+      .union([z.boolean(), z.enum(['true', 'false', '1', '0'])])
+      .default('false')
+      .transform((value) => value === true || value === 'true' || value === '1'),
+    BRAND_INTRO_API_BASE_URL: z.string().min(1).default('http://127.0.0.1:8000'),
+    BRAND_INTRO_MEDIA_BASE_URL: z.string().default('http://127.0.0.1:8000'),
+    BRAND_INTRO_PUBLIC_PATH: z
+      .string()
+      .min(1)
+      .default('/api/brand-intro/intro/public/current/'),
+    BRAND_INTRO_TRY_PUBLIC: z
+      .union([z.boolean(), z.enum(['true', 'false', '1', '0'])])
+      .default('true')
+      .transform((value) => value === true || value === 'true' || value === '1'),
+    BRAND_INTRO_USERNAME: z.string().default('superadmin'),
+    BRAND_INTRO_PASSWORD: z.string().default('admin123456'),
+    PRODUCT_INTRO_ENABLED: z
+      .union([z.boolean(), z.enum(['true', 'false', '1', '0'])])
+      .default('false')
+      .transform((value) => value === true || value === 'true' || value === '1'),
+    PRODUCT_INTRO_API_BASE_URL: z.string().min(1).default('http://127.0.0.1:8000'),
+    PRODUCT_INTRO_MEDIA_BASE_URL: z.string().default('http://127.0.0.1:8000'),
+    PRODUCT_INTRO_TRY_PUBLIC: z
+      .union([z.boolean(), z.enum(['true', 'false', '1', '0'])])
+      .default('true')
+      .transform((value) => value === true || value === 'true' || value === '1'),
+    PRODUCT_INTRO_USERNAME: z.string().default('superadmin'),
+    PRODUCT_INTRO_PASSWORD: z.string().default('admin123456'),
+    PROJECT_CASE_ENABLED: z
+      .union([z.boolean(), z.enum(['true', 'false', '1', '0'])])
+      .default('false')
+      .transform((value) => value === true || value === 'true' || value === '1'),
+    PROJECT_CASE_API_BASE_URL: z.string().min(1).default('http://127.0.0.1:8000'),
+    PROJECT_CASE_MEDIA_BASE_URL: z.string().default('http://127.0.0.1:8000'),
+    PROJECT_CASE_USERNAME: z.string().default('superadmin'),
+    PROJECT_CASE_PASSWORD: z.string().default('admin123456'),
+    PROJECT_CASE_LIMIT: z.coerce.number().int().min(1).max(200).default(100),
   })
   .superRefine((value, ctx) => {
     if (value.MOCK_DELAY_MAX < value.MOCK_DELAY_MIN) {

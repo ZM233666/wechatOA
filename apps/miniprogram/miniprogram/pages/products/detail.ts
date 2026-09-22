@@ -86,9 +86,18 @@ Page({
   },
 
   onMoreProducts() {
-    wx.navigateBack({
-      fail: () => {
-        wx.navigateTo({ url: '/pages/products/index' });
+    const system = this.data.productId || this.data.category?.id || '';
+    const url = system
+      ? `/pages/products/list?system=${encodeURIComponent(system)}`
+      : '/pages/products/list';
+    wx.navigateTo({
+      url,
+      fail: (error) => {
+        wx.showToast({
+          title: '无法打开产品列表',
+          icon: 'none',
+        });
+        console.error('[products/detail] navigateTo list failed', error, url);
       },
     });
   },

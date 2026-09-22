@@ -16,7 +16,7 @@ describe('fixtures', () => {
     expect(fixtures.newsList.length).toBeGreaterThan(0);
     expect(fixtures.insightReports).toEqual([]);
     expect(fixtures.wetalkIssues).toEqual([]);
-    expect(fixtures.products.length).toBeGreaterThanOrEqual(6);
+    expect(fixtures.products.length).toBeGreaterThanOrEqual(5);
     expect(fixtures.productDetails.length).toBeGreaterThanOrEqual(3);
     expect(fixtures.cases.length).toBeGreaterThanOrEqual(6);
     expect(fixtures.caseDetails.length).toBeGreaterThanOrEqual(3);

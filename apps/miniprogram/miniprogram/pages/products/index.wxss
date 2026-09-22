@@ -62,6 +62,7 @@ page {
   margin-bottom: 20rpx;
   border-radius: 20rpx;
   overflow: hidden;
+  background: #003b70;
 }
 
 .product-tile:last-child {

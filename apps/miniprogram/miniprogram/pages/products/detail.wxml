@@ -2,9 +2,9 @@
   <nav-brand title="Product Details" show-back="{{true}}"></nav-brand>
 
   <view wx:if="{{pageStatus === 'success' && category}}" class="product-detail">
-    <text class="product-detail__title">{{category.title}}</text>
-    <image class="product-detail__cover" src="{{category.image}}" mode="aspectFill" binderror="onCoverImageError"></image>
-    <text class="product-detail__desc">{{category.desc}}</text>
+    <text wx:if="{{category.title}}" class="product-detail__title">{{category.title}}</text>
+    <image wx:if="{{category.image}}" class="product-detail__cover" src="{{category.image}}" mode="aspectFill" binderror="onCoverImageError"></image>
+    <text wx:if="{{category.desc}}" class="product-detail__desc">{{category.desc}}</text>
 
     <text class="product-detail__section">Core Products</text>
     <view class="core-item" wx:for="{{category.products}}" wx:key="name">

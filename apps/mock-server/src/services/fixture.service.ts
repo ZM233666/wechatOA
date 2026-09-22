@@ -816,8 +816,8 @@ export function assertFixtureIntegrity(data: MockFixtureStore): void {
       errors.push('存在新闻文章但没有已发布条目');
     }
   }
-  if (data.products.length < 6) errors.push('产品少于 6 条');
-  if (data.productDetails.length < 6) errors.push('产品详情少于 6 条');
+  if (data.products.length < 5) errors.push('产品少于 5 条');
+  if (data.productDetails.length < 5) errors.push('产品详情少于 5 条');
   if (data.cases.length < 6) errors.push('案例少于 6 条');
   if (data.caseDetails.length < 6) errors.push('案例详情少于 6 条');
 

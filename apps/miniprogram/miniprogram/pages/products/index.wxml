@@ -29,7 +29,7 @@
       data-id="{{item.id}}"
       bindtap="onCategoryTap"
     >
-      <image class="product-tile__image" src="{{item.image}}" mode="aspectFill" data-id="{{item.id}}" binderror="onCategoryImageError"></image>
+      <image wx:if="{{item.image}}" class="product-tile__image" src="{{item.image}}" mode="aspectFill" data-id="{{item.id}}" binderror="onCategoryImageError"></image>
       <view class="product-tile__mask"></view>
       <view class="product-tile__text">
         <text class="product-tile__cn">{{item.titleCn}}</text>
