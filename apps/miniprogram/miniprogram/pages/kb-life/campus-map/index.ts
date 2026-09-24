@@ -1,6 +1,7 @@
 import { getCampusMap } from '../../../services/kb-life.service';
 import { RequestError } from '../../../types/api';
 import { resolveCampusLocation } from '../../../utils/campus-location';
+import { rejectVisitorCampusAccess } from '../../../utils/kb-life-access';
 
 const SCALE_MIN = 0.5;
 const SCALE_MAX = 3;
@@ -21,6 +22,9 @@ Page({
   },
 
   onLoad(query: Record<string, string | undefined>) {
+    if (rejectVisitorCampusAccess()) {
+      return;
+    }
     this.location = resolveCampusLocation(query.location);
     const windowInfo = wx.getWindowInfo();
     const menuButton = wx.getMenuButtonBoundingClientRect();

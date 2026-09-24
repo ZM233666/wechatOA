@@ -13,6 +13,10 @@ import {
   setStoredCampusLocation,
   withCampusLocationQuery,
 } from '../../utils/campus-location';
+import {
+  isVisitorRestrictedCampusService,
+  shouldBlockCampusServicesForVisitor,
+} from '../../utils/kb-life-access';
 import { shouldBlockWetalkForNonEmployee } from '../../utils/wetalk';
 Page({
   data: {
@@ -27,6 +31,7 @@ Page({
     navTitle: 'KB Life',
     listVisible: false,
     deniedVisible: false,
+    deniedKind: '' as '' | 'wetalk' | 'campus',
     readerVisible: false,
     readerIssueId: '',
     readerSource: 'wetalk' as 'wetalk' | 'campus-map',
@@ -52,7 +57,7 @@ Page({
     if (pendingMap) {
       wx.removeStorageSync('kbLifeOpenCampusMap');
       const location = String(pendingMap);
-      if (location) {
+      if (location && !shouldBlockCampusServicesForVisitor()) {
         this.setData({ selectedLocation: location });
         void this.openCampusMapReader();
       }
@@ -137,8 +142,23 @@ Page({
     });
   },
 
+  showCampusDenied() {
+    this.setData({
+      deniedVisible: true,
+      deniedKind: 'campus',
+      listVisible: false,
+      readerVisible: false,
+      readerIssueId: '',
+      navTitle: 'KB Life',
+    });
+  },
+
   onCampusTap(event: WechatMiniprogram.TouchEvent) {
     const { id } = event.currentTarget.dataset as { id?: string };
+    if (isVisitorRestrictedCampusService(id) && shouldBlockCampusServicesForVisitor()) {
+      this.showCampusDenied();
+      return;
+    }
     if (id === 'campus-map') {
       void this.openCampusMapReader();
       return;
@@ -155,6 +175,10 @@ Page({
 
   /** PDF 地图在 Tab 页内打开以保留底部导航；无 PDF 时仍进独立缩放页 */
   async openCampusMapReader() {
+    if (shouldBlockCampusServicesForVisitor()) {
+      this.showCampusDenied();
+      return;
+    }
     const location = this.data.selectedLocation || getStoredCampusLocation();
     try {
       wx.showLoading({ title: '加载中', mask: true });
@@ -194,6 +218,7 @@ Page({
     if (shouldBlockWetalkForNonEmployee()) {
       this.setData({
         deniedVisible: true,
+        deniedKind: 'wetalk',
         listVisible: false,
         readerVisible: false,
         readerIssueId: '',
@@ -233,6 +258,7 @@ Page({
     if (shouldBlockWetalkForNonEmployee()) {
       this.setData({
         deniedVisible: true,
+        deniedKind: 'wetalk',
         listVisible: false,
         readerVisible: false,
         readerIssueId: '',
@@ -264,21 +290,12 @@ Page({
     this.setData({
       listVisible: false,
       deniedVisible: false,
+      deniedKind: '',
       readerVisible: false,
       readerIssueId: '',
       readerSource: 'wetalk',
       navTitle: 'KB Life',
     });
-  },
-
-  onDeniedRequest() {
-    wx.showToast({
-      title: 'Permission request sent to admin',
-      icon: 'none',
-    });
-    setTimeout(() => {
-      this.onListBack();
-    }, 1000);
   },
 
   onComingSoon() {

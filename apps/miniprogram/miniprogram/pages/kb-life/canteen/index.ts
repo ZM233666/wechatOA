@@ -1,6 +1,7 @@
 import { getCanteen, type CanteenMenuItem } from '../../../services/kb-life.service';
 import { RequestError } from '../../../types/api';
 import { resolveCampusLocation } from '../../../utils/campus-location';
+import { rejectVisitorCampusAccess } from '../../../utils/kb-life-access';
 
 Page({
   data: {
@@ -12,6 +13,9 @@ Page({
   },
 
   onLoad(query: Record<string, string | undefined>) {
+    if (rejectVisitorCampusAccess()) {
+      return;
+    }
     this.location = resolveCampusLocation(query.location);
     this.setData({ location: this.location });
     void this.loadCanteen();

@@ -18,12 +18,16 @@
     <view class="wetalk-denied__icon">
       <text class="wetalk-denied__icon-text">!</text>
     </view>
-    <text class="wetalk-denied__title">Internal Only</text>
-    <text class="wetalk-denied__desc">此功能仅面向KB员工开放。</text>
-    <text class="wetalk-denied__desc-en">This feature is only open to KB employees.</text>
-    <view class="wetalk-denied__btn tap-feedback" bindtap="onDeniedRequest">
-      <text class="wetalk-denied__btn-text">点击申请权限 (Request Access)</text>
-    </view>
+    <block wx:if="{{deniedKind === 'campus'}}">
+      <text class="wetalk-denied__title">Login Required</text>
+      <text class="wetalk-denied__desc">园区地图、班车、食堂菜单与假期日历需登录后访问。</text>
+      <text class="wetalk-denied__desc-en">Campus map, shuttle bus, cafeteria menu, and holiday calendar require login.</text>
+    </block>
+    <block wx:else>
+      <text class="wetalk-denied__title">Internal Only</text>
+      <text class="wetalk-denied__desc">此功能仅面向KB员工开放。</text>
+      <text class="wetalk-denied__desc-en">This feature is only open to KB employees.</text>
+    </block>
   </view>
 
   <view wx:if="{{!readerVisible && listVisible}}" class="wetalk-panel">
