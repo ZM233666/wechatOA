@@ -122,7 +122,9 @@ export function request<T>(options: RequestOptions): Promise<T> {
         }
       },
       fail(err) {
-        reject(new RequestError(err.errMsg || '网络请求失败'));
+        const raw = err.errMsg || '网络请求失败';
+        const message = /timeout|timed out|超时/i.test(raw) ? '加载超时，请检查网络或稍后重试' : raw;
+        reject(new RequestError(message));
       },
     });
   });
@@ -132,8 +134,9 @@ export function get<T>(
   url: string,
   data?: RequestOptions['data'],
   header?: Record<string, string>,
+  timeout?: number,
 ): Promise<T> {
-  return request<T>({ url, method: 'GET', data, header });
+  return request<T>({ url, method: 'GET', data, header, timeout });
 }
 
 export function post<T>(url: string, data?: RequestOptions['data'], header?: Record<string, string>) {

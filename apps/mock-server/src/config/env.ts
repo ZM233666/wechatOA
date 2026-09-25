@@ -93,6 +93,31 @@ const envSchema = z
     PROJECT_CASE_USERNAME: z.string().default('superadmin'),
     PROJECT_CASE_PASSWORD: z.string().default('admin123456'),
     PROJECT_CASE_LIMIT: z.coerce.number().int().min(1).max(200).default(100),
+    /** Django 等上游单次超时，须小于小程序默认 15s，便于失败后回退缓存/fixture */
+    LIVE_API_TIMEOUT_MS: z.coerce.number().int().min(1000).max(20_000).default(5000),
+    LUNCH_MENU_ENABLED: z
+      .union([z.boolean(), z.enum(['true', 'false', '1', '0'])])
+      .default('false')
+      .transform((value) => value === true || value === 'true' || value === '1'),
+    LUNCH_MENU_API_BASE_URL: z.string().min(1).default('http://127.0.0.1:8000'),
+    LUNCH_MENU_USERNAME: z.string().default('superadmin'),
+    LUNCH_MENU_PASSWORD: z.string().default('admin123456'),
+    SHUTTLE_SCHEDULE_ENABLED: z
+      .union([z.boolean(), z.enum(['true', 'false', '1', '0'])])
+      .default('false')
+      .transform((value) => value === true || value === 'true' || value === '1'),
+    SHUTTLE_SCHEDULE_API_BASE_URL: z.string().min(1).default('http://127.0.0.1:8000'),
+    SHUTTLE_SCHEDULE_USERNAME: z.string().default('superadmin'),
+    SHUTTLE_SCHEDULE_PASSWORD: z.string().default('admin123456'),
+    /** 腾讯位置服务 WebService Key，用于目的地解析与步行/骑行/公交路线规划 */
+    TENCENT_MAP_KEY: z.string().default(''),
+    /** 勾选 Key 的 SN 校验后生成的 SecretKey（服务端调用推荐，勿提交到仓库） */
+    TENCENT_MAP_SK: z.string().default(''),
+    /** 仅当控制台对该 Key 启用了 SN 校验时设为 true；误填 SK 会导致「参数错误」 */
+    TENCENT_MAP_USE_SN: z
+      .union([z.boolean(), z.enum(['true', 'false', '1', '0'])])
+      .default('false')
+      .transform((value) => value === true || value === 'true' || value === '1'),
   })
   .superRefine((value, ctx) => {
     if (value.MOCK_DELAY_MAX < value.MOCK_DELAY_MIN) {

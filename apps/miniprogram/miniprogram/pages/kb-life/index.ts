@@ -29,7 +29,7 @@ Page({
     deniedVisible: false,
     readerVisible: false,
     readerIssueId: '',
-    readerSource: 'wetalk' as 'wetalk' | 'campus-map',
+    readerSource: 'wetalk' as 'wetalk' | 'campus-map' | 'shuttle-bus',
     /** 上层页面展示的最近 1 期 */
     wetalkFeatured: null as WetalkCover | null,
     wetalkItems: [] as WetalkCover[],
@@ -143,6 +143,10 @@ Page({
       void this.openCampusMapReader();
       return;
     }
+    if (id === 'shuttle-bus') {
+      void this.openShuttleMapReader();
+      return;
+    }
     const target = this.data.campusServices.find((item) => item.id === id);
     if (target?.path) {
       wx.navigateTo({
@@ -151,6 +155,14 @@ Page({
       return;
     }
     this.onComingSoon();
+  },
+
+  /** 班车线路图：进入班车页地图模式（站点经纬度） */
+  openShuttleMapReader() {
+    const location = this.data.selectedLocation || getStoredCampusLocation();
+    wx.navigateTo({
+      url: withCampusLocationQuery('/pages/kb-life/shuttle-bus/index?view=map', location),
+    });
   },
 
   /** PDF 地图在 Tab 页内打开以保留底部导航；无 PDF 时仍进独立缩放页 */

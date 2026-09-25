@@ -32,11 +32,13 @@ import {
   refreshAllMinioPdfsInBackground,
   resolveInsightPdfAbsolute,
   resolveSuzhouCampusMapPdfAbsolute,
+  resolveSuzhouShuttleBusPdfAbsolute,
   resolveWetalkPdfAbsolute,
   SUZHOU_MINIO_LOCATION,
 } from './minio-pdf.service';
 import { ensurePdfSheets, PdfSheetRenderError } from './pdf-sheet.service';
 import {
+  findShuttlePdfAbsolute,
   loadShuttleDataFromPdf,
   SHUTTLE_PDF_LOCATIONS,
   ShuttlePdfParseError,
@@ -409,6 +411,8 @@ const WETALK_PDF_URL_PREFIX = '/mock-assets/kb-life/wetalk/files/';
 const WETALK_SHEETS_URL_PREFIX = '/mock-assets/kb-life/wetalk/sheets/';
 const CAMPUS_MAP_PDF_URL_PREFIX = '/mock-assets/kb-life/campus-maps/files/';
 const CAMPUS_MAP_SHEETS_URL_PREFIX = '/mock-assets/kb-life/campus-maps/sheets/';
+const SHUTTLE_MAP_PDF_URL_PREFIX = '/mock-assets/kb-life/shuttle-maps/files/';
+const SHUTTLE_MAP_SHEETS_URL_PREFIX = '/mock-assets/kb-life/shuttle-maps/sheets/';
 
 type SheetPage = {
   id: string;
@@ -671,6 +675,51 @@ function resolveCampusMap(
   };
 }
 
+/** 苏州等园区：班车 PDF → 线路图 sheet pages（与园区地图同一套阅读器） */
+export function resolveShuttleMap(location: string): CampusMapData | undefined {
+  if (!SHUTTLE_PDF_LOCATIONS.has(location)) {
+    return undefined;
+  }
+  const pdfAbsolute = findShuttlePdfAbsolute();
+  if (!pdfAbsolute) {
+    return undefined;
+  }
+  const fileName = path.basename(pdfAbsolute);
+  const sheetsDir = path.join(PUBLIC_DIR, 'mock-assets/kb-life/shuttle-maps/sheets', location);
+  try {
+    ensurePdfSheets({ id: `shuttle-map-${location}`, pdfAbsolute, sheetsDir });
+  } catch (error) {
+    if (error instanceof PdfSheetRenderError) {
+      logWarn(`Shuttle map PDF sheet render failed for ${location}`, {
+        message: error.message,
+      });
+      return undefined;
+    }
+    throw error;
+  }
+  const sheetPages = buildSheetPagesFromDisk({
+    id: location,
+    sheetsDirRelative: 'mock-assets/kb-life/shuttle-maps/sheets',
+    sheetsUrlPrefix: SHUTTLE_MAP_SHEETS_URL_PREFIX,
+  });
+  if (!sheetPages.length) {
+    return undefined;
+  }
+  const title = `班车线路图 (Shuttle Map) · ${location}`;
+  return {
+    title,
+    image: sheetPages[0]?.coverImage ?? {
+      url: '/mock-assets/kb-life/campus-map-suzhou.png',
+      alt: title,
+      width: 1200,
+      height: 800,
+      aspectRatio: 1.5,
+    },
+    pages: sheetPages,
+    pdfUrl: `${SHUTTLE_MAP_PDF_URL_PREFIX}${encodeURIComponent(location)}/${encodeURIComponent(fileName)}`,
+  };
+}
+
 /** 将 `/mock-assets/...` 解析为磁盘绝对路径（Insight / WeTalk / 园区地图 PDF 来自 fixtures） */
 export function resolveMockAssetAbsolutePath(assetPath: string): string {
   if (assetPath.startsWith(INSIGHT_PDF_URL_PREFIX)) {
@@ -690,6 +739,23 @@ export function resolveMockAssetAbsolutePath(assetPath: string): string {
       resolveCampusMapPdfAbsolute(location, fileName) ??
       path.join(FIXTURES_DIR, 'kb-life/locations', location, 'Map', fileName)
     );
+  }
+  if (assetPath.startsWith(SHUTTLE_MAP_PDF_URL_PREFIX)) {
+    const rest = assetPath.slice(SHUTTLE_MAP_PDF_URL_PREFIX.length);
+    const slash = rest.indexOf('/');
+    const location = decodeURIComponent(slash >= 0 ? rest.slice(0, slash) : rest);
+    const fileName = decodeURIComponent(slash >= 0 ? rest.slice(slash + 1) : '');
+    if (location === SUZHOU_MINIO_LOCATION) {
+      const fromMinio = resolveSuzhouShuttleBusPdfAbsolute(fileName);
+      if (fromMinio && fs.existsSync(fromMinio)) {
+        return fromMinio;
+      }
+    }
+    const fromLocal = findShuttlePdfAbsolute();
+    if (fromLocal && fs.existsSync(fromLocal)) {
+      return fromLocal;
+    }
+    return path.join(PUBLIC_DIR, assetPath.replace(/^\//, ''));
   }
   return path.join(PUBLIC_DIR, assetPath.replace(/^\//, ''));
 }

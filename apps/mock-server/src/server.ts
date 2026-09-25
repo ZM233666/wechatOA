@@ -10,6 +10,8 @@ import { isArticleNewsEnabled } from './services/article-content.client';
 import { getArticleNewsStatus, syncArticleNews } from './services/article-news.service';
 import { isBrandIntroEnabled } from './services/brand-intro.client';
 import { getBrandIntroStatus, syncBrandIntro } from './services/brand-intro.service';
+import { warmupLiveCanteen } from './services/lunch-menu.service';
+import { warmupLiveShuttle } from './services/shuttle-schedule.service';
 import { logError, logInfo, logWarn } from './utils/logger';
 
 async function bootstrap(): Promise<void> {
@@ -109,6 +111,13 @@ async function bootstrap(): Promise<void> {
     logInfo(`Mock API Server listening on http://${mockEnv.MOCK_HOST}:${mockEnv.MOCK_PORT}`);
     logInfo(`Health check: http://127.0.0.1:${mockEnv.MOCK_PORT}${mockEnv.API_PREFIX}/health`);
     logInfo(`Static assets: http://127.0.0.1:${mockEnv.MOCK_PORT}/mock-assets/`);
+    setTimeout(() => {
+      warmupLiveCanteen('Suzhou');
+      warmupLiveShuttle('Suzhou');
+    }, 1500);
+    setTimeout(() => {
+      warmupLiveShuttle('Suzhou');
+    }, 12_000);
   });
 }
 

@@ -1,50 +1,199 @@
 <view class="page page--shuttle">
-  <nav-brand title="Shuttle Bus" show-back="{{true}}"></nav-brand>
+  <block wx:if="{{viewMode === 'schedule'}}">
+    <nav-brand title="Shuttle Bus" show-back="{{true}}"></nav-brand>
 
-  <view class="shuttle-head">
-    <text class="shuttle-head__title">班车线路 (Shuttle Bus) · {{location}}</text>
-    <view class="shuttle-search">
-      <image class="shuttle-search__icon" src="/assets/images/kb-life/search.png" mode="aspectFit"></image>
-      <input
-        class="shuttle-search__input"
-        value="{{keyword}}"
-        placeholder="搜索站点或线路 (Search station or route)"
-        placeholder-class="shuttle-search__placeholder"
-        confirm-type="search"
-        bindinput="onSearchInput"
-      />
-    </view>
-  </view>
-
-  <scroll-view class="shuttle-list" scroll-y="{{true}}">
-    <view wx:if="{{routes.length === 0}}" class="shuttle-empty">
-      <view class="shuttle-empty__icon">
-        <image src="/assets/images/kb-life/search.png" mode="aspectFit"></image>
+    <view class="shuttle-head">
+      <text class="shuttle-head__title">班车线路 (Shuttle Bus) · {{location}}</text>
+      <view class="shuttle-tabs">
+        <view class="shuttle-tabs__item shuttle-tabs__item--active">时刻表 Schedule</view>
+        <view class="shuttle-tabs__item tap-feedback" bindtap="onSwitchMap">线路图 Map</view>
       </view>
-      <text class="shuttle-empty__text">未找到匹配的线路站点 (No routes found)</text>
+      <view class="shuttle-search">
+        <image class="shuttle-search__icon" src="/assets/images/kb-life/search.png" mode="aspectFit"></image>
+        <input
+          class="shuttle-search__input"
+          value="{{keyword}}"
+          placeholder="搜索站点或线路 (Search station or route)"
+          placeholder-class="shuttle-search__placeholder"
+          confirm-type="search"
+          bindinput="onSearchInput"
+        />
+      </view>
     </view>
 
-    <view wx:for="{{routes}}" wx:key="id" class="route-card">
-      <view class="route-card__head">
-        <text class="route-card__id">{{item.id}}</text>
-        <text class="route-card__name">{{item.name}}</text>
-      </view>
-      <view class="route-card__body">
-        <image class="route-card__pin" src="/assets/images/kb-life/pin.png" mode="aspectFit"></image>
-        <view class="route-card__stations">
-          <text
-            class="route-card__stop"
-            wx:for="{{item.stopLines}}"
-            wx:for-item="line"
-            wx:for-index="lineIndex"
-            wx:key="lineIndex"
-          >{{line}}</text>
+    <scroll-view class="shuttle-list" scroll-y="{{true}}">
+      <empty-state wx:if="{{pageStatus === 'loading'}}" title="正在加载班车信息"></empty-state>
+      <empty-state
+        wx:elif="{{pageStatus === 'error'}}"
+        title="加载失败"
+        description="{{errorText}}"
+      ></empty-state>
+      <block wx:elif="{{pageStatus === 'success'}}">
+        <view wx:if="{{routes.length === 0}}" class="shuttle-empty">
+          <view class="shuttle-empty__icon">
+            <image src="/assets/images/kb-life/search.png" mode="aspectFit"></image>
+          </view>
+          <text class="shuttle-empty__text">未找到匹配的线路站点 (No routes found)</text>
         </view>
+
+        <view wx:for="{{routes}}" wx:key="id" class="route-card">
+          <view class="route-card__head">
+            <text class="route-card__id">{{item.id}}</text>
+            <text class="route-card__name">{{item.name}}</text>
+          </view>
+          <view class="route-card__body">
+            <image class="route-card__pin" src="/assets/images/kb-life/pin.png" mode="aspectFit"></image>
+            <view class="route-card__stations">
+              <text
+                class="route-card__stop"
+                wx:for="{{item.stopLines}}"
+                wx:for-item="line"
+                wx:for-index="lineIndex"
+                wx:key="lineIndex"
+              >{{line}}</text>
+            </view>
+          </view>
+        </view>
+
+        <view class="shuttle-notice">
+          <text class="shuttle-notice__text">{{notice}}</text>
+        </view>
+      </block>
+    </scroll-view>
+  </block>
+
+  <block wx:elif="{{viewMode === 'map'}}">
+    <view class="shuttle-map__header" style="padding-top: {{statusBarHeight}}px;">
+      <view class="shuttle-map__bar" style="height: {{navBarHeight}}px;">
+        <view class="shuttle-map__back tap-feedback" bindtap="onMapBack">
+          <text class="shuttle-map__back-icon">‹</text>
+        </view>
+        <text class="shuttle-map__title">{{mapTitle}}</text>
+        <view class="shuttle-map__bar-spacer"></view>
+      </view>
+      <view class="shuttle-tabs shuttle-tabs--dark">
+        <view class="shuttle-tabs__item tap-feedback" bindtap="onSwitchSchedule">时刻表 Schedule</view>
+        <view class="shuttle-tabs__item shuttle-tabs__item--active">线路图 Map</view>
+      </view>
+      <picker
+        wx:if="{{mapRouteOptions.length > 1}}"
+        mode="selector"
+        range="{{mapRouteOptions}}"
+        range-key="name"
+        bindchange="onMapRoutePick"
+      >
+        <view class="shuttle-map__picker">
+          <text>选择线路 Select route</text>
+        </view>
+      </picker>
+      <view class="shuttle-trip">
+        <view class="shuttle-trip__row">
+          <image class="shuttle-trip__icon" src="/assets/images/kb-life/search.png" mode="aspectFit"></image>
+          <input
+            class="shuttle-trip__input"
+            value="{{tripDestination}}"
+            placeholder="输入目的地，查附近班车站 (Destination)"
+            placeholder-class="shuttle-trip__placeholder"
+            confirm-type="search"
+            bindinput="onTripDestinationInput"
+            bindconfirm="onTripPlanSearch"
+          />
+          <view class="shuttle-trip__pick tap-feedback" bindtap="onChooseTripDestination">选点</view>
+          <view class="shuttle-trip__go tap-feedback" bindtap="onTripPlanSearch">规划</view>
+        </view>
+        <text wx:if="{{tripPlanStatus === 'error'}}" class="shuttle-trip__error">{{tripPlanError}}</text>
       </view>
     </view>
 
-    <view class="shuttle-notice">
-      <text class="shuttle-notice__text">{{notice}}</text>
+    <view class="shuttle-map__body">
+      <empty-state wx:if="{{pageStatus === 'loading'}}" title="正在加载线路图"></empty-state>
+      <empty-state
+        wx:elif="{{pageStatus === 'error'}}"
+        title="加载失败"
+        description="{{errorText}}"
+      ></empty-state>
+      <empty-state wx:elif="{{mapRoutes.length === 0}}" title="暂无线路图" description="请先在管理端维护站点经纬度"></empty-state>
+      <block wx:else>
+        <scroll-view
+          wx:if="{{tripPlanResult}}"
+          class="shuttle-trip__panel"
+          scroll-y="{{true}}"
+        >
+          <view class="shuttle-trip__panel-head">
+            <text class="shuttle-trip__panel-title">推荐方案 · {{tripPlanResult.destination.name}}</text>
+            <text class="shuttle-trip__panel-close tap-feedback" bindtap="onTripPlanClose">关闭</text>
+          </view>
+          <view
+            wx:for="{{tripPlanResult.nearbyStops}}"
+            wx:key="stopId"
+            class="shuttle-trip__card"
+          >
+            <view class="shuttle-trip__card-head">
+              <text class="shuttle-trip__card-stop">{{item.stopTitle || item.stopName}}</text>
+              <text class="shuttle-trip__card-dist">约 {{item.distanceText}}</text>
+            </view>
+            <text class="shuttle-trip__card-lines">可乘班车 · {{item.shuttleLinesText}}</text>
+            <view
+              wx:for="{{item.plans}}"
+              wx:for-item="plan"
+              wx:key="mode"
+              class="shuttle-trip__plan"
+            >
+              <text class="shuttle-trip__plan-tag shuttle-trip__plan-tag--{{plan.mode}}">{{plan.modeLabel}}</text>
+              <text class="shuttle-trip__plan-text">{{plan.summary}}</text>
+            </view>
+          </view>
+        </scroll-view>
+        <view wx:elif="{{tripPlanStatus === 'loading'}}" class="shuttle-trip__loading">正在规划路线…</view>
+        <map
+          class="shuttle-map__map"
+          longitude="{{mapCenter.longitude}}"
+          latitude="{{mapCenter.latitude}}"
+          scale="{{mapScale}}"
+          markers="{{mapMarkers}}"
+          polyline="{{mapPolyline}}"
+          show-location="{{false}}"
+          show-compass="{{false}}"
+          show-scale="{{false}}"
+          enable-zoom="{{true}}"
+          enable-scroll="{{true}}"
+          bindmarkertap="onMapMarkerTap"
+        >
+          <cover-view wx:if="{{mapStopDetail}}" class="shuttle-map__stop-banner">
+            <cover-view class="shuttle-map__stop-head">
+              <cover-view class="shuttle-map__stop-head-title">站点信息 · Stop</cover-view>
+              <cover-view class="shuttle-map__stop-close" bindtap="onMapStopDetailClose">×</cover-view>
+            </cover-view>
+            <cover-view class="shuttle-map__stop-row">
+              <cover-view class="shuttle-map__stop-label">线路 Route</cover-view>
+              <cover-view class="shuttle-map__stop-value">{{mapStopDetail.routeName}}</cover-view>
+            </cover-view>
+            <cover-view class="shuttle-map__stop-divider"></cover-view>
+            <cover-view class="shuttle-map__stop-row">
+              <cover-view class="shuttle-map__stop-label">站点 Stop</cover-view>
+              <cover-view class="shuttle-map__stop-value">{{mapStopDetail.stopName}}</cover-view>
+            </cover-view>
+            <cover-view class="shuttle-map__stop-divider"></cover-view>
+            <cover-view class="shuttle-map__stop-row shuttle-map__stop-row--last">
+              <cover-view class="shuttle-map__stop-label">时刻 Time</cover-view>
+              <cover-view class="shuttle-map__stop-value">{{mapStopDetail.timesText}}</cover-view>
+            </cover-view>
+          </cover-view>
+          <cover-view wx:if="{{mapLegend.length}}" class="shuttle-map__legend">
+            <cover-view
+              wx:for="{{mapLegend}}"
+              wx:key="id"
+              class="shuttle-map__legend-row"
+            >
+              <cover-view
+                class="shuttle-map__legend-dot"
+                style="background-color: {{item.color}};"
+              ></cover-view>
+              <cover-view class="shuttle-map__legend-name">{{item.name}}</cover-view>
+            </cover-view>
+          </cover-view>
+        </map>
+      </block>
     </view>
-  </scroll-view>
+  </block>
 </view>

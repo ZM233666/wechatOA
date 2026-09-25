@@ -29,9 +29,22 @@ export interface CanteenMenuItem {
   image: ImageResource;
 }
 
+export interface CanteenSection {
+  id: string;
+  title: string;
+  text: string;
+  images: ImageResource[];
+}
+
 export interface CanteenData {
   intro: string;
   menuItems: CanteenMenuItem[];
+  /** 来自 lunch_menu 已发布快照时为 true，小程序按 sections 展示 */
+  live?: boolean;
+  title?: string;
+  menuDate?: string;
+  coverImage?: ImageResource;
+  sections?: CanteenSection[];
 }
 
 export interface ShuttleStop {
@@ -47,9 +60,71 @@ export interface ShuttleRoute {
   stationsText: string;
 }
 
+export interface ShuttleMapPoint {
+  latitude: number;
+  longitude: number;
+}
+
+export interface ShuttleMapMarker {
+  id: number;
+  latitude: number;
+  longitude: number;
+  title: string;
+  sequence: number;
+  timesText: string;
+}
+
+export interface ShuttleMapRouteLine {
+  id: string;
+  name: string;
+  color: string;
+  points: ShuttleMapPoint[];
+  markers: ShuttleMapMarker[];
+}
+
+/** 班车线路图（站点经纬度 + 折线，非 PDF） */
+export interface ShuttleMapData {
+  title: string;
+  center: ShuttleMapPoint;
+  routes: ShuttleMapRouteLine[];
+}
+
 export interface ShuttleData {
   notice: string;
   routes: ShuttleRoute[];
+  /** 班车线路图（通常由 PDF 渲页生成，苏州等园区） */
+  map?: ShuttleMapData;
+}
+
+export type ShuttleTripMode = 'transit' | 'bicycling' | 'walking';
+
+export interface ShuttleTripLegPlan {
+  mode: ShuttleTripMode;
+  modeLabel: string;
+  durationMinutes: number;
+  distanceMeters: number;
+  summary: string;
+}
+
+export interface ShuttleTripNearbyStop {
+  stopId: number;
+  stopName: string;
+  /** 该站各线路班车时刻，如 7:37 / 8:00 */
+  timesText: string;
+  latitude: number;
+  longitude: number;
+  distanceMeters: number;
+  shuttleLineNames: string[];
+  plans: ShuttleTripLegPlan[];
+}
+
+export interface ShuttleTripPlanData {
+  destination: {
+    name: string;
+    latitude: number;
+    longitude: number;
+  };
+  nearbyStops: ShuttleTripNearbyStop[];
 }
 
 export interface KbLifeActivity {
