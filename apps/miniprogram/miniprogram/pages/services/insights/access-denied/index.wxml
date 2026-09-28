@@ -9,8 +9,5 @@
     <text class="denied__name">{{title}}</text>
     <text class="denied__desc">您无访问权限。此功能仅对已授权用户开放。</text>
     <text class="denied__desc-en">(You do not have permission to access this content.)</text>
-    <view class="denied__btn tap-feedback" bindtap="onRequestAccess">
-      <text class="denied__btn-text">点击申请权限 (Request Access)</text>
-    </view>
   </view>
 </view>

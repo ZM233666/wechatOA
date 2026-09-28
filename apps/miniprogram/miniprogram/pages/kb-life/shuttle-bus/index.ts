@@ -8,6 +8,7 @@ import {
 } from '../../../services/kb-life.service';
 import { RequestError } from '../../../types/api';
 import { resolveCampusLocation } from '../../../utils/campus-location';
+import { rejectVisitorCampusAccess } from '../../../utils/kb-life-access';
 import {
   buildShuttleMapView,
   type ShuttleMapLegendItem,
@@ -45,6 +46,9 @@ Page({
   },
 
   onLoad(query: Record<string, string | undefined>) {
+    if (rejectVisitorCampusAccess()) {
+      return;
+    }
     this.location = resolveCampusLocation(query.location);
     const windowInfo = wx.getWindowInfo();
     const menuButton = wx.getMenuButtonBoundingClientRect();
