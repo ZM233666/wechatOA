@@ -4,7 +4,11 @@
   <view class="events">
     <text class="events__heading">公司事件 (Company Events)</text>
 
+    <view wx:if="{{pageStatus === 'loading'}}" class="events__state">加载中…</view>
+    <view wx:elif="{{pageStatus === 'error'}}" class="events__state events__state--error">{{errorText}}</view>
+
     <view
+      wx:if="{{pageStatus === 'success'}}"
       class="event-card tap-feedback"
       wx:for="{{events}}"
       wx:key="id"

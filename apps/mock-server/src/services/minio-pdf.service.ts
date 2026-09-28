@@ -12,7 +12,8 @@ export type MinioPdfCatalogId =
   | 'insights'
   | 'wetalk'
   | 'suzhou-campus-map'
-  | 'suzhou-shuttle-bus';
+  | 'suzhou-shuttle-bus'
+  | 'employee-handbook';
 
 type CatalogConfig = {
   id: MinioPdfCatalogId;
@@ -47,6 +48,8 @@ export const SUZHOU_CAMPUS_MAP_LOCAL_PDF_DIR = path.join(
 );
 export const SUZHOU_SHUTTLE_BUS_MINIO_CACHE_DIR = path.join(ROOT, 'runtime/minio/suzhou/shuttle-bus');
 export const SUZHOU_SHUTTLE_BUS_LOCAL_PDF_DIR = path.join(ROOT, 'fixtures/kb-life/Shuttlebus');
+export const EMPLOYEE_HANDBOOK_MINIO_CACHE_DIR = path.join(ROOT, 'runtime/minio/employee-handbook');
+export const EMPLOYEE_HANDBOOK_LOCAL_PDF_DIR = path.join(ROOT, 'fixtures/kb-life/handbook/files');
 
 /** 仅苏州走 MinIO；其他地点保持本地 fixtures */
 export const SUZHOU_MINIO_LOCATION = 'Suzhou';
@@ -80,6 +83,13 @@ const CATALOGS: Record<MinioPdfCatalogId, CatalogConfig> = {
     localDir: SUZHOU_SHUTTLE_BUS_LOCAL_PDF_DIR,
     getPrefix: () => mockEnv.MINIO_SUZHOU_SHUTTLE_BUS_PREFIX,
   },
+  'employee-handbook': {
+    id: 'employee-handbook',
+    label: 'Employee Handbook',
+    cacheDir: EMPLOYEE_HANDBOOK_MINIO_CACHE_DIR,
+    localDir: EMPLOYEE_HANDBOOK_LOCAL_PDF_DIR,
+    getPrefix: () => mockEnv.MINIO_EMPLOYEE_HANDBOOK_PREFIX,
+  },
 };
 
 const ALL_CATALOG_IDS = Object.keys(CATALOGS) as MinioPdfCatalogId[];
@@ -89,6 +99,7 @@ const syncStateByCatalog: Record<MinioPdfCatalogId, SyncState> = {
   wetalk: { lastAttemptMs: 0, lastSuccessMs: 0, inFlight: null },
   'suzhou-campus-map': { lastAttemptMs: 0, lastSuccessMs: 0, inFlight: null },
   'suzhou-shuttle-bus': { lastAttemptMs: 0, lastSuccessMs: 0, inFlight: null },
+  'employee-handbook': { lastAttemptMs: 0, lastSuccessMs: 0, inFlight: null },
 };
 
 function normalizePrefix(prefix: string): string {
@@ -194,6 +205,10 @@ export function listSuzhouShuttleBusPdfFileNames(): Array<{ fileName: string; mt
   return listCatalogPdfFileNames('suzhou-shuttle-bus');
 }
 
+export function listEmployeeHandbookPdfFileNames(): Array<{ fileName: string; mtimeMs: number }> {
+  return listCatalogPdfFileNames('employee-handbook');
+}
+
 export function resolveInsightPdfAbsolute(fileName: string): string | null {
   return resolveCatalogPdfAbsolute('insights', fileName);
 }
@@ -208,6 +223,10 @@ export function resolveSuzhouCampusMapPdfAbsolute(fileName: string): string | nu
 
 export function resolveSuzhouShuttleBusPdfAbsolute(fileName: string): string | null {
   return resolveCatalogPdfAbsolute('suzhou-shuttle-bus', fileName);
+}
+
+export function resolveEmployeeHandbookPdfAbsolute(fileName: string): string | null {
+  return resolveCatalogPdfAbsolute('employee-handbook', fileName);
 }
 
 export function findSuzhouCampusMapPdfFileName(declared?: string): string | null {
@@ -227,6 +246,13 @@ export function findSuzhouShuttleBusPdfAbsolute(): string | null {
     preferredIncludes: ['shuttle'],
   });
   return fileName ? resolveSuzhouShuttleBusPdfAbsolute(fileName) : null;
+}
+
+export function findEmployeeHandbookPdfFileName(declared?: string): string | null {
+  return pickPreferredPdfFileName(listEmployeeHandbookPdfFileNames(), {
+    declared,
+    preferredIncludes: ['handbook', 'employee', '员工手册'],
+  });
 }
 
 async function listRemoteObjects(

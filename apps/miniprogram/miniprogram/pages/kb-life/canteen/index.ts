@@ -1,4 +1,4 @@
-import { getCanteen, type CanteenMenuItem } from '../../../services/kb-life.service';
+import { getCanteen, type CanteenSection } from '../../../services/kb-life.service';
 import { RequestError } from '../../../types/api';
 import { resolveCampusLocation } from '../../../utils/campus-location';
 import { rejectVisitorCampusAccess } from '../../../utils/kb-life-access';
@@ -7,7 +7,10 @@ Page({
   data: {
     location: '',
     intro: '',
-    menuItems: [] as CanteenMenuItem[],
+    menuTitle: '',
+    menuDate: '',
+    coverImage: '',
+    sections: [] as CanteenSection[],
     pageStatus: 'loading' as 'loading' | 'success' | 'error',
     errorText: '',
   },
@@ -30,7 +33,10 @@ Page({
       this.setData({
         location: result.location,
         intro: result.intro,
-        menuItems: result.menuItems,
+        menuTitle: result.title,
+        menuDate: result.menuDate,
+        coverImage: result.coverImage,
+        sections: result.sections,
         pageStatus: 'success',
       });
     } catch (error) {
