@@ -1,6 +1,6 @@
 import type { ImageResource } from '@app/shared';
 import { logInfo, logWarn } from '../utils/logger';
-import { livePageBudgetMs, raceWithBudget } from './live-api-timeout';
+import { liveApiTimeoutMs, raceWithBudget } from './live-api-timeout';
 import {
   fetchLunchMenuByDate,
   fetchPublishedLunchMenus,
@@ -35,7 +35,21 @@ type CacheEntry = {
 };
 
 const cache = new Map<string, CacheEntry>();
-const inFlight = new Map<string, Promise<LiveCanteenMenu | null>>();
+const inFlight = new Map<string, Promise<LiveCanteenMenu>>();
+
+function emptyLiveMenu(today: string): LiveCanteenMenu {
+  return {
+    live: true,
+    title: '今日午餐',
+    menuDate: today,
+    sections: [],
+  };
+}
+
+/** 食堂页可等到略低于小程序 15s 超时，避免误回退 fixture 假菜单 */
+function canteenPageBudgetMs(): number {
+  return Math.min(liveApiTimeoutMs() * 3, 12_000);
+}
 
 export function shanghaiMenuDate(now = new Date()): string {
   return new Intl.DateTimeFormat('en-CA', {
@@ -145,15 +159,18 @@ export async function loadLiveCanteen(location: string): Promise<LiveCanteenMenu
   }
   const pending = inFlight.get(cacheKey);
   if (pending) {
-    return cached?.menu ?? null;
+    if (cached?.menu) {
+      return cached.menu;
+    }
+    return raceWithBudget(pending, emptyLiveMenu(today), canteenPageBudgetMs());
   }
   const run = (async () => {
     try {
       return await fetchLiveCanteen(campus, today);
     } catch (error: unknown) {
       const message = error instanceof Error ? error.message : String(error);
-      logWarn('Lunch menu load failed; falling back to fixtures', { location, message });
-      const menu = cached?.menu ?? null;
+      logWarn('Lunch menu load failed', { location, message });
+      const menu = cached?.menu ?? emptyLiveMenu(today);
       cache.set(cacheKey, { at: Date.now(), menu, ok: false });
       return menu;
     } finally {
@@ -161,10 +178,10 @@ export async function loadLiveCanteen(location: string): Promise<LiveCanteenMenu
     }
   })();
   inFlight.set(cacheKey, run);
-  if (cached) {
+  if (cached?.menu) {
     return cached.menu;
   }
-  return raceWithBudget(run, null, livePageBudgetMs());
+  return raceWithBudget(run, emptyLiveMenu(today), canteenPageBudgetMs());
 }
 
 export function warmupLiveCanteen(location = 'Suzhou'): void {

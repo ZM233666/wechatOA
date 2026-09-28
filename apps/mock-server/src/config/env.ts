@@ -42,6 +42,7 @@ const envSchema = z
     MINIO_WETALK_PREFIX: z.string().default('wetalk/'),
     MINIO_SUZHOU_CAMPUS_MAP_PREFIX: z.string().default('suzhou/campus-map/'),
     MINIO_SUZHOU_SHUTTLE_BUS_PREFIX: z.string().default('suzhou/shuttle-bus/'),
+    MINIO_EMPLOYEE_HANDBOOK_PREFIX: z.string().default('employee-handbook/'),
     NEWS_ARTICLE_ENABLED: z
       .union([z.boolean(), z.enum(['true', 'false', '1', '0'])])
       .default('false')
@@ -109,6 +110,13 @@ const envSchema = z
     SHUTTLE_SCHEDULE_API_BASE_URL: z.string().min(1).default('http://127.0.0.1:8000'),
     SHUTTLE_SCHEDULE_USERNAME: z.string().default('superadmin'),
     SHUTTLE_SCHEDULE_PASSWORD: z.string().default('admin123456'),
+    COMPANY_EVENTS_ENABLED: z
+      .union([z.boolean(), z.enum(['true', 'false', '1', '0'])])
+      .default('false')
+      .transform((value) => value === true || value === 'true' || value === '1'),
+    COMPANY_EVENTS_API_BASE_URL: z.string().min(1).default('http://127.0.0.1:8000'),
+    COMPANY_EVENTS_USERNAME: z.string().default('superadmin'),
+    COMPANY_EVENTS_PASSWORD: z.string().default('admin123456'),
     /** 腾讯位置服务 WebService Key，用于目的地解析与步行/骑行/公交路线规划 */
     TENCENT_MAP_KEY: z.string().default(''),
     /** 勾选 Key 的 SN 校验后生成的 SecretKey（服务端调用推荐，勿提交到仓库） */

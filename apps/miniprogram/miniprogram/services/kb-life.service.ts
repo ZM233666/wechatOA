@@ -188,16 +188,11 @@ export async function getCanteen(
   const data = await get<CanteenDto & { location?: string }>(API_ENDPOINTS.kbLifeCanteen, { location });
   return {
     intro: data.intro,
-    live: Boolean(data.live),
+    live: true,
     title: data.title || '',
     menuDate: data.menuDate || '',
     coverImage: data.coverImage ? toAssetUrl(data.coverImage) : '',
-    menuItems: data.menuItems.map((item) => ({
-      id: item.id,
-      title: item.title,
-      description: item.description,
-      image: toAssetUrl(item.image),
-    })),
+    menuItems: [],
     sections: (data.sections ?? []).map((section) => ({
       id: section.id,
       title: section.title,
@@ -446,4 +441,127 @@ export async function getHolidayCalendar(
   marks: Record<string, { name: string; type: 'holiday' | 'workday' }>;
 }> {
   return get(API_ENDPOINTS.kbLifeHolidayCalendar, { location });
+}
+
+export interface EmployeeHandbookView {
+  title: string;
+  edition: string;
+  introCn: string;
+  introEn: string;
+  pdfUrl: string;
+}
+
+export async function getEmployeeHandbook(): Promise<EmployeeHandbookView> {
+  const data = await get<{
+    title: string;
+    edition: string;
+    introCn: string;
+    introEn: string;
+    pdfUrl?: string;
+  }>(API_ENDPOINTS.kbLifeHandbook);
+  return {
+    title: data.title,
+    edition: data.edition,
+    introCn: data.introCn,
+    introEn: data.introEn,
+    pdfUrl: data.pdfUrl ? toAssetUrl(data.pdfUrl) : '',
+  };
+}
+
+export interface CompanyEventNavItem {
+  id: string;
+  title: string;
+  subtitle: string;
+  icon: string;
+  iconBg: string;
+  path: string;
+}
+
+export interface AnnualDinnerView {
+  title: string;
+  subtitle: string;
+  infoTitle: string;
+  time: string;
+  venue: string;
+  dressCode: string;
+  highlightsTitle: string;
+  highlights: string[];
+}
+
+export interface OutingActivityView {
+  id: string;
+  title: string;
+  descriptionCn: string;
+  descriptionEn: string;
+  timeLabel: string;
+  status: 'open' | 'closed';
+  statusText: string;
+}
+
+export interface HealthCheckupView {
+  title: string;
+  subtitle: string;
+  pdfUrl: string;
+  pdfFileName: string;
+  images: string[];
+}
+
+interface ActivitiesDto {
+  live?: boolean;
+  items: Array<{
+    id: string;
+    title: string;
+    subtitle: string;
+    icon: ImageResource;
+    iconBg: string;
+    path: string;
+  }>;
+  outingsMeta: { title: string; subtitle: string };
+  annualDinner: AnnualDinnerView | null;
+  outings: OutingActivityView[];
+  health: {
+    title: string;
+    subtitle: string;
+    pdfUrl?: string;
+    pdfFileName?: string;
+    images: ImageResource[];
+  } | null;
+}
+
+function mapEventNavItem(item: ActivitiesDto['items'][number]): CompanyEventNavItem {
+  return {
+    id: item.id,
+    title: item.title,
+    subtitle: item.subtitle,
+    icon: toAssetUrl(item.icon),
+    iconBg: item.iconBg,
+    path: item.path,
+  };
+}
+
+export async function getCompanyActivities(): Promise<{
+  live: boolean;
+  items: CompanyEventNavItem[];
+  outingsMeta: { title: string; subtitle: string };
+  annualDinner: AnnualDinnerView | null;
+  outings: OutingActivityView[];
+  health: HealthCheckupView | null;
+}> {
+  const data = await get<ActivitiesDto>(API_ENDPOINTS.kbLifeActivities);
+  return {
+    live: data.live === true,
+    items: data.items.map(mapEventNavItem),
+    outingsMeta: data.outingsMeta,
+    annualDinner: data.annualDinner,
+    outings: data.outings,
+    health: data.health
+      ? {
+          title: data.health.title,
+          subtitle: data.health.subtitle,
+          pdfUrl: data.health.pdfUrl ? toAssetUrl(data.health.pdfUrl) : '',
+          pdfFileName: data.health.pdfFileName ?? '',
+          images: data.health.images.map((image) => toAssetUrl(image)),
+        }
+      : null,
+  };
 }

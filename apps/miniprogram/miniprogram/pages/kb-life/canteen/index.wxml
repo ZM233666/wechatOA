@@ -37,32 +37,20 @@
           <text class="canteen-card__badge">午餐 Lunch</text>
         </view>
 
-        <block wx:if="{{live}}">
-          <view wx:if="{{sections.length === 0}}" class="menu-empty">今日暂无已发布菜单</view>
-          <view class="menu-section" wx:for="{{sections}}" wx:key="id">
-            <text class="menu-section__title">{{item.title}}</text>
-            <text wx:if="{{item.text}}" class="menu-section__text">{{item.text}}</text>
-            <image
-              wx:for="{{item.images}}"
-              wx:for-item="imageUrl"
-              wx:for-index="imageIndex"
-              wx:key="imageIndex"
-              class="menu-section__image"
-              src="{{imageUrl}}"
-              mode="widthFix"
-            ></image>
-          </view>
-        </block>
-
-        <block wx:else>
-          <view class="menu-item" wx:for="{{menuItems}}" wx:key="id">
-            <image class="menu-item__image" src="{{item.image}}" mode="aspectFill"></image>
-            <view class="menu-item__meta">
-              <text class="menu-item__title">{{item.title}}</text>
-              <text class="menu-item__desc">{{item.description}}</text>
-            </view>
-          </view>
-        </block>
+        <view wx:if="{{sections.length === 0}}" class="menu-empty">今日暂无已发布菜单</view>
+        <view class="menu-section" wx:for="{{sections}}" wx:key="id">
+          <text class="menu-section__title">{{item.title}}</text>
+          <text wx:if="{{item.text}}" class="menu-section__text">{{item.text}}</text>
+          <image
+            wx:for="{{item.images}}"
+            wx:for-item="imageUrl"
+            wx:for-index="imageIndex"
+            wx:key="imageIndex"
+            class="menu-section__image"
+            src="{{imageUrl}}"
+            mode="widthFix"
+          ></image>
+        </view>
       </view>
     </view>
   </block>

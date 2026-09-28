@@ -61,6 +61,25 @@ export const shuttleSchema = z.object({
   ),
 });
 
+const annualDinnerDetailSchema = z.object({
+  title: z.string().min(1),
+  subtitle: z.string(),
+  infoTitle: z.string().min(1),
+  time: z.string(),
+  venue: z.string(),
+  dressCode: z.string(),
+  highlightsTitle: z.string().min(1),
+  highlights: z.array(z.string()),
+});
+
+const healthCheckupDetailSchema = z.object({
+  title: z.string().min(1),
+  subtitle: z.string(),
+  pdfUrl: z.string().min(1).optional(),
+  pdfFileName: z.string().min(1).optional(),
+  images: z.array(imageResourceSchema),
+});
+
 export const activitiesSchema = z.object({
   items: z.array(
     z.object({
@@ -72,27 +91,24 @@ export const activitiesSchema = z.object({
       path: z.string().min(1),
     }),
   ),
-  annualDinner: z.object({
+  live: z.boolean().optional(),
+  outingsMeta: z.object({
     title: z.string().min(1),
     subtitle: z.string().min(1),
-    time: z.string().min(1),
-    location: z.string().min(1),
   }),
+  annualDinner: annualDinnerDetailSchema.nullable(),
   outings: z.array(
     z.object({
       id: z.string().min(1),
       title: z.string().min(1),
-      descriptionCn: z.string().min(1),
-      descriptionEn: z.string().min(1),
-      timeLabel: z.string().min(1),
+      descriptionCn: z.string(),
+      descriptionEn: z.string(),
+      timeLabel: z.string(),
       status: z.enum(['open', 'closed']),
       statusText: z.string().min(1),
     }),
   ),
-  health: z.object({
-    title: z.string().min(1),
-    description: z.string().min(1),
-  }),
+  health: healthCheckupDetailSchema.nullable(),
 });
 
 export const wetalkTocItemSchema = z.object({
@@ -171,4 +187,13 @@ export const holidayCalendarSchema = z.object({
   year: z.number().int().positive(),
   location: z.string().min(1),
   marks: z.record(z.string().min(1), holidayMarkSchema),
+});
+
+export const employeeHandbookSchema = z.object({
+  title: z.string().min(1),
+  edition: z.string().min(1),
+  introCn: z.string().min(1),
+  introEn: z.string().min(1),
+  /** 相对 handbook/files 的文件名；留空则自动选 MinIO/本地最新 PDF */
+  pdfFile: z.string().optional(),
 });

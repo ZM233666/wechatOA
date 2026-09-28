@@ -292,7 +292,9 @@ page {
 
 .shuttle-trip__input {
   flex: 1;
+  min-width: 0;
   height: 72rpx;
+  padding-right: 12rpx;
   font-size: 24rpx;
   color: #ffffff;
 }
@@ -300,25 +302,6 @@ page {
 .shuttle-trip__placeholder {
   color: rgba(255, 255, 255, 0.45);
   font-size: 24rpx;
-}
-
-.shuttle-trip__pick,
-.shuttle-trip__go {
-  flex-shrink: 0;
-  padding: 10rpx 16rpx;
-  margin-left: 8rpx;
-  border-radius: 10rpx;
-  font-size: 22rpx;
-  color: #ffffff;
-}
-
-.shuttle-trip__pick {
-  background: rgba(255, 255, 255, 0.12);
-}
-
-.shuttle-trip__go {
-  background: rgba(0, 149, 255, 0.85);
-  font-weight: 600;
 }
 
 .shuttle-trip__error {

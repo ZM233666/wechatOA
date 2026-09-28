@@ -3,6 +3,7 @@ import {
   getActivities,
   getCampusMap,
   getCanteen,
+  getEmployeeHandbook,
   getHolidayCalendar,
   getKbLifeEntries,
   getShuttle,
@@ -14,6 +15,7 @@ import {
 export const kbLifeRouter = Router();
 kbLifeRouter.get('/kb-life/entries', getKbLifeEntries);
 kbLifeRouter.get('/kb-life/canteen', getCanteen);
+kbLifeRouter.get('/kb-life/handbook', getEmployeeHandbook);
 kbLifeRouter.get('/kb-life/shuttle', getShuttle);
 kbLifeRouter.get('/kb-life/shuttle/trip-plan', getShuttleTripPlan);
 kbLifeRouter.get('/kb-life/activities', getActivities);

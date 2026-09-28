@@ -146,19 +146,38 @@ export interface OutingActivity {
   statusText: string;
 }
 
+export interface AnnualDinnerDetail {
+  title: string;
+  subtitle: string;
+  infoTitle: string;
+  time: string;
+  venue: string;
+  dressCode: string;
+  highlightsTitle: string;
+  highlights: string[];
+}
+
+export interface OutingsPageMeta {
+  title: string;
+  subtitle: string;
+}
+
+export interface HealthCheckupDetail {
+  title: string;
+  subtitle: string;
+  pdfUrl?: string;
+  pdfFileName?: string;
+  images: ImageResource[];
+}
+
 export interface ActivitiesData {
   items: KbLifeActivity[];
-  annualDinner: {
-    title: string;
-    subtitle: string;
-    time: string;
-    location: string;
-  };
+  /** 来自 Django company-events 时为 true；不展示 fixture 假内容 */
+  live?: boolean;
+  outingsMeta: OutingsPageMeta;
+  annualDinner: AnnualDinnerDetail | null;
   outings: OutingActivity[];
-  health: {
-    title: string;
-    description: string;
-  };
+  health: HealthCheckupDetail | null;
 }
 
 export type WetalkPageType = 'cover' | 'contents' | 'content' | 'sheet';
@@ -228,6 +247,15 @@ export interface HolidayCalendarData {
   year: number;
   location: string;
   marks: Record<string, HolidayMarkData>;
+}
+
+export interface EmployeeHandbookData {
+  title: string;
+  edition: string;
+  introCn: string;
+  introEn: string;
+  pdfUrl?: string;
+  pdfFileName?: string;
 }
 
 export type CampusLocationResources = {

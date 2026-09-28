@@ -27,5 +27,6 @@ export const API_ENDPOINTS = {
   kbLifeWetalkDetail: (id: string) => `/api/kb-life/wetalk/${id}`,
   kbLifeCampusMap: '/api/kb-life/campus-map',
   kbLifeHolidayCalendar: '/api/kb-life/holiday-calendar',
+  kbLifeHandbook: '/api/kb-life/handbook',
   profile: '/api/profile',
 } as const;

@@ -15,6 +15,9 @@ import { LUNCH_MENU_MEDIA_DIR } from './services/lunch-menu.media';
 import {
   INSIGHT_LOCAL_PDF_DIR,
   INSIGHT_MINIO_CACHE_DIR,
+  EMPLOYEE_HANDBOOK_LOCAL_PDF_DIR,
+  EMPLOYEE_HANDBOOK_MINIO_CACHE_DIR,
+  resolveEmployeeHandbookPdfAbsolute,
   resolveInsightPdfAbsolute,
   resolveSuzhouCampusMapPdfAbsolute,
   resolveSuzhouShuttleBusPdfAbsolute,
@@ -63,6 +66,9 @@ export function createApp(): Express {
   app.use('/mock-assets/kb-life/wetalk/files', serveResolvedPdf(resolveWetalkPdfAbsolute));
   app.use('/mock-assets/kb-life/wetalk/files', express.static(WETALK_MINIO_CACHE_DIR));
   app.use('/mock-assets/kb-life/wetalk/files', express.static(WETALK_LOCAL_PDF_DIR));
+  app.use('/mock-assets/kb-life/handbook/files', serveResolvedPdf(resolveEmployeeHandbookPdfAbsolute));
+  app.use('/mock-assets/kb-life/handbook/files', express.static(EMPLOYEE_HANDBOOK_MINIO_CACHE_DIR));
+  app.use('/mock-assets/kb-life/handbook/files', express.static(EMPLOYEE_HANDBOOK_LOCAL_PDF_DIR));
   // 园区地图 PDF：Suzhou 走 MinIO 缓存；其他地点仍映射 fixtures/.../Map/
   app.use('/mock-assets/kb-life/campus-maps/files', (req, res, next) => {
     const parts = req.path.replace(/^\//, '').split('/').filter(Boolean);

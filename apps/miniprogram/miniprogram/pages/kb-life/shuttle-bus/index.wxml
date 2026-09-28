@@ -98,8 +98,6 @@
             bindinput="onTripDestinationInput"
             bindconfirm="onTripPlanSearch"
           />
-          <view class="shuttle-trip__pick tap-feedback" bindtap="onChooseTripDestination">选点</view>
-          <view class="shuttle-trip__go tap-feedback" bindtap="onTripPlanSearch">规划</view>
         </view>
         <text wx:if="{{tripPlanStatus === 'error'}}" class="shuttle-trip__error">{{tripPlanError}}</text>
       </view>

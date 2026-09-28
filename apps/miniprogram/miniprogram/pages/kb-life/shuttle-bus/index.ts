@@ -171,23 +171,6 @@ Page({
     this.setData({ tripDestination: event.detail.value });
   },
 
-  onChooseTripDestination() {
-    wx.chooseLocation({
-      success: (result) => {
-        const name = result.name || result.address || '已选位置';
-        this.setData({ tripDestination: name });
-        void this.runTripPlan({
-          latitude: result.latitude,
-          longitude: result.longitude,
-          name,
-        });
-      },
-      fail: () => {
-        wx.showToast({ title: '未选择位置', icon: 'none' });
-      },
-    });
-  },
-
   onTripPlanSearch() {
     void this.runTripPlan();
   },
@@ -195,7 +178,7 @@ Page({
   async runTripPlan(coords?: { latitude: number; longitude: number; name?: string }) {
     const destination = this.data.tripDestination.trim();
     if (!destination && !coords) {
-      wx.showToast({ title: '请输入或选择目的地', icon: 'none' });
+      wx.showToast({ title: '请输入目的地', icon: 'none' });
       return;
     }
     this.setData({ tripPlanStatus: 'loading', tripPlanError: '', tripPlanResult: null });
