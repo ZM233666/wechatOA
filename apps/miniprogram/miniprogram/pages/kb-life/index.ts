@@ -34,7 +34,7 @@ Page({
     deniedKind: '' as '' | 'wetalk' | 'campus',
     readerVisible: false,
     readerIssueId: '',
-    readerSource: 'wetalk' as 'wetalk' | 'campus-map',
+    readerSource: 'wetalk' as 'wetalk' | 'campus-map' | 'shuttle-bus',
     /** 上层页面展示的最近 1 期 */
     wetalkFeatured: null as WetalkCover | null,
     wetalkItems: [] as WetalkCover[],

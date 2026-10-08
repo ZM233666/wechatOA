@@ -89,41 +89,6 @@ page {
   color: #ffffff;
 }
 
-.handbook-nav {
-  background: #ffffff;
-  border-radius: 24rpx;
-  padding: 8rpx 0 8rpx;
-  box-shadow: 0 4rpx 16rpx rgba(3, 62, 112, 0.05);
-}
-
-.handbook-nav__title {
-  display: block;
-  font-size: 30rpx;
-  font-weight: 700;
-  color: #111827;
-  padding: 28rpx 28rpx 24rpx;
-}
-
-.handbook-nav__item {
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  justify-content: space-between;
-  padding: 28rpx;
-  border-top: 1rpx solid #f3f4f6;
-}
-
-.handbook-nav__item-title {
-  flex: 1;
-  min-width: 0;
-  padding-right: 20rpx;
-  font-size: 26rpx;
-  color: #1f2937;
-  line-height: 1.45;
-}
-
-.handbook-nav__link {
-  width: 32rpx;
-  height: 32rpx;
-  flex-shrink: 0;
+.handbook-hero__btn--disabled {
+  opacity: 0.55;
 }

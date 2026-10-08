@@ -11,11 +11,16 @@ import { errorHandlerMiddleware } from './middleware/error-handler.middleware';
 import { createApiRouter } from './routes';
 import { FIXTURES_DIR, PUBLIC_DIR } from './services/fixture.service';
 import { NEWS_MEDIA_DIR } from './services/html-to-rich-content';
+import { LUNCH_MENU_MEDIA_DIR } from './services/lunch-menu.media';
 import {
   INSIGHT_LOCAL_PDF_DIR,
   INSIGHT_MINIO_CACHE_DIR,
+  EMPLOYEE_HANDBOOK_LOCAL_PDF_DIR,
+  EMPLOYEE_HANDBOOK_MINIO_CACHE_DIR,
+  resolveEmployeeHandbookPdfAbsolute,
   resolveInsightPdfAbsolute,
   resolveSuzhouCampusMapPdfAbsolute,
+  resolveSuzhouShuttleBusPdfAbsolute,
   resolveWetalkPdfAbsolute,
   SUZHOU_MINIO_LOCATION,
   WETALK_LOCAL_PDF_DIR,
@@ -61,6 +66,9 @@ export function createApp(): Express {
   app.use('/mock-assets/kb-life/wetalk/files', serveResolvedPdf(resolveWetalkPdfAbsolute));
   app.use('/mock-assets/kb-life/wetalk/files', express.static(WETALK_MINIO_CACHE_DIR));
   app.use('/mock-assets/kb-life/wetalk/files', express.static(WETALK_LOCAL_PDF_DIR));
+  app.use('/mock-assets/kb-life/handbook/files', serveResolvedPdf(resolveEmployeeHandbookPdfAbsolute));
+  app.use('/mock-assets/kb-life/handbook/files', express.static(EMPLOYEE_HANDBOOK_MINIO_CACHE_DIR));
+  app.use('/mock-assets/kb-life/handbook/files', express.static(EMPLOYEE_HANDBOOK_LOCAL_PDF_DIR));
   // 园区地图 PDF：Suzhou 走 MinIO 缓存；其他地点仍映射 fixtures/.../Map/
   app.use('/mock-assets/kb-life/campus-maps/files', (req, res, next) => {
     const parts = req.path.replace(/^\//, '').split('/').filter(Boolean);
@@ -84,7 +92,31 @@ export function createApp(): Express {
     }
     res.sendFile(absolute);
   });
+  // 班车线路图 PDF：Suzhou 走 MinIO 缓存
+  app.use('/mock-assets/kb-life/shuttle-maps/files', (req, res, next) => {
+    const parts = req.path.replace(/^\//, '').split('/').filter(Boolean);
+    if (parts.length < 2) {
+      next();
+      return;
+    }
+    const location = decodeURIComponent(parts[0] ?? '');
+    const fileName = decodeURIComponent(parts.slice(1).join('/'));
+    if (!fileName || fileName.includes('..')) {
+      next();
+      return;
+    }
+    const absolute =
+      location === SUZHOU_MINIO_LOCATION
+        ? resolveSuzhouShuttleBusPdfAbsolute(fileName)
+        : null;
+    if (!absolute || !fs.existsSync(absolute)) {
+      next();
+      return;
+    }
+    res.sendFile(absolute);
+  });
   app.use('/mock-assets/news/runtime', express.static(NEWS_MEDIA_DIR));
+  app.use('/mock-assets/kb-life/lunch-menu', express.static(LUNCH_MENU_MEDIA_DIR));
   app.use('/mock-assets', express.static(path.join(PUBLIC_DIR, 'mock-assets')));
   app.use(requestIdMiddleware);
   app.use(mockEnv.API_PREFIX, scenarioMiddleware, delayMiddleware, createApiRouter());

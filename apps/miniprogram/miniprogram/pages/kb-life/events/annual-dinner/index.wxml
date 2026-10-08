@@ -1,7 +1,11 @@
 <view class="page page--event-detail">
   <nav-brand title="Annual Dinner" show-back="{{true}}"></nav-brand>
 
-  <view class="event-detail">
+  <view wx:if="{{pageStatus === 'loading'}}" class="event-detail__state">加载中…</view>
+  <view wx:elif="{{pageStatus === 'error'}}" class="event-detail__state event-detail__state--error">{{errorText}}</view>
+  <view wx:elif="{{pageStatus === 'empty'}}" class="event-detail__state">暂无已发布的年会信息</view>
+
+  <view class="event-detail" wx:elif="{{pageStatus === 'success'}}">
     <view class="event-detail__card">
       <view class="event-detail__hero event-detail__hero--annual">
         <image

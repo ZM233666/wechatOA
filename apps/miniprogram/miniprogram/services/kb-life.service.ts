@@ -27,6 +27,34 @@ export interface CanteenMenuItem {
   image: string;
 }
 
+export interface CanteenSection {
+  id: string;
+  title: string;
+  text: string;
+  images: string[];
+}
+
+export interface ShuttleMapRouteLine {
+  id: string;
+  name: string;
+  color: string;
+  points: Array<{ latitude: number; longitude: number }>;
+  markers: Array<{
+    id: number;
+    latitude: number;
+    longitude: number;
+    title: string;
+    sequence: number;
+    timesText: string;
+  }>;
+}
+
+export interface ShuttleMapPayload {
+  title: string;
+  center: { latitude: number; longitude: number };
+  routes: ShuttleMapRouteLine[];
+}
+
 export interface ShuttleStop {
   time?: string;
   name: string;
@@ -52,7 +80,17 @@ interface KbLifeEntriesDto {
 
 interface CanteenDto {
   intro: string;
+  live?: boolean;
+  title?: string;
+  menuDate?: string;
+  coverImage?: ImageResource;
   menuItems: Array<{ id: string; title: string; description: string; image: ImageResource }>;
+  sections?: Array<{
+    id: string;
+    title: string;
+    text: string;
+    images: ImageResource[];
+  }>;
 }
 
 interface ShuttleDto {
@@ -63,6 +101,24 @@ interface ShuttleDto {
     stops: ShuttleStop[];
     stationsText?: string;
   }>;
+  map?: {
+    title: string;
+    center: { latitude: number; longitude: number };
+    routes: Array<{
+      id: string;
+      name: string;
+      color: string;
+      points: Array<{ latitude: number; longitude: number }>;
+      markers: Array<{
+        id: number;
+        latitude: number;
+        longitude: number;
+        title: string;
+        sequence: number;
+        timesText: string;
+      }>;
+    }>;
+  };
 }
 
 /** 班车站点展示：时间与地点用空格分隔；无时间则只显示地点 */
@@ -119,15 +175,29 @@ export async function getKbLifeEntries(): Promise<{
 
 export async function getCanteen(
   location: string = getStoredCampusLocation(),
-): Promise<{ intro: string; menuItems: CanteenMenuItem[]; location: string }> {
+): Promise<{
+  intro: string;
+  menuItems: CanteenMenuItem[];
+  sections: CanteenSection[];
+  live: boolean;
+  title: string;
+  menuDate: string;
+  coverImage: string;
+  location: string;
+}> {
   const data = await get<CanteenDto & { location?: string }>(API_ENDPOINTS.kbLifeCanteen, { location });
   return {
     intro: data.intro,
-    menuItems: data.menuItems.map((item) => ({
-      id: item.id,
-      title: item.title,
-      description: item.description,
-      image: toAssetUrl(item.image),
+    live: true,
+    title: data.title || '',
+    menuDate: data.menuDate || '',
+    coverImage: data.coverImage ? toAssetUrl(data.coverImage) : '',
+    menuItems: [],
+    sections: (data.sections ?? []).map((section) => ({
+      id: section.id,
+      title: section.title,
+      text: section.text,
+      images: section.images.map((image) => toAssetUrl(image)),
     })),
     location: data.location || location,
   };
@@ -135,12 +205,93 @@ export async function getCanteen(
 
 export async function getShuttle(
   location: string = getStoredCampusLocation(),
-): Promise<{ notice: string; routes: ShuttleRoute[]; location: string }> {
+): Promise<{
+  notice: string;
+  routes: ShuttleRoute[];
+  location: string;
+  map?: ShuttleMapPayload;
+}> {
   const data = await get<ShuttleDto & { location?: string }>(API_ENDPOINTS.kbLifeShuttle, { location });
+  const resolvedLocation = data.location || location;
+  const map = data.map
+    ? {
+        title: data.map.title,
+        center: data.map.center,
+        routes: data.map.routes ?? [],
+      }
+    : undefined;
   return {
     notice: data.notice,
     routes: data.routes.map(mapShuttleRoute),
-    location: data.location || location,
+    location: resolvedLocation,
+    map,
+  };
+}
+
+export type ShuttleTripMode = 'transit' | 'bicycling' | 'walking';
+
+export interface ShuttleTripLegPlan {
+  mode: ShuttleTripMode;
+  modeLabel: string;
+  durationMinutes: number;
+  distanceMeters: number;
+  summary: string;
+}
+
+export interface ShuttleTripNearbyStop {
+  stopId: number;
+  stopName: string;
+  timesText: string;
+  latitude: number;
+  longitude: number;
+  distanceMeters: number;
+  shuttleLineNames: string[];
+  plans: ShuttleTripLegPlan[];
+  distanceText?: string;
+  shuttleLinesText?: string;
+  stopTitle?: string;
+}
+
+export interface ShuttleTripPlanResult {
+  location: string;
+  destination: {
+    name: string;
+    latitude: number;
+    longitude: number;
+  };
+  nearbyStops: ShuttleTripNearbyStop[];
+}
+
+function formatTripDistance(meters: number): string {
+  if (meters >= 1000) {
+    return `${(meters / 1000).toFixed(1)} km`;
+  }
+  return `${Math.round(meters)} m`;
+}
+
+export async function planShuttleTrip(
+  destination: string,
+  location: string = getStoredCampusLocation(),
+  coords?: { latitude: number; longitude: number; name?: string },
+): Promise<ShuttleTripPlanResult> {
+  const params: Record<string, string | number> = { location, destination };
+  if (coords && Number.isFinite(coords.latitude) && Number.isFinite(coords.longitude)) {
+    params.latitude = coords.latitude;
+    params.longitude = coords.longitude;
+    if (coords.name) {
+      params.name = coords.name;
+    }
+  }
+  const data = await get<ShuttleTripPlanResult>(API_ENDPOINTS.kbLifeShuttleTripPlan, params);
+  return {
+    ...data,
+    nearbyStops: data.nearbyStops.map((stop) => ({
+      ...stop,
+      timesText: stop.timesText || '',
+      distanceText: formatTripDistance(stop.distanceMeters),
+      shuttleLinesText: stop.shuttleLineNames.join(' · '),
+      stopTitle: stop.timesText ? `${stop.stopName} · ${stop.timesText}` : stop.stopName,
+    })),
   };
 }
 
@@ -290,4 +441,127 @@ export async function getHolidayCalendar(
   marks: Record<string, { name: string; type: 'holiday' | 'workday' }>;
 }> {
   return get(API_ENDPOINTS.kbLifeHolidayCalendar, { location });
+}
+
+export interface EmployeeHandbookView {
+  title: string;
+  edition: string;
+  introCn: string;
+  introEn: string;
+  pdfUrl: string;
+}
+
+export async function getEmployeeHandbook(): Promise<EmployeeHandbookView> {
+  const data = await get<{
+    title: string;
+    edition: string;
+    introCn: string;
+    introEn: string;
+    pdfUrl?: string;
+  }>(API_ENDPOINTS.kbLifeHandbook);
+  return {
+    title: data.title,
+    edition: data.edition,
+    introCn: data.introCn,
+    introEn: data.introEn,
+    pdfUrl: data.pdfUrl ? toAssetUrl(data.pdfUrl) : '',
+  };
+}
+
+export interface CompanyEventNavItem {
+  id: string;
+  title: string;
+  subtitle: string;
+  icon: string;
+  iconBg: string;
+  path: string;
+}
+
+export interface AnnualDinnerView {
+  title: string;
+  subtitle: string;
+  infoTitle: string;
+  time: string;
+  venue: string;
+  dressCode: string;
+  highlightsTitle: string;
+  highlights: string[];
+}
+
+export interface OutingActivityView {
+  id: string;
+  title: string;
+  descriptionCn: string;
+  descriptionEn: string;
+  timeLabel: string;
+  status: 'open' | 'closed';
+  statusText: string;
+}
+
+export interface HealthCheckupView {
+  title: string;
+  subtitle: string;
+  pdfUrl: string;
+  pdfFileName: string;
+  images: string[];
+}
+
+interface ActivitiesDto {
+  live?: boolean;
+  items: Array<{
+    id: string;
+    title: string;
+    subtitle: string;
+    icon: ImageResource;
+    iconBg: string;
+    path: string;
+  }>;
+  outingsMeta: { title: string; subtitle: string };
+  annualDinner: AnnualDinnerView | null;
+  outings: OutingActivityView[];
+  health: {
+    title: string;
+    subtitle: string;
+    pdfUrl?: string;
+    pdfFileName?: string;
+    images: ImageResource[];
+  } | null;
+}
+
+function mapEventNavItem(item: ActivitiesDto['items'][number]): CompanyEventNavItem {
+  return {
+    id: item.id,
+    title: item.title,
+    subtitle: item.subtitle,
+    icon: toAssetUrl(item.icon),
+    iconBg: item.iconBg,
+    path: item.path,
+  };
+}
+
+export async function getCompanyActivities(): Promise<{
+  live: boolean;
+  items: CompanyEventNavItem[];
+  outingsMeta: { title: string; subtitle: string };
+  annualDinner: AnnualDinnerView | null;
+  outings: OutingActivityView[];
+  health: HealthCheckupView | null;
+}> {
+  const data = await get<ActivitiesDto>(API_ENDPOINTS.kbLifeActivities);
+  return {
+    live: data.live === true,
+    items: data.items.map(mapEventNavItem),
+    outingsMeta: data.outingsMeta,
+    annualDinner: data.annualDinner,
+    outings: data.outings,
+    health: data.health
+      ? {
+          title: data.health.title,
+          subtitle: data.health.subtitle,
+          pdfUrl: data.health.pdfUrl ? toAssetUrl(data.health.pdfUrl) : '',
+          pdfFileName: data.health.pdfFileName ?? '',
+          images: data.health.images.map((image) => toAssetUrl(image)),
+        }
+      : null,
+  };
 }

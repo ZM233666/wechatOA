@@ -1,7 +1,12 @@
 import { ERROR_CODES } from '@app/shared';
-import type { Request, Response } from 'express';
+import type { NextFunction, Request, Response } from 'express';
 import { withAbsoluteAssets } from '../services/asset-url.service';
-import { getFixtures, refreshCampusMapFromPdf, refreshShuttleFromPdf, refreshWetalkIssueFromDisk, syncPdfDrivenCatalogs } from '../services/fixture.service';
+import { getFixtures, refreshCampusMapFromPdf, refreshWetalkIssueFromDisk, syncPdfDrivenCatalogs } from '../services/fixture.service';
+import { planShuttleTrip } from '../services/shuttle-trip-plan.service';
+import { loadLiveShuttle } from '../services/shuttle-schedule.service';
+import { loadEmployeeHandbook } from '../services/employee-handbook.service';
+import { loadLiveCanteen, shanghaiMenuDate } from '../services/lunch-menu.service';
+import { activitiesResponseWithoutFakeData, loadLiveActivities } from '../services/company-events.service';
 import { HttpError } from '../middleware/error-handler.middleware';
 import { success } from '../utils/response';
 
@@ -29,47 +34,107 @@ export function getKbLifeEntries(req: Request, res: Response): void {
   success(res, withAbsoluteAssets(req, getFixtures().kbLifeEntries), req.requestId);
 }
 
-export function getCanteen(req: Request, res: Response): void {
-  const location = resolveCampusLocation(req);
-  const canteen = getFixtures().canteenByLocation[location];
-  if (!canteen) {
-    throw new HttpError(404, 'Resource not found', ERROR_CODES.RESOURCE_NOT_FOUND, { location });
-  }
-  if (req.mockScenario === 'empty') {
-    success(res, withAbsoluteAssets(req, { intro: canteen.intro, menuItems: [], location }), req.requestId);
-    return;
-  }
-  success(res, withAbsoluteAssets(req, { ...canteen, location }), req.requestId);
-}
-
-export function getShuttle(req: Request, res: Response): void {
-  const location = resolveCampusLocation(req);
-  refreshShuttleFromPdf(location);
-  const shuttle = getFixtures().shuttleByLocation[location];
-  if (!shuttle) {
-    throw new HttpError(404, 'Resource not found', ERROR_CODES.RESOURCE_NOT_FOUND, { location });
-  }
-  if (req.mockScenario === 'empty') {
-    success(res, withAbsoluteAssets(req, { notice: shuttle.notice, routes: [], location }), req.requestId);
-    return;
-  }
-  success(res, withAbsoluteAssets(req, { ...shuttle, location }), req.requestId);
-}
-
-export function getActivities(req: Request, res: Response): void {
-  if (req.mockScenario === 'empty') {
+export async function getCanteen(req: Request, res: Response, next: NextFunction): Promise<void> {
+  try {
+    const location = resolveCampusLocation(req);
+    const canteen = getFixtures().canteenByLocation[location];
+    if (!canteen) {
+      throw new HttpError(404, 'Resource not found', ERROR_CODES.RESOURCE_NOT_FOUND, { location });
+    }
+    const today = shanghaiMenuDate();
+    const live = req.mockScenario === 'empty' ? null : await loadLiveCanteen(location);
+    const menu = live ?? {
+      live: true as const,
+      title: '今日午餐',
+      menuDate: today,
+      sections: [] as [],
+    };
     success(
       res,
       withAbsoluteAssets(req, {
-        ...getFixtures().activities,
-        items: [],
-        outings: [],
+        intro: canteen.intro,
+        menuItems: [],
+        location,
+        live: true,
+        title: menu.title,
+        menuDate: menu.menuDate,
+        coverImage: 'coverImage' in menu ? menu.coverImage : undefined,
+        sections: menu.sections,
       }),
       req.requestId,
     );
-    return;
+  } catch (error) {
+    next(error);
   }
-  success(res, withAbsoluteAssets(req, getFixtures().activities), req.requestId);
+}
+
+function parseOptionalCoord(value: unknown): number | undefined {
+  if (typeof value !== 'string' || !value.trim()) {
+    return undefined;
+  }
+  const parsed = Number(value);
+  return Number.isFinite(parsed) ? parsed : undefined;
+}
+
+export async function getShuttleTripPlan(req: Request, res: Response, next: NextFunction): Promise<void> {
+  try {
+    const location = resolveCampusLocation(req);
+    const destination = typeof req.query.destination === 'string' ? req.query.destination : '';
+    const latitude = parseOptionalCoord(req.query.latitude);
+    const longitude = parseOptionalCoord(req.query.longitude);
+    const name = typeof req.query.name === 'string' ? req.query.name : undefined;
+    const data = await planShuttleTrip(location, destination, { latitude, longitude, name });
+    success(res, { ...data, location }, req.requestId);
+  } catch (error) {
+    next(error);
+  }
+}
+
+export async function getShuttle(req: Request, res: Response, next: NextFunction): Promise<void> {
+  try {
+    const location = resolveCampusLocation(req);
+    if (req.mockScenario === 'empty') {
+      success(res, withAbsoluteAssets(req, { notice: '', routes: [], location }), req.requestId);
+      return;
+    }
+    const live = await loadLiveShuttle(location);
+    if (live) {
+      success(res, withAbsoluteAssets(req, { ...live, location }), req.requestId);
+      return;
+    }
+    const shuttle = getFixtures().shuttleByLocation[location];
+    if (!shuttle) {
+      throw new HttpError(404, 'Resource not found', ERROR_CODES.RESOURCE_NOT_FOUND, { location });
+    }
+    success(res, withAbsoluteAssets(req, { ...shuttle, location }), req.requestId);
+  } catch (error) {
+    next(error);
+  }
+}
+
+export async function getActivities(req: Request, res: Response, next: NextFunction): Promise<void> {
+  try {
+    if (req.mockScenario === 'empty') {
+      success(
+        res,
+        withAbsoluteAssets(req, {
+          ...getFixtures().activities,
+          live: true,
+          items: [],
+          annualDinner: null,
+          outings: [],
+          health: null,
+        }),
+        req.requestId,
+      );
+      return;
+    }
+    const live = await loadLiveActivities();
+    const payload = live ?? activitiesResponseWithoutFakeData();
+    success(res, withAbsoluteAssets(req, payload), req.requestId);
+  } catch (error) {
+    next(error);
+  }
 }
 
 export function getWetalkIssues(req: Request, res: Response): void {
@@ -103,6 +168,15 @@ export function getCampusMap(req: Request, res: Response): void {
     throw new HttpError(404, 'Resource not found', ERROR_CODES.RESOURCE_NOT_FOUND, { location });
   }
   success(res, withAbsoluteAssets(req, { ...campusMap, location }), req.requestId);
+}
+
+export async function getEmployeeHandbook(req: Request, res: Response, next: NextFunction): Promise<void> {
+  try {
+    const data = await loadEmployeeHandbook();
+    success(res, withAbsoluteAssets(req, data), req.requestId);
+  } catch (error) {
+    next(error);
+  }
 }
 
 export function getHolidayCalendar(req: Request, res: Response): void {

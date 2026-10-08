@@ -73,3 +73,14 @@ page {
   line-height: 1;
   margin-left: 12rpx;
 }
+
+.events__state {
+  padding: 32rpx 0;
+  text-align: center;
+  font-size: 28rpx;
+  color: #6b7280;
+}
+
+.events__state--error {
+  color: #b91c1c;
+}
