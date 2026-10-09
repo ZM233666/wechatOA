@@ -4,7 +4,7 @@
   "miniprogramRoot": "miniprogram/",
   "compileType": "miniprogram",
   "libVersion": "3.7.12",
-  "appid": "touristappid",
+  "appid": "wx359e2b6addcd7c94",
   "projectname": "wechat-official-account",
   "setting": {
     "urlCheck": true,
