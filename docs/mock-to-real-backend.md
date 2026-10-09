@@ -305,11 +305,13 @@ Django NewsArticle（文章主实体，公开 id/slug 稳定）
 
 配置入口：`apps/miniprogram/miniprogram/config/env.ts`（按 `envVersion` 选择）。**所有请求继续经过** `services/request.ts`。
 
-| 环境 | `apiBaseUrl` 原则 | `dataSource` |
-| --- | --- | --- |
-| `develop` | 可用 `http://127.0.0.1:3100` 或电脑局域网 IP（真机） | 多为 `mock-server`；灰度时可临时指向 Django |
-| `trial` | **必须** HTTPS 正式/预发域名 | `real-server` |
-| `release` | **必须** HTTPS 正式域名 | `real-server` |
+| 环境 | `apiBaseUrl` 原则 | `miniApiPathPrefix` | `dataSource` |
+| --- | --- | --- | --- |
+| `develop` | 可用 `http://127.0.0.1:3100` 或电脑局域网 IP（真机） | `/api`（Mock） | 多为 `mock-server`；灰度时可临时指向 Django |
+| `trial` | **必须** HTTPS 正式/预发域名 | `/api/v1/mini` | `real-server` |
+| `release` | **必须** HTTPS 正式域名 | `/api/v1/mini` | `real-server` |
+
+路径清单见 `packages/shared/src/constants/mini-api-routes.ts`；切换清单见 [miniprogram-backend-prep.md](./miniprogram-backend-prep.md)。
 
 硬性约束：
 

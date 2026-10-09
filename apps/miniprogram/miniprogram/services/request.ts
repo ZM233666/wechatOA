@@ -1,5 +1,6 @@
 import { getApiEnvironment, getCurrentEnvVersion, isForbiddenProductionApiBaseUrl } from '../config/env';
 import { RequestError, type ApiResponse, type RequestOptions } from '../types/api';
+import { buildAuthorizationHeader, clearAccessToken } from './auth-session';
 
 function joinUrl(baseUrl: string, path: string): string {
   const normalizedBase = baseUrl.replace(/\/+$/, '');
@@ -40,6 +41,7 @@ function buildHeader(customHeader?: Record<string, string>): Record<string, stri
   const version = getCurrentEnvVersion();
   const header: Record<string, string> = {
     'Content-Type': 'application/json',
+    ...buildAuthorizationHeader(),
     ...customHeader,
   };
   // Mock-only：trial/release 禁止附加 X-Mock-Scenario。
@@ -113,6 +115,9 @@ export function request<T>(options: RequestOptions): Promise<T> {
               isRecord(raw) && isRecord(raw.error) && typeof raw.error.code === 'string'
                 ? raw.error.code
                 : undefined;
+            if (res.statusCode === 401 || code === 'UNAUTHORIZED') {
+              clearAccessToken();
+            }
             reject(new RequestError(message, res.statusCode, res.data, code));
             return;
           }

@@ -4,6 +4,8 @@ export type DataSource = 'mock-server' | 'real-server';
 
 export interface ApiEnvironmentConfig {
   apiBaseUrl: string;
+  /** 资源路径前缀：Mock `/api`，正式 Django Mini `/api/v1/mini` */
+  miniApiPathPrefix: string;
   timeout: number;
   enableDebugLog: boolean;
   dataSource: DataSource;
@@ -23,18 +25,21 @@ export interface ApiEnvironmentConfig {
 const API_ENV_MAP: Record<MiniProgramEnvVersion, ApiEnvironmentConfig> = {
   develop: {
     apiBaseUrl: 'http://127.0.0.1:3100',
+    miniApiPathPrefix: '/api',
     timeout: 15000,
     enableDebugLog: true,
     dataSource: 'mock-server',
   },
   trial: {
     apiBaseUrl: 'https://api-trial.example.com',
+    miniApiPathPrefix: '/api/v1/mini',
     timeout: 15000,
     enableDebugLog: false,
     dataSource: 'real-server',
   },
   release: {
     apiBaseUrl: 'https://api.example.com',
+    miniApiPathPrefix: '/api/v1/mini',
     timeout: 15000,
     enableDebugLog: false,
     dataSource: 'real-server',
