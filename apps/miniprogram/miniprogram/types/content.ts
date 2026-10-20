@@ -91,6 +91,23 @@ export interface LinkBlock {
   linkType: 'internal' | 'external';
 }
 
+export interface MediaCarouselBlock {
+  id: string;
+  type: 'carousel';
+  slides: ImageResource[];
+  caption?: string;
+  autoplay?: boolean;
+  interval?: number;
+}
+
+export interface VideoBlock {
+  id: string;
+  type: 'video';
+  src: string;
+  poster?: string;
+  caption?: string;
+}
+
 export type ArticleContentBlock =
   | HeadingBlock
   | ParagraphBlock
@@ -99,7 +116,9 @@ export type ArticleContentBlock =
   | ListBlock
   | DividerBlock
   | CalloutBlock
-  | LinkBlock;
+  | LinkBlock
+  | MediaCarouselBlock
+  | VideoBlock;
 
 export interface ArticleCategory {
   id: string;

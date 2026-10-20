@@ -1,0 +1,32 @@
+{
+  "items": [
+    {
+      "id": "employee-handbook",
+      "title": "员工手册",
+      "subtitle": "Employee Handbook",
+      "icon": {
+        "url": "/mock-assets/kb-life/handbook.png",
+        "alt": "员工手册",
+        "width": 96,
+        "height": 96,
+        "aspectRatio": 1
+      },
+      "iconBg": "#eff6ff",
+      "path": "/pages/kb-life/handbook/index"
+    },
+    {
+      "id": "financial-handbook",
+      "title": "财务指导手册",
+      "subtitle": "Financial Guidance Handbook",
+      "icon": {
+        "url": "/mock-assets/kb-life/handbook.png",
+        "alt": "财务指导手册",
+        "width": 96,
+        "height": 96,
+        "aspectRatio": 1
+      },
+      "iconBg": "#fff7ed",
+      "path": "/pages/kb-life/financial-handbook/index"
+    }
+  ]
+}

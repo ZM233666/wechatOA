@@ -41,6 +41,7 @@ function emptyLiveActivities(): LiveActivitiesData {
     annualDinner: null,
     outings: [],
     health: null,
+    highlightMoments: null,
   };
 }
 
@@ -57,6 +58,7 @@ async function fetchLiveActivities(): Promise<LiveActivitiesData> {
     annualDinner: mapAnnualDinner(annualRow),
     outings: mapOutingActivities(outingRows),
     health: mapHealthCheckup(healthRow),
+    highlightMoments: null,
   };
 }
 

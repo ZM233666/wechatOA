@@ -19,9 +19,9 @@
       <text class="wetalk-denied__icon-text">!</text>
     </view>
     <block wx:if="{{deniedKind === 'campus'}}">
-      <text class="wetalk-denied__title">Login Required</text>
-      <text class="wetalk-denied__desc">园区地图、班车、食堂菜单与假期日历需登录后访问。</text>
-      <text class="wetalk-denied__desc-en">Campus map, shuttle bus, cafeteria menu, and holiday calendar require login.</text>
+      <text class="wetalk-denied__title">Identity Binding Required</text>
+      <text class="wetalk-denied__desc">园区地图、班车、食堂菜单与假期日历需完成身份绑定后访问。</text>
+      <text class="wetalk-denied__desc-en">Campus map, shuttle bus, cafeteria menu, and holiday calendar require identity binding.</text>
     </block>
     <block wx:else>
       <text class="wetalk-denied__title">Internal Only</text>

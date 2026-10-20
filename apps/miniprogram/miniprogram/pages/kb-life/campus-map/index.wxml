@@ -59,4 +59,5 @@
       </view>
     </view>
   </block>
+  <app-tab-bar></app-tab-bar>
 </view>

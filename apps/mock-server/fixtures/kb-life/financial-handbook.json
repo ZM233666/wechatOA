@@ -1,0 +1,24 @@
+{
+  "title": "KB 财务指导手册 / Financial Guidance Handbook",
+  "edition": "2026 Edition",
+  "introCn": "欢迎查阅 Knorr-Bremse Concur 财务指导手册。请先阅读「注意事项」，再按需查阅「使用手册」；正式政策以 PDF 为准。",
+  "introEn": "Welcome to the Knorr-Bremse Financial Guidance Handbook. Review Important Notes first, then open the User Manual as needed. The official PDFs are authoritative.",
+  "sections": [
+    {
+      "id": "notes",
+      "title": "注意事项",
+      "subtitle": "Important Notes",
+      "introCn": "报销、差旅与合规相关的关键提醒与禁止事项，建议在办理业务前通读。",
+      "introEn": "Key reminders and restrictions for expenses, travel and compliance. Please read before submitting requests.",
+      "pdfFile": ""
+    },
+    {
+      "id": "manual",
+      "title": "使用手册",
+      "subtitle": "User Manual",
+      "introCn": "财务系统操作、报销流程与表单填写等完整指引，供日常查阅。",
+      "introEn": "Step-by-step guidance for finance systems, reimbursement workflows and forms for day-to-day use.",
+      "pdfFile": ""
+    }
+  ]
+}

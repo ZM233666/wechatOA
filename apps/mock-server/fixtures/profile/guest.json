@@ -15,10 +15,5 @@
       "aspectRatio": 1
     }
   },
-  "fields": [],
-  "roleOptions": [
-    { "key": "Edward", "label": "Employee" },
-    { "key": "Customer", "label": "Customer" },
-    { "key": "Visitor", "label": "Visitor" }
-  ]
+  "fields": []
 }

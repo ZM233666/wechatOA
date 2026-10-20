@@ -1,33 +1,133 @@
 <view class="page page--profile">
-  <nav-brand title="My Profile"></nav-brand>
+  <nav-brand
+    title="{{navTitle}}"
+    show-back="{{settingView !== 'main'}}"
+    back-as-event="{{true}}"
+    bind:back="onSettingBack"
+  ></nav-brand>
 
-  <view class="profile">
+  <view wx:if="{{settingView === 'main'}}" class="profile">
     <empty-state wx:if="{{pageStatus === 'loading'}}" title="正在加载个人中心"></empty-state>
     <empty-state wx:elif="{{pageStatus === 'error'}}" title="加载失败" description="{{errorText}}"></empty-state>
     <block wx:else>
-    <view class="profile-hero tap-feedback" bindtap="onProfileTap">
-      <image class="profile-hero__avatar" src="{{user.avatar}}" mode="aspectFill"></image>
-      <text class="profile-hero__name">{{user.chineseName}} · {{user.name}}</text>
-      <text class="profile-hero__title">{{user.titleCn}} / {{user.titleEn}}</text>
-      <text class="profile-hero__dept">{{user.department}}</text>
-      <text class="profile-hero__arrow">›</text>
-    </view>
-
-    <view class="profile-info">
-      <view class="profile-info__head">
-        <text class="profile-info__title">基本信息</text>
-        <text class="profile-info__subtitle">Basic Information</text>
+      <view class="profile-hero">
+        <image
+          class="profile-hero__avatar"
+          src="{{user.avatar}}"
+          mode="aspectFill"
+          binderror="onAvatarError"
+        ></image>
+        <text class="profile-hero__name">{{user.chineseName}} · {{user.name}}</text>
+        <text class="profile-hero__title">{{user.titleCn}} / {{user.titleEn}}</text>
+        <text class="profile-hero__dept">{{user.department}}</text>
       </view>
 
-      <view class="profile-info__row" wx:for="{{fields}}" wx:key="id">
-        <image class="profile-info__icon" src="{{item.icon}}" mode="aspectFit"></image>
-        <view class="profile-info__label">
-          <text class="profile-info__label-cn">{{item.labelCn}}</text>
-          <text class="profile-info__label-en">{{item.labelEn}}</text>
+      <view class="setting-menu">
+        <view class="setting-menu__item tap-feedback" bindtap="onBasicInfoTap">
+          <view class="setting-menu__text">
+            <text class="setting-menu__title">基本信息</text>
+            <text class="setting-menu__subtitle">Basic Information</text>
+          </view>
+          <text class="setting-menu__arrow">›</text>
         </view>
-        <text class="profile-info__value">{{item.value}}</text>
+        <view class="setting-menu__item tap-feedback" bindtap="onIdentityBindingTap">
+          <view class="setting-menu__text">
+            <text class="setting-menu__title">身份绑定</text>
+            <text class="setting-menu__subtitle">Identity Binding</text>
+          </view>
+          <text class="setting-menu__arrow">›</text>
+        </view>
+      </view>
+    </block>
+  </view>
+
+  <view wx:elif="{{settingView === 'basic-info'}}" class="basic-info">
+    <empty-state wx:if="{{basicInfoStatus === 'loading'}}" title="正在加载基本信息"></empty-state>
+    <empty-state wx:elif="{{basicInfoStatus === 'error'}}" title="加载失败" description="{{basicInfoErrorText}}"></empty-state>
+
+    <view wx:elif="{{basicInfoStatus === 'success'}}" class="basic-info__card">
+      <view class="basic-info__head">
+        <text class="basic-info__title">基本信息</text>
+        <text class="basic-info__subtitle">Basic Information</text>
+      </view>
+
+      <view class="basic-info__row" wx:for="{{fields}}" wx:key="id">
+        <image class="basic-info__icon" src="{{item.icon}}" mode="aspectFit"></image>
+        <view class="basic-info__label">
+          <text class="basic-info__label-cn">{{item.labelCn}}</text>
+          <text class="basic-info__label-en">{{item.labelEn}}</text>
+        </view>
+        <text class="basic-info__value">{{item.value}}</text>
       </view>
     </view>
+  </view>
+
+  <view wx:elif="{{settingView === 'identity-binding'}}" class="identity-binding">
+    <empty-state wx:if="{{identityBindingLoading}}" title="正在同步绑定状态"></empty-state>
+    <block wx:elif="{{!identityBound}}">
+      <view class="identity-binding__card">
+        <text class="identity-binding__title">绑定企业身份</text>
+        <text class="identity-binding__desc">将微信账号与员工或客户身份关联，以便访问相应功能与内容。</text>
+        <text class="identity-binding__hint">Bind your WeChat account to your employee or customer profile.</text>
+        <view
+          class="identity-binding__btn {{bindSheetVisible ? 'identity-binding__btn--disabled' : 'tap-feedback'}}"
+          bindtap="onBindTap"
+        >立即绑定</view>
+      </view>
+
+      <view wx:if="{{bindSheetVisible}}" class="bind-panel">
+        <text class="bind-panel__title">输入公司邮箱</text>
+        <text class="bind-panel__subtitle">Enter your company email to verify identity</text>
+        <input
+          class="bind-panel__input {{bindEmailError ? 'bind-panel__input--error' : ''}}"
+          type="text"
+          value="{{bindCompanyEmail}}"
+          placeholder="name@company.com"
+          placeholder-class="bind-panel__placeholder"
+          confirm-type="done"
+          bindinput="onBindEmailInput"
+          bindconfirm="onSubmitBindEmail"
+        />
+        <text wx:if="{{bindEmailError}}" class="bind-panel__error">{{bindEmailError}}</text>
+        <view class="bind-panel__actions">
+          <view class="bind-panel__btn bind-panel__btn--ghost tap-feedback" bindtap="onCloseBindSheet">取消</view>
+          <view
+            class="bind-panel__btn bind-panel__btn--primary {{bindSubmitting ? 'bind-panel__btn--disabled' : 'tap-feedback'}}"
+            bindtap="onSubmitBindEmail"
+          >{{bindSubmitting ? '提交中…' : '提交验证'}}</view>
+        </view>
+      </view>
     </block>
+
+    <view wx:elif="{{identityBound}}" class="identity-bound">
+      <view class="identity-bound__card">
+        <view class="identity-bound__head">
+          <text class="identity-bound__title">已绑定企业身份</text>
+          <text class="identity-bound__badge">已绑定</text>
+        </view>
+        <text class="identity-bound__hint">Identity linked to your company profile</text>
+
+        <view class="identity-bound__row">
+          <text class="identity-bound__label">公司邮箱</text>
+          <text class="identity-bound__value">{{boundIdentity.companyEmail}}</text>
+        </view>
+        <view class="identity-bound__row">
+          <text class="identity-bound__label">姓名</text>
+          <text class="identity-bound__value">{{boundIdentity.displayName}}</text>
+        </view>
+        <view class="identity-bound__row">
+          <text class="identity-bound__label">部门</text>
+          <text class="identity-bound__value">{{boundIdentity.department}}</text>
+        </view>
+        <view class="identity-bound__row">
+          <text class="identity-bound__label">角色</text>
+          <text class="identity-bound__value">{{boundIdentity.roleLabel}}</text>
+        </view>
+        <view class="identity-bound__row identity-bound__row--last">
+          <text class="identity-bound__label">绑定时间</text>
+          <text class="identity-bound__value">{{boundAtDisplay}}</text>
+        </view>
+      </view>
+    </view>
   </view>
 </view>

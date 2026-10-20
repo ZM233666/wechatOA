@@ -2,7 +2,16 @@ import type { ImageResource } from '../types/content';
 import { getStoredCampusLocation } from '../utils/campus-location';
 import { toAssetUrl } from '../utils/format';
 import { API_ENDPOINTS } from './endpoints';
+import { isEmployeeIdentity } from '../utils/identity-access';
+import { getLoginCodeQueryParams } from './identity-binding.service';
 import { get } from './request';
+import { RequestError } from '../types/api';
+
+async function withIdentityQuery<T extends Record<string, unknown>>(
+  params: T,
+): Promise<T & { loginCode?: string }> {
+  return { ...params, ...(await getLoginCodeQueryParams()) };
+}
 import type { InsightReportView } from './services.service';
 
 export interface LifeBanner {
@@ -185,7 +194,10 @@ export async function getCanteen(
   coverImage: string;
   location: string;
 }> {
-  const data = await get<CanteenDto & { location?: string }>(API_ENDPOINTS.kbLifeCanteen, { location });
+  const data = await get<CanteenDto & { location?: string }>(
+    API_ENDPOINTS.kbLifeCanteen,
+    await withIdentityQuery({ location }),
+  );
   return {
     intro: data.intro,
     live: true,
@@ -211,7 +223,10 @@ export async function getShuttle(
   location: string;
   map?: ShuttleMapPayload;
 }> {
-  const data = await get<ShuttleDto & { location?: string }>(API_ENDPOINTS.kbLifeShuttle, { location });
+  const data = await get<ShuttleDto & { location?: string }>(
+    API_ENDPOINTS.kbLifeShuttle,
+    await withIdentityQuery({ location }),
+  );
   const resolvedLocation = data.location || location;
   const map = data.map
     ? {
@@ -282,7 +297,10 @@ export async function planShuttleTrip(
       params.name = coords.name;
     }
   }
-  const data = await get<ShuttleTripPlanResult>(API_ENDPOINTS.kbLifeShuttleTripPlan, params);
+  const data = await get<ShuttleTripPlanResult>(
+    API_ENDPOINTS.kbLifeShuttleTripPlan,
+    await withIdentityQuery(params),
+  );
   return {
     ...data,
     nearbyStops: data.nearbyStops.map((stop) => ({
@@ -338,7 +356,13 @@ interface WetalkIssueDto {
 }
 
 export async function getWetalkIssues(): Promise<WetalkCover[]> {
-  const data = await get<{ items: Array<Omit<WetalkIssueDto, 'pages'>> }>(API_ENDPOINTS.kbLifeWetalk);
+  if (!isEmployeeIdentity()) {
+    return [];
+  }
+  const data = await get<{ items: Array<Omit<WetalkIssueDto, 'pages'>> }>(
+    API_ENDPOINTS.kbLifeWetalk,
+    await withIdentityQuery({}),
+  );
   return data.items.map((item) => ({
     id: item.id,
     title: item.title,
@@ -349,7 +373,13 @@ export async function getWetalkIssues(): Promise<WetalkCover[]> {
 
 /** 映射为 InsightReportView，复用 insight-reader（含 PDF→sheet） */
 export async function getWetalkIssueAsReport(id: string): Promise<InsightReportView> {
-  const data = await get<WetalkIssueDto>(API_ENDPOINTS.kbLifeWetalkDetail(id));
+  if (!isEmployeeIdentity()) {
+    throw new RequestError('此功能仅面向 KB 员工');
+  }
+  const data = await get<WetalkIssueDto>(
+    API_ENDPOINTS.kbLifeWetalkDetail(id),
+    await withIdentityQuery({}),
+  );
   return {
     id: data.id,
     title: data.title,
@@ -400,7 +430,7 @@ export async function getCampusMap(
       title: string;
       coverImage?: ImageResource;
     }>;
-  }>(API_ENDPOINTS.kbLifeCampusMap, { location });
+  }>(API_ENDPOINTS.kbLifeCampusMap, await withIdentityQuery({ location }));
   return {
     title: data.title,
     image: toAssetUrl(data.image),
@@ -440,7 +470,7 @@ export async function getHolidayCalendar(
   location: string;
   marks: Record<string, { name: string; type: 'holiday' | 'workday' }>;
 }> {
-  return get(API_ENDPOINTS.kbLifeHolidayCalendar, { location });
+  return get(API_ENDPOINTS.kbLifeHolidayCalendar, await withIdentityQuery({ location }));
 }
 
 export interface EmployeeHandbookView {
@@ -451,14 +481,16 @@ export interface EmployeeHandbookView {
   pdfUrl: string;
 }
 
-export async function getEmployeeHandbook(): Promise<EmployeeHandbookView> {
+async function fetchEmployeeHandbookDocument(
+  endpoint: string,
+): Promise<EmployeeHandbookView> {
   const data = await get<{
     title: string;
     edition: string;
     introCn: string;
     introEn: string;
     pdfUrl?: string;
-  }>(API_ENDPOINTS.kbLifeHandbook);
+  }>(endpoint);
   return {
     title: data.title,
     edition: data.edition,
@@ -466,6 +498,198 @@ export async function getEmployeeHandbook(): Promise<EmployeeHandbookView> {
     introEn: data.introEn,
     pdfUrl: data.pdfUrl ? toAssetUrl(data.pdfUrl) : '',
   };
+}
+
+export async function getEmployeeHandbook(): Promise<EmployeeHandbookView> {
+  return fetchEmployeeHandbookDocument(API_ENDPOINTS.kbLifeHandbook);
+}
+
+export type FinancialGuidanceSectionId = 'notes' | 'manual';
+
+export interface FinancialGuidanceSectionView {
+  id: FinancialGuidanceSectionId;
+  title: string;
+  subtitle: string;
+  introCn: string;
+  introEn: string;
+  pdfUrl: string;
+  icon: string;
+  iconBg: string;
+}
+
+export interface FinancialGuidanceHandbookView {
+  title: string;
+  edition: string;
+  introCn: string;
+  introEn: string;
+  sections: FinancialGuidanceSectionView[];
+}
+
+const FINANCIAL_SECTION_PRESENTATION: Record<
+  FinancialGuidanceSectionId,
+  { icon: string; iconBg: string }
+> = {
+  notes: {
+    icon: '/assets/images/kb-life/handbook.png',
+    iconBg: '#fef3c7',
+  },
+  manual: {
+    icon: '/assets/images/kb-life/handbook.png',
+    iconBg: '#fff7ed',
+  },
+};
+
+export async function getFinancialGuidanceHandbook(): Promise<FinancialGuidanceHandbookView> {
+  const data = await get<{
+    title: string;
+    edition: string;
+    introCn: string;
+    introEn: string;
+    sections: Array<{
+      id: FinancialGuidanceSectionId;
+      title: string;
+      subtitle: string;
+      introCn: string;
+      introEn: string;
+      pdfUrl?: string;
+    }>;
+  }>(API_ENDPOINTS.kbLifeFinancialHandbook);
+  return {
+    title: data.title,
+    edition: data.edition,
+    introCn: data.introCn,
+    introEn: data.introEn,
+    sections: data.sections.map((section) => {
+      const presentation = FINANCIAL_SECTION_PRESENTATION[section.id];
+      return {
+        id: section.id,
+        title: section.title,
+        subtitle: section.subtitle,
+        introCn: section.introCn,
+        introEn: section.introEn,
+        pdfUrl: section.pdfUrl ? toAssetUrl(section.pdfUrl) : '',
+        icon: presentation.icon,
+        iconBg: presentation.iconBg,
+      };
+    }),
+  };
+}
+
+/** @deprecated 使用 getFinancialGuidanceHandbook */
+export async function getFinancialHandbook(): Promise<EmployeeHandbookView> {
+  const handbook = await getFinancialGuidanceHandbook();
+  const manual =
+    handbook.sections.find((item) => item.id === 'manual') ?? handbook.sections[0];
+  return {
+    title: manual?.title ?? handbook.title,
+    edition: handbook.edition,
+    introCn: manual?.introCn ?? handbook.introCn,
+    introEn: manual?.introEn ?? handbook.introEn,
+    pdfUrl: manual?.pdfUrl ?? '',
+  };
+}
+
+export interface GuidanceDocumentNavItem {
+  id: string;
+  title: string;
+  subtitle: string;
+  icon: string;
+  iconBg: string;
+  path: string;
+}
+
+export async function getGuidanceDocuments(): Promise<{
+  items: GuidanceDocumentNavItem[];
+}> {
+  const data = await get<{
+    items: Array<{
+      id: string;
+      title: string;
+      subtitle: string;
+      icon: ImageResource;
+      iconBg: string;
+      path: string;
+    }>;
+  }>(API_ENDPOINTS.kbLifeGuidanceDocuments);
+  return {
+    items: data.items.map((item) => ({
+      id: item.id,
+      title: item.title,
+      subtitle: item.subtitle,
+      icon: toAssetUrl(item.icon),
+      iconBg: item.iconBg,
+      path: item.path,
+    })),
+  };
+}
+
+export interface EmployeeCareHeroView {
+  title: string;
+  subtitle: string;
+  image: string;
+}
+
+export interface EmployeeCareInitiativeView {
+  id: string;
+  title: string;
+  category: string;
+  date: string;
+  description: string;
+  image: string;
+}
+
+export async function getEmployeeCare(): Promise<{
+  hero: EmployeeCareHeroView;
+  initiatives: EmployeeCareInitiativeView[];
+}> {
+  const data = await get<{
+    hero: { title: string; subtitle: string; image: ImageResource };
+    initiatives: Array<{
+      id: string;
+      title: string;
+      category: string;
+      date: string;
+      description: string;
+      image: ImageResource;
+    }>;
+  }>(API_ENDPOINTS.kbLifeCare, await withIdentityQuery({}));
+  return {
+    hero: {
+      title: data.hero.title,
+      subtitle: data.hero.subtitle,
+      image: toAssetUrl(data.hero.image),
+    },
+    initiatives: data.initiatives.map((item) => ({
+      id: item.id,
+      title: item.title,
+      category: item.category,
+      date: item.date,
+      description: item.description,
+      image: toAssetUrl(item.image),
+    })),
+  };
+}
+
+export interface OpenPositionSummaryView {
+  id: string;
+  title: string;
+  department: string;
+  location: string;
+  type: string;
+}
+
+export interface OpenPositionDetailView extends OpenPositionSummaryView {
+  description: string;
+  requirements: string;
+}
+
+export async function getOpenPositions(): Promise<OpenPositionSummaryView[]> {
+  const data = await get<{ items: OpenPositionSummaryView[] }>(API_ENDPOINTS.kbLifeOpenPositions);
+  return data.items ?? [];
+}
+
+export async function getOpenPositionDetail(id: string): Promise<OpenPositionDetailView> {
+  return get<OpenPositionDetailView>(API_ENDPOINTS.kbLifeOpenPositionDetail(id));
 }
 
 export interface CompanyEventNavItem {
@@ -506,6 +730,30 @@ export interface HealthCheckupView {
   images: string[];
 }
 
+export interface HighlightMomentAlbumSummaryView {
+  id: string;
+  title: string;
+  subtitle: string;
+  dateLabel: string;
+  coverImage: string;
+  imageCount: number;
+}
+
+export interface HighlightMomentsView {
+  title: string;
+  subtitle: string;
+  albums: HighlightMomentAlbumSummaryView[];
+}
+
+export interface HighlightMomentAlbumDetailView {
+  id: string;
+  title: string;
+  subtitle: string;
+  dateLabel: string;
+  coverImage: string;
+  images: string[];
+}
+
 interface ActivitiesDto {
   live?: boolean;
   items: Array<{
@@ -526,6 +774,48 @@ interface ActivitiesDto {
     pdfFileName?: string;
     images: ImageResource[];
   } | null;
+  highlightMoments: {
+    title: string;
+    subtitle: string;
+    albums: Array<{
+      id: string;
+      title: string;
+      subtitle: string;
+      dateLabel?: string;
+      coverImage: ImageResource;
+      images: ImageResource[];
+    }>;
+  } | null;
+}
+
+function mapHighlightMomentsSection(
+  section: NonNullable<ActivitiesDto['highlightMoments']>,
+): HighlightMomentsView {
+  return {
+    title: section.title,
+    subtitle: section.subtitle,
+    albums: section.albums.map((album) => ({
+      id: album.id,
+      title: album.title,
+      subtitle: album.subtitle,
+      dateLabel: album.dateLabel ?? '',
+      coverImage: toAssetUrl(album.coverImage),
+      imageCount: album.images.length,
+    })),
+  };
+}
+
+function mapHighlightMomentAlbumDetail(
+  album: NonNullable<ActivitiesDto['highlightMoments']>['albums'][number],
+): HighlightMomentAlbumDetailView {
+  return {
+    id: album.id,
+    title: album.title,
+    subtitle: album.subtitle,
+    dateLabel: album.dateLabel ?? '',
+    coverImage: toAssetUrl(album.coverImage),
+    images: album.images.map((image) => toAssetUrl(image)),
+  };
 }
 
 function mapEventNavItem(item: ActivitiesDto['items'][number]): CompanyEventNavItem {
@@ -546,6 +836,7 @@ export async function getCompanyActivities(): Promise<{
   annualDinner: AnnualDinnerView | null;
   outings: OutingActivityView[];
   health: HealthCheckupView | null;
+  highlightMoments: HighlightMomentsView | null;
 }> {
   const data = await get<ActivitiesDto>(API_ENDPOINTS.kbLifeActivities);
   return {
@@ -563,5 +854,14 @@ export async function getCompanyActivities(): Promise<{
           images: data.health.images.map((image) => toAssetUrl(image)),
         }
       : null,
+    highlightMoments: data.highlightMoments ? mapHighlightMomentsSection(data.highlightMoments) : null,
   };
+}
+
+export async function getHighlightMomentAlbum(
+  albumId: string,
+): Promise<HighlightMomentAlbumDetailView | null> {
+  const data = await get<ActivitiesDto>(API_ENDPOINTS.kbLifeActivities);
+  const album = data.highlightMoments?.albums.find((item) => item.id === albumId);
+  return album ? mapHighlightMomentAlbumDetail(album) : null;
 }

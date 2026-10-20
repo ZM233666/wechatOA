@@ -1,0 +1,127 @@
+page {
+  background: #f5f7fa;
+}
+
+.page--fin-hub {
+  background: #f5f7fa;
+  min-height: 100vh;
+}
+
+.fin-hub {
+  padding: 24rpx 32rpx calc(32rpx + env(safe-area-inset-bottom));
+}
+
+.fin-hub__hero {
+  background: #003b70;
+  border-radius: 24rpx;
+  padding: 48rpx 32rpx 40rpx;
+  margin-bottom: 28rpx;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  box-shadow: 0 4rpx 16rpx rgba(3, 62, 112, 0.12);
+}
+
+.fin-hub__hero-icon {
+  width: 72rpx;
+  height: 72rpx;
+  margin-bottom: 16rpx;
+}
+
+.fin-hub__hero-title {
+  font-size: 30rpx;
+  font-weight: 700;
+  color: #ffffff;
+  text-align: center;
+  line-height: 1.4;
+}
+
+.fin-hub__hero-edition {
+  margin-top: 8rpx;
+  font-size: 22rpx;
+  color: rgba(255, 255, 255, 0.88);
+}
+
+.fin-hub__hero-intro {
+  margin-top: 24rpx;
+  font-size: 24rpx;
+  color: rgba(255, 255, 255, 0.92);
+  line-height: 1.65;
+  text-align: center;
+}
+
+.fin-hub__hero-intro--en {
+  margin-top: 12rpx;
+  font-size: 22rpx;
+  color: rgba(255, 255, 255, 0.78);
+}
+
+.fin-hub__heading {
+  display: block;
+  font-size: 28rpx;
+  font-weight: 700;
+  color: #003b70;
+  margin-bottom: 20rpx;
+}
+
+.fin-hub-card {
+  background: #ffffff;
+  border-radius: 24rpx;
+  padding: 28rpx;
+  margin-bottom: 20rpx;
+  box-shadow: 0 4rpx 16rpx rgba(3, 62, 112, 0.05);
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+}
+
+.fin-hub-card__icon-wrap {
+  width: 80rpx;
+  height: 80rpx;
+  border-radius: 16rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.fin-hub-card__icon {
+  width: 40rpx;
+  height: 40rpx;
+}
+
+.fin-hub-card__meta {
+  flex: 1;
+  min-width: 0;
+  margin-left: 24rpx;
+}
+
+.fin-hub-card__title {
+  display: block;
+  font-size: 28rpx;
+  font-weight: 700;
+  color: #111827;
+  line-height: 1.35;
+}
+
+.fin-hub-card__subtitle {
+  display: block;
+  margin-top: 6rpx;
+  font-size: 22rpx;
+  color: #6b7280;
+  line-height: 1.4;
+}
+
+.fin-hub-card__hint {
+  display: block;
+  margin-top: 8rpx;
+  font-size: 20rpx;
+  color: #9ca3af;
+}
+
+.fin-hub-card__arrow {
+  font-size: 36rpx;
+  color: #9ca3af;
+  line-height: 1;
+  margin-left: 12rpx;
+}

@@ -85,6 +85,8 @@ WeChat Miniprogram
 | `/api/kb-life/canteen` | `/api/v1/mini/kb-life/canteen` | GET | 否 | `kb_life` | 未实现 | |
 | `/api/kb-life/shuttle` | `/api/v1/mini/kb-life/shuttle` | GET | 否 | `kb_life` | 未实现 | |
 | `/api/kb-life/activities` | `/api/v1/mini/kb-life/activities` | GET | 否 | `kb_life` | 未实现 | |
+| `/api/kb-life/handbook` | `/api/v1/mini/kb-life/handbook` | GET | 是（Employee） | `kb_life` | 未实现 | Query `loginCode` / JWT |
+| `/api/kb-life/care` | `/api/v1/mini/kb-life/care` | GET | 是（已绑定） | `kb_life` | 未实现 | Query `loginCode` / JWT；见 [employee-care-api.md](./employee-care-api.md) |
 | `/api/profile` | `/api/v1/mini/profile` | GET | 可选 / 登录后需要 | `profile` / `accounts` | 未实现 | **禁止**移植 `?loggedIn=true`；真实会话鉴权 |
 
 说明：
@@ -195,7 +197,7 @@ Django NewsArticle（文章主实体，公开 id/slug 稳定）
 | --- | --- |
 | 请求头 `X-Mock-Scenario` | 场景切换 |
 | 查询参数 `__scenario` | 同上 |
-| `GET /api/profile?loggedIn=true` | 夹具切换登录态 |
+| `GET /api/profile?role=` / `loggedIn=` | 已废弃的 Mock 角色切换 |
 | `normal` / `empty` / `error` / `slow` / `unauthorized` / `not-found` | 场景控制本身 |
 
 约束：

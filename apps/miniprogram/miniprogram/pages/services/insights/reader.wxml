@@ -5,4 +5,5 @@
     report-id="{{reportId}}"
     bind:close="onReaderClose"
   ></insight-reader>
+  <app-tab-bar></app-tab-bar>
 </view>

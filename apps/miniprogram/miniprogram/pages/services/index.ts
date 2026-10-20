@@ -1,4 +1,4 @@
-import { COMING_SOON_TOAST } from '../../constants/routes';
+import { COMING_SOON_TOAST, MY_DASHBOARD_PAGE_PATH } from '../../constants/routes';
 import {
   getInsightReports,
   getServices,
@@ -6,6 +6,12 @@ import {
   type ServiceHeroCard,
 } from '../../services/services.service';
 import { RequestError } from '../../types/api';
+import { shouldBlockMyDashboardForUnbound } from '../../utils/identity-access';
+import {
+  bindIdentitySessionRefresh,
+  refreshIfIdentitySessionChanged,
+  unbindIdentitySessionRefresh,
+} from '../../utils/identity-session-refresh';
 import { openInsightContent } from '../../utils/insights';
 
 Page({
@@ -26,10 +32,23 @@ Page({
   },
 
   onLoad() {
+    bindIdentitySessionRefresh(this, () => {
+      void this.reloadServicesForIdentity();
+    });
     void this.loadServices();
   },
 
+  onUnload() {
+    unbindIdentitySessionRefresh(this);
+  },
+
   onShow() {
+    refreshIfIdentitySessionChanged(this, () => {
+      void this.reloadServicesForIdentity();
+    });
+  },
+
+  reloadServicesForIdentity() {
     if (this.data.pageStatus === 'loading') {
       return;
     }
@@ -121,6 +140,19 @@ Page({
       readerReportId: '',
       navTitle: 'Services',
     });
+  },
+
+  onHeroTap(event: WechatMiniprogram.TouchEvent) {
+    const { id } = event.currentTarget.dataset as { id?: string };
+    if (id === 'fast-phm') {
+      if (shouldBlockMyDashboardForUnbound()) {
+        wx.showToast({ title: '请先完成身份绑定', icon: 'none' });
+        return;
+      }
+      wx.navigateTo({ url: MY_DASHBOARD_PAGE_PATH });
+      return;
+    }
+    this.onComingSoon();
   },
 
   onComingSoon() {

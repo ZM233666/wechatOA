@@ -37,4 +37,5 @@
       <view wx:elif="{{!hasNext && products.length}}" class="product-list__footer">已加载全部产品</view>
     </block>
   </view>
+  <app-tab-bar></app-tab-bar>
 </view>

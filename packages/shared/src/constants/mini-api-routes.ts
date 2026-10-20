@@ -16,6 +16,7 @@ export const MINI_API_RESOURCE_PATHS = [
   '/cases/categories',
   '/cases',
   '/services',
+  '/services/my-dashboard/modules',
   '/services/insights',
   '/kb-life/entries',
   '/kb-life/canteen',
@@ -26,7 +27,12 @@ export const MINI_API_RESOURCE_PATHS = [
   '/kb-life/campus-map',
   '/kb-life/holiday-calendar',
   '/kb-life/handbook',
+  '/kb-life/guidance-documents',
+  '/kb-life/financial-handbook',
+  '/kb-life/care',
+  '/kb-life/open-positions',
   '/profile',
+  '/profile/identity-binding',
 ] as const;
 
 export type MiniApiResourcePath = (typeof MINI_API_RESOURCE_PATHS)[number];
@@ -40,6 +46,8 @@ export const MINI_API_DYNAMIC_ROUTE_TEMPLATES = [
   '/services/:id',
   '/services/insights/:id',
   '/kb-life/wetalk/:id',
+  '/kb-life/open-positions/:id',
+  '/profile/identity-binding',
 ] as const;
 
 export const MINI_API_PATH_PREFIX_MOCK = '/api';

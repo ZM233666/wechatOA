@@ -17,6 +17,11 @@ import {
   isVisitorRestrictedCampusService,
   shouldBlockCampusServicesForVisitor,
 } from '../../utils/kb-life-access';
+import {
+  bindIdentitySessionRefresh,
+  refreshIfIdentitySessionChanged,
+  unbindIdentitySessionRefresh,
+} from '../../utils/identity-session-refresh';
 import { shouldBlockWetalkForNonEmployee } from '../../utils/wetalk';
 Page({
   data: {
@@ -45,13 +50,27 @@ Page({
   },
 
   onLoad() {
+    bindIdentitySessionRefresh(this, () => {
+      void this.loadEntries();
+    });
     void this.loadEntries();
   },
 
+  onUnload() {
+    unbindIdentitySessionRefresh(this);
+  },
+
   onShow() {
-    void this.loadWetalkFeatured();
-    if (this.data.listVisible) {
-      void this.loadWetalkList();
+    refreshIfIdentitySessionChanged(this, () => {
+      void this.loadEntries();
+    });
+    if (!shouldBlockWetalkForNonEmployee()) {
+      void this.loadWetalkFeatured();
+      if (this.data.listVisible) {
+        void this.loadWetalkList();
+      }
+    } else {
+      this.setData({ wetalkFeatured: null });
     }
     const pendingMap = wx.getStorageSync('kbLifeOpenCampusMap') as string | undefined;
     if (pendingMap) {
@@ -206,6 +225,10 @@ Page({
 
   onEmployeeTap(event: WechatMiniprogram.TouchEvent) {
     const { id } = event.currentTarget.dataset as { id?: string };
+    if (id === 'care' && shouldBlockCampusServicesForVisitor()) {
+      wx.showToast({ title: '请先完成身份绑定', icon: 'none' });
+      return;
+    }
     const target = this.data.employeeServices.find((item) => item.id === id);
     if (target?.path) {
       wx.navigateTo({ url: target.path });

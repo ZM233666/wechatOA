@@ -1,4 +1,6 @@
-import { getStoredProfileRole } from '../services/profile.service';
+import {
+  shouldBlockCampusServicesForUnbound,
+} from './identity-access';
 
 export const VISITOR_RESTRICTED_CAMPUS_SERVICE_IDS = new Set([
   'campus-map',
@@ -7,9 +9,9 @@ export const VISITOR_RESTRICTED_CAMPUS_SERVICE_IDS = new Set([
   'holiday',
 ]);
 
-/** 园区地图 / 班车 / 食堂 / 假期日历不对 Visitor 开放 */
+/** 园区地图 / 班车 / 食堂 / 假期日历不对未绑定身份开放 */
 export function shouldBlockCampusServicesForVisitor(): boolean {
-  return getStoredProfileRole() === 'Visitor';
+  return shouldBlockCampusServicesForUnbound();
 }
 
 export function isVisitorRestrictedCampusService(id?: string): boolean {
@@ -21,7 +23,7 @@ export function rejectVisitorCampusAccess(): boolean {
   if (!shouldBlockCampusServicesForVisitor()) {
     return false;
   }
-  wx.showToast({ title: '请先登录后访问', icon: 'none' });
+  wx.showToast({ title: '请先完成身份绑定', icon: 'none' });
   setTimeout(() => {
     wx.navigateBack({ fail: () => wx.switchTab({ url: '/pages/kb-life/index' }) });
   }, 300);

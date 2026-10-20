@@ -19,4 +19,5 @@
   <view wx:else class="case-empty">
     <empty-state title="未找到该项目案例"></empty-state>
   </view>
+  <app-tab-bar></app-tab-bar>
 </view>

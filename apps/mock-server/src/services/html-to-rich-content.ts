@@ -2,10 +2,15 @@ import { parse, type HTMLElement, type Node as HtmlNode, NodeType } from 'node-h
 import type { ArticleContentBlock, ImageResource, RichTextMark, RichTextSpan } from '@app/shared';
 import { mockEnv } from '../config/env';
 import {
+  extractCarouselPresentation,
+  isArticleCarouselContainer,
+} from './article-carousel-html';
+import {
   absoluteMediaUrl,
   NEWS_MEDIA_DIR,
   NEWS_MEDIA_URL_PREFIX,
   persistArticleImageSrc,
+  persistArticleVideoSrc,
 } from './article-html-media';
 
 export { NEWS_MEDIA_DIR, NEWS_MEDIA_URL_PREFIX, absoluteMediaUrl };
@@ -14,10 +19,6 @@ let blockSeq = 0;
 function nextBlockId(prefix: string): string {
   blockSeq += 1;
   return `${prefix}-${blockSeq}`;
-}
-
-function persistImageSrc(articleId: string, src: string, index: number): string {
-  return persistArticleImageSrc(articleId, src, index);
 }
 
 function collectMarks(el: HTMLElement): RichTextMark[] {
@@ -89,18 +90,45 @@ function imageResource(url: string, alt = '文章配图'): ImageResource {
   };
 }
 
+function resolveArticleMediaUrl(
+  articleId: string,
+  rawSrc: string,
+  index: number,
+  kind: 'image' | 'video',
+  mediaBaseUrl: string,
+): string {
+  const trimmed = rawSrc.trim();
+  if (!trimmed) {
+    return '';
+  }
+  let url =
+    kind === 'video'
+      ? persistArticleVideoSrc(articleId, trimmed, index)
+      : persistArticleImageSrc(articleId, trimmed, index);
+  if (url && !url.startsWith('http') && !url.startsWith('/mock-assets/')) {
+    url = absoluteMediaUrl(url, mediaBaseUrl);
+  }
+  return url;
+}
+
 function headingLevel(tag: string): 1 | 2 | 3 {
   if (tag === 'h1') return 1;
   if (tag === 'h2') return 2;
   return 3;
 }
 
-export function htmlToRichContent(articleId: string, html: string): {
+export function htmlToRichContent(
+  articleId: string,
+  html: string,
+  options: { mediaBaseUrl?: string } = {},
+): {
   blocks: ArticleContentBlock[];
   firstImageUrl?: string;
   plainText: string;
 } {
   blockSeq = 0;
+  const mediaBaseUrl =
+    options.mediaBaseUrl ?? mockEnv.NEWS_ARTICLE_MEDIA_BASE_URL ?? mockEnv.NEWS_ARTICLE_API_BASE_URL;
   const root = parse(`<div id="root">${html || ''}</div>`, {
     blockTextElements: { script: false, style: false, pre: true },
   });
@@ -124,9 +152,81 @@ export function htmlToRichContent(articleId: string, html: string): {
     });
   };
 
+  const appendCarousel = (el: HTMLElement) => {
+    const caption = (el.getAttribute('data-caption') ?? '').trim();
+    const presentation = extractCarouselPresentation(el);
+    if (!presentation?.slides.length) {
+      return;
+    }
+    const slides: ImageResource[] = [];
+    presentation.slides.forEach((item) => {
+      if (!item.url.trim()) {
+        return;
+      }
+      imageIndex += 1;
+      if (imageIndex > mockEnv.NEWS_ARTICLE_MAX_IMAGES) {
+        return;
+      }
+      const url = resolveArticleMediaUrl(articleId, item.url, imageIndex, 'image', mediaBaseUrl);
+      if (!url) {
+        return;
+      }
+      if (!firstImageUrl) {
+        firstImageUrl = url;
+      }
+      slides.push(imageResource(url, item.alt || '轮播配图'));
+    });
+    if (!slides.length) {
+      return;
+    }
+    blocks.push({
+      id: nextBlockId('carousel'),
+      type: 'carousel',
+      slides,
+      caption: caption || undefined,
+      autoplay: presentation.autoplay,
+      interval: presentation.intervalMs,
+    });
+  };
+
+  const appendVideo = (el: HTMLElement) => {
+    const rawSrc =
+      el.getAttribute('src')?.trim() ||
+      el.querySelector('source')?.getAttribute('src')?.trim() ||
+      '';
+    if (!rawSrc) {
+      return;
+    }
+    imageIndex += 1;
+    const src = resolveArticleMediaUrl(articleId, rawSrc, imageIndex, 'video', mediaBaseUrl);
+    if (!src) {
+      return;
+    }
+    const posterRaw = el.getAttribute('poster')?.trim() ?? '';
+    const poster = posterRaw
+      ? resolveArticleMediaUrl(articleId, posterRaw, imageIndex, 'image', mediaBaseUrl)
+      : undefined;
+    const caption = (el.getAttribute('data-caption') ?? el.getAttribute('title') ?? '').trim();
+    blocks.push({
+      id: nextBlockId('video'),
+      type: 'video',
+      src,
+      poster: poster || undefined,
+      caption: caption || undefined,
+    });
+  };
+
   const walk = (el: HTMLElement) => {
     const tag = el.tagName?.toLowerCase() ?? '';
     if (tag === 'script' || tag === 'style') {
+      return;
+    }
+    if ((tag === 'div' || tag === 'section') && isArticleCarouselContainer(el)) {
+      appendCarousel(el);
+      return;
+    }
+    if (tag === 'video') {
+      appendVideo(el);
       return;
     }
     if (/^h[1-3]$/.test(tag)) {
@@ -144,6 +244,10 @@ export function htmlToRichContent(articleId: string, html: string): {
       return;
     }
     if (tag === 'p' || tag === 'div' || tag === 'section') {
+      if (isArticleCarouselContainer(el)) {
+        appendCarousel(el);
+        return;
+      }
       // 若块级下直接有图+文，拆开处理
       const childImgs = el.querySelectorAll('img');
       if (childImgs.length && el.childNodes.length) {
@@ -175,7 +279,7 @@ export function htmlToRichContent(articleId: string, html: string): {
       }
       const rawSrc = el.getAttribute('src') ?? '';
       const alt = el.getAttribute('alt') || '文章配图';
-      const url = persistImageSrc(articleId, rawSrc, imageIndex);
+      const url = resolveArticleMediaUrl(articleId, rawSrc, imageIndex, 'image', mediaBaseUrl);
       if (!url) {
         return;
       }

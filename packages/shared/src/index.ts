@@ -10,3 +10,4 @@ export * from './types/case';
 export * from './types/service';
 export * from './types/kb-life';
 export * from './types/profile';
+export * from './types/identity-binding';

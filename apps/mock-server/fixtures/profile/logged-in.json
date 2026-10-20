@@ -65,10 +65,5 @@
       "value": "Suzhou",
       "icon": { "url": "/mock-assets/avatars/icon-pin.png", "alt": "公司地址", "width": 48, "height": 48, "aspectRatio": 1 }
     }
-  ],
-  "roleOptions": [
-    { "key": "Edward", "label": "Employee" },
-    { "key": "Customer", "label": "Customer" },
-    { "key": "Visitor", "label": "Visitor" }
   ]
 }

@@ -7,7 +7,7 @@ export const serviceSummarySchema = z.object({
   title: z.string().min(1),
   subtitle: z.string().min(1),
   footerTitle: z.string().min(1),
-  footerHint: z.string().min(1),
+  footerHint: z.string(),
   coverImage: imageResourceSchema,
   icon: imageResourceSchema,
   iconTone: z.enum(['blue', 'gold']),
@@ -74,9 +74,18 @@ export const insightReportSchema = z
     }
   });
 
+export const myDashboardModuleSchema = z.object({
+  id: z.string().min(1),
+  title: z.string().min(1),
+  subtitle: z.string().min(1),
+  icon: imageResourceSchema,
+  iconBg: z.string().min(1),
+});
+
 export const servicesFileSchema = z.object({
   heroCards: z.array(serviceSummarySchema),
   insightCovers: z.array(serviceSummarySchema),
+  myDashboardModules: z.array(myDashboardModuleSchema).default([]),
   details: z.array(
     z.object({
       id: z.string().min(1),

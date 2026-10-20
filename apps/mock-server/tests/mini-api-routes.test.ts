@@ -19,10 +19,15 @@ const MOCK_SERVER_STATIC_GET_PATHS = [
   '/cases/categories',
   '/cases',
   '/services',
+  '/services/my-dashboard/modules',
   '/services/insights',
   '/kb-life/entries',
   '/kb-life/canteen',
   '/kb-life/handbook',
+  '/kb-life/guidance-documents',
+  '/kb-life/financial-handbook',
+  '/kb-life/care',
+  '/kb-life/open-positions',
   '/kb-life/shuttle',
   '/kb-life/shuttle/trip-plan',
   '/kb-life/activities',
@@ -30,6 +35,7 @@ const MOCK_SERVER_STATIC_GET_PATHS = [
   '/kb-life/campus-map',
   '/kb-life/holiday-calendar',
   '/profile',
+  '/profile/identity-binding',
 ] as const;
 
 describe('mini-api-routes contract', () => {

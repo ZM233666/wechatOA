@@ -13,7 +13,8 @@ export type MinioPdfCatalogId =
   | 'wetalk'
   | 'suzhou-campus-map'
   | 'suzhou-shuttle-bus'
-  | 'employee-handbook';
+  | 'employee-handbook'
+  | 'financial-handbook';
 
 type CatalogConfig = {
   id: MinioPdfCatalogId;
@@ -50,6 +51,11 @@ export const SUZHOU_SHUTTLE_BUS_MINIO_CACHE_DIR = path.join(ROOT, 'runtime/minio
 export const SUZHOU_SHUTTLE_BUS_LOCAL_PDF_DIR = path.join(ROOT, 'fixtures/kb-life/Shuttlebus');
 export const EMPLOYEE_HANDBOOK_MINIO_CACHE_DIR = path.join(ROOT, 'runtime/minio/employee-handbook');
 export const EMPLOYEE_HANDBOOK_LOCAL_PDF_DIR = path.join(ROOT, 'fixtures/kb-life/handbook/files');
+export const FINANCIAL_HANDBOOK_MINIO_CACHE_DIR = path.join(ROOT, 'runtime/minio/financial-handbook');
+export const FINANCIAL_HANDBOOK_LOCAL_PDF_DIR = path.join(
+  ROOT,
+  'fixtures/kb-life/finance-handbook/files',
+);
 
 /** 仅苏州走 MinIO；其他地点保持本地 fixtures */
 export const SUZHOU_MINIO_LOCATION = 'Suzhou';
@@ -90,6 +96,13 @@ const CATALOGS: Record<MinioPdfCatalogId, CatalogConfig> = {
     localDir: EMPLOYEE_HANDBOOK_LOCAL_PDF_DIR,
     getPrefix: () => mockEnv.MINIO_EMPLOYEE_HANDBOOK_PREFIX,
   },
+  'financial-handbook': {
+    id: 'financial-handbook',
+    label: 'Financial Handbook',
+    cacheDir: FINANCIAL_HANDBOOK_MINIO_CACHE_DIR,
+    localDir: FINANCIAL_HANDBOOK_LOCAL_PDF_DIR,
+    getPrefix: () => mockEnv.MINIO_FINANCIAL_HANDBOOK_PREFIX,
+  },
 };
 
 const ALL_CATALOG_IDS = Object.keys(CATALOGS) as MinioPdfCatalogId[];
@@ -100,6 +113,7 @@ const syncStateByCatalog: Record<MinioPdfCatalogId, SyncState> = {
   'suzhou-campus-map': { lastAttemptMs: 0, lastSuccessMs: 0, inFlight: null },
   'suzhou-shuttle-bus': { lastAttemptMs: 0, lastSuccessMs: 0, inFlight: null },
   'employee-handbook': { lastAttemptMs: 0, lastSuccessMs: 0, inFlight: null },
+  'financial-handbook': { lastAttemptMs: 0, lastSuccessMs: 0, inFlight: null },
 };
 
 function normalizePrefix(prefix: string): string {
@@ -128,16 +142,32 @@ function listPdfFilesInDir(absoluteDir: string): Array<{ fileName: string; mtime
   if (!fs.existsSync(absoluteDir)) {
     return [];
   }
-  return fs
-    .readdirSync(absoluteDir)
-    .filter((name) => name.toLowerCase().endsWith('.pdf') && !name.startsWith('.'))
-    .map((fileName) => {
-      const absolute = path.join(absoluteDir, fileName);
-      return {
-        fileName,
-        mtimeMs: fs.statSync(absolute).mtimeMs,
-      };
-    });
+  const items: Array<{ fileName: string; mtimeMs: number }> = [];
+
+  function walk(currentDir: string, relativePrefix: string): void {
+    for (const name of fs.readdirSync(currentDir)) {
+      if (name.startsWith('.')) {
+        continue;
+      }
+      const absolute = path.join(currentDir, name);
+      const stat = fs.statSync(absolute);
+      const relativePath = relativePrefix ? `${relativePrefix}/${name}` : name;
+      if (stat.isDirectory()) {
+        walk(absolute, relativePath);
+        continue;
+      }
+      if (!name.toLowerCase().endsWith('.pdf')) {
+        continue;
+      }
+      items.push({
+        fileName: relativePath.replace(/\\/g, '/'),
+        mtimeMs: stat.mtimeMs,
+      });
+    }
+  }
+
+  walk(absoluteDir, '');
+  return items;
 }
 
 function listCatalogPdfFileNames(
@@ -154,21 +184,31 @@ function listCatalogPdfFileNames(
 
 function resolveCatalogPdfAbsolute(catalogId: MinioPdfCatalogId, fileName: string): string | null {
   const catalog = CATALOGS[catalogId];
-  const minioPath = path.join(catalog.cacheDir, fileName);
+  const normalized = fileName.replace(/\\/g, '/');
+  if (!normalized || normalized.includes('..')) {
+    return null;
+  }
+  const segments = normalized.split('/').filter(Boolean);
+  const minioPath = path.join(catalog.cacheDir, ...segments);
   if (fs.existsSync(minioPath)) {
     return minioPath;
   }
-  const localPath = path.join(catalog.localDir, fileName);
+  const localPath = path.join(catalog.localDir, ...segments);
   if (fs.existsSync(localPath)) {
     return localPath;
   }
   return null;
 }
 
-/** 声明名优先；否则名称含 preferred 子串；否则按 mtime 最新 */
+/** 声明名优先；否则名称含 preferred 子串；可选按 mtime 取最新（fallbackToLatest，默认 true） */
 export function pickPreferredPdfFileName(
   files: Array<{ fileName: string; mtimeMs: number }>,
-  options?: { declared?: string; preferredIncludes?: string[] },
+  options?: {
+    declared?: string;
+    preferredIncludes?: string[];
+    /** 为 false 时，关键词未命中则不自动选「最新一份」（用于多分区共用同一 MinIO 前缀） */
+    fallbackToLatest?: boolean;
+  },
 ): string | null {
   if (!files.length) {
     return null;
@@ -185,6 +225,9 @@ export function pickPreferredPdfFileName(
     if (preferred) {
       return preferred.fileName;
     }
+  }
+  if (options?.fallbackToLatest === false) {
+    return null;
   }
   return files[0]?.fileName ?? null;
 }
@@ -255,6 +298,21 @@ export function findEmployeeHandbookPdfFileName(declared?: string): string | nul
   });
 }
 
+export function listFinancialHandbookPdfFileNames(): Array<{ fileName: string; mtimeMs: number }> {
+  return listCatalogPdfFileNames('financial-handbook');
+}
+
+export function resolveFinancialHandbookPdfAbsolute(fileName: string): string | null {
+  return resolveCatalogPdfAbsolute('financial-handbook', fileName);
+}
+
+export function findFinancialHandbookPdfFileName(declared?: string): string | null {
+  return pickPreferredPdfFileName(listFinancialHandbookPdfFileNames(), {
+    declared,
+    preferredIncludes: ['finance', 'financial', '财务'],
+  });
+}
+
 async function listRemoteObjects(
   client: MinioClient,
   prefixRaw: string,
@@ -268,13 +326,16 @@ async function listRemoteObjects(
       if (!obj.name || obj.name.endsWith('/')) {
         return;
       }
-      const fileName = path.posix.basename(obj.name);
-      if (!fileName.toLowerCase().endsWith('.pdf') || fileName.startsWith('.')) {
+      const relativePath = obj.name.slice(prefix.length).replace(/^\/+/, '');
+      if (!relativePath.toLowerCase().endsWith('.pdf') || relativePath.startsWith('.')) {
+        return;
+      }
+      if (relativePath.includes('..')) {
         return;
       }
       items.push({
         objectName: obj.name,
-        fileName,
+        fileName: relativePath,
         size: obj.size ?? 0,
         lastModifiedMs: obj.lastModified ? obj.lastModified.getTime() : Date.now(),
       });
@@ -346,7 +407,10 @@ export async function syncPdfCatalogFromMinio(
 
       let downloaded = 0;
       for (const remote of remotes) {
-        const localPath = path.join(catalog.cacheDir, remote.fileName);
+        const localPath = path.join(
+          catalog.cacheDir,
+          ...remote.fileName.replace(/\\/g, '/').split('/').filter(Boolean),
+        );
         if (!needsDownload(localPath, remote)) {
           continue;
         }
@@ -357,7 +421,10 @@ export async function syncPdfCatalogFromMinio(
       const remoteNames = new Set(remotes.map((item) => item.fileName));
       for (const local of listPdfFilesInDir(catalog.cacheDir)) {
         if (!remoteNames.has(local.fileName)) {
-          fs.rmSync(path.join(catalog.cacheDir, local.fileName), { force: true });
+          fs.rmSync(
+            path.join(catalog.cacheDir, ...local.fileName.split('/').filter(Boolean)),
+            { force: true },
+          );
         }
       }
 

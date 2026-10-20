@@ -21,6 +21,8 @@ async function bootstrap(): Promise<void> {
       wetalkPrefix: mockEnv.MINIO_WETALK_PREFIX,
       suzhouCampusMapPrefix: mockEnv.MINIO_SUZHOU_CAMPUS_MAP_PREFIX,
       suzhouShuttleBusPrefix: mockEnv.MINIO_SUZHOU_SHUTTLE_BUS_PREFIX,
+      employeeHandbookPrefix: mockEnv.MINIO_EMPLOYEE_HANDBOOK_PREFIX,
+      financialHandbookPrefix: mockEnv.MINIO_FINANCIAL_HANDBOOK_PREFIX,
     });
     await syncAllPdfCatalogsFromMinio({ force: true });
     for (const status of getAllMinioPdfStatuses()) {

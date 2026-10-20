@@ -1,6 +1,7 @@
 import { getNewsDetail, type NewsDetailView } from '../../services/news.service';
 import { RequestError } from '../../types/api';
 import { fallbackImageUrl } from '../../utils/format';
+import { shouldRenderArticleAsBlocks } from '../../utils/rich-content';
 
 Page({
   data: {
@@ -11,6 +12,7 @@ Page({
     favorited: false,
     pageAlive: true,
     requesting: false,
+    useBlockBody: false,
   },
 
   onLoad(query: Record<string, string | undefined>) {
@@ -54,7 +56,16 @@ Page({
         return;
       }
       this.data.requesting = false;
-      this.setData({ news, pageStatus: 'success', requesting: false });
+      this.setData({
+        news,
+        pageStatus: 'success',
+        requesting: false,
+        useBlockBody: shouldRenderArticleAsBlocks(
+          news.bodyFormat,
+          news.richContent,
+          news.contentHtml,
+        ),
+      });
     } catch (error) {
       if (!this.data.pageAlive) {
         return;

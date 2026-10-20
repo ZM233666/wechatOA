@@ -1,4 +1,5 @@
 <view class="article-renderer">
+  <text wx:if="{{!renderBlocks.length}}" class="article-renderer__empty">暂无正文</text>
   <block wx:for="{{renderBlocks}}" wx:key="id">
     <view wx:if="{{item.type === 'heading'}}" class="ar-heading ar-heading--{{item.level}} ar-align--{{item.align}}">{{item.text}}</view>
 
@@ -54,6 +55,43 @@
       bindtap="onInternalLink"
     >
       <text class="ar-link__text">{{item.text}}</text>
+    </view>
+
+    <view wx:elif="{{item.type === 'carousel'}}" class="ar-carousel">
+      <swiper
+        class="ar-carousel__swiper"
+        indicator-dots="{{true}}"
+        indicator-color="rgba(255, 255, 255, 0.45)"
+        indicator-active-color="#003B70"
+        autoplay="{{item.autoplay}}"
+        interval="{{item.interval}}"
+        circular="{{true}}"
+      >
+        <swiper-item wx:for="{{item.slides}}" wx:for-item="slide" wx:key="url">
+          <image
+            class="ar-carousel__image {{carouselPreview ? 'tap-feedback' : 'ar-carousel__image--static'}}"
+            src="{{slide.url}}"
+            mode="aspectFit"
+            show-menu-by-longpress="{{false}}"
+            data-id="{{item.id}}"
+            data-url="{{slide.url}}"
+            bindtap="onCarouselImageTap"
+          ></image>
+        </swiper-item>
+      </swiper>
+      <text wx:if="{{item.caption}}" class="ar-carousel__caption">{{item.caption}}</text>
+    </view>
+
+    <view wx:elif="{{item.type === 'video'}}" class="ar-video-wrap">
+      <video
+        class="ar-video"
+        src="{{item.src}}"
+        poster="{{item.poster}}"
+        controls="{{true}}"
+        show-center-play-btn="{{true}}"
+        object-fit="contain"
+      ></video>
+      <text wx:if="{{item.caption}}" class="ar-video__caption">{{item.caption}}</text>
     </view>
   </block>
 </view>

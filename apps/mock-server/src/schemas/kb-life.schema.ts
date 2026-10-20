@@ -80,6 +80,34 @@ const healthCheckupDetailSchema = z.object({
   images: z.array(imageResourceSchema),
 });
 
+const highlightMomentsAlbumSchema = z.object({
+  id: z.string().min(1),
+  title: z.string().min(1),
+  subtitle: z.string(),
+  dateLabel: z.string().optional(),
+  coverImage: imageResourceSchema,
+  images: z.array(imageResourceSchema).min(1),
+});
+
+export const highlightMomentsDetailSchema = z.object({
+  title: z.string().min(1),
+  subtitle: z.string(),
+  albums: z.array(highlightMomentsAlbumSchema),
+});
+
+export const guidanceDocumentsSchema = z.object({
+  items: z.array(
+    z.object({
+      id: z.string().min(1),
+      title: z.string().min(1),
+      subtitle: z.string().min(1),
+      icon: imageResourceSchema,
+      iconBg: z.string().min(1),
+      path: z.string().min(1),
+    }),
+  ),
+});
+
 export const activitiesSchema = z.object({
   items: z.array(
     z.object({
@@ -109,6 +137,7 @@ export const activitiesSchema = z.object({
     }),
   ),
   health: healthCheckupDetailSchema.nullable(),
+  highlightMoments: highlightMomentsDetailSchema.nullable(),
 });
 
 export const wetalkTocItemSchema = z.object({
@@ -196,4 +225,72 @@ export const employeeHandbookSchema = z.object({
   introEn: z.string().min(1),
   /** 相对 handbook/files 的文件名；留空则自动选 MinIO/本地最新 PDF */
   pdfFile: z.string().optional(),
+});
+
+export const financialGuidanceSectionIdSchema = z.enum(['notes', 'manual']);
+
+export const financialGuidanceSectionFixtureSchema = z.object({
+  id: financialGuidanceSectionIdSchema,
+  title: z.string().min(1),
+  subtitle: z.string().min(1),
+  introCn: z.string().min(1),
+  introEn: z.string().min(1),
+  /** 相对 finance-handbook/files 的路径，如 xxx.pdf 或 user_manual/xxx.pdf；留空则取对应 MinIO 子目录最新 PDF */
+  pdfFile: z.string().optional(),
+});
+
+export const financialHandbookSchema = z
+  .object({
+    title: z.string().min(1),
+    edition: z.string().min(1),
+    introCn: z.string().min(1),
+    introEn: z.string().min(1),
+    sections: z.array(financialGuidanceSectionFixtureSchema).min(1).max(8),
+  })
+  .superRefine((data, ctx) => {
+    const ids = data.sections.map((item) => item.id);
+    if (new Set(ids).size !== ids.length) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: '财务指导手册 sections 的 id 不可重复',
+        path: ['sections'],
+      });
+    }
+  });
+
+export const openPositionDetailSchema = z.object({
+  id: z.string().min(1),
+  title: z.string().min(1),
+  department: z.string().min(1),
+  location: z.string().min(1),
+  type: z.string().min(1),
+  description: z.string().min(1),
+  requirements: z.string().min(1),
+});
+
+export const openPositionSummarySchema = openPositionDetailSchema.omit({
+  description: true,
+  requirements: true,
+});
+
+export const openPositionsFileSchema = z.object({
+  items: z.array(openPositionDetailSchema),
+});
+
+export const employeeCareSchema = z.object({
+  hero: z.object({
+    title: z.string().min(1),
+    subtitle: z.string().min(1),
+    image: imageResourceSchema,
+  }),
+  initiatives: z.array(
+    z.object({
+      id: z.string().min(1),
+      title: z.string().min(1),
+      category: z.string().min(1),
+      date: z.string().min(1),
+      description: z.string().min(1),
+      image: imageResourceSchema,
+    }),
+  ),
 });

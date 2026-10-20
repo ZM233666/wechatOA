@@ -38,6 +38,10 @@ page {
   background: #ef4444;
 }
 
+.event-detail__hero--highlights {
+  background: linear-gradient(90deg, #f59e0b 0%, #ea580c 100%);
+}
+
 .event-detail__hero-icon {
   width: 96rpx;
   height: 96rpx;

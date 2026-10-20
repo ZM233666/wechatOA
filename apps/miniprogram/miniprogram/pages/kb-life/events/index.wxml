@@ -26,4 +26,5 @@
       <text class="event-card__arrow">›</text>
     </view>
   </view>
+  <app-tab-bar></app-tab-bar>
 </view>

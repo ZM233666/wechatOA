@@ -1,0 +1,30 @@
+<view class="page page--guidance">
+  <nav-brand title="Guidance Docs" show-back="{{true}}"></nav-brand>
+
+  <view class="guidance">
+    <text class="guidance__heading">指导文件 (Guidance Documents)</text>
+
+    <empty-state wx:if="{{pageStatus === 'loading'}}" title="正在加载"></empty-state>
+    <view wx:elif="{{pageStatus === 'error'}}" class="guidance__state guidance__state--error">{{errorText}}</view>
+
+    <view
+      wx:if="{{pageStatus === 'success'}}"
+      class="guidance-card tap-feedback"
+      wx:for="{{items}}"
+      wx:key="id"
+      data-id="{{item.id}}"
+      hover-stop-propagation="{{true}}"
+      catchtap="onItemTap"
+    >
+      <view class="guidance-card__icon-wrap" style="background: {{item.iconBg}};">
+        <image class="guidance-card__icon" src="{{item.icon}}" mode="aspectFit"></image>
+      </view>
+      <view class="guidance-card__meta">
+        <text class="guidance-card__title">{{item.title}}</text>
+        <text class="guidance-card__subtitle">{{item.subtitle}}</text>
+      </view>
+      <text class="guidance-card__arrow">›</text>
+    </view>
+  </view>
+  <app-tab-bar></app-tab-bar>
+</view>

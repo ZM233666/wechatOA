@@ -1,6 +1,8 @@
 import type { ImageResource } from '../types/content';
+import { MY_DASHBOARD_MODULES } from '../mock/services';
 import { toAssetUrl } from '../utils/format';
 import { API_ENDPOINTS } from './endpoints';
+import { getLoginCodeQueryParams } from './identity-binding.service';
 import { get } from './request';
 
 export interface ServiceHeroCard {
@@ -13,6 +15,14 @@ export interface ServiceHeroCard {
   icon: string;
   iconTone: 'blue' | 'gold';
   showOnline?: boolean;
+}
+
+export interface MyDashboardModule {
+  id: string;
+  title: string;
+  subtitle: string;
+  icon: string;
+  iconBg: string;
 }
 
 export interface InsightCover {
@@ -144,6 +154,28 @@ function mapInsightCover(item: {
   };
 }
 
+export async function getMyDashboardModules(): Promise<MyDashboardModule[]> {
+  const data = await get<{
+    items: Array<{
+      id: string;
+      title: string;
+      subtitle: string;
+      icon: ImageResource;
+      iconBg: string;
+    }>;
+  }>(API_ENDPOINTS.serviceMyDashboardModules, await getLoginCodeQueryParams());
+  if (!data.items.length) {
+    return MY_DASHBOARD_MODULES;
+  }
+  return data.items.map((item) => ({
+    id: item.id,
+    title: item.title,
+    subtitle: item.subtitle,
+    icon: toAssetUrl(item.icon),
+    iconBg: item.iconBg,
+  }));
+}
+
 export async function getServices(): Promise<{
   heroCards: ServiceHeroCard[];
   insightCovers: InsightCover[];
@@ -173,7 +205,9 @@ export async function getInsightReports(): Promise<InsightCover[]> {
 }
 
 export async function getInsightReport(id: string): Promise<InsightReportView> {
-  const data = await get<InsightReportDto>(API_ENDPOINTS.serviceInsightDetail(id));
+  const data = await get<InsightReportDto>(API_ENDPOINTS.serviceInsightDetail(id), {
+    ...(await getLoginCodeQueryParams()),
+  });
   const pages = data.pages ?? [];
   return {
     id: data.id,

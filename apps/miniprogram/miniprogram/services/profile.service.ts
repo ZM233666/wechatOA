@@ -1,12 +1,13 @@
-import { getCurrentEnvVersion } from '../config/env';
 import type { ImageResource } from '../types/content';
 import { toAssetUrl } from '../utils/format';
 import { API_ENDPOINTS } from './endpoints';
+import { getSessionLoginCode } from './identity-login.service';
 import { get } from './request';
-
-export type ProfileRoleKey = 'Edward' | 'Customer' | 'Visitor';
-
-export const PROFILE_ROLE_STORAGE_KEY = 'profileRoleKey';
+import {
+  getWeChatAvatarFromStorage,
+  pickUserDisplayAvatar,
+  trySyncWeChatAvatarFromAuth,
+} from './wechat-user.service';
 
 export interface ProfileUser {
   chineseName: string;
@@ -24,12 +25,6 @@ export interface ProfileField {
   labelEn: string;
   value: string;
   icon: string;
-}
-
-export interface ProfileRoleOption {
-  key: ProfileRoleKey;
-  label: string;
-  selected: boolean;
 }
 
 interface ProfileDto {
@@ -50,7 +45,6 @@ interface ProfileDto {
     value: string;
     icon: ImageResource;
   }>;
-  roleOptions: Array<{ key: ProfileRoleKey; label: string }>;
 }
 
 const emptyUser: ProfileUser = {
@@ -63,35 +57,9 @@ const emptyUser: ProfileUser = {
   avatar: '',
 };
 
-export function resolveProfileRoleKey(value: unknown): ProfileRoleKey {
-  if (value === 'Customer' || value === 'Visitor' || value === 'Edward') {
-    return value;
-  }
-  return 'Visitor';
-}
-
-export function getStoredProfileRole(): ProfileRoleKey {
-  try {
-    return resolveProfileRoleKey(wx.getStorageSync(PROFILE_ROLE_STORAGE_KEY));
-  } catch {
-    return 'Visitor';
-  }
-}
-
-export function setStoredProfileRole(roleKey: ProfileRoleKey): ProfileRoleKey {
-  const resolved = resolveProfileRoleKey(roleKey);
-  try {
-    wx.setStorageSync(PROFILE_ROLE_STORAGE_KEY, resolved);
-  } catch {
-    // ignore storage write errors; caller still uses resolved key this session
-  }
-  return resolved;
-}
-
-function mapProfile(data: ProfileDto, selectedKey: ProfileRoleKey): {
+function mapProfile(data: ProfileDto): {
   user: ProfileUser;
   fields: ProfileField[];
-  roles: ProfileRoleOption[];
   isLoggedIn: boolean;
 } {
   return {
@@ -104,9 +72,15 @@ function mapProfile(data: ProfileDto, selectedKey: ProfileRoleKey): {
           titleEn: data.user.titleEn,
           department: data.user.department,
           role: data.user.role,
-          avatar: toAssetUrl(data.user.avatar),
+          avatar: pickUserDisplayAvatar(
+            toAssetUrl(data.user.avatar),
+            getWeChatAvatarFromStorage(),
+          ),
         }
-      : emptyUser,
+      : {
+          ...emptyUser,
+          avatar: pickUserDisplayAvatar('', getWeChatAvatarFromStorage()),
+        },
     fields: data.fields.map((item) => ({
       id: item.id,
       labelCn: item.labelCn,
@@ -114,21 +88,19 @@ function mapProfile(data: ProfileDto, selectedKey: ProfileRoleKey): {
       value: item.value,
       icon: toAssetUrl(item.icon),
     })),
-    roles: data.roleOptions.map((item) => ({
-      ...item,
-      selected: item.key === selectedKey,
-    })),
   };
 }
 
-export async function getProfile(selectedKey: ProfileRoleKey = getStoredProfileRole()) {
-  const query =
-    getCurrentEnvVersion() === 'develop'
-      ? {
-          role: selectedKey,
-          ...(selectedKey !== 'Visitor' ? { loggedIn: 'true' } : {}),
-        }
-      : undefined;
+/** 拉取个人资料；服务端按 wx.login code 关联身份绑定（Mock/Django 同一约定） */
+export async function getProfile() {
+  await trySyncWeChatAvatarFromAuth();
+  let loginCode = '';
+  try {
+    loginCode = await getSessionLoginCode();
+  } catch {
+    // 无 code 时仍拉访客资料
+  }
+  const query = loginCode ? { loginCode } : undefined;
   const data = await get<ProfileDto>(API_ENDPOINTS.profile, query);
-  return mapProfile(data, selectedKey);
+  return mapProfile(data);
 }

@@ -1,33 +1,32 @@
 import type { Request, Response } from 'express';
-import type { ProfileData, ProfileRoleKey } from '@app/shared';
+import type { ProfileData } from '@app/shared';
 import { withAbsoluteAssets } from '../services/asset-url.service';
 import { getFixtures } from '../services/fixture.service';
+import { getIdentityBindingStatus } from '../services/identity-binding.service';
 import { success } from '../utils/response';
 
-function resolveRoleKey(value: unknown): ProfileRoleKey | null {
-  if (value === 'Edward' || value === 'Customer' || value === 'Visitor') {
-    return value;
+function pickProfileFixtureByBinding(loginCode: string): ProfileData {
+  const fixtures = getFixtures();
+  const status = getIdentityBindingStatus(loginCode);
+  if (!status.bound || !status.binding) {
+    return fixtures.profileGuest;
   }
-  return null;
+  const roleLabel = status.binding.roleLabel.trim().toLowerCase();
+  if (roleLabel === 'employee') {
+    return fixtures.profileLoggedIn;
+  }
+  if (roleLabel === 'customer') {
+    return fixtures.profileCustomer;
+  }
+  return fixtures.profileGuest;
 }
 
 function pickProfileFixture(req: Request): ProfileData {
-  const fixtures = getFixtures();
-  const role = resolveRoleKey(req.query.role);
-
-  if (role === 'Visitor') {
-    return fixtures.profileGuest;
+  const loginCode = String(req.query.loginCode ?? '').trim();
+  if (loginCode) {
+    return pickProfileFixtureByBinding(loginCode);
   }
-  if (role === 'Customer') {
-    return fixtures.profileCustomer;
-  }
-  if (role === 'Edward') {
-    return fixtures.profileLoggedIn;
-  }
-
-  // Mock-only 兼容：loggedIn 仅用于切换夹具，不得进入正式 NestJS API。
-  const loggedIn = req.query.loggedIn === 'true' || req.query.loggedIn === '1';
-  return loggedIn ? fixtures.profileLoggedIn : fixtures.profileGuest;
+  return getFixtures().profileGuest;
 }
 
 export function getProfile(req: Request, res: Response): void {

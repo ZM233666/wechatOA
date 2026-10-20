@@ -1,12 +1,12 @@
 import { getInsightReport } from '../services/services.service';
-import { getStoredProfileRole } from '../services/profile.service';
+import { shouldBlockGatedInsightForUnbound } from './identity-access';
 import { RequestError } from '../types/api';
 
 export function shouldBlockInsightForVisitor(gating = false): boolean {
-  return gating && getStoredProfileRole() === 'Visitor';
+  return shouldBlockGatedInsightForUnbound(gating);
 }
 
-/** 打开独立权限页；Visitor + gating 使用 */
+/** 打开独立权限页；未绑定 + gating 使用 */
 export function openInsightAccessDenied(id: string): void {
   wx.navigateTo({
     url: `/pages/services/insights/access-denied/index?id=${encodeURIComponent(id)}`,

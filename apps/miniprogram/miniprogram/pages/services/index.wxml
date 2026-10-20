@@ -1,7 +1,8 @@
 <view class="page page--services {{readerVisible ? 'page--services-reading' : ''}}">
   <nav-brand
+    wx:if="{{!readerVisible}}"
     title="{{navTitle}}"
-    show-back="{{listVisible && !readerVisible}}"
+    show-back="{{listVisible}}"
     back-as-event="{{listVisible}}"
     bind:back="onListBack"
   ></nav-brand>
@@ -49,7 +50,8 @@
       class="hero-card tap-feedback"
       wx:for="{{heroCards}}"
       wx:key="id"
-      bindtap="onComingSoon"
+      data-id="{{item.id}}"
+      bindtap="onHeroTap"
     >
       <view class="hero-card__banner">
         <image class="hero-card__image" src="{{item.image}}" mode="aspectFill"></image>
@@ -73,7 +75,7 @@
           <text class="hero-card__footer-title">{{item.footerTitle}}</text>
           <text class="hero-card__footer-en">{{item.title}}</text>
         </view>
-        <text class="hero-card__footer-hint">{{item.footerHint}}</text>
+        <text wx:if="{{item.footerHint}}" class="hero-card__footer-hint">{{item.footerHint}}</text>
       </view>
     </view>
 

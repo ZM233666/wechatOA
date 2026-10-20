@@ -20,7 +20,12 @@ export function decodeDataUrl(dataUrl: string): { ext: string; buffer: Buffer } 
   }
 }
 
-export function persistArticleImageSrc(articleId: string, src: string, index: number): string {
+function persistArticleBinarySrc(
+  articleId: string,
+  src: string,
+  index: number,
+  defaultExt: string,
+): string {
   if (!src) {
     return '';
   }
@@ -32,7 +37,7 @@ export function persistArticleImageSrc(articleId: string, src: string, index: nu
     return src;
   }
   const hash = createHash('sha1').update(decoded.buffer).digest('hex').slice(0, 12);
-  const fileName = `img-${index}-${hash}.${decoded.ext}`;
+  const fileName = `media-${index}-${hash}.${decoded.ext || defaultExt}`;
   const dir = path.join(NEWS_MEDIA_DIR, articleId);
   fs.mkdirSync(dir, { recursive: true });
   const absolute = path.join(dir, fileName);
@@ -40,6 +45,20 @@ export function persistArticleImageSrc(articleId: string, src: string, index: nu
     fs.writeFileSync(absolute, decoded.buffer);
   }
   return `${NEWS_MEDIA_URL_PREFIX}${articleId}/${fileName}`;
+}
+
+export function persistArticleImageSrc(articleId: string, src: string, index: number): string {
+  if (!src) {
+    return '';
+  }
+  if (src.startsWith('/mock-assets/') || src.startsWith('http://') || src.startsWith('https://')) {
+    return src;
+  }
+  return persistArticleBinarySrc(articleId, src, index, 'png');
+}
+
+export function persistArticleVideoSrc(articleId: string, src: string, index: number): string {
+  return persistArticleBinarySrc(articleId, src, index, 'mp4');
 }
 
 export function absoluteMediaUrl(src: string, mediaBaseUrl: string): string {

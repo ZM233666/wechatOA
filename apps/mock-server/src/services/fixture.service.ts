@@ -10,8 +10,12 @@ import { productCategoriesFileSchema, productDetailSchema, productSummarySchema 
 import { insightReportSchema, servicesFileSchema } from '../schemas/service.schema';
 import {
   activitiesSchema,
+  highlightMomentsDetailSchema,
+  guidanceDocumentsSchema,
   campusMapSchema,
   canteenSchema,
+  employeeCareSchema,
+  openPositionsFileSchema,
   holidayCalendarSchema,
   kbLifeEntriesSchema,
   shuttleSchema,
@@ -19,6 +23,7 @@ import {
 } from '../schemas/kb-life.schema';
 import { profileSchema } from '../schemas/profile.schema';
 import { articleDetailSchema } from '../schemas/article.schema';
+import { resolveLiveCampusMapPdfAbsolute } from './campus-map.pdf-cache';
 import { listPublicNews, selectHomeNews, toNewsSummary } from './news.service';
 import {
   buildSyntheticInsight,
@@ -151,6 +156,9 @@ export interface MockFixtureStore {
   campusMapByLocation: Record<string, CampusMapData>;
   holidayByLocation: Record<string, HolidayCalendarData>;
   activities: ReturnType<typeof activitiesSchema.parse>;
+  guidanceDocuments: ReturnType<typeof guidanceDocumentsSchema.parse>;
+  employeeCare: ReturnType<typeof employeeCareSchema.parse>;
+  openPositions: ReturnType<typeof openPositionsFileSchema.parse>;
   profileGuest: ProfileData;
   profileLoggedIn: ProfileData;
   profileCustomer: ProfileData;
@@ -191,7 +199,18 @@ export function loadFixtures(): MockFixtureStore {
     campusMapByLocation,
     holidayByLocation,
   } = loadCampusLocationResources(kbLifeEntries.locations);
-  const activities = readJsonFile('kb-life/activities.json', activitiesSchema);
+  const activitiesFile = readJsonFile('kb-life/activities.json', activitiesSchema);
+  const highlightMomentsDefault = readJsonFile(
+    'kb-life/highlight-moments-albums.json',
+    highlightMomentsDetailSchema,
+  );
+  const activities = {
+    ...activitiesFile,
+    highlightMoments: activitiesFile.highlightMoments ?? highlightMomentsDefault,
+  };
+  const guidanceDocuments = readJsonFile('kb-life/guidance-documents.json', guidanceDocumentsSchema);
+  const employeeCare = readJsonFile('kb-life/care.json', employeeCareSchema);
+  const openPositions = readJsonFile('kb-life/open-positions.json', openPositionsFileSchema);
   const profileGuest = readJsonFile('profile/guest.json', profileSchema);
   const profileLoggedIn = readJsonFile('profile/logged-in.json', profileSchema);
   const profileCustomer = readJsonFile('profile/customer.json', profileSchema);
@@ -223,6 +242,9 @@ export function loadFixtures(): MockFixtureStore {
     campusMapByLocation,
     holidayByLocation,
     activities,
+    guidanceDocuments,
+    employeeCare,
+    openPositions,
     profileGuest,
     profileLoggedIn,
     profileCustomer,
@@ -614,6 +636,48 @@ function resolveCampusMapPdfAbsolute(location: string, fileName: string): string
   return fs.existsSync(absolute) ? absolute : null;
 }
 
+/** 已知 PDF 路径 → CampusMapData（管理端拉取 PDF 与 fixture 解析共用） */
+export function buildCampusMapFromPdfFile(
+  location: string,
+  rest: Pick<CampusMapData, 'title' | 'image'>,
+  pdfAbsolute: string,
+  pdfFileName: string,
+  declaredPages: CampusMapData['pages'] = [],
+): CampusMapData {
+  const sheetsDir = path.join(PUBLIC_DIR, 'mock-assets/kb-life/campus-maps/sheets', location);
+  try {
+    if (!declaredPages?.length) {
+      ensurePdfSheets({ id: `campus-map-${location}`, pdfAbsolute, sheetsDir });
+    }
+  } catch (error) {
+    if (error instanceof PdfSheetRenderError) {
+      throw new FixtureValidationError(error.message);
+    }
+    throw error;
+  }
+
+  const sheetPages = declaredPages?.length
+    ? declaredPages
+    : buildSheetPagesFromDisk({
+        id: location,
+        sheetsDirRelative: 'mock-assets/kb-life/campus-maps/sheets',
+        sheetsUrlPrefix: CAMPUS_MAP_SHEETS_URL_PREFIX,
+      });
+
+  if (!sheetPages.length) {
+    throw new FixtureValidationError(
+      `园区地图 ${location} 有 PDF 但渲页后仍无 pages: ${sheetsDir}`,
+    );
+  }
+
+  return {
+    ...rest,
+    image: sheetPages[0]?.coverImage ?? rest.image,
+    pages: sheetPages,
+    pdfUrl: `${CAMPUS_MAP_PDF_URL_PREFIX}${encodeURIComponent(location)}/${encodeURIComponent(pdfFileName)}`,
+  };
+}
+
 /** campus-map.json + 可选 Map/*.pdf → 运行时 CampusMapData（含 sheet pages） */
 function resolveCampusMap(
   location: string,
@@ -637,38 +701,8 @@ function resolveCampusMap(
       pages: declaredPages.length ? declaredPages : undefined,
     };
   }
-  const sheetsDir = path.join(PUBLIC_DIR, 'mock-assets/kb-life/campus-maps/sheets', location);
-  try {
-    if (!declaredPages.length) {
-      ensurePdfSheets({ id: `campus-map-${location}`, pdfAbsolute, sheetsDir });
-    }
-  } catch (error) {
-    if (error instanceof PdfSheetRenderError) {
-      throw new FixtureValidationError(error.message);
-    }
-    throw error;
-  }
 
-  const sheetPages = declaredPages.length
-    ? declaredPages
-    : buildSheetPagesFromDisk({
-        id: location,
-        sheetsDirRelative: 'mock-assets/kb-life/campus-maps/sheets',
-        sheetsUrlPrefix: CAMPUS_MAP_SHEETS_URL_PREFIX,
-      });
-
-  if (!sheetPages.length) {
-    throw new FixtureValidationError(
-      `园区地图 ${location} 有 PDF 但渲页后仍无 pages: ${sheetsDir}`,
-    );
-  }
-
-  return {
-    ...rest,
-    image: sheetPages[0]?.coverImage ?? rest.image,
-    pages: sheetPages,
-    pdfUrl: `${CAMPUS_MAP_PDF_URL_PREFIX}${encodeURIComponent(location)}/${encodeURIComponent(resolvedPdfFile)}`,
-  };
+  return buildCampusMapFromPdfFile(location, rest, pdfAbsolute, resolvedPdfFile, declaredPages);
 }
 
 /** 将 `/mock-assets/...` 解析为磁盘绝对路径（Insight / WeTalk / 园区地图 PDF 来自 fixtures） */
@@ -687,6 +721,7 @@ export function resolveMockAssetAbsolutePath(assetPath: string): string {
     const location = decodeURIComponent(slash >= 0 ? rest.slice(0, slash) : rest);
     const fileName = decodeURIComponent(slash >= 0 ? rest.slice(slash + 1) : '');
     return (
+      resolveLiveCampusMapPdfAbsolute(location, fileName) ??
       resolveCampusMapPdfAbsolute(location, fileName) ??
       path.join(FIXTURES_DIR, 'kb-life/locations', location, 'Map', fileName)
     );
@@ -722,7 +757,7 @@ const MINI_PROGRAM_PAGES = new Set([
   '/pages/services/insights/access-denied/index',
   '/pages/kb-life/index',
   '/pages/profile/index',
-  '/pages/profile/personal-info/index',
+  '/pages/profile/index',
   '/pages/news/index',
   '/pages/news/detail',
   '/pages/brand/index',
@@ -735,12 +770,17 @@ const MINI_PROGRAM_PAGES = new Set([
   '/pages/kb-life/holiday-calendar/index',
   '/pages/kb-life/open-positions/index',
   '/pages/kb-life/open-positions/detail',
+  '/pages/kb-life/guidance/index',
   '/pages/kb-life/handbook/index',
+  '/pages/kb-life/financial-handbook/index',
+  '/pages/kb-life/financial-handbook/document/index',
   '/pages/kb-life/care/index',
   '/pages/kb-life/events/index',
   '/pages/kb-life/events/annual-dinner/index',
   '/pages/kb-life/events/outings/index',
   '/pages/kb-life/events/health/index',
+  '/pages/kb-life/events/highlight-moments/index',
+  '/pages/kb-life/events/highlight-moments/album/index',
 ]);
 
 function aspectRatioMismatch(image: { width: number; height: number; aspectRatio: number }): boolean {

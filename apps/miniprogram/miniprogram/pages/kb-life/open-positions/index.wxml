@@ -4,35 +4,35 @@
   <view class="jobs">
     <text class="jobs__heading">Open Positions</text>
 
-    <!--
-      岗位列表示例（后续开发启用）
-      数据：mock/open-positions.ts → OPEN_POSITIONS
-      点击：onJobTap → /pages/kb-life/open-positions/detail?id=
-
-    <view
-      class="job-card tap-feedback"
-      wx:for="{{positions}}"
-      wx:key="id"
-      data-job-id="{{item.id}}"
-      hover-stop-propagation="{{true}}"
-      catchtap="onJobTap"
-    >
-      <text class="job-card__title">{{item.title}}</text>
-      <view class="job-card__tags">
-        <text class="job-card__tag">{{item.department}}</text>
-        <text class="job-card__tag">{{item.location}}</text>
-        <text class="job-card__tag">{{item.type}}</text>
-      </view>
-      <view class="job-card__foot">
-        <text class="job-card__more">查看详情 (View Details)</text>
-        <text class="job-card__arrow">›</text>
-      </view>
+    <empty-state wx:if="{{pageStatus === 'loading'}}" title="正在加载岗位列表"></empty-state>
+    <view wx:elif="{{pageStatus === 'error'}}" bindtap="loadPositions">
+      <empty-state title="加载失败" description="{{errorText}}"></empty-state>
     </view>
-    -->
-
-    <view class="jobs-notice">
-      <text class="jobs-notice__title">更多优质岗位，敬请期待</text>
-      <text class="jobs-notice__subtitle">More quality positions coming soon. Stay tuned.</text>
+    <view wx:elif="{{pageStatus === 'empty'}}" class="jobs-notice">
+      <text class="jobs-notice__title">暂无在聘岗位</text>
+      <text class="jobs-notice__subtitle">No open positions at the moment. Please check back later.</text>
     </view>
+    <block wx:elif="{{pageStatus === 'success'}}">
+      <view
+        class="job-card tap-feedback"
+        wx:for="{{positions}}"
+        wx:key="id"
+        data-job-id="{{item.id}}"
+        hover-stop-propagation="{{true}}"
+        catchtap="onJobTap"
+      >
+        <text class="job-card__title">{{item.title}}</text>
+        <view class="job-card__tags">
+          <text class="job-card__tag">{{item.department}}</text>
+          <text class="job-card__tag">{{item.location}}</text>
+          <text class="job-card__tag">{{item.type}}</text>
+        </view>
+        <view class="job-card__foot">
+          <text class="job-card__more">查看详情 (View Details)</text>
+          <text class="job-card__arrow">›</text>
+        </view>
+      </view>
+    </block>
   </view>
+  <app-tab-bar></app-tab-bar>
 </view>

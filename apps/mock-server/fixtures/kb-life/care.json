@@ -1,0 +1,71 @@
+{
+  "hero": {
+    "title": "Knorr-Bremse Local Care: Social Engagement at Our Company Locations",
+    "subtitle": "Social engagement at Knorr-Bremse is built around Local Care and Global Care initiatives that support communities near our sites.",
+    "image": {
+      "url": "/mock-assets/kb-life/care.png",
+      "alt": "Employee Care",
+      "width": 800,
+      "height": 400,
+      "aspectRatio": 2
+    }
+  },
+  "initiatives": [
+    {
+      "id": "care-wash",
+      "title": "Global Care: Advancing WASH Projects in Southeast Asia",
+      "category": "Global Care",
+      "date": "2026-08-01",
+      "description": "Knorr-Bremse Global Care continues to fund clean water, sanitation, and hygiene projects, offering new prospects for communities in need.",
+      "image": {
+        "url": "/mock-assets/kb-life/care.png",
+        "alt": "WASH Projects",
+        "width": 400,
+        "height": 300,
+        "aspectRatio": 1.33
+      }
+    },
+    {
+      "id": "care-greening",
+      "title": "Local Care: Employees Volunteer for Urban Greening",
+      "category": "Local Care",
+      "date": "2026-07-28",
+      "description": "Our local teams partnered with city parks to plant trees, demonstrating our commitment to environmental sustainability.",
+      "image": {
+        "url": "/mock-assets/kb-life/care.png",
+        "alt": "Urban Greening",
+        "width": 400,
+        "height": 300,
+        "aspectRatio": 1.33
+      }
+    },
+    {
+      "id": "care-ecovadis",
+      "title": "Knorr-Bremse Awarded EcoVadis Gold Status",
+      "category": "Sustainability",
+      "date": "2026-07-15",
+      "description": "Recognized for our dedication to sustainable development, corporate social responsibility, and green supply chain initiatives.",
+      "image": {
+        "url": "/mock-assets/kb-life/care.png",
+        "alt": "EcoVadis",
+        "width": 400,
+        "height": 300,
+        "aspectRatio": 1.33
+      }
+    },
+    {
+      "id": "care-stem",
+      "title": "Supporting STEM Education in Local Communities",
+      "category": "Local Care",
+      "date": "2026-06-22",
+      "description": "Employees volunteer to teach science and robotics, inspiring the next generation of engineers at local schools.",
+      "image": {
+        "url": "/mock-assets/kb-life/care.png",
+        "alt": "STEM Education",
+        "width": 400,
+        "height": 300,
+        "aspectRatio": 1.33
+      }
+    }
+  ]
+}

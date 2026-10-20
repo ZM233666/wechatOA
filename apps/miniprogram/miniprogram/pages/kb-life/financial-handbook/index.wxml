@@ -1,0 +1,46 @@
+<view class="page page--fin-hub">
+  <nav-brand title="Fin Handbook" show-back="{{true}}"></nav-brand>
+
+  <empty-state wx:if="{{pageStatus === 'loading'}}" title="正在加载财务指导手册"></empty-state>
+  <empty-state
+    wx:elif="{{pageStatus === 'error'}}"
+    title="加载失败"
+    description="{{errorText}}"
+  ></empty-state>
+
+  <view wx:elif="{{pageStatus === 'success'}}" class="fin-hub">
+    <view class="fin-hub__hero">
+      <image
+        class="fin-hub__hero-icon"
+        src="/assets/images/kb-life/handbook-white.png"
+        mode="aspectFit"
+      ></image>
+      <text class="fin-hub__hero-title">{{title}}</text>
+      <text class="fin-hub__hero-edition">{{edition}}</text>
+      <text class="fin-hub__hero-intro">{{introCn}}</text>
+      <text class="fin-hub__hero-intro fin-hub__hero-intro--en">{{introEn}}</text>
+    </view>
+
+    <text class="fin-hub__heading">请选择文档 (Select a document)</text>
+
+    <view
+      wx:for="{{sections}}"
+      wx:key="id"
+      class="fin-hub-card tap-feedback"
+      data-id="{{item.id}}"
+      hover-stop-propagation="{{true}}"
+      catchtap="onSectionTap"
+    >
+      <view class="fin-hub-card__icon-wrap" style="background: {{item.iconBg}};">
+        <image class="fin-hub-card__icon" src="{{item.icon}}" mode="aspectFit"></image>
+      </view>
+      <view class="fin-hub-card__meta">
+        <text class="fin-hub-card__title">{{item.title}}</text>
+        <text class="fin-hub-card__subtitle">{{item.subtitle}}</text>
+        <text class="fin-hub-card__hint">{{item.pdfUrl ? 'PDF 可下载' : 'PDF 暂未上传'}}</text>
+      </view>
+      <text class="fin-hub-card__arrow">›</text>
+    </view>
+  </view>
+  <app-tab-bar></app-tab-bar>
+</view>

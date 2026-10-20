@@ -1,7 +1,6 @@
 {
   "navigationStyle": "custom",
   "backgroundColor": "#F5F7FA",
-  "enableShareAppMessage": true,
   "usingComponents": {
     "nav-brand": "/components/common/nav-brand/nav-brand",
     "empty-state": "/components/common/empty-state/empty-state",

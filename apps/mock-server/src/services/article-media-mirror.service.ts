@@ -298,24 +298,57 @@ export async function hydrateArticleMedia(
 
   const richContent = await Promise.all(
     fixture.richContent.map(async (block, index) => {
-      if (block.type !== 'image') {
-        return block;
+      if (block.type === 'image') {
+        const src = block.image.url;
+        if (!isRemoteMediaUrl(src, mediaBaseUrl)) {
+          return block;
+        }
+        const mirrored = await mirror(src, 'inline', index);
+        if (!mirrored.startsWith('/mock-assets/')) {
+          return block;
+        }
+        return {
+          ...block,
+          image: {
+            ...block.image,
+            url: mirrored,
+          },
+        };
       }
-      const src = block.image.url;
-      if (!isRemoteMediaUrl(src, mediaBaseUrl)) {
-        return block;
+      if (block.type === 'carousel') {
+        const slides = await Promise.all(
+          block.slides.map(async (slide, slideIndex) => {
+            const src = slide.url;
+            if (!isRemoteMediaUrl(src, mediaBaseUrl)) {
+              return slide;
+            }
+            const mirrored = await mirror(src, 'carousel', index * 100 + slideIndex);
+            if (!mirrored.startsWith('/mock-assets/')) {
+              return slide;
+            }
+            return { ...slide, url: mirrored };
+          }),
+        );
+        return { ...block, slides };
       }
-      const mirrored = await mirror(src, 'inline', index);
-      if (!mirrored.startsWith('/mock-assets/')) {
-        return block;
+      if (block.type === 'video') {
+        let src = block.src;
+        if (isRemoteMediaUrl(src, mediaBaseUrl)) {
+          const mirrored = await mirror(src, 'video', index);
+          if (mirrored.startsWith('/mock-assets/')) {
+            src = mirrored;
+          }
+        }
+        let poster = block.poster;
+        if (poster && isRemoteMediaUrl(poster, mediaBaseUrl)) {
+          const mirroredPoster = await mirror(poster, 'video-poster', index);
+          if (mirroredPoster.startsWith('/mock-assets/')) {
+            poster = mirroredPoster;
+          }
+        }
+        return { ...block, src, poster };
       }
-      return {
-        ...block,
-        image: {
-          ...block.image,
-          url: mirrored,
-        },
-      };
+      return block;
     }),
   );
 

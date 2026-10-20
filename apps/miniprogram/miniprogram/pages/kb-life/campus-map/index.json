@@ -3,6 +3,7 @@
   "backgroundColor": "#111111",
   "usingComponents": {
     "empty-state": "/components/common/empty-state/empty-state",
-    "insight-reader": "/components/services/insight-reader/index"
+    "insight-reader": "/components/services/insight-reader/index",
+    "app-tab-bar": "/components/common/app-tab-bar/app-tab-bar"
   }
 }

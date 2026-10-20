@@ -3,6 +3,7 @@ import { logInfo, logWarn } from '../utils/logger';
 import type { NewsArticleFixture } from '../schemas/news.schema';
 import {
   ARTICLE_NEWS_SYNC_TTL_MS,
+  fetchArticleContentDetail,
   fetchNewsArticlesFromBackend,
   isArticleNewsEnabled,
 } from './article-content.client';
@@ -25,6 +26,13 @@ const state: SyncState = {
   articles: [],
   categories: [{ id: 'general', name: '新闻' }],
 };
+
+/** 管理端列表不含 content_html，详情接口按需拉取后缓存 */
+const detailCache = new Map<string, NewsArticleFixture>();
+
+function articleBackendId(fixtureId: string): string {
+  return fixtureId.replace(/^article-/, '');
+}
 
 function deriveCategories(articles: NewsArticleFixture[]): Array<{ id: string; name: string }> {
   const map = new Map<string, string>();
@@ -62,6 +70,7 @@ export async function syncArticleNews(options?: {
       );
       state.articles = articles;
       state.categories = deriveCategories(articles);
+      detailCache.clear();
       state.lastSuccessMs = Date.now();
       state.lastError = undefined;
       logInfo('Synced news from article-content', {
@@ -96,6 +105,46 @@ export function getArticleNewsArticles(): NewsArticleFixture[] {
 
 export function getArticleNewsCategories(): Array<{ id: string; name: string }> {
   return state.categories;
+}
+
+/**
+ * 用 article-content 详情补全正文（列表行无 content_html）。
+ * 失败时回退列表缓存中的摘要项。
+ */
+export function invalidateArticleNewsDetailCache(fixture: NewsArticleFixture): void {
+  detailCache.delete(fixture.id);
+  detailCache.delete(fixture.slug);
+}
+
+export async function hydrateArticleNewsDetail(
+  fixture: NewsArticleFixture,
+  options?: { skipCache?: boolean },
+): Promise<NewsArticleFixture> {
+  if (!options?.skipCache) {
+    const cached = detailCache.get(fixture.id) ?? detailCache.get(fixture.slug);
+    if (cached) {
+      return cached;
+    }
+  }
+  const backendId = articleBackendId(fixture.id);
+  try {
+    const row = await fetchArticleContentDetail(backendId);
+    const hydrated = await hydrateArticleMedia(row, mapArticleRowToNewsFixture(row));
+    detailCache.set(hydrated.id, hydrated);
+    detailCache.set(hydrated.slug, hydrated);
+    const idx = state.articles.findIndex((item) => item.id === hydrated.id);
+    if (idx >= 0) {
+      state.articles[idx] = hydrated;
+    }
+    return hydrated;
+  } catch (error: unknown) {
+    const message = error instanceof Error ? error.message : String(error);
+    logWarn('Article news detail fetch failed; using list row without body', {
+      id: backendId,
+      message,
+    });
+    return fixture;
+  }
 }
 
 export function getArticleNewsStatus(): {

@@ -1,7 +1,5 @@
 import type { ImageResource } from './image';
 
-export type ProfileRoleKey = 'Edward' | 'Customer' | 'Visitor';
-
 export interface ProfileUser {
   chineseName: string;
   name: string;
@@ -20,14 +18,8 @@ export interface ProfileField {
   icon: ImageResource;
 }
 
-export interface ProfileRoleOption {
-  key: ProfileRoleKey;
-  label: string;
-}
-
 export interface ProfileData {
   isLoggedIn: boolean;
   user: ProfileUser | null;
   fields: ProfileField[];
-  roleOptions: ProfileRoleOption[];
 }

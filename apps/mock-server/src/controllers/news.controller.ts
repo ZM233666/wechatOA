@@ -12,6 +12,7 @@ import {
 import type { NewsArticleFixture } from '../schemas/news.schema';
 import {
   findNewsArticle,
+  getNewsArticleForDetail,
   getNewsArticlesForRequest,
   getNewsCategoriesForRequest,
 } from '../services/news-source.service';
@@ -83,7 +84,7 @@ export async function getNewsDetail(req: Request, res: Response, next: NextFunct
   try {
     const idOrSlug = String(req.params.id);
     const articles = await getNewsArticlesForRequest();
-    const article = findNewsArticle(articles, idOrSlug);
+    const article = await getNewsArticleForDetail(idOrSlug);
     if (!article || (!isPubliclyVisible(article) && !isDevDraftPreview(article))) {
       throw new HttpError(404, 'Resource not found', ERROR_CODES.RESOURCE_NOT_FOUND, {
         id: idOrSlug,

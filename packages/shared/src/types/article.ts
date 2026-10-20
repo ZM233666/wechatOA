@@ -75,6 +75,25 @@ export interface LinkBlock {
   linkType: ArticleLinkType;
 }
 
+/** 图文轮播（含 SVG / PNG 等，由 slides[].url 指向资源） */
+export interface MediaCarouselBlock {
+  id: string;
+  type: 'carousel';
+  slides: ImageResource[];
+  caption?: string;
+  autoplay?: boolean;
+  interval?: number;
+}
+
+/** 正文内嵌视频（须为小程序 download 合法域名） */
+export interface VideoBlock {
+  id: string;
+  type: 'video';
+  src: string;
+  poster?: string;
+  caption?: string;
+}
+
 export type ArticleContentBlock =
   | HeadingBlock
   | ParagraphBlock
@@ -83,7 +102,9 @@ export type ArticleContentBlock =
   | ListBlock
   | DividerBlock
   | CalloutBlock
-  | LinkBlock;
+  | LinkBlock
+  | MediaCarouselBlock
+  | VideoBlock;
 
 export interface ArticleCategory {
   id: string;

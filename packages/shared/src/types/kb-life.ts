@@ -170,6 +170,21 @@ export interface HealthCheckupDetail {
   images: ImageResource[];
 }
 
+export interface HighlightMomentsAlbum {
+  id: string;
+  title: string;
+  subtitle: string;
+  dateLabel?: string;
+  coverImage: ImageResource;
+  images: ImageResource[];
+}
+
+export interface HighlightMomentsDetail {
+  title: string;
+  subtitle: string;
+  albums: HighlightMomentsAlbum[];
+}
+
 export interface ActivitiesData {
   items: KbLifeActivity[];
   /** 来自 Django company-events 时为 true；不展示 fixture 假内容 */
@@ -178,6 +193,7 @@ export interface ActivitiesData {
   annualDinner: AnnualDinnerDetail | null;
   outings: OutingActivity[];
   health: HealthCheckupDetail | null;
+  highlightMoments: HighlightMomentsDetail | null;
 }
 
 export type WetalkPageType = 'cover' | 'contents' | 'content' | 'sheet';
@@ -256,6 +272,64 @@ export interface EmployeeHandbookData {
   introEn: string;
   pdfUrl?: string;
   pdfFileName?: string;
+}
+
+/** 财务指导手册分区：注意事项 / 使用手册 */
+export type FinancialGuidanceSectionId = 'notes' | 'manual';
+
+export interface FinancialGuidanceSectionData {
+  id: FinancialGuidanceSectionId;
+  title: string;
+  subtitle: string;
+  introCn: string;
+  introEn: string;
+  pdfUrl?: string;
+  pdfFileName?: string;
+}
+
+export interface FinancialGuidanceHandbookData {
+  title: string;
+  edition: string;
+  introCn: string;
+  introEn: string;
+  sections: FinancialGuidanceSectionData[];
+}
+
+export interface EmployeeCareHero {
+  title: string;
+  subtitle: string;
+  image: ImageResource;
+}
+
+export interface EmployeeCareInitiative {
+  id: string;
+  title: string;
+  category: string;
+  date: string;
+  description: string;
+  image: ImageResource;
+}
+
+export interface EmployeeCareData {
+  hero: EmployeeCareHero;
+  initiatives: EmployeeCareInitiative[];
+}
+
+export interface OpenPositionSummary {
+  id: string;
+  title: string;
+  department: string;
+  location: string;
+  type: string;
+}
+
+export interface OpenPositionDetail extends OpenPositionSummary {
+  description: string;
+  requirements: string;
+}
+
+export interface OpenPositionsListData {
+  items: OpenPositionSummary[];
 }
 
 export type CampusLocationResources = {

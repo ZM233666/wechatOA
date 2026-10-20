@@ -43,6 +43,10 @@ const envSchema = z
     MINIO_SUZHOU_CAMPUS_MAP_PREFIX: z.string().default('suzhou/campus-map/'),
     MINIO_SUZHOU_SHUTTLE_BUS_PREFIX: z.string().default('suzhou/shuttle-bus/'),
     MINIO_EMPLOYEE_HANDBOOK_PREFIX: z.string().default('employee-handbook/'),
+    MINIO_FINANCIAL_HANDBOOK_PREFIX: z.string().default('finance-handbook/'),
+    /** 相对 MINIO_FINANCIAL_HANDBOOK_PREFIX，如 finance-handbook/user_manual/xxx.pdf */
+    MINIO_FINANCIAL_HANDBOOK_USER_MANUAL_SUBDIR: z.string().default('user_manual'),
+    MINIO_FINANCIAL_HANDBOOK_PRECAUTIONS_SUBDIR: z.string().default('precautions'),
     NEWS_ARTICLE_ENABLED: z
       .union([z.boolean(), z.enum(['true', 'false', '1', '0'])])
       .default('false')
@@ -117,6 +121,40 @@ const envSchema = z
     COMPANY_EVENTS_API_BASE_URL: z.string().min(1).default('http://127.0.0.1:8000'),
     COMPANY_EVENTS_USERNAME: z.string().default('superadmin'),
     COMPANY_EVENTS_PASSWORD: z.string().default('admin123456'),
+    CAMPUS_MAP_ENABLED: z
+      .union([z.boolean(), z.enum(['true', 'false', '1', '0'])])
+      .default('false')
+      .transform((value) => value === true || value === 'true' || value === '1'),
+    CAMPUS_MAP_API_BASE_URL: z.string().min(1).default('http://127.0.0.1:8000'),
+    CAMPUS_MAP_USERNAME: z.string().default('superadmin'),
+    CAMPUS_MAP_PASSWORD: z.string().default('admin123456'),
+    LOCAL_GLOBAL_CARE_ENABLED: z
+      .union([z.boolean(), z.enum(['true', 'false', '1', '0'])])
+      .default('false')
+      .transform((value) => value === true || value === 'true' || value === '1'),
+    LOCAL_GLOBAL_CARE_API_BASE_URL: z.string().min(1).default('http://127.0.0.1:8000'),
+    LOCAL_GLOBAL_CARE_MEDIA_BASE_URL: z.string().default('http://127.0.0.1:8000'),
+    LOCAL_GLOBAL_CARE_USERNAME: z.string().default('superadmin'),
+    LOCAL_GLOBAL_CARE_PASSWORD: z.string().default('admin123456'),
+    JOB_OPENINGS_ENABLED: z
+      .union([z.boolean(), z.enum(['true', 'false', '1', '0'])])
+      .default('false')
+      .transform((value) => value === true || value === 'true' || value === '1'),
+    JOB_OPENINGS_API_BASE_URL: z.string().min(1).default('http://127.0.0.1:8000'),
+    JOB_OPENINGS_USERNAME: z.string().default('superadmin'),
+    JOB_OPENINGS_PASSWORD: z.string().default('admin123456'),
+    FINANCIAL_HANDBOOK_ENABLED: z
+      .union([z.boolean(), z.enum(['true', 'false', '1', '0'])])
+      .default('false')
+      .transform((value) => value === true || value === 'true' || value === '1'),
+    FINANCIAL_HANDBOOK_API_BASE_URL: z.string().min(1).default('http://127.0.0.1:8000'),
+    FINANCIAL_HANDBOOK_USERNAME: z.string().default('superadmin'),
+    FINANCIAL_HANDBOOK_PASSWORD: z.string().default('admin123456'),
+    FINANCIAL_HANDBOOK_CAMPUS: z.string().default('suzhou'),
+    FINANCIAL_HANDBOOK_CURRENT_PATH: z
+      .string()
+      .min(1)
+      .default('/api/financial-handbook/handbook/current'),
     /** 腾讯位置服务 WebService Key，用于目的地解析与步行/骑行/公交路线规划 */
     TENCENT_MAP_KEY: z.string().default(''),
     /** 勾选 Key 的 SN 校验后生成的 SecretKey（服务端调用推荐，勿提交到仓库） */

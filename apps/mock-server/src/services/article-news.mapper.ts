@@ -132,7 +132,7 @@ export function mapArticleRowToNewsFixture(row: ArticleContentRow): NewsArticleF
   const rawHtml = row.content_html || '';
   const contentHtml = prepareArticleHtml(id, rawHtml, { mediaBaseUrl });
   const plainText = extractPlainTextFromHtml(rawHtml);
-  const { blocks } = htmlToRichContent(id, rawHtml);
+  const { blocks } = htmlToRichContent(id, rawHtml, { mediaBaseUrl });
   const coverImage = resolveCover({
     coverUrl: row.cover_url,
     title,

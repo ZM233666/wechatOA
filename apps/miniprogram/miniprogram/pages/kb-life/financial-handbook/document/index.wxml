@@ -1,0 +1,40 @@
+<view class="page page--handbook">
+  <nav-brand title="{{navTitle}}" show-back="{{true}}"></nav-brand>
+
+  <empty-state wx:if="{{pageStatus === 'loading'}}" title="正在加载"></empty-state>
+  <empty-state
+    wx:elif="{{pageStatus === 'error'}}"
+    title="加载失败"
+    description="{{errorText}}"
+  ></empty-state>
+
+  <view wx:elif="{{pageStatus === 'success'}}" class="handbook">
+    <view class="handbook-hero">
+      <view class="handbook-hero__banner">
+        <image
+          class="handbook-hero__icon"
+          src="/assets/images/kb-life/handbook-white.png"
+          mode="aspectFit"
+        ></image>
+        <text class="handbook-hero__title">{{title}}</text>
+        <text class="handbook-hero__subtitle">{{subtitle}}</text>
+        <text class="handbook-hero__edition">{{edition}}</text>
+      </view>
+      <view class="handbook-hero__body">
+        <text class="handbook-hero__intro">{{introCn}}</text>
+        <text class="handbook-hero__intro handbook-hero__intro--en">{{introEn}}</text>
+        <view
+          class="handbook-hero__btn tap-feedback {{pdfUrl ? '' : 'handbook-hero__btn--disabled'}}"
+          bindtap="onDownload"
+        >
+          <image
+            class="handbook-hero__download"
+            src="/assets/images/kb-life/download-white.png"
+            mode="aspectFit"
+          ></image>
+          <text class="handbook-hero__btn-text">下载 PDF 版 / Download PDF</text>
+        </view>
+      </view>
+    </view>
+  </view>
+</view>

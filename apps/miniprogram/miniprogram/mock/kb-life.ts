@@ -77,9 +77,9 @@ export const EMPLOYEE_SERVICES: EmployeeService[] = [
     icon: '/assets/images/kb-life/positions.png',
   },
   {
-    id: 'handbook',
-    title: '员工手册',
-    subtitle: 'Employee Handbook',
+    id: 'guidance',
+    title: '指导文件',
+    subtitle: 'Guidance Documents',
     icon: '/assets/images/kb-life/handbook.png',
   },
   {

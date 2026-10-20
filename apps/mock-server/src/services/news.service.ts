@@ -2,6 +2,7 @@ import type { HomeBanner, NewsDetail, NewsSummary } from '@app/shared';
 import { mockEnv } from '../config/env';
 import type { NewsArticleFixture } from '../schemas/news.schema';
 import { getMockNow } from '../utils/clock';
+import { shouldPreferNewsRichContentBlocks } from './news-body-presentation';
 
 const HOME_NEWS_LIMIT = 3;
 const HOME_BANNER_LIMIT = 5;
@@ -93,14 +94,21 @@ export function toNewsDetail(
   article: NewsArticleFixture,
   related: NewsArticleFixture[],
 ): NewsDetail {
+  const preferBlocks = shouldPreferNewsRichContentBlocks(
+    article.bodyFormat,
+    article.richContent,
+    article.contentHtml,
+  );
   return {
     ...toNewsSummary(article),
     author: article.author,
     source: article.source,
     richContent: article.richContent,
-    ...(article.contentHtml
-      ? { contentHtml: article.contentHtml, bodyFormat: article.bodyFormat ?? 'html' }
-      : { bodyFormat: article.bodyFormat ?? 'blocks' }),
+    ...(preferBlocks
+      ? { bodyFormat: 'blocks' as const }
+      : article.contentHtml
+        ? { contentHtml: article.contentHtml, bodyFormat: 'html' as const }
+        : { bodyFormat: 'blocks' as const }),
     relatedArticles: related
       .filter((item) => item.id !== article.id)
       .slice(0, 3)

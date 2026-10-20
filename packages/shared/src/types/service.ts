@@ -31,9 +31,18 @@ export interface ServiceDetail {
   relatedIds: string[];
 }
 
+export interface MyDashboardModule {
+  id: string;
+  title: string;
+  subtitle: string;
+  icon: ImageResource;
+  iconBg: string;
+}
+
 export interface ServicesPageData {
   heroCards: ServiceSummary[];
   insightCovers: ServiceSummary[];
+  myDashboardModules?: MyDashboardModule[];
 }
 
 export type InsightReportPageType = 'cover' | 'contents' | 'content' | 'sheet';

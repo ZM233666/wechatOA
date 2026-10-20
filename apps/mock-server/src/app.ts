@@ -11,6 +11,12 @@ import { errorHandlerMiddleware } from './middleware/error-handler.middleware';
 import { createApiRouter } from './routes';
 import { FIXTURES_DIR, PUBLIC_DIR } from './services/fixture.service';
 import { NEWS_MEDIA_DIR } from './services/html-to-rich-content';
+import { resolveLiveCampusMapPdfAbsolute } from './services/campus-map.pdf-cache';
+import { FINANCIAL_HANDBOOK_LOCAL_PDF_DIR } from './services/financial-handbook.service';
+import {
+  FINANCIAL_HANDBOOK_MINIO_CACHE_DIR,
+  resolveFinancialHandbookPdfAbsolute,
+} from './services/minio-pdf.service';
 import { LUNCH_MENU_MEDIA_DIR } from './services/lunch-menu.media';
 import {
   INSIGHT_LOCAL_PDF_DIR,
@@ -69,6 +75,12 @@ export function createApp(): Express {
   app.use('/mock-assets/kb-life/handbook/files', serveResolvedPdf(resolveEmployeeHandbookPdfAbsolute));
   app.use('/mock-assets/kb-life/handbook/files', express.static(EMPLOYEE_HANDBOOK_MINIO_CACHE_DIR));
   app.use('/mock-assets/kb-life/handbook/files', express.static(EMPLOYEE_HANDBOOK_LOCAL_PDF_DIR));
+  app.use(
+    '/mock-assets/kb-life/finance-handbook/files',
+    serveResolvedPdf(resolveFinancialHandbookPdfAbsolute),
+  );
+  app.use('/mock-assets/kb-life/finance-handbook/files', express.static(FINANCIAL_HANDBOOK_MINIO_CACHE_DIR));
+  app.use('/mock-assets/kb-life/finance-handbook/files', express.static(FINANCIAL_HANDBOOK_LOCAL_PDF_DIR));
   // 园区地图 PDF：Suzhou 走 MinIO 缓存；其他地点仍映射 fixtures/.../Map/
   app.use('/mock-assets/kb-life/campus-maps/files', (req, res, next) => {
     const parts = req.path.replace(/^\//, '').split('/').filter(Boolean);
@@ -83,9 +95,10 @@ export function createApp(): Express {
       return;
     }
     const absolute =
-      location === SUZHOU_MINIO_LOCATION
+      resolveLiveCampusMapPdfAbsolute(location, fileName) ??
+      (location === SUZHOU_MINIO_LOCATION
         ? resolveSuzhouCampusMapPdfAbsolute(fileName)
-        : path.join(FIXTURES_DIR, 'kb-life/locations', location, 'Map', fileName);
+        : path.join(FIXTURES_DIR, 'kb-life/locations', location, 'Map', fileName));
     if (!absolute || !fs.existsSync(absolute)) {
       next();
       return;

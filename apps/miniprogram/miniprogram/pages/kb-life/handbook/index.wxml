@@ -1,5 +1,5 @@
 <view class="page page--handbook">
-  <nav-brand title="Employee Handbook" show-back="{{true}}"></nav-brand>
+  <nav-brand title="Emp Handbook" show-back="{{true}}"></nav-brand>
 
   <empty-state wx:if="{{pageStatus === 'loading'}}" title="正在加载员工手册"></empty-state>
   <empty-state
@@ -36,4 +36,5 @@
       </view>
     </view>
   </view>
+  <app-tab-bar></app-tab-bar>
 </view>

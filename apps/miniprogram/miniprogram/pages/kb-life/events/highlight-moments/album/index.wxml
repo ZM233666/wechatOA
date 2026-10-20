@@ -1,0 +1,38 @@
+<view class="page page--event-detail">
+  <nav-brand title="Album" show-back="{{true}}"></nav-brand>
+
+  <view wx:if="{{pageStatus === 'loading'}}" class="event-detail__state">加载中…</view>
+  <view wx:elif="{{pageStatus === 'error'}}" class="event-detail__state event-detail__state--error">{{errorText}}</view>
+  <view wx:elif="{{pageStatus === 'not-found'}}" class="event-detail__state">相册不存在或已下线</view>
+
+  <view class="event-detail" wx:elif="{{pageStatus === 'success'}}">
+    <view class="event-detail__card">
+      <view class="event-detail__hero event-detail__hero--highlights">
+        <image
+          class="event-detail__hero-icon"
+          src="/assets/images/kb-life/event-highlights-white.png"
+          mode="aspectFit"
+        ></image>
+        <text class="event-detail__hero-title">{{album.title}}</text>
+        <text class="event-detail__hero-subtitle" wx:if="{{album.subtitle}}">{{album.subtitle}}</text>
+        <text class="album-detail__date" wx:if="{{album.dateLabel}}">{{album.dateLabel}}</text>
+      </view>
+
+      <view class="event-detail__body">
+        <view class="album-grid" wx:if="{{album.images.length}}">
+          <image
+            class="album-grid__item tap-feedback"
+            wx:for="{{album.images}}"
+            wx:key="*this"
+            src="{{item}}"
+            mode="aspectFill"
+            data-url="{{item}}"
+            bindtap="onPreviewImage"
+          ></image>
+        </view>
+        <view wx:else class="event-detail__state">该相册暂无图片</view>
+      </view>
+    </view>
+  </view>
+  <app-tab-bar></app-tab-bar>
+</view>

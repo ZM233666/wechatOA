@@ -1,0 +1,17 @@
+{
+  "allowedDomains": ["knorr-bremse.com", "rail.cn"],
+  "entries": [
+    {
+      "email": "edward.chen@knorr-bremse.com",
+      "displayName": "爱德华 · Edward",
+      "department": "Digital Solutions",
+      "roleLabel": "Employee"
+    },
+    {
+      "email": "lina.li@rail.cn",
+      "displayName": "李娜 · Li Na",
+      "department": "Metro Rail",
+      "roleLabel": "Customer"
+    }
+  ]
+}

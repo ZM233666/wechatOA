@@ -2,13 +2,13 @@
   "pages": [
     "pages/index/index",
     "pages/services/index",
+    "pages/services/my-dashboard/index",
     "pages/services/insights/index",
     "pages/services/insights/reader",
     "pages/services/insights/access-denied/index",
     "pages/kb-life/index",
     "pages/kb-life/campus-map/index",
     "pages/profile/index",
-    "pages/profile/personal-info/index",
     "pages/news/index",
     "pages/news/detail",
     "pages/brand/index",
@@ -21,12 +21,17 @@
     "pages/kb-life/holiday-calendar/index",
     "pages/kb-life/open-positions/index",
     "pages/kb-life/open-positions/detail",
+    "pages/kb-life/guidance/index",
     "pages/kb-life/handbook/index",
+    "pages/kb-life/financial-handbook/index",
+    "pages/kb-life/financial-handbook/document/index",
     "pages/kb-life/care/index",
     "pages/kb-life/events/index",
     "pages/kb-life/events/annual-dinner/index",
     "pages/kb-life/events/outings/index",
-    "pages/kb-life/events/health/index"
+    "pages/kb-life/events/health/index",
+    "pages/kb-life/events/highlight-moments/index",
+    "pages/kb-life/events/highlight-moments/album/index"
   ],
   "window": {
     "navigationBarTitleText": "Knorr-Bremse",
@@ -61,7 +66,7 @@
       },
       {
         "pagePath": "pages/profile/index",
-        "text": "My Profile",
+        "text": "Setting",
         "iconPath": "assets/icons/tabbar/tab-profile.png",
         "selectedIconPath": "assets/icons/tabbar/tab-profile-active.png"
       }

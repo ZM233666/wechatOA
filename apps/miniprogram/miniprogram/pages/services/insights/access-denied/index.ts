@@ -1,5 +1,3 @@
-import { getInsightReport } from '../../../../services/services.service';
-
 Page({
   data: {
     title: 'KB Insights',
@@ -7,15 +5,12 @@ Page({
 
   onLoad(query: Record<string, string | undefined>) {
     const id = query.id ?? '';
-    if (!id) {
-      return;
+    if (id) {
+      this.setData({ title: 'Insight Report' });
     }
-    void getInsightReport(id)
-      .then((report) => {
-        this.setData({ title: report.title });
-      })
-      .catch(() => {
-        // keep default title
-      });
+  },
+
+  onGoIdentityBinding() {
+    wx.switchTab({ url: '/pages/profile/index' });
   },
 });

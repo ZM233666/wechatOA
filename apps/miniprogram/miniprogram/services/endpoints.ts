@@ -49,6 +49,9 @@ export const API_ENDPOINTS = {
   get services() {
     return p('/services');
   },
+  get serviceMyDashboardModules() {
+    return p('/services/my-dashboard/modules');
+  },
   serviceDetail: (id: string) => p(`/services/${encodeURIComponent(id)}`),
   get serviceInsights() {
     return p('/services/insights');
@@ -82,7 +85,24 @@ export const API_ENDPOINTS = {
   get kbLifeHandbook() {
     return p('/kb-life/handbook');
   },
+  get kbLifeGuidanceDocuments() {
+    return p('/kb-life/guidance-documents');
+  },
+  get kbLifeFinancialHandbook() {
+    return p('/kb-life/financial-handbook');
+  },
+  get kbLifeCare() {
+    return p('/kb-life/care');
+  },
+  get kbLifeOpenPositions() {
+    return p('/kb-life/open-positions');
+  },
+  kbLifeOpenPositionDetail: (id: string) =>
+    p(`/kb-life/open-positions/${encodeURIComponent(id)}`),
   get profile() {
     return p('/profile');
+  },
+  get profileIdentityBinding() {
+    return p('/profile/identity-binding');
   },
 } as const;

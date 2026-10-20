@@ -8,4 +8,6 @@
 - Mock 启动时 article 同步失败
 - 关闭 `NEWS_ARTICLE_ENABLED` 做纯离线演示
 
-开启远程源且同步成功时，接口返回 `article-*` ID；回退本地时使用 `news-001` 等 fixture ID。
+开启远程源且同步成功时，列表/首页返回 `article-*` ID；回退本地时使用 `news-001` 等 fixture ID。
+
+详情 `GET /api/news/:id` 在 CMS 源中找不到该 ID 时，会再查本地 fixtures（便于 `news-001` 等稳定 ID 深链联调）。

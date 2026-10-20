@@ -95,7 +95,7 @@ page {
 .news-detail__bar {
   position: fixed;
   right: 24rpx;
-  bottom: calc(24rpx + env(safe-area-inset-bottom));
+  bottom: calc(124rpx + env(safe-area-inset-bottom));
   padding: 4rpx;
   background: #ffffff;
   border: 1rpx solid #f3f4f6;

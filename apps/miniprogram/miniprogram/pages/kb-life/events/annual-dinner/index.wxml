@@ -32,4 +32,5 @@
       </view>
     </view>
   </view>
+  <app-tab-bar></app-tab-bar>
 </view>

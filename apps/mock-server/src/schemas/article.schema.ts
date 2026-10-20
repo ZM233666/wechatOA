@@ -66,6 +66,23 @@ export const linkBlockSchema = z.object({
   linkType: z.enum(['internal', 'external']),
 });
 
+export const mediaCarouselBlockSchema = z.object({
+  id: z.string().min(1),
+  type: z.literal('carousel'),
+  slides: z.array(imageResourceSchema).min(1),
+  caption: z.string().optional(),
+  autoplay: z.boolean().optional(),
+  interval: z.number().int().positive().optional(),
+});
+
+export const videoBlockSchema = z.object({
+  id: z.string().min(1),
+  type: z.literal('video'),
+  src: z.string().min(1),
+  poster: z.string().optional(),
+  caption: z.string().optional(),
+});
+
 export const articleContentBlockSchema = z.discriminatedUnion('type', [
   headingBlockSchema,
   paragraphBlockSchema,
@@ -75,6 +92,8 @@ export const articleContentBlockSchema = z.discriminatedUnion('type', [
   dividerBlockSchema,
   calloutBlockSchema,
   linkBlockSchema,
+  mediaCarouselBlockSchema,
+  videoBlockSchema,
 ]);
 
 export const articleDetailSchema = z.object({

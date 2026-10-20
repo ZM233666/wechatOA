@@ -56,4 +56,5 @@
       <view wx:elif="{{!hasNext}}" class="news-list__hint">没有更多了</view>
     </block>
   </view>
+  <app-tab-bar></app-tab-bar>
 </view>

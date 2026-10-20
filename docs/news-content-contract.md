@@ -72,7 +72,9 @@ type NewsPublicationStatus = 'draft' | 'scheduled' | 'published' | 'archived';
 
 ## richContent
 
-沿用 `ArticleContentBlock`：heading / paragraph / image / quote / list / divider / callout / link。
+沿用 `ArticleContentBlock`：heading / paragraph / image / quote / list / divider / callout / link / **carousel** / **video**。
+
+正文含 **轮播或视频** 时，即使 `bodyFormat=html`，小程序也会优先用 `richContent` + `article-renderer` 渲染（`contentHtml` 仍保留给纯图文 / 表格场景）。CMS HTML 约定见 [rich-content-schema.md](./rich-content-schema.md)。
 
 受控属性：
 

@@ -23,6 +23,14 @@
       "icon": { "url": "/mock-assets/kb-life/event-health.png", "alt": "健康体检", "width": 96, "height": 96, "aspectRatio": 1 },
       "iconBg": "#fef2f2",
       "path": "/pages/kb-life/events/health/index"
+    },
+    {
+      "id": "highlight-moments",
+      "title": "精彩瞬间 (Highlight Moments)",
+      "subtitle": "公司与团队精彩影像",
+      "icon": { "url": "/mock-assets/kb-life/event-highlights.png", "alt": "精彩瞬间", "width": 96, "height": 96, "aspectRatio": 1 },
+      "iconBg": "#fffbeb",
+      "path": "/pages/kb-life/events/highlight-moments/index"
     }
   ],
   "outingsMeta": {
@@ -31,5 +39,6 @@
   },
   "annualDinner": null,
   "outings": [],
-  "health": null
+  "health": null,
+  "highlightMoments": null
 }

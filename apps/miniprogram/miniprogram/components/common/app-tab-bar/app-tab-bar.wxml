@@ -1,0 +1,19 @@
+<view class="app-tab-bar">
+  <view class="app-tab-bar__placeholder"></view>
+  <view class="app-tab-bar__dock">
+    <view
+      class="app-tab-bar__item tap-feedback"
+      wx:for="{{tabs}}"
+      wx:key="key"
+      data-path="{{item.path}}"
+      bindtap="onTabTap"
+    >
+      <image
+        class="app-tab-bar__icon"
+        src="{{activeKey === item.key ? item.selectedIcon : item.icon}}"
+        mode="aspectFit"
+      ></image>
+      <text class="app-tab-bar__text {{activeKey === item.key ? 'app-tab-bar__text--active' : ''}}">{{item.title}}</text>
+    </view>
+  </view>
+</view>

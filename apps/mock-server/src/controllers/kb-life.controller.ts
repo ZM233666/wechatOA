@@ -4,9 +4,19 @@ import { withAbsoluteAssets } from '../services/asset-url.service';
 import { getFixtures, refreshCampusMapFromPdf, refreshWetalkIssueFromDisk, syncPdfDrivenCatalogs } from '../services/fixture.service';
 import { planShuttleTrip } from '../services/shuttle-trip-plan.service';
 import { loadLiveShuttle } from '../services/shuttle-schedule.service';
+import { loadLiveCampusMap } from '../services/campus-map.service';
 import { loadEmployeeHandbook } from '../services/employee-handbook.service';
+import { loadFinancialHandbook } from '../services/financial-handbook.service';
+import { loadGuidanceDocuments } from '../services/guidance-documents.service';
+import { loadLiveEmployeeCare } from '../services/local-global-care.service';
+import { loadOpenPositionDetail, loadOpenPositionsList } from '../services/job-openings.service';
 import { loadLiveCanteen, shanghaiMenuDate } from '../services/lunch-menu.service';
 import { activitiesResponseWithoutFakeData, loadLiveActivities } from '../services/company-events.service';
+import {
+  requireBoundIdentity,
+  requireEmployeeIdentity,
+  requireGuidanceDocumentsIdentity,
+} from '../services/identity-guard.service';
 import { HttpError } from '../middleware/error-handler.middleware';
 import { success } from '../utils/response';
 
@@ -36,6 +46,7 @@ export function getKbLifeEntries(req: Request, res: Response): void {
 
 export async function getCanteen(req: Request, res: Response, next: NextFunction): Promise<void> {
   try {
+    requireBoundIdentity(req);
     const location = resolveCampusLocation(req);
     const canteen = getFixtures().canteenByLocation[location];
     if (!canteen) {
@@ -78,6 +89,7 @@ function parseOptionalCoord(value: unknown): number | undefined {
 
 export async function getShuttleTripPlan(req: Request, res: Response, next: NextFunction): Promise<void> {
   try {
+    requireBoundIdentity(req);
     const location = resolveCampusLocation(req);
     const destination = typeof req.query.destination === 'string' ? req.query.destination : '';
     const latitude = parseOptionalCoord(req.query.latitude);
@@ -92,6 +104,7 @@ export async function getShuttleTripPlan(req: Request, res: Response, next: Next
 
 export async function getShuttle(req: Request, res: Response, next: NextFunction): Promise<void> {
   try {
+    requireBoundIdentity(req);
     const location = resolveCampusLocation(req);
     if (req.mockScenario === 'empty') {
       success(res, withAbsoluteAssets(req, { notice: '', routes: [], location }), req.requestId);
@@ -124,6 +137,7 @@ export async function getActivities(req: Request, res: Response, next: NextFunct
           annualDinner: null,
           outings: [],
           health: null,
+          highlightMoments: null,
         }),
         req.requestId,
       );
@@ -138,6 +152,7 @@ export async function getActivities(req: Request, res: Response, next: NextFunct
 }
 
 export function getWetalkIssues(req: Request, res: Response): void {
+  requireEmployeeIdentity(req);
   syncPdfDrivenCatalogs();
   const items = getFixtures().wetalkIssues.map(({ pages: _pages, ...summary }) => summary);
   if (req.mockScenario === 'empty') {
@@ -148,6 +163,7 @@ export function getWetalkIssues(req: Request, res: Response): void {
 }
 
 export function getWetalkIssueDetail(req: Request, res: Response): void {
+  requireEmployeeIdentity(req);
   const id = String(req.params.id);
   const issue =
     refreshWetalkIssueFromDisk(id) ??
@@ -160,18 +176,31 @@ export function getWetalkIssueDetail(req: Request, res: Response): void {
   success(res, withAbsoluteAssets(req, issue), req.requestId);
 }
 
-export function getCampusMap(req: Request, res: Response): void {
-  const location = resolveCampusLocation(req);
-  refreshCampusMapFromPdf(location);
-  const campusMap = getFixtures().campusMapByLocation[location];
-  if (!campusMap) {
-    throw new HttpError(404, 'Resource not found', ERROR_CODES.RESOURCE_NOT_FOUND, { location });
+export async function getCampusMap(req: Request, res: Response, next: NextFunction): Promise<void> {
+  try {
+    requireBoundIdentity(req);
+    const location = resolveCampusLocation(req);
+    if (req.mockScenario !== 'empty') {
+      const live = await loadLiveCampusMap(location);
+      if (live) {
+        success(res, withAbsoluteAssets(req, { ...live, location }), req.requestId);
+        return;
+      }
+    }
+    refreshCampusMapFromPdf(location);
+    const campusMap = getFixtures().campusMapByLocation[location];
+    if (!campusMap) {
+      throw new HttpError(404, 'Resource not found', ERROR_CODES.RESOURCE_NOT_FOUND, { location });
+    }
+    success(res, withAbsoluteAssets(req, { ...campusMap, location }), req.requestId);
+  } catch (error) {
+    next(error);
   }
-  success(res, withAbsoluteAssets(req, { ...campusMap, location }), req.requestId);
 }
 
 export async function getEmployeeHandbook(req: Request, res: Response, next: NextFunction): Promise<void> {
   try {
+    requireGuidanceDocumentsIdentity(req);
     const data = await loadEmployeeHandbook();
     success(res, withAbsoluteAssets(req, data), req.requestId);
   } catch (error) {
@@ -179,7 +208,88 @@ export async function getEmployeeHandbook(req: Request, res: Response, next: Nex
   }
 }
 
+export function getGuidanceDocuments(req: Request, res: Response, next: NextFunction): void {
+  try {
+    requireGuidanceDocumentsIdentity(req);
+    const data = loadGuidanceDocuments();
+    success(res, withAbsoluteAssets(req, data), req.requestId);
+  } catch (error) {
+    next(error);
+  }
+}
+
+export async function getFinancialHandbook(
+  req: Request,
+  res: Response,
+  next: NextFunction,
+): Promise<void> {
+  try {
+    requireGuidanceDocumentsIdentity(req);
+    const data = await loadFinancialHandbook();
+    success(res, withAbsoluteAssets(req, data), req.requestId);
+  } catch (error) {
+    next(error);
+  }
+}
+
+export async function getOpenPositions(req: Request, res: Response, next: NextFunction): Promise<void> {
+  try {
+    if (req.mockScenario === 'empty') {
+      success(res, withAbsoluteAssets(req, { items: [] }), req.requestId);
+      return;
+    }
+    const data = await loadOpenPositionsList();
+    success(res, withAbsoluteAssets(req, data), req.requestId);
+  } catch (error) {
+    next(error);
+  }
+}
+
+export async function getOpenPositionDetailHandler(
+  req: Request,
+  res: Response,
+  next: NextFunction,
+): Promise<void> {
+  try {
+    const id = typeof req.params.id === 'string' ? req.params.id.trim() : '';
+    if (!id) {
+      throw new HttpError(404, 'Resource not found', ERROR_CODES.RESOURCE_NOT_FOUND, { id });
+    }
+    const detail = await loadOpenPositionDetail(id);
+    if (!detail) {
+      throw new HttpError(404, 'Resource not found', ERROR_CODES.RESOURCE_NOT_FOUND, { id });
+    }
+    success(res, withAbsoluteAssets(req, detail), req.requestId);
+  } catch (error) {
+    next(error);
+  }
+}
+
+export async function getEmployeeCare(req: Request, res: Response, next: NextFunction): Promise<void> {
+  try {
+    requireBoundIdentity(req);
+    const fixture = getFixtures().employeeCare;
+    if (req.mockScenario === 'empty') {
+      success(
+        res,
+        withAbsoluteAssets(req, {
+          hero: fixture.hero,
+          initiatives: [],
+        }),
+        req.requestId,
+      );
+      return;
+    }
+    const live = await loadLiveEmployeeCare();
+    const data = live ?? fixture;
+    success(res, withAbsoluteAssets(req, data), req.requestId);
+  } catch (error) {
+    next(error);
+  }
+}
+
 export function getHolidayCalendar(req: Request, res: Response): void {
+  requireBoundIdentity(req);
   const location = resolveCampusLocation(req);
   const holiday = getFixtures().holidayByLocation[location];
   if (!holiday) {

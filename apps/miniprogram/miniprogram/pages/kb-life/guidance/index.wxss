@@ -1,0 +1,86 @@
+page {
+  background: #f5f7fa;
+}
+
+.page--guidance {
+  background: #f5f7fa;
+  min-height: 100vh;
+}
+
+.guidance {
+  padding: 24rpx 32rpx calc(32rpx + env(safe-area-inset-bottom));
+}
+
+.guidance__heading {
+  display: block;
+  font-size: 40rpx;
+  font-weight: 700;
+  color: #003b70;
+  margin-bottom: 24rpx;
+}
+
+.guidance-card {
+  background: #ffffff;
+  border-radius: 24rpx;
+  padding: 28rpx;
+  margin-bottom: 20rpx;
+  box-shadow: 0 4rpx 16rpx rgba(3, 62, 112, 0.05);
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+}
+
+.guidance-card__icon-wrap {
+  width: 80rpx;
+  height: 80rpx;
+  border-radius: 16rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.guidance-card__icon {
+  width: 40rpx;
+  height: 40rpx;
+}
+
+.guidance-card__meta {
+  flex: 1;
+  min-width: 0;
+  margin-left: 24rpx;
+}
+
+.guidance-card__title {
+  display: block;
+  font-size: 28rpx;
+  font-weight: 700;
+  color: #111827;
+  line-height: 1.35;
+}
+
+.guidance-card__subtitle {
+  display: block;
+  margin-top: 6rpx;
+  font-size: 22rpx;
+  color: #6b7280;
+  line-height: 1.4;
+}
+
+.guidance-card__arrow {
+  font-size: 36rpx;
+  color: #9ca3af;
+  line-height: 1;
+  margin-left: 12rpx;
+}
+
+.guidance__state {
+  padding: 32rpx 0;
+  text-align: center;
+  font-size: 28rpx;
+  color: #6b7280;
+}
+
+.guidance__state--error {
+  color: #b91c1c;
+}

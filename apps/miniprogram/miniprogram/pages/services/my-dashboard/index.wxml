@@ -1,0 +1,31 @@
+<view class="page page--my-dashboard">
+  <nav-brand title="My Dashboard" show-back="{{true}}"></nav-brand>
+
+  <view class="dashboard">
+    <text class="dashboard__heading">系统模块 (System Modules)</text>
+    <text class="dashboard__hint">多系统状态监测与运营看板</text>
+
+    <empty-state wx:if="{{pageStatus === 'loading'}}" title="正在加载模块"></empty-state>
+    <empty-state wx:elif="{{pageStatus === 'error'}}" title="加载失败" description="{{errorText}}"></empty-state>
+    <empty-state wx:elif="{{pageStatus === 'empty'}}" title="暂无系统模块"></empty-state>
+
+    <view
+      wx:if="{{pageStatus === 'success'}}"
+      class="module-card tap-feedback"
+      wx:for="{{modules}}"
+      wx:key="id"
+      bindtap="onModuleTap"
+      data-title="{{item.title}}"
+    >
+      <view class="module-card__icon-wrap" style="background: {{item.iconBg}};">
+        <image class="module-card__icon" src="{{item.icon}}" mode="aspectFit"></image>
+      </view>
+      <view class="module-card__meta">
+        <text class="module-card__title">{{item.title}}</text>
+        <text class="module-card__subtitle">{{item.subtitle}}</text>
+      </view>
+      <text class="module-card__arrow">›</text>
+    </view>
+  </view>
+  <app-tab-bar></app-tab-bar>
+</view>

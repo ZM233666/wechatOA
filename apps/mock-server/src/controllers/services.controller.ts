@@ -6,6 +6,7 @@ import {
   refreshInsightReportFromDisk,
   syncPdfDrivenCatalogs,
 } from '../services/fixture.service';
+import { requireBoundIdentity } from '../services/identity-guard.service';
 import { HttpError } from '../middleware/error-handler.middleware';
 import { success } from '../utils/response';
 
@@ -55,7 +56,20 @@ export function getInsightReportDetail(req: Request, res: Response): void {
       id,
     });
   }
+  if (report.gating) {
+    requireBoundIdentity(req);
+  }
   success(res, withAbsoluteAssets(req, report), req.requestId);
+}
+
+export function getMyDashboardModules(req: Request, res: Response): void {
+  requireBoundIdentity(req);
+  const modules = getFixtures().services.myDashboardModules ?? [];
+  if (req.mockScenario === 'empty') {
+    success(res, { items: [] }, req.requestId);
+    return;
+  }
+  success(res, withAbsoluteAssets(req, { items: modules }), req.requestId);
 }
 
 export function getServiceDetail(req: Request, res: Response): void {

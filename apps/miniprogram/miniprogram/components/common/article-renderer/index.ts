@@ -10,6 +10,8 @@ const KNOWN_TYPES = new Set([
   'divider',
   'callout',
   'link',
+  'carousel',
+  'video',
 ]);
 
 const TAB_PATHS = new Set([
@@ -41,6 +43,11 @@ interface RenderBlock {
   url?: string;
   linkType?: string;
   imageFailed?: boolean;
+  slides?: Array<{ url: string; alt: string }>;
+  autoplay?: boolean;
+  interval?: number;
+  src?: string;
+  poster?: string;
 }
 
 function marksClass(marks: string[] | undefined): string {
@@ -91,6 +98,28 @@ function toRenderBlocks(blocks: ArticleContentBlock[]): RenderBlock[] {
           imageFailed: false,
         };
       }
+      if (block.type === 'carousel') {
+        return {
+          id: block.id,
+          type: block.type,
+          slides: block.slides.map((slide) => ({
+            url: slide.url,
+            alt: slide.alt || '轮播配图',
+          })),
+          caption: block.caption,
+          autoplay: block.autoplay === true,
+          interval: block.interval && block.interval > 0 ? block.interval : 5000,
+        };
+      }
+      if (block.type === 'video') {
+        return {
+          id: block.id,
+          type: block.type,
+          src: block.src,
+          poster: block.poster,
+          caption: block.caption,
+        };
+      }
       return { ...block } as RenderBlock;
     });
 }
@@ -100,6 +129,11 @@ Component({
     blocks: {
       type: Array,
       value: [],
+    },
+    /** 轮播图是否支持点击全屏预览；新闻动图（aa-svg-gallery）应设为 false */
+    carouselPreview: {
+      type: Boolean,
+      value: false,
     },
   },
   data: {
@@ -134,6 +168,21 @@ Component({
     onSpanLink(event: WechatMiniprogram.TouchEvent) {
       const { href } = event.currentTarget.dataset as { href?: string };
       this.openLink(href, href && href.startsWith('/pages/') ? 'internal' : 'external');
+    },
+    onCarouselImageTap(event: WechatMiniprogram.TouchEvent) {
+      if (!this.properties.carouselPreview) {
+        return;
+      }
+      const { id, url } = event.currentTarget.dataset as { id?: string; url?: string };
+      if (!id || !url) {
+        return;
+      }
+      const block = (this.data.renderBlocks as RenderBlock[]).find((item) => item.id === id);
+      const urls = block?.slides?.map((slide) => slide.url) ?? [];
+      wx.previewImage({
+        current: url,
+        urls: urls.length ? urls : [url],
+      });
     },
     openLink(url: string | undefined, linkType: string | undefined) {
       if (!url) {

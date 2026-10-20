@@ -64,6 +64,11 @@ pnpm test:mock
 | `MINIO_WETALK_PREFIX` | `wetalk/` | WeTalk PDF 前缀 |
 | `MINIO_SUZHOU_CAMPUS_MAP_PREFIX` | `suzhou/campus-map/` | 苏州园区地图 PDF 前缀 |
 | `MINIO_SUZHOU_SHUTTLE_BUS_PREFIX` | `suzhou/shuttle-bus/` | 苏州班车时刻 PDF 前缀 |
+| `MINIO_EMPLOYEE_HANDBOOK_PREFIX` | `employee-handbook/` | 员工手册 PDF 前缀 |
+| `MINIO_FINANCIAL_HANDBOOK_PREFIX` | `finance-handbook/` | 财务指导手册 PDF 前缀 |
+| `MINIO_FINANCIAL_HANDBOOK_USER_MANUAL_SUBDIR` | `user_manual` | 使用手册子目录 |
+| `MINIO_FINANCIAL_HANDBOOK_PRECAUTIONS_SUBDIR` | `precautions` | 注意事项子目录 |
+| `FINANCIAL_HANDBOOK_ENABLED` | `false` | 从管理端拉取已发布财务手册 PDF（`FINANCIAL_HANDBOOK_CURRENT_PATH`） |
 | `NEWS_ARTICLE_ENABLED` | `false` | 新闻中心改从管理端 `article-content` 拉取 |
 | `NEWS_ARTICLE_API_BASE_URL` | `http://127.0.0.1:8000` | 管理端 API |
 | `NEWS_ARTICLE_INCLUDE_DRAFTS` | `false` | 为 true 时联调包含 draft；默认只显示 published |
@@ -96,7 +101,7 @@ curl 'http://127.0.0.1:3100/api/news?__scenario=empty'
 | 园区地图（苏州） | **MinIO** `wechat-official-account/suzhou/campus-map/`（`runtime/minio/suzhou/campus-map/`）；其他地点仍用本地 `locations/{Location}/Map/` |
 | 班车时刻（苏州） | **MinIO** `wechat-official-account/suzhou/shuttle-bus/`（`runtime/minio/suzhou/shuttle-bus/`）；本地 `fixtures/kb-life/Shuttlebus/` 作兜底 |
 
-开启 `MINIO_ENABLED=true` 后，启动时会从 MinIO 拉取 `kb-insights/`、`wetalk/`、`suzhou/campus-map/`、`suzhou/shuttle-bus/`；列表/详情接口也会按 TTL 后台刷新。其他地点园区资源仍读本地 fixtures。
+开启 `MINIO_ENABLED=true` 后，启动时会从 MinIO 拉取 `kb-insights/`、`wetalk/`、`suzhou/campus-map/`、`suzhou/shuttle-bus/`、`employee-handbook/`、`finance-handbook/`；列表/详情接口也会按 TTL 后台刷新。其他地点园区资源仍读本地 fixtures。
 
 ```text
 /mock-assets/services/insights/files/{filename}.pdf
@@ -111,8 +116,8 @@ curl 'http://127.0.0.1:3100/api/news?__scenario=empty'
 开启 `NEWS_ARTICLE_ENABLED=true` 后，`/api/news*` 与首页 `latestNews` 优先读管理端：
 
 - 登录：`POST /api/token/`（默认 `superadmin`）
-- 列表：`GET /api/article-content/content/?content_type=article`
-- 正文 `content_html` 经 `prepareArticleHtml` 转为 `contentHtml`（保留 wangEditor 样式/表格等）；同时保留 `richContent` 作兼容回退
+- 列表：`GET /api/article-content/content/?content_type=article`（**不含** `content_html`，仅摘要/封面等）
+- 详情：`GET /api/article-content/content/:id/` 按需拉取；`content_html` 经 `prepareArticleHtml` 转为 `contentHtml`（保留 wangEditor 样式/表格等），并生成 `richContent` 作兼容回退
 - base64 图片落到 `runtime/news/media/`
 
 关闭或同步失败时回退本地 `fixtures/news/`（已恢复完整文章 JSON，保证离线联调仍有内容）。

@@ -1,0 +1,57 @@
+@import '../detail-common.wxss';
+
+.highlight-albums {
+  padding-top: 8rpx;
+}
+
+.highlight-album {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  background: #f9fafb;
+  border-radius: 16rpx;
+  padding: 16rpx;
+  margin-bottom: 20rpx;
+}
+
+.highlight-album__cover {
+  width: 120rpx;
+  height: 120rpx;
+  border-radius: 12rpx;
+  flex-shrink: 0;
+}
+
+.highlight-album__meta {
+  flex: 1;
+  min-width: 0;
+  margin-left: 20rpx;
+}
+
+.highlight-album__title {
+  display: block;
+  font-size: 28rpx;
+  font-weight: 700;
+  color: #111827;
+  line-height: 1.35;
+}
+
+.highlight-album__subtitle {
+  display: block;
+  margin-top: 6rpx;
+  font-size: 22rpx;
+  color: #6b7280;
+  line-height: 1.4;
+}
+
+.highlight-album__info {
+  display: block;
+  margin-top: 8rpx;
+  font-size: 22rpx;
+  color: #9ca3af;
+}
+
+.highlight-album__arrow {
+  font-size: 36rpx;
+  color: #9ca3af;
+  margin-left: 8rpx;
+}

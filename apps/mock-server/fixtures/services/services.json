@@ -26,13 +26,13 @@
     },
     {
       "id": "fast-phm",
-      "title": "MyDashboard",
-      "subtitle": "Predictive Health Management",
-      "footerTitle": "预测性维护",
-      "footerHint": "智能故障预测与诊断",
+      "title": "My Dashboard",
+      "subtitle": "Dashboard for Various Systems",
+      "footerTitle": "多系统状态监测",
+      "footerHint": "",
       "coverImage": {
         "url": "/mock-assets/services/fast-phm-cover.png",
-        "alt": "MyDashboard",
+        "alt": "My Dashboard",
         "width": 1200,
         "height": 540,
         "aspectRatio": 2.2222
@@ -174,6 +174,34 @@
       "relatedIds": [
         "digital-cbm"
       ]
+    }
+  ],
+  "myDashboardModules": [
+    {
+      "id": "fast-phm",
+      "title": "Fast PHM",
+      "subtitle": "Predictive Health Management",
+      "icon": {
+        "url": "/mock-assets/services/icon-alert.png",
+        "alt": "Fast PHM",
+        "width": 64,
+        "height": 64,
+        "aspectRatio": 1
+      },
+      "iconBg": "#fffbeb"
+    },
+    {
+      "id": "ftq-system",
+      "title": "FTQ System",
+      "subtitle": "First Time Quality",
+      "icon": {
+        "url": "/mock-assets/services/icon-monitor.png",
+        "alt": "FTQ System",
+        "width": 64,
+        "height": 64,
+        "aspectRatio": 1
+      },
+      "iconBg": "#eff6ff"
     }
   ]
 }

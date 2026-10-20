@@ -70,13 +70,29 @@
 
 - 请求头 `X-Mock-Scenario`
 - 查询参数 `__scenario`
-- `GET /api/profile?loggedIn=true`（切换登录夹具）
 
 约束：
 
 - Mock-only 参数不得进入正式 Django API（`/api/v1/mini/*`、`/api/v1/admin/*`）
 - 小程序生产环境（trial / release）不得发送 `X-Mock-Scenario`
-- 正式后端不实现 `__scenario`，也不根据 `loggedIn` 切换夹具
+- 正式后端不实现 `__scenario`
+- 身份与权限以 **身份绑定**（`loginCode` / 未来 JWT）为准；禁止 `GET /api/profile?role=` / `loggedIn=` 等 Mock 角色切换
+
+## 受保护 Mini API（身份绑定）
+
+下列接口在 Mock 与正式后端均须校验绑定身份（Query `loginCode` 或等价会话）；小程序在请求时附带 `wx.login` 的 `code`：
+
+| 能力 | 最低身份 |
+| --- | --- |
+| 园区地图 / 班车 / 食堂 / 假期日历 | 已绑定（Employee 或 Customer） |
+| My Dashboard（`/services/my-dashboard/modules`） | 已绑定（Employee 或 Customer） |
+| 员工关怀（`/kb-life/care`） | 已绑定（Employee 或 Customer） |
+| 在聘岗位（`/kb-life/open-positions`） | **否**（访客可读，仅已发布内容） |
+| 指导文件（`/kb-life/guidance-documents`、员工/财务手册） | **否**（访客可读） |
+| WeTalk | Employee |
+| Insights 详情（`gating: true`） | 已绑定 |
+
+未授权返回 HTTP **403**，`error.code` 建议为 `UNAUTHORIZED`。
 
 ## Pagination
 

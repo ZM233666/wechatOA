@@ -16,6 +16,8 @@
 | `divider` | 分隔线 |
 | `callout` | `variant`: info/warning/success/exclusive |
 | `link` | `text` + `url` + `linkType`: internal/external |
+| `carousel` | `slides: ImageResource[]`；可选 `caption`、`autoplay`、`interval`（毫秒） |
+| `video` | `src`；可选 `poster`、`caption` |
 
 可选排版属性：
 
@@ -23,6 +25,33 @@
 - image `layout`: normal/wide/full，缺省 normal
 
 示例见需求文档与 `fixtures/news/articles/news-001.json`。
+
+### CMS HTML 嵌入（新闻 `content_html`）
+
+管理端可在 wangEditor HTML 中插入下列结构，Mock/Django 同步时会转为 `richContent` Block，小程序用 `article-renderer` 渲染（`rich-text` 无法播放视频 / 轮播）：
+
+**SVG / 图片轮播**
+
+```html
+<div data-kb-block="carousel" data-caption="说明文字" data-autoplay="true" data-interval="5000">
+  <img src="https://.../a.svg" alt="图1" />
+  <img src="https://.../b.png" alt="图2" />
+</div>
+```
+
+或使用 `data-slides='[{"url":"https://.../a.svg","alt":"图1"}]'`；也支持 class：`kb-carousel` / `kb-media-carousel` / `wx-svg-carousel`。
+
+**管理端 SVG 动图图集（aa-svg-gallery）**
+
+识别 `<section class="aa-svg-gallery" data-aa-svg-gallery="1" data-aa-config="...">`（`data-aa-config` 为 URL 编码 JSON，含 `images[]`、`scrollDuration`、`loop` 等）。小程序侧转为 `carousel` Block，用 `swiper` 自动轮播（不执行 SVG/CSS 动画）；`loop=true` 时按 `images` 去重，忽略为无缝循环重复插入的 `<img>`。
+
+**视频**
+
+```html
+<video src="https://.../clip.mp4" poster="https://.../poster.jpg" data-caption="说明"></video>
+```
+
+视频域名须配置到小程序「downloadFile 合法域名」。新闻正文轮播（动图）默认 **不可点击放大**（`article-renderer` 的 `carouselPreview=false`），仅支持 swiper 滑动切换。
 
 ## 小程序渲染
 

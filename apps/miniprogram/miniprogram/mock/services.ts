@@ -34,13 +34,38 @@ export const SERVICE_HERO_CARDS: ServiceHeroCard[] = [
   },
   {
     id: 'fast-phm',
-    title: 'MyDashboard',
-    subtitle: 'Predictive Health Management',
-    footerTitle: '预测性维护',
-    footerHint: '智能故障预测与诊断',
+    title: 'My Dashboard',
+    subtitle: 'Dashboard for Various Systems',
+    footerTitle: '多系统状态监测',
+    footerHint: '',
     image: '/assets/images/banners/banner-2.png',
     icon: '/assets/images/Services/alert.png',
     iconTone: 'gold',
+  },
+];
+
+export interface MyDashboardModuleMock {
+  id: string;
+  title: string;
+  subtitle: string;
+  icon: string;
+  iconBg: string;
+}
+
+export const MY_DASHBOARD_MODULES: MyDashboardModuleMock[] = [
+  {
+    id: 'fast-phm',
+    title: 'Fast PHM',
+    subtitle: 'Predictive Health Management',
+    icon: '/assets/images/Services/alert.png',
+    iconBg: '#fffbeb',
+  },
+  {
+    id: 'ftq-system',
+    title: 'FTQ System',
+    subtitle: 'First Time Quality',
+    icon: '/assets/images/Services/monitor.png',
+    iconBg: '#eff6ff',
   },
 ];
 

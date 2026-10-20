@@ -75,6 +75,16 @@ refactor: 抽取 request 封装
 5. 在模拟器中切换 Tab，确认首页 Banner / 快捷入口 / 最新资讯等展示正常
 6. 开发环境首页底部「开发调试」区域可点击「检查后端服务」验证联调（仅 `develop` 显示）
 
+### 开发阶段身份门禁（摘要）
+
+| 能力 | develop（访客） | trial / release |
+| --- | --- | --- |
+| 指导文件（`/kb-life/guidance*`、员工/财务手册） | 可访问 | 可访问（访客可读） |
+| WeTalk、园区地图/班车/食堂/假期 | 须已绑定身份 | 同左 |
+| KB Insights（gating） | 须已绑定身份 | 同左 |
+
+指导文件各环境均不校验身份；小程序见 `shouldBlockGuidanceDocumentsForNonEmployee`（恒为 false），Mock 见 `requireGuidanceDocumentsIdentity`（空校验）。
+
 ## 真机调试流程
 
 1. 确认 Mock（或未来正式后端）监听 `0.0.0.0` 且端口可达（Mock 默认 `3100`）

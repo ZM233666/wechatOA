@@ -1,0 +1,43 @@
+<view class="page page--event-detail">
+  <nav-brand title="Highlights" show-back="{{true}}"></nav-brand>
+
+  <view wx:if="{{pageStatus === 'loading'}}" class="event-detail__state">加载中…</view>
+  <view wx:elif="{{pageStatus === 'error'}}" class="event-detail__state event-detail__state--error">{{errorText}}</view>
+  <view wx:elif="{{pageStatus === 'empty'}}" class="event-detail__state">暂无已发布的相册</view>
+
+  <view class="event-detail" wx:elif="{{pageStatus === 'success'}}">
+    <view class="event-detail__card">
+      <view class="event-detail__hero event-detail__hero--highlights">
+        <image
+          class="event-detail__hero-icon"
+          src="/assets/images/kb-life/event-highlights-white.png"
+          mode="aspectFit"
+        ></image>
+        <text class="event-detail__hero-title">{{section.title}}</text>
+        <text class="event-detail__hero-subtitle" wx:if="{{section.subtitle}}">{{section.subtitle}}</text>
+      </view>
+
+      <view class="event-detail__body highlight-albums">
+        <view
+          class="highlight-album tap-feedback"
+          wx:for="{{section.albums}}"
+          wx:key="id"
+          data-id="{{item.id}}"
+          hover-stop-propagation="{{true}}"
+          catchtap="onAlbumTap"
+        >
+          <image class="highlight-album__cover" src="{{item.coverImage}}" mode="aspectFill"></image>
+          <view class="highlight-album__meta">
+            <text class="highlight-album__title">{{item.title}}</text>
+            <text class="highlight-album__subtitle" wx:if="{{item.subtitle}}">{{item.subtitle}}</text>
+            <text class="highlight-album__info">
+              {{item.dateLabel ? item.dateLabel + ' · ' : ''}}{{item.imageCount}} 张
+            </text>
+          </view>
+          <text class="highlight-album__arrow">›</text>
+        </view>
+      </view>
+    </view>
+  </view>
+  <app-tab-bar></app-tab-bar>
+</view>

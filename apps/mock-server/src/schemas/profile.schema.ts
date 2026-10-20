@@ -23,10 +23,4 @@ export const profileSchema = z.object({
   isLoggedIn: z.boolean(),
   user: profileUserSchema.nullable(),
   fields: z.array(profileFieldSchema),
-  roleOptions: z.array(
-    z.object({
-      key: z.enum(['Edward', 'Customer', 'Visitor']),
-      label: z.string().min(1),
-    }),
-  ),
 });

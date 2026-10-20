@@ -1,8 +1,20 @@
 import { parse, type HTMLElement } from 'node-html-parser';
 import { mockEnv } from '../config/env';
+import { isArticleCarouselContainer } from './article-carousel-html';
 import { absoluteMediaUrl, persistArticleImageSrc } from './article-html-media';
 
-const BLOCKED_TAGS = new Set(['script', 'style', 'iframe', 'object', 'embed', 'form', 'input', 'button', 'textarea']);
+const BLOCKED_TAGS = new Set([
+  'script',
+  'style',
+  'iframe',
+  'object',
+  'embed',
+  'form',
+  'input',
+  'button',
+  'textarea',
+  'video',
+]);
 const EVENT_ATTR_RE = /^on/i;
 const IMG_RESPONSIVE_STYLE = 'max-width:100%;height:auto;display:block;border-radius:8px;margin:12px 0';
 const TABLE_STYLE = 'width:100%;border-collapse:collapse;margin:12px 0;font-size:14px';
@@ -43,6 +55,10 @@ function mergeStyle(existing: string | undefined, extra: string): string {
 function sanitizeElement(el: HTMLElement): void {
   const tag = el.tagName?.toLowerCase() ?? '';
   if (BLOCKED_TAGS.has(tag)) {
+    el.remove();
+    return;
+  }
+  if (isArticleCarouselContainer(el)) {
     el.remove();
     return;
   }

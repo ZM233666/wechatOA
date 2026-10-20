@@ -1,6 +1,6 @@
-import { getStoredProfileRole } from '../services/profile.service';
+import { shouldBlockWetalkForNonEmployee as blockNonEmployee } from './identity-access';
 
-/** Demo：Visitor / Customer 不可进入 WeTalk，仅员工（Edward）可访问 */
+/** 未绑定或非 Employee 身份不可进入 WeTalk */
 export function shouldBlockWetalkForNonEmployee(): boolean {
-  return getStoredProfileRole() !== 'Edward';
+  return blockNonEmployee();
 }

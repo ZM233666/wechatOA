@@ -77,11 +77,11 @@
       "path": "/pages/kb-life/open-positions/index"
     },
     {
-      "id": "handbook",
-      "title": "员工手册",
-      "subtitle": "Employee Handbook",
-      "icon": { "url": "/mock-assets/kb-life/handbook.png", "alt": "员工手册", "width": 96, "height": 96, "aspectRatio": 1 },
-      "path": "/pages/kb-life/handbook/index"
+      "id": "guidance",
+      "title": "指导文件",
+      "subtitle": "Guidance Documents",
+      "icon": { "url": "/mock-assets/kb-life/handbook.png", "alt": "指导文件", "width": 96, "height": 96, "aspectRatio": 1 },
+      "path": "/pages/kb-life/guidance/index"
     },
     {
       "id": "care",

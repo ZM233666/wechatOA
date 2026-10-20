@@ -89,8 +89,8 @@ page {
   position: fixed;
   left: 0;
   right: 0;
-  bottom: 0;
-  padding: 20rpx 32rpx calc(20rpx + env(safe-area-inset-bottom));
+  bottom: calc(100rpx + env(safe-area-inset-bottom));
+  padding: 20rpx 32rpx 20rpx;
   background: #ffffff;
   border-top: 1rpx solid #f3f4f6;
   box-shadow: 0 -8rpx 20rpx rgba(0, 0, 0, 0.04);

@@ -7,7 +7,10 @@
     </view>
     <text class="denied__title">Access Denied</text>
     <text class="denied__name">{{title}}</text>
-    <text class="denied__desc">您无访问权限。此功能仅对已授权用户开放。</text>
-    <text class="denied__desc-en">(You do not have permission to access this content.)</text>
+    <text class="denied__desc">您无访问权限。请先完成企业身份绑定后再查看此内容。</text>
+    <text class="denied__desc-en">Complete identity binding in Profile to access this content.</text>
+    <view class="denied__btn tap-feedback" bindtap="onGoIdentityBinding">
+      <text class="denied__btn-text">前往身份绑定</text>
+    </view>
   </view>
 </view>

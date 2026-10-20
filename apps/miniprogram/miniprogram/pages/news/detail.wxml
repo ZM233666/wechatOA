@@ -8,8 +8,13 @@
       <text class="news-detail__title">{{news.title}}</text>
       <text wx:if="{{news.subtitle}}" class="news-detail__subtitle">{{news.subtitle}}</text>
       <text class="news-detail__meta">{{news.source || news.author}} · {{news.date}}</text>
-      <html-content wx:if="{{news.bodyFormat === 'html' && news.contentHtml}}" html="{{news.contentHtml}}"></html-content>
-      <article-renderer wx:else blocks="{{news.richContent}}"></article-renderer>
+      <article-renderer
+        wx:if="{{useBlockBody}}"
+        blocks="{{news.richContent}}"
+        carousel-preview="{{false}}"
+      ></article-renderer>
+      <html-content wx:elif="{{news.bodyFormat === 'html' && news.contentHtml}}" html="{{news.contentHtml}}"></html-content>
+      <article-renderer wx:else blocks="{{news.richContent}}" carousel-preview="{{false}}"></article-renderer>
     </view>
   </view>
 
@@ -31,4 +36,5 @@
       <image class="news-detail__icon" src="/assets/images/content/icon-share.png" mode="aspectFit"></image>
     </button>
   </view>
+  <app-tab-bar></app-tab-bar>
 </view>
