@@ -1,15 +1,16 @@
 <view class="page page--jobs">
-  <nav-brand title="Open Positions" show-back="{{true}}"></nav-brand>
+  <nav-brand title="岗位机会" show-back="{{true}}"></nav-brand>
 
   <view class="jobs">
-    <text class="jobs__heading">Open Positions</text>
+    <text class="jobs__heading">岗位机会</text>
+    <text class="jobs__heading-sub">Open Positions</text>
 
     <empty-state wx:if="{{pageStatus === 'loading'}}" title="正在加载岗位列表"></empty-state>
     <view wx:elif="{{pageStatus === 'error'}}" bindtap="loadPositions">
       <empty-state title="加载失败" description="{{errorText}}"></empty-state>
     </view>
     <view wx:elif="{{pageStatus === 'empty'}}" class="jobs-notice">
-      <text class="jobs-notice__title">暂无在聘岗位</text>
+      <text class="jobs-notice__title">暂无岗位机会</text>
       <text class="jobs-notice__subtitle">No open positions at the moment. Please check back later.</text>
     </view>
     <block wx:elif="{{pageStatus === 'success'}}">

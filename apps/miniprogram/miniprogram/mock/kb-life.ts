@@ -72,7 +72,7 @@ export const CAMPUS_SERVICES: CampusService[] = [
 export const EMPLOYEE_SERVICES: EmployeeService[] = [
   {
     id: 'open-positions',
-    title: '在聘岗位',
+    title: '岗位机会',
     subtitle: 'Open Positions',
     icon: '/assets/images/kb-life/positions.png',
   },

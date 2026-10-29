@@ -1,7 +1,14 @@
 import { ERROR_CODES } from '@app/shared';
 import type { NextFunction, Request, Response } from 'express';
 import { withAbsoluteAssets } from '../services/asset-url.service';
-import { getFixtures, refreshCampusMapFromPdf, refreshWetalkIssueFromDisk, syncPdfDrivenCatalogs } from '../services/fixture.service';
+import {
+  getFixtures,
+  readJsonFile,
+  refreshCampusMapFromPdf,
+  refreshWetalkIssueFromDisk,
+  syncPdfDrivenCatalogs,
+} from '../services/fixture.service';
+import { kbLifeEntriesSchema } from '../schemas/kb-life.schema';
 import { planShuttleTrip } from '../services/shuttle-trip-plan.service';
 import { loadLiveShuttle } from '../services/shuttle-schedule.service';
 import { loadLiveCampusMap } from '../services/campus-map.service';
@@ -42,7 +49,8 @@ export function getKbLifeEntries(req: Request, res: Response): void {
     success(res, withAbsoluteAssets(req, empty), req.requestId);
     return;
   }
-  success(res, withAbsoluteAssets(req, getFixtures().kbLifeEntries), req.requestId);
+  const kbLifeEntries = readJsonFile('kb-life/entries.json', kbLifeEntriesSchema);
+  success(res, withAbsoluteAssets(req, kbLifeEntries), req.requestId);
 }
 
 export async function getCanteen(req: Request, res: Response, next: NextFunction): Promise<void> {

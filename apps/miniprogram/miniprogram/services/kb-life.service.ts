@@ -1,4 +1,5 @@
 import type { ImageResource } from '../types/content';
+import { OPEN_POSITIONS_DISPLAY_TITLE } from '../constants/kb-life';
 import { getStoredCampusLocation } from '../utils/campus-location';
 import { toAssetUrl } from '../utils/format';
 import { API_ENDPOINTS } from './endpoints';
@@ -153,9 +154,11 @@ function mapShuttleRoute(item: ShuttleDto['routes'][number]): ShuttleRoute {
 function mapService(
   item: { id: string; title: string; subtitle: string; icon: ImageResource; path?: string },
 ): CampusService {
+  const title =
+    item.id === 'open-positions' ? OPEN_POSITIONS_DISPLAY_TITLE : item.title;
   return {
     id: item.id,
-    title: item.title,
+    title,
     subtitle: item.subtitle,
     icon: toAssetUrl(item.icon),
     path: item.path,
@@ -168,7 +171,7 @@ export async function getKbLifeEntries(): Promise<{
   campusServices: CampusService[];
   employeeServices: CampusService[];
 }> {
-  return withRequestCache('kb-life:entries', 60_000, async () => {
+  return withRequestCache('kb-life:entries:v2', 60_000, async () => {
     const data = await get<KbLifeEntriesDto>(API_ENDPOINTS.kbLifeEntries);
     return {
       banners: data.banners.map((item) => ({

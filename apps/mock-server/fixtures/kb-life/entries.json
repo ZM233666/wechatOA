@@ -71,9 +71,9 @@
   "employeeServices": [
     {
       "id": "open-positions",
-      "title": "在聘岗位",
+      "title": "岗位机会",
       "subtitle": "Open Positions",
-      "icon": { "url": "/mock-assets/kb-life/positions.png", "alt": "在聘岗位", "width": 96, "height": 96, "aspectRatio": 1 },
+      "icon": { "url": "/mock-assets/kb-life/positions.png", "alt": "岗位机会", "width": 96, "height": 96, "aspectRatio": 1 },
       "path": "/subpackages/kb-life/open-positions/index"
     },
     {
