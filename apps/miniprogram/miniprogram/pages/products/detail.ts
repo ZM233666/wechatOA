@@ -1,4 +1,4 @@
-import { getProductDetail, type ProductCategoryView } from '../../services/products.service';
+import { getProductDetail, type ProductCategoryView } from './products.service';
 import { RequestError } from '../../types/api';
 import { fallbackImageUrl } from '../../utils/format';
 

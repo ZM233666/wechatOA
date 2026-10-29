@@ -1,9 +1,10 @@
 import {
   getNewsCategories,
   getNewsList,
+  prefetchNewsDetails,
   type NewsCategoryView,
   type NewsListItemView,
-} from '../../services/news.service';
+} from './news.service';
 import { RequestError } from '../../types/api';
 import { fallbackImageUrl } from '../../utils/format';
 
@@ -106,6 +107,7 @@ Page({
         requesting: false,
         pageStatus: newsList.length === 0 ? 'empty' : 'success',
       });
+      prefetchNewsDetails(result.items.slice(0, 3).map((item) => item.id));
     } catch (error) {
       if (!this.data.pageAlive) {
         return;
@@ -159,6 +161,7 @@ Page({
     if (!id) {
       return;
     }
+    prefetchNewsDetails([id]);
     wx.navigateTo({
       url: `/pages/news/detail?id=${id}`,
     });

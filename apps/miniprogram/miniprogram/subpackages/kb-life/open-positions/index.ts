@@ -46,7 +46,7 @@ Page({
       return;
     }
     wx.navigateTo({
-      url: `/pages/kb-life/open-positions/detail?id=${encodeURIComponent(jobId)}`,
+      url: `/subpackages/kb-life/open-positions/detail?id=${encodeURIComponent(jobId)}`,
     });
   },
 });

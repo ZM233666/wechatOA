@@ -44,28 +44,28 @@
       "title": "园区地图",
       "subtitle": "Campus Map",
       "icon": { "url": "/mock-assets/kb-life/map.png", "alt": "园区地图", "width": 96, "height": 96, "aspectRatio": 1 },
-      "path": "/pages/kb-life/campus-map/index"
+      "path": "/subpackages/kb-life/campus-map/index"
     },
     {
       "id": "shuttle-bus",
       "title": "班车时刻",
       "subtitle": "Shuttle Bus",
       "icon": { "url": "/mock-assets/kb-life/bus.png", "alt": "班车时刻", "width": 96, "height": 96, "aspectRatio": 1 },
-      "path": "/pages/kb-life/shuttle-bus/index"
+      "path": "/subpackages/kb-life/shuttle-bus/index"
     },
     {
       "id": "cafeteria",
       "title": "食堂菜单",
       "subtitle": "Cafeteria",
       "icon": { "url": "/mock-assets/kb-life/cafeteria.png", "alt": "食堂菜单", "width": 96, "height": 96, "aspectRatio": 1 },
-      "path": "/pages/kb-life/canteen/index"
+      "path": "/subpackages/kb-life/canteen/index"
     },
     {
       "id": "holiday",
       "title": "假期日历",
       "subtitle": "Holiday Calendar",
       "icon": { "url": "/mock-assets/kb-life/calendar.png", "alt": "假期日历", "width": 96, "height": 96, "aspectRatio": 1 },
-      "path": "/pages/kb-life/holiday-calendar/index"
+      "path": "/subpackages/kb-life/holiday-calendar/index"
     }
   ],
   "employeeServices": [
@@ -74,28 +74,28 @@
       "title": "在聘岗位",
       "subtitle": "Open Positions",
       "icon": { "url": "/mock-assets/kb-life/positions.png", "alt": "在聘岗位", "width": 96, "height": 96, "aspectRatio": 1 },
-      "path": "/pages/kb-life/open-positions/index"
+      "path": "/subpackages/kb-life/open-positions/index"
     },
     {
       "id": "guidance",
       "title": "指导文件",
       "subtitle": "Guidance Documents",
       "icon": { "url": "/mock-assets/kb-life/handbook.png", "alt": "指导文件", "width": 96, "height": 96, "aspectRatio": 1 },
-      "path": "/pages/kb-life/guidance/index"
+      "path": "/subpackages/kb-life/guidance/index"
     },
     {
       "id": "care",
       "title": "本地/全球关怀",
       "subtitle": "Local/Global Care",
       "icon": { "url": "/mock-assets/kb-life/care.png", "alt": "本地全球关怀", "width": 96, "height": 96, "aspectRatio": 1 },
-      "path": "/pages/kb-life/care/index"
+      "path": "/subpackages/kb-life/care/index"
     },
     {
       "id": "events",
-      "title": "公司事件",
-      "subtitle": "Company Events",
-      "icon": { "url": "/mock-assets/kb-life/events.png", "alt": "公司事件", "width": 96, "height": 96, "aspectRatio": 1 },
-      "path": "/pages/kb-life/events/index"
+      "title": "精彩瞬间",
+      "subtitle": "Highlights",
+      "icon": { "url": "/mock-assets/kb-life/events.png", "alt": "精彩瞬间", "width": 96, "height": 96, "aspectRatio": 1 },
+      "path": "/subpackages/kb-life/events/highlight-moments/index"
     }
   ]
 }

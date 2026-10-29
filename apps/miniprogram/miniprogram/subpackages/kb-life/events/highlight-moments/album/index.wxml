@@ -7,7 +7,7 @@
 
   <view class="event-detail" wx:elif="{{pageStatus === 'success'}}">
     <view class="event-detail__card">
-      <view class="event-detail__hero event-detail__hero--highlights">
+      <view class="event-detail__hero event-detail__hero--highlights album-detail__hero">
         <image
           class="event-detail__hero-icon"
           src="/assets/images/kb-life/event-highlights-white.png"
@@ -15,18 +15,27 @@
         ></image>
         <text class="event-detail__hero-title">{{album.title}}</text>
         <text class="event-detail__hero-subtitle" wx:if="{{album.subtitle}}">{{album.subtitle}}</text>
-        <text class="album-detail__date" wx:if="{{album.dateLabel}}">{{album.dateLabel}}</text>
       </view>
 
-      <view class="event-detail__body">
+      <view class="event-detail__body album-detail">
+        <image
+          wx:if="{{album.coverImage}}"
+          class="album-detail__cover"
+          src="{{album.coverImage}}"
+          mode="widthFix"
+        ></image>
+        <text class="album-detail__content" wx:if="{{album.content}}">{{album.content}}</text>
+        <text class="album-detail__published" wx:if="{{album.dateLabel}}">发布日期 {{album.dateLabel}}</text>
+
         <view class="album-grid" wx:if="{{album.images.length}}">
           <image
             class="album-grid__item tap-feedback"
             wx:for="{{album.images}}"
-            wx:key="*this"
-            src="{{item}}"
+            wx:key="url"
+            src="{{item.url}}"
             mode="aspectFill"
-            data-url="{{item}}"
+            show-menu-by-longpress="{{item.allowDownload}}"
+            data-url="{{item.url}}"
             bindtap="onPreviewImage"
           ></image>
         </view>

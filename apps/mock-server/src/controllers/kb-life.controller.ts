@@ -12,6 +12,7 @@ import { loadLiveEmployeeCare } from '../services/local-global-care.service';
 import { loadOpenPositionDetail, loadOpenPositionsList } from '../services/job-openings.service';
 import { loadLiveCanteen, shanghaiMenuDate } from '../services/lunch-menu.service';
 import { activitiesResponseWithoutFakeData, loadLiveActivities } from '../services/company-events.service';
+import { loadLiveHighlightMoments } from '../services/highlight-moments-live.service';
 import {
   requireBoundIdentity,
   requireEmployeeIdentity,
@@ -144,7 +145,11 @@ export async function getActivities(req: Request, res: Response, next: NextFunct
       return;
     }
     const live = await loadLiveActivities();
-    const payload = live ?? activitiesResponseWithoutFakeData();
+    let payload = live ?? activitiesResponseWithoutFakeData();
+    const highlightMomentsLive = await loadLiveHighlightMoments();
+    if (highlightMomentsLive !== undefined) {
+      payload = { ...payload, highlightMoments: highlightMomentsLive };
+    }
     success(res, withAbsoluteAssets(req, payload), req.requestId);
   } catch (error) {
     next(error);

@@ -145,8 +145,8 @@ export function mapArticleRowToNewsFixture(row: ArticleContentRow): NewsArticleF
   const publishedAt = isPublished
     ? toIsoDateTime(row.publish_time || row.update_datetime || row.create_datetime)
     : null;
-  const explicitSummary = (row.summary || '').trim();
-  const summary = explicitSummary || summarize(plainText, title);
+  const cmsSummary = (row.summary ?? '').trim();
+  const summary = cmsSummary || summarize(plainText, title);
   const category = categoryFromRow(row);
   const authorName = (row.author || 'KB China').trim() || 'KB China';
   const sourceName = (row.source || authorName).trim() || authorName;
@@ -190,7 +190,8 @@ export function mapArticleRowToNewsFixture(row: ArticleContentRow): NewsArticleF
     bodyFormat: 'html',
     richContent: blocks,
     relatedArticleIds: [],
-    explicitSummary: explicitSummary || undefined,
+    /** 含空字符串：表示 CMS 未填摘要，列表仅展示标题 */
+    explicitSummary: cmsSummary,
     share: {
       title,
       summary,

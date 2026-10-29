@@ -16,7 +16,7 @@ Page({
   onShareAppMessage() {
     return {
       title: 'KB Insights',
-      path: `/pages/services/insights/reader?id=${this.data.reportId}`,
+      path: `/subpackages/services/insights/reader?id=${this.data.reportId}`,
     };
   },
 

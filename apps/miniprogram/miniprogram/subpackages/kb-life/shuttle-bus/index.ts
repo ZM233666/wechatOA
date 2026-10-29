@@ -15,7 +15,7 @@ import {
   type ShuttleMapMarkerView,
   type ShuttleMapPolylineView,
   type ShuttleMapStopDetail,
-} from '../../../utils/shuttle-map';
+} from '../shuttle-map';
 
 Page({
   data: {

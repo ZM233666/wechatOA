@@ -186,6 +186,7 @@ export function htmlToRichContent(
       caption: caption || undefined,
       autoplay: presentation.autoplay,
       interval: presentation.intervalMs,
+      loop: presentation.loop,
     });
   };
 

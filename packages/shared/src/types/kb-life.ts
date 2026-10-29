@@ -170,13 +170,21 @@ export interface HealthCheckupDetail {
   images: ImageResource[];
 }
 
+/** 相册内单张照片；`allowDownload` 由管理员配置 */
+export interface HighlightMomentsAlbumImage extends ImageResource {
+  allowDownload: boolean;
+}
+
 export interface HighlightMomentsAlbum {
   id: string;
   title: string;
   subtitle: string;
+  /** 相册正文（纯文本，可含换行） */
+  content: string;
+  /** 发布日期展示文案，如 `2025-12` */
   dateLabel?: string;
   coverImage: ImageResource;
-  images: ImageResource[];
+  images: HighlightMomentsAlbumImage[];
 }
 
 export interface HighlightMomentsDetail {

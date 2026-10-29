@@ -16,7 +16,7 @@
 | `divider` | 分隔线 |
 | `callout` | `variant`: info/warning/success/exclusive |
 | `link` | `text` + `url` + `linkType`: internal/external |
-| `carousel` | `slides: ImageResource[]`；可选 `caption`、`autoplay`、`interval`（毫秒） |
+| `carousel` | `slides: ImageResource[]`；可选 `caption`、`autoplay`、`interval`（**毫秒**）、`loop`（缺省 true） |
 | `video` | `src`；可选 `poster`、`caption` |
 
 可选排版属性：
@@ -33,7 +33,7 @@
 **SVG / 图片轮播**
 
 ```html
-<div data-kb-block="carousel" data-caption="说明文字" data-autoplay="true" data-interval="5000">
+<div data-kb-block="carousel" data-caption="说明文字" data-autoplay="true" data-interval="5000" data-loop="true">
   <img src="https://.../a.svg" alt="图1" />
   <img src="https://.../b.png" alt="图2" />
 </div>
@@ -43,7 +43,9 @@
 
 **管理端 SVG 动图图集（aa-svg-gallery）**
 
-识别 `<section class="aa-svg-gallery" data-aa-svg-gallery="1" data-aa-config="...">`（`data-aa-config` 为 URL 编码 JSON，含 `images[]`、`scrollDuration`、`loop` 等）。小程序侧转为 `carousel` Block，用 `swiper` 自动轮播（不执行 SVG/CSS 动画）；`loop=true` 时按 `images` 去重，忽略为无缝循环重复插入的 `<img>`。
+识别 `<section class="aa-svg-gallery" data-aa-svg-gallery="1" data-aa-config="...">`（`data-aa-config` 为 URL 编码 JSON，含 `images[]`、`intervalMs` / `interval` / `scrollDuration`（均为**毫秒**）、`loop`、`autoplay` 等）。容器上还可写 `data-interval`、`data-loop`（或 `data-circular`）。小程序转为 `carousel.interval` / `carousel.loop`；时长未配置时默认 2000ms，循环未配置时默认 true。`loop=true` 时按 `images` 去重。
+
+**后台对接细则（时长、循环、HTML 模板、API 字段）见 [news-carousel-interval-contract.md](./news-carousel-interval-contract.md)。**
 
 **视频**
 

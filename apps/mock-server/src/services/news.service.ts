@@ -46,12 +46,15 @@ export function comparePublicNews(a: NewsArticleFixture, b: NewsArticleFixture):
 }
 
 export function toNewsSummary(article: NewsArticleFixture): NewsSummary {
+  /** 列表展示：CMS 未填摘要时不回退正文截取（与首页 Banner 副文案一致） */
+  const listSummary =
+    article.explicitSummary !== undefined ? article.explicitSummary : article.summary;
   return {
     id: article.id,
     slug: article.slug,
     title: article.title,
     subtitle: article.subtitle,
-    summary: article.summary,
+    summary: listSummary,
     category: article.category,
     publishedAt: article.publishedAt ?? article.updatedAt,
     coverImage: article.coverImage,

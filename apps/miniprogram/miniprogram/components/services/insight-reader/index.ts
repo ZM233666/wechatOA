@@ -76,21 +76,11 @@ Component({
         this.refreshLayout();
       }
       if (visible && reportId) {
+        if (this.data.report?.id === reportId && this.data.pageStatus === 'success') {
+          return;
+        }
         void this.loadReport(reportId);
         return;
-      }
-      if (!visible) {
-        this.setData({
-          report: null,
-          pages: [],
-          current: 0,
-          canPrev: false,
-          canNext: false,
-          pageStatus: 'idle',
-          errorText: '',
-          isMapMode: false,
-          hideDock: false,
-        });
       }
     },
   },

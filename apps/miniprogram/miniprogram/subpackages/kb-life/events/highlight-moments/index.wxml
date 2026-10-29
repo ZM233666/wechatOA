@@ -14,7 +14,6 @@
           mode="aspectFit"
         ></image>
         <text class="event-detail__hero-title">{{section.title}}</text>
-        <text class="event-detail__hero-subtitle" wx:if="{{section.subtitle}}">{{section.subtitle}}</text>
       </view>
 
       <view class="event-detail__body highlight-albums">

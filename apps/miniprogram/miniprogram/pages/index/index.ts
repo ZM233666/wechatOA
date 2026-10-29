@@ -12,6 +12,10 @@ const ENTRY_PATHS: Record<string, string> = {
   cases: '/pages/cases/index',
 };
 
+function isMiniProgramPagePath(url: string): boolean {
+  return url.startsWith('/pages/') || url.startsWith('/subpackages/');
+}
+
 Page({
   data: {
     banners: [] as HomeBanner[],
@@ -128,7 +132,7 @@ Page({
       });
       return;
     }
-    if (banner.targetUrl && banner.targetUrl.startsWith('/pages/')) {
+    if (banner.targetUrl && isMiniProgramPagePath(banner.targetUrl)) {
       wx.navigateTo({ url: banner.targetUrl });
     }
   },

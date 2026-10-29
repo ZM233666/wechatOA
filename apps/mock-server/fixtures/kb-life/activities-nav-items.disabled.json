@@ -1,0 +1,37 @@
+{
+  "_note": "原「公司事件」hub 导航项。恢复年会/团建/体检/瞬间选择页时，先将归档页面迁回 KB Life 分包，再将 items 合并回 activities.json，并把 entries.path 改回 /subpackages/kb-life/events/index",
+  "items": [
+    {
+      "id": "annual-dinner",
+      "title": "年会 (Annual Dinner)",
+      "subtitle": "年度表彰与晚宴",
+      "icon": { "url": "/mock-assets/kb-life/event-annual.png", "alt": "年会", "width": 96, "height": 96, "aspectRatio": 1 },
+      "iconBg": "#faf5ff",
+      "path": "/subpackages/kb-life/events/annual-dinner/index"
+    },
+    {
+      "id": "outings",
+      "title": "团建出游 (Outings)",
+      "subtitle": "部门团建与户外活动",
+      "icon": { "url": "/mock-assets/kb-life/event-outings.png", "alt": "团建出游", "width": 96, "height": 96, "aspectRatio": 1 },
+      "iconBg": "#f0fdf4",
+      "path": "/subpackages/kb-life/events/outings/index"
+    },
+    {
+      "id": "health",
+      "title": "健康体检 (Health Checkup)",
+      "subtitle": "年度员工体检安排",
+      "icon": { "url": "/mock-assets/kb-life/event-health.png", "alt": "健康体检", "width": 96, "height": 96, "aspectRatio": 1 },
+      "iconBg": "#fef2f2",
+      "path": "/subpackages/kb-life/events/health/index"
+    },
+    {
+      "id": "highlight-moments",
+      "title": "精彩瞬间 (Highlight Moments)",
+      "subtitle": "公司与团队精彩影像",
+      "icon": { "url": "/mock-assets/kb-life/event-highlights.png", "alt": "精彩瞬间", "width": 96, "height": 96, "aspectRatio": 1 },
+      "iconBg": "#fffbeb",
+      "path": "/subpackages/kb-life/events/highlight-moments/index"
+    }
+  ]
+}

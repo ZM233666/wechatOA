@@ -1,4 +1,4 @@
-import { getCases, type ProjectCaseView } from '../../services/cases.service';
+import { getCases, type ProjectCaseView } from './cases.service';
 import { RequestError } from '../../types/api';
 import { fallbackImageUrl } from '../../utils/format';
 

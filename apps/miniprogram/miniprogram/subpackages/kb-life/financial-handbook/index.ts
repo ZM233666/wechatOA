@@ -70,7 +70,7 @@ Page({
     }
     this.navLocked = true;
     wx.navigateTo({
-      url: `/pages/kb-life/financial-handbook/document/index?section=${id}`,
+      url: `/subpackages/kb-life/financial-handbook/document/index?section=${id}`,
       complete: () => {
         setTimeout(() => {
           this.navLocked = false;

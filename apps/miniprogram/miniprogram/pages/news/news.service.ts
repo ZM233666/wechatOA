@@ -1,7 +1,7 @@
-import type { ArticleContentBlock, ImageResource, PaginatedData } from '../types/content';
-import { formatDisplayDate, toAssetUrl } from '../utils/format';
-import { API_ENDPOINTS } from './endpoints';
-import { get } from './request';
+import type { ArticleContentBlock, ImageResource, PaginatedData } from '../../types/content';
+import { formatDisplayDate, toAssetUrl } from '../../utils/format';
+import { API_ENDPOINTS } from '../../services/endpoints';
+import { get } from '../../services/request';
 
 export interface NewsListQuery {
   page?: number;
@@ -77,11 +77,18 @@ interface NewsDetailDto extends NewsSummaryDto {
   share: { title: string; summary: string; imageUrl: string };
 }
 
+const NEWS_DETAIL_CACHE_TTL_MS = 5 * 60_000;
+const newsDetailCache = new Map<
+  string,
+  { value: NewsDetailView; expiresAt: number }
+>();
+const newsDetailRequests = new Map<string, Promise<NewsDetailView>>();
+
 function mapListItem(item: NewsSummaryDto): NewsListItemView {
   return {
     id: item.id,
     title: item.title,
-    summary: item.summary,
+    summary: (item.summary || '').trim(),
     date: formatDisplayDate(item.publishedAt),
     image: toAssetUrl(item.thumbnailImage ?? item.coverImage),
     category: item.category.name,
@@ -114,7 +121,7 @@ export async function getNewsList(query: NewsListQuery = {}): Promise<{
   };
 }
 
-export async function getNewsDetail(id: string): Promise<NewsDetailView> {
+async function fetchNewsDetail(id: string): Promise<NewsDetailView> {
   const data = await get<NewsDetailDto>(API_ENDPOINTS.newsDetail(id));
   const cover = toAssetUrl(data.coverImage);
   return {
@@ -135,4 +142,41 @@ export async function getNewsDetail(id: string): Promise<NewsDetailView> {
     shareSummary: data.share?.summary || data.summary,
     shareImage: data.share?.imageUrl ? toAssetUrl(data.share.imageUrl) : cover,
   };
+}
+
+export async function getNewsDetail(id: string): Promise<NewsDetailView> {
+  const cached = newsDetailCache.get(id);
+  if (cached && cached.expiresAt > Date.now()) {
+    return cached.value;
+  }
+  if (cached) {
+    newsDetailCache.delete(id);
+  }
+
+  const pending = newsDetailRequests.get(id);
+  if (pending) {
+    return pending;
+  }
+
+  const request = (async () => {
+    try {
+      const detail = await fetchNewsDetail(id);
+      const expiresAt = Date.now() + NEWS_DETAIL_CACHE_TTL_MS;
+      newsDetailCache.set(id, { value: detail, expiresAt });
+      newsDetailCache.set(detail.id, { value: detail, expiresAt });
+      return detail;
+    } finally {
+      newsDetailRequests.delete(id);
+    }
+  })();
+  newsDetailRequests.set(id, request);
+  return request;
+}
+
+export function prefetchNewsDetails(ids: string[]): void {
+  [...new Set(ids.filter(Boolean))].forEach((id) => {
+    void getNewsDetail(id).catch(() => {
+      // 预取失败不影响列表；用户进入详情页时仍可主动重试。
+    });
+  });
 }

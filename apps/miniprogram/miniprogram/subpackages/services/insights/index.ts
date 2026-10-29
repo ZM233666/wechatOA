@@ -19,7 +19,7 @@ Page({
   onShareAppMessage() {
     return {
       title: this.data.shareTitle || 'KB Insights',
-      path: '/pages/services/insights/index',
+      path: '/subpackages/services/insights/index',
     };
   },
 

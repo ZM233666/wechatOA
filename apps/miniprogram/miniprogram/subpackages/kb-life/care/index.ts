@@ -4,7 +4,7 @@ import {
   type EmployeeCareInitiativeView,
 } from '../../../services/kb-life.service';
 import { RequestError } from '../../../types/api';
-import { showComingSoonModal } from '../../../utils/coming-soon';
+import { showComingSoonModal } from '../coming-soon';
 import { rejectUnboundIdentityAccess } from '../../../utils/identity-access';
 
 Page({

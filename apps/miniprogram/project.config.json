@@ -4,7 +4,7 @@
   "miniprogramRoot": "miniprogram/",
   "compileType": "miniprogram",
   "libVersion": "3.7.12",
-  "appid": "touristappid",
+  "appid": "wx3cee8d2adf1476d4",
   "projectname": "wechat-official-account",
   "setting": {
     "urlCheck": true,
@@ -21,7 +21,7 @@
     "uglifyFileName": false,
     "checkInvalidKey": true,
     "checkSiteMap": true,
-    "uploadWithSourceMap": true,
+    "uploadWithSourceMap": false,
     "compileHotReLoad": true,
     "lazyloadPlaceholderEnable": false,
     "useMultiFrameRuntime": true,
@@ -57,7 +57,16 @@
   },
   "simulatorPluginLibVersion": {},
   "packOptions": {
-    "ignore": [],
+    "ignore": [
+      {
+        "type": "suffix",
+        "value": ".pdf"
+      },
+      {
+        "type": "regexp",
+        "value": "(^|/)\\.DS_Store$"
+      }
+    ],
     "include": []
   }
 }

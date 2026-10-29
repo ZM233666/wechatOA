@@ -29,6 +29,7 @@ const state: SyncState = {
 
 /** 管理端列表不含 content_html，详情接口按需拉取后缓存 */
 const detailCache = new Map<string, NewsArticleFixture>();
+const detailRequests = new Map<string, Promise<NewsArticleFixture>>();
 
 function articleBackendId(fixtureId: string): string {
   return fixtureId.replace(/^article-/, '');
@@ -68,11 +69,18 @@ export async function syncArticleNews(options?: {
       const articles = await Promise.all(
         rows.map(async (row) => hydrateArticleMedia(row, mapArticleRowToNewsFixture(row))),
       );
+      const latestById = new Map(articles.map((article) => [article.id, article]));
+      for (const [key, cached] of detailCache) {
+        const latest = latestById.get(cached.id);
+        if (!latest || latest.updatedAt !== cached.updatedAt) {
+          detailCache.delete(key);
+        }
+      }
       state.articles = articles;
       state.categories = deriveCategories(articles);
-      detailCache.clear();
       state.lastSuccessMs = Date.now();
       state.lastError = undefined;
+      void prewarmArticleNewsDetails(articles);
       logInfo('Synced news from article-content', {
         count: articles.length,
         includeDrafts: mockEnv.NEWS_ARTICLE_INCLUDE_DRAFTS,
@@ -116,6 +124,12 @@ export function invalidateArticleNewsDetailCache(fixture: NewsArticleFixture): v
   detailCache.delete(fixture.slug);
 }
 
+async function prewarmArticleNewsDetails(articles: NewsArticleFixture[]): Promise<void> {
+  for (const article of articles) {
+    await hydrateArticleNewsDetail(article);
+  }
+}
+
 export async function hydrateArticleNewsDetail(
   fixture: NewsArticleFixture,
   options?: { skipCache?: boolean },
@@ -126,25 +140,39 @@ export async function hydrateArticleNewsDetail(
       return cached;
     }
   }
-  const backendId = articleBackendId(fixture.id);
-  try {
-    const row = await fetchArticleContentDetail(backendId);
-    const hydrated = await hydrateArticleMedia(row, mapArticleRowToNewsFixture(row));
-    detailCache.set(hydrated.id, hydrated);
-    detailCache.set(hydrated.slug, hydrated);
-    const idx = state.articles.findIndex((item) => item.id === hydrated.id);
-    if (idx >= 0) {
-      state.articles[idx] = hydrated;
-    }
-    return hydrated;
-  } catch (error: unknown) {
-    const message = error instanceof Error ? error.message : String(error);
-    logWarn('Article news detail fetch failed; using list row without body', {
-      id: backendId,
-      message,
-    });
-    return fixture;
+
+  const pending = detailRequests.get(fixture.id) ?? detailRequests.get(fixture.slug);
+  if (pending) {
+    return pending;
   }
+
+  const backendId = articleBackendId(fixture.id);
+  const request = (async () => {
+    try {
+      const row = await fetchArticleContentDetail(backendId);
+      const hydrated = await hydrateArticleMedia(row, mapArticleRowToNewsFixture(row));
+      detailCache.set(hydrated.id, hydrated);
+      detailCache.set(hydrated.slug, hydrated);
+      const idx = state.articles.findIndex((item) => item.id === hydrated.id);
+      if (idx >= 0) {
+        state.articles[idx] = hydrated;
+      }
+      return hydrated;
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : String(error);
+      logWarn('Article news detail fetch failed; using list row without body', {
+        id: backendId,
+        message,
+      });
+      return fixture;
+    } finally {
+      detailRequests.delete(fixture.id);
+      detailRequests.delete(fixture.slug);
+    }
+  })();
+  detailRequests.set(fixture.id, request);
+  detailRequests.set(fixture.slug, request);
+  return request;
 }
 
 export function getArticleNewsStatus(): {

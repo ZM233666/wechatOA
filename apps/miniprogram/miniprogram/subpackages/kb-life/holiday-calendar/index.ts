@@ -8,7 +8,7 @@ import {
   getDefaultMonthIndex,
   getTodayDateKey,
   type HolidayMark,
-} from '../../../mock/holiday-calendar';
+} from '../holiday-calendar.data';
 import { getHolidayCalendar } from '../../../services/kb-life.service';
 import { RequestError } from '../../../types/api';
 import { resolveCampusLocation } from '../../../utils/campus-location';

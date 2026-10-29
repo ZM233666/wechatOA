@@ -2,7 +2,7 @@ import type { ImageResource } from '../types/content';
 import { toAssetUrl } from '../utils/format';
 import { API_ENDPOINTS } from './endpoints';
 import { getSessionLoginCode } from './identity-login.service';
-import { get } from './request';
+import { get, withRequestCache } from './request';
 import {
   getWeChatAvatarFromStorage,
   pickUserDisplayAvatar,
@@ -100,7 +100,9 @@ export async function getProfile() {
   } catch {
     // 无 code 时仍拉访客资料
   }
-  const query = loginCode ? { loginCode } : undefined;
-  const data = await get<ProfileDto>(API_ENDPOINTS.profile, query);
-  return mapProfile(data);
+  return withRequestCache(`profile:${loginCode || 'guest'}`, 60_000, async () => {
+    const query = loginCode ? { loginCode } : undefined;
+    const data = await get<ProfileDto>(API_ENDPOINTS.profile, query);
+    return mapProfile(data);
+  });
 }

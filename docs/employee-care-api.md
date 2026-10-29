@@ -51,8 +51,8 @@ WeTalk / 员工手册为 Employee 专属；员工关怀与园区服务同级，C
 ## 小程序
 
 - `services/kb-life.service.ts` → `getEmployeeCare()`（附带 `loginCode`）
-- `pages/kb-life/care/index`：加载 / 空态 / 错误态；`onLoad` 未绑定则拦截
-- KB Life 入口：`entries.json` 中 `employeeServices` → `path: /pages/kb-life/care/index`
+- `subpackages/kb-life/care/index`：加载 / 空态 / 错误态；`onLoad` 未绑定则拦截
+- KB Life 入口：`entries.json` 中 `employeeServices` → `path: /subpackages/kb-life/care/index`
 
 Initiative 详情页尚未实现；列表项「Read More」为 coming soon，后续可增 `GET /kb-life/care/:id`。
 

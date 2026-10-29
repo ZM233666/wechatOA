@@ -17,12 +17,18 @@ Page({
 
   navLocked: false,
   navLockTimer: 0 as number,
+  skipShowRefresh: true,
 
   onLoad() {
     void this.loadAlbums();
   },
 
   onShow() {
+    if (this.skipShowRefresh) {
+      this.skipShowRefresh = false;
+    } else {
+      void this.loadAlbums();
+    }
     this.navLocked = true;
     if (this.navLockTimer) {
       clearTimeout(this.navLockTimer);
@@ -70,7 +76,7 @@ Page({
     }
     this.navLocked = true;
     wx.navigateTo({
-      url: `/pages/kb-life/events/highlight-moments/album/index?id=${encodeURIComponent(id)}`,
+      url: `/subpackages/kb-life/events/highlight-moments/album/index?id=${encodeURIComponent(id)}`,
       complete: () => {
         setTimeout(() => {
           this.navLocked = false;

@@ -98,6 +98,7 @@ export interface MediaCarouselBlock {
   caption?: string;
   autoplay?: boolean;
   interval?: number;
+  loop?: boolean;
 }
 
 export interface VideoBlock {

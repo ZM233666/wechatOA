@@ -89,12 +89,45 @@ async function fetchBuffer(url: string, authToken?: string): Promise<Buffer | nu
   }
 }
 
+function extractMinioObjectKey(src: string): string | null {
+  const trimmed = src.trim();
+  if (!trimmed || trimmed.includes('..')) {
+    return null;
+  }
+  if (trimmed.startsWith('http://') || trimmed.startsWith('https://')) {
+    try {
+      const parsed = new URL(trimmed);
+      let pathKey = decodeURIComponent(parsed.pathname.replace(/^\/+/, ''));
+      const bucket = mockEnv.MINIO_BUCKET.replace(/^\/+|\/+$/g, '');
+      if (bucket && pathKey.startsWith(`${bucket}/`)) {
+        pathKey = pathKey.slice(bucket.length + 1);
+      }
+      return pathKey || null;
+    } catch {
+      return null;
+    }
+  }
+  return minioObjectKeys(trimmed)[0] ?? null;
+}
+
+function collectMinioObjectKeys(mediaPath: string): string[] {
+  const keys = new Set<string>();
+  for (const key of minioObjectKeys(mediaPath)) {
+    keys.add(key);
+  }
+  const fromHttp = extractMinioObjectKey(mediaPath);
+  if (fromHttp) {
+    keys.add(fromHttp);
+  }
+  return [...keys];
+}
+
 async function fetchFromMinio(mediaPath: string): Promise<Buffer | null> {
   if (!isMinioPdfEnabled()) {
     return null;
   }
   const client = createMinioClient();
-  for (const objectKey of minioObjectKeys(mediaPath)) {
+  for (const objectKey of collectMinioObjectKeys(mediaPath)) {
     try {
       const stream = await client.getObject(mockEnv.MINIO_BUCKET, objectKey);
       const chunks: Buffer[] = [];
@@ -222,13 +255,16 @@ export async function mirrorRemoteMediaUrl(
     fs.unlinkSync(localAbs);
   }
 
-  const buffer = await loadRemoteMediaBuffer(trimmed, {
+  let buffer = await loadRemoteMediaBuffer(trimmed, {
     mediaBaseUrl: options.mediaBaseUrl,
     authToken: options.authToken,
     fileId: options.fileId,
   });
+  if (!buffer?.length && isMinioOrPresignedMediaUrl(trimmed)) {
+    buffer = await fetchFromMinio(trimmed);
+  }
   if (!buffer?.length) {
-    logWarn('Unable to mirror article media', { articleId, src: trimmed });
+    logWarn('Unable to mirror article media', { articleId, src: trimmed.slice(0, 200) });
     return '';
   }
 
@@ -236,6 +272,25 @@ export async function mirrorRemoteMediaUrl(
   fs.writeFileSync(localAbs, buffer);
   logInfo('Mirrored article media', { articleId, src: trimmed, local: relative });
   return relative;
+}
+
+function isMinioOrPresignedMediaUrl(url: string): boolean {
+  if (!url.startsWith('http://') && !url.startsWith('https://')) {
+    return false;
+  }
+  if (url.includes('X-Amz-Algorithm=') || url.includes('X-Amz-Signature=')) {
+    return true;
+  }
+  try {
+    const parsed = new URL(url);
+    const endpoint = mockEnv.MINIO_ENDPOINT.trim();
+    if (endpoint && (parsed.hostname === endpoint || parsed.host.startsWith(`${endpoint}:`))) {
+      return true;
+    }
+  } catch {
+    return false;
+  }
+  return /\/news-articles\//.test(url);
 }
 
 function isRemoteMediaUrl(url: string, mediaBaseUrl: string): boolean {
@@ -246,7 +301,10 @@ function isRemoteMediaUrl(url: string, mediaBaseUrl: string): boolean {
     return true;
   }
   const base = mediaBaseUrl.replace(/\/+$/, '');
-  return url.startsWith(`${base}/media/`);
+  if (url.startsWith(`${base}/media/`)) {
+    return true;
+  }
+  return isMinioOrPresignedMediaUrl(url);
 }
 
 export function coverMirrorCandidates(row: ArticleContentRow): Array<{ url: string; fileId?: number | null }> {

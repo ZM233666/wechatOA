@@ -167,6 +167,8 @@ export interface MockFixtureStore {
 }
 
 let store: MockFixtureStore | null = null;
+let lastPdfCatalogSyncMs = 0;
+const PDF_CATALOG_SCAN_TTL_MS = 30_000;
 
 export function loadFixtures(): MockFixtureStore {
   const appConfig = readJsonFile('app/config.json', appConfigSchema);
@@ -268,6 +270,11 @@ export function getFixtures(): MockFixtureStore {
  * 列表 / 首页接口每次调用；MinIO 按 TTL 后台刷新。
  */
 export function syncPdfDrivenCatalogs(): void {
+  const now = Date.now();
+  if (now - lastPdfCatalogSyncMs < PDF_CATALOG_SCAN_TTL_MS) {
+    return;
+  }
+  lastPdfCatalogSyncMs = now;
   const fixtures = getFixtures();
   refreshAllMinioPdfsInBackground();
 
@@ -752,35 +759,34 @@ export function collectAssetPaths(value: unknown, bucket = new Set<string>()): S
 const MINI_PROGRAM_PAGES = new Set([
   '/pages/index/index',
   '/pages/services/index',
-  '/pages/services/insights/index',
-  '/pages/services/insights/reader',
-  '/pages/services/insights/access-denied/index',
   '/pages/kb-life/index',
-  '/pages/profile/index',
   '/pages/profile/index',
   '/pages/news/index',
   '/pages/news/detail',
   '/pages/brand/index',
   '/pages/products/index',
   '/pages/products/detail',
+  '/pages/products/list',
   '/pages/cases/index',
   '/pages/cases/detail',
-  '/pages/kb-life/shuttle-bus/index',
-  '/pages/kb-life/canteen/index',
-  '/pages/kb-life/holiday-calendar/index',
-  '/pages/kb-life/open-positions/index',
-  '/pages/kb-life/open-positions/detail',
-  '/pages/kb-life/guidance/index',
-  '/pages/kb-life/handbook/index',
-  '/pages/kb-life/financial-handbook/index',
-  '/pages/kb-life/financial-handbook/document/index',
-  '/pages/kb-life/care/index',
-  '/pages/kb-life/events/index',
-  '/pages/kb-life/events/annual-dinner/index',
-  '/pages/kb-life/events/outings/index',
-  '/pages/kb-life/events/health/index',
-  '/pages/kb-life/events/highlight-moments/index',
-  '/pages/kb-life/events/highlight-moments/album/index',
+  '/subpackages/services/my-dashboard/index',
+  '/subpackages/services/insights/index',
+  '/subpackages/services/insights/reader',
+  '/subpackages/services/insights/access-denied/index',
+  '/subpackages/kb-life/campus-map/index',
+  '/subpackages/kb-life/shuttle-bus/index',
+  '/subpackages/kb-life/canteen/index',
+  '/subpackages/kb-life/holiday-calendar/index',
+  '/subpackages/kb-life/open-positions/index',
+  '/subpackages/kb-life/open-positions/detail',
+  '/subpackages/kb-life/guidance/index',
+  '/subpackages/kb-life/handbook/index',
+  '/subpackages/kb-life/financial-handbook/index',
+  '/subpackages/kb-life/financial-handbook/document/index',
+  '/subpackages/kb-life/care/index',
+  '/subpackages/kb-life/events/index',
+  '/subpackages/kb-life/events/highlight-moments/index',
+  '/subpackages/kb-life/events/highlight-moments/album/index',
 ]);
 
 function aspectRatioMismatch(image: { width: number; height: number; aspectRatio: number }): boolean {

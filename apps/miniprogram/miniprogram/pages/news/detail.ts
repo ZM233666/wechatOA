@@ -1,7 +1,7 @@
-import { getNewsDetail, type NewsDetailView } from '../../services/news.service';
+import { getNewsDetail, type NewsDetailView } from './news.service';
 import { RequestError } from '../../types/api';
 import { fallbackImageUrl } from '../../utils/format';
-import { shouldRenderArticleAsBlocks } from '../../utils/rich-content';
+import { shouldRenderArticleAsBlocks } from './rich-content';
 
 Page({
   data: {

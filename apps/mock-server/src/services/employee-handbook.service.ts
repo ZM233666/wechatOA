@@ -26,7 +26,7 @@ export function refreshEmployeeHandbookFromMinio(): void {
 }
 
 export async function loadEmployeeHandbook(): Promise<EmployeeHandbookPayload> {
-  await syncPdfCatalogFromMinio('employee-handbook');
+  void syncPdfCatalogFromMinio('employee-handbook');
   const meta = readJsonFile('kb-life/handbook.json', employeeHandbookSchema);
   const declared = meta.pdfFile?.trim() || undefined;
   const fileName = findEmployeeHandbookPdfFileName(declared);

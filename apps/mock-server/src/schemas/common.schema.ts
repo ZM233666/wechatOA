@@ -8,6 +8,15 @@ export const imageResourceSchema = z.object({
   aspectRatio: z.number().positive(),
 });
 
+/** Django / CDN 等外链图片（live API 校验用，fixture 仍用 imageResourceSchema） */
+export const remoteImageResourceSchema = z.object({
+  url: z.string().min(1),
+  alt: z.string().min(1),
+  width: z.number().positive(),
+  height: z.number().positive(),
+  aspectRatio: z.number().positive(),
+});
+
 export const categorySchema = z.object({
   id: z.string().min(1),
   name: z.string().min(1),

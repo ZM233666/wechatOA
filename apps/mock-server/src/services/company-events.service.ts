@@ -1,18 +1,19 @@
 import type { ActivitiesData } from '@app/shared';
 import { logWarn } from '../utils/logger';
 import { liveApiTimeoutMs, raceWithBudget } from './live-api-timeout';
-import {
-  fetchAnnualDinner,
-  fetchHealthCheckup,
-  fetchOutingActivities,
-  isCompanyEventsEnabled,
-} from './company-events.client';
-import {
-  mapAnnualDinner,
-  mapHealthCheckup,
-  mapOutingActivities,
-  OUTINGS_PAGE_META,
-} from './company-events.mapper';
+import { isCompanyEventsEnabled } from './company-events.client';
+// 恢复年会 / 团建 / 体检 live 同步时取消注释：
+// import {
+//   fetchAnnualDinner,
+//   fetchHealthCheckup,
+//   fetchOutingActivities,
+// } from './company-events.client';
+// import {
+//   mapAnnualDinner,
+//   mapHealthCheckup,
+//   mapOutingActivities,
+// } from './company-events.mapper';
+import { OUTINGS_PAGE_META } from './company-events.mapper';
 import { getFixtures } from './fixture.service';
 
 export const COMPANY_EVENTS_SYNC_TTL_MS = 5 * 60_000;
@@ -33,6 +34,10 @@ function navigationItems(): ActivitiesData['items'] {
   return getFixtures().activities.items;
 }
 
+function highlightMomentsPayload(): ActivitiesData['highlightMoments'] {
+  return getFixtures().activities.highlightMoments;
+}
+
 function emptyLiveActivities(): LiveActivitiesData {
   return {
     live: true,
@@ -41,25 +46,27 @@ function emptyLiveActivities(): LiveActivitiesData {
     annualDinner: null,
     outings: [],
     health: null,
-    highlightMoments: null,
+    highlightMoments: highlightMomentsPayload(),
   };
 }
 
 async function fetchLiveActivities(): Promise<LiveActivitiesData> {
-  const [annualRow, outingRows, healthRow] = await Promise.all([
-    fetchAnnualDinner(),
-    fetchOutingActivities(),
-    fetchHealthCheckup(),
-  ]);
-  return {
-    live: true,
-    items: navigationItems(),
-    outingsMeta: OUTINGS_PAGE_META,
-    annualDinner: mapAnnualDinner(annualRow),
-    outings: mapOutingActivities(outingRows),
-    health: mapHealthCheckup(healthRow),
-    highlightMoments: null,
-  };
+  // --- 年会 / 团建 / 体检（暂时下线，恢复时取消注释并合并 highlightMoments）---
+  // const [annualRow, outingRows, healthRow] = await Promise.all([
+  //   fetchAnnualDinner(),
+  //   fetchOutingActivities(),
+  //   fetchHealthCheckup(),
+  // ]);
+  // return {
+  //   live: true,
+  //   items: navigationItems(),
+  //   outingsMeta: OUTINGS_PAGE_META,
+  //   annualDinner: mapAnnualDinner(annualRow),
+  //   outings: mapOutingActivities(outingRows),
+  //   health: mapHealthCheckup(healthRow),
+  //   highlightMoments: highlightMomentsPayload(),
+  // };
+  return emptyLiveActivities();
 }
 
 export async function loadLiveActivities(): Promise<LiveActivitiesData | null> {

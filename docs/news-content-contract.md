@@ -21,7 +21,7 @@
 | 字段 | 说明 |
 | --- | --- |
 | `id` / `slug` | 稳定 ID 与唯一 slug |
-| `title` / `subtitle` / `summary` | 标题、副标题、列表摘要 |
+| `title` / `subtitle` / `summary` | 标题、副标题、列表摘要（**仅 CMS 填写的摘要**；未填时为 `""`，小程序列表只展示标题） |
 | `category` | `{ id, name }`，必须存在于 `categories.json` |
 | `coverImage` / `thumbnailImage` | 封面必填；缩略图可缺省，列表回退封面 |
 | `publishedAt` | ISO 8601 |

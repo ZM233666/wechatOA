@@ -90,8 +90,8 @@ export const EMPLOYEE_SERVICES: EmployeeService[] = [
   },
   {
     id: 'events',
-    title: '公司事件',
-    subtitle: 'Company Events',
+    title: '精彩瞬间',
+    subtitle: 'Highlights',
     icon: '/assets/images/kb-life/events.png',
   },
 ];

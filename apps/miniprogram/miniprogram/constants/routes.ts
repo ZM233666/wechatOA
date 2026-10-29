@@ -72,10 +72,16 @@ export const TAB_BAR_ITEMS: TabBarItem[] = [
 /** 按当前页面 route 推断应高亮的 Tab（二级页底部导航） */
 export function inferTabRouteKey(route: string): TabRouteKey {
   const normalized = route.replace(/^\//, '');
-  if (normalized.startsWith('pages/kb-life/')) {
+  if (
+    normalized.startsWith('pages/kb-life/') ||
+    normalized.startsWith('subpackages/kb-life/')
+  ) {
     return 'kbLife';
   }
-  if (normalized.startsWith('pages/services/')) {
+  if (
+    normalized.startsWith('pages/services/') ||
+    normalized.startsWith('subpackages/services/')
+  ) {
     return 'services';
   }
   if (normalized.startsWith('pages/profile/')) {
@@ -88,5 +94,5 @@ export const COMING_SOON_TOAST = '功能将在下一阶段开发';
 export const NEWS_COMING_SOON_TOAST = '新闻功能将在下一阶段开发';
 
 /** My Dashboard 二级页（Services Hero「My Dashboard」入口） */
-export const MY_DASHBOARD_PAGE_PATH = '/pages/services/my-dashboard/index';
+export const MY_DASHBOARD_PAGE_PATH = '/subpackages/services/my-dashboard/index';
 

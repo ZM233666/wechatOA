@@ -1,7 +1,7 @@
 # 小程序提审前改动清单（页面 · 文件级）
 
-范围：`apps/miniprogram/miniprogram/app.json` 中注册的页面路径。  
-路径前缀：页面文件均相对于 `apps/miniprogram/miniprogram/`。
+范围：`apps/miniprogram/miniprogram/app.json` 中注册的主包与分包页面路径。
+路径前缀：页面文件均相对于 `apps/miniprogram/miniprogram/`；KB Life 与 Services 二级页位于 `subpackages/`。
 
 ## 图例
 
@@ -29,9 +29,9 @@
 | 页面路径 | 主要文件 | 必改项 | 关联接口 |
 |----------|----------|--------|----------|
 | `pages/services/index` | `pages/services/index.ts`<br>`pages/services/index.wxml`<br>`services/services.service.ts` | 🟠 Insights 与 `gating` 与后端一致；gated 详情须 `loginCode`/JWT + 403 | `GET /services` |
-| `pages/services/insights/index` | `pages/services/insights/index.ts`<br>`pages/services/insights/index.wxml` | 🟠 同上 | `GET /services/insights` |
-| `pages/services/insights/reader` | `pages/services/insights/reader.ts`<br>`pages/services/insights/reader.json`<br>`pages/services/insights/reader.wxml`<br>`components/services/insight-reader/*` | 🔴 分享 path 带 `id` 深链；gated 报告须绑定身份/403<br>🟡 阅读器拉取详情失败时勿暴露 Mock 域名资源 | `GET /services/insights/:id` + `loginCode` |
-| `pages/services/insights/access-denied/index` | `pages/services/insights/access-denied/index.ts`<br>`pages/services/insights/access-denied/index.wxml` | 🟠 勿在未授权时请求 Insight 详情；引导至 Profile 身份绑定 | — |
+| `subpackages/services/insights/index` | `subpackages/services/insights/index.ts`<br>`subpackages/services/insights/index.wxml` | 🟠 同上 | `GET /services/insights` |
+| `subpackages/services/insights/reader` | `subpackages/services/insights/reader.ts`<br>`subpackages/services/insights/reader.json`<br>`subpackages/services/insights/reader.wxml`<br>`components/services/insight-reader/*` | 🔴 分享 path 带 `id` 深链；gated 报告须绑定身份/403<br>🟡 阅读器拉取详情失败时勿暴露 Mock 域名资源 | `GET /services/insights/:id` + `loginCode` |
+| `subpackages/services/insights/access-denied/index` | `subpackages/services/insights/access-denied/index.ts`<br>`subpackages/services/insights/access-denied/index.wxml` | 🟠 勿在未授权时请求 Insight 详情；引导至 Profile 身份绑定 | — |
 
 ---
 
@@ -40,23 +40,21 @@
 | 页面路径 | 主要文件 | 必改项 | 关联接口 |
 |----------|----------|--------|----------|
 | `pages/kb-life/index` | `pages/kb-life/index.ts`<br>`pages/kb-life/index.wxml`<br>`pages/kb-life/index.wxss`<br>`services/kb-life.service.ts` | 🔴 WeTalk / 园区服务等与身份绑定一致；UI 与 API 403 一致 | `GET /kb-life/entries`<br>`GET /kb-life/wetalk*` + `loginCode` |
-| `pages/kb-life/campus-map/index` | `pages/kb-life/campus-map/index.ts`<br>`pages/kb-life/campus-map/index.wxml`<br>`utils/campus-location.ts` | 🟠 `rejectVisitorCampusAccess` + 服务端 `requireBoundIdentity` | `GET /kb-life/campus-map?location=` + `loginCode` |
-| `pages/kb-life/shuttle-bus/index` | `pages/kb-life/shuttle-bus/index.ts`<br>`pages/kb-life/shuttle-bus/index.wxml`<br>`utils/shuttle-map.ts` | 🟠 同上 | `GET /kb-life/shuttle?location=` + `loginCode` |
-| `pages/kb-life/canteen/index` | `pages/kb-life/canteen/index.ts`<br>`pages/kb-life/canteen/index.wxml` | 🟠 同上 | `GET /kb-life/canteen?location=` + `loginCode` |
-| `pages/kb-life/holiday-calendar/index` | `pages/kb-life/holiday-calendar/index.ts`<br>`pages/kb-life/holiday-calendar/index.wxml` | 🟠 同上 | `GET /kb-life/holiday-calendar?location=` + `loginCode` |
-| `pages/kb-life/open-positions/index` | `pages/kb-life/open-positions/index.ts`<br>`pages/kb-life/open-positions/index.wxml` | 🟠 **访客可读**；release 需 CMS 已发布岗位或接受空列表 | `GET /kb-life/open-positions` |
-| `pages/kb-life/open-positions/detail` | `pages/kb-life/open-positions/detail.ts`<br>`pages/kb-life/open-positions/detail.wxml` | 🟠 同上；投递按钮仍为引导文案 | `GET /kb-life/open-positions/:id` |
-| `pages/kb-life/guidance/index` | `pages/kb-life/guidance/index.ts`<br>`pages/kb-life/guidance/index.wxml` | 🟠 **访客可读**（列表 + 子手册页） | `GET /kb-life/guidance-documents` |
-| `pages/kb-life/handbook/index` | `pages/kb-life/handbook/index.ts`<br>`pages/kb-life/handbook/index.wxml` | 🟠 访客可读 | `GET /kb-life/handbook` |
-| `pages/kb-life/financial-handbook/index` | 财务手册 hub（注意事项 / 使用手册入口） | 🟠 访客可读 | `GET /kb-life/financial-handbook` |
-| `pages/kb-life/financial-handbook/document/index` | 分区详情 + `wx.downloadFile` | 🟠 访客可读 | `GET /kb-life/financial-handbook`（按 `section` 展示） |
-| `pages/kb-life/care/index` | `pages/kb-life/care/index.ts`<br>`pages/kb-life/care/index.wxml`<br>`services/kb-life.service.ts` | ✅ 策略 B：`GET /kb-life/care` + 身份绑定；见 [employee-care-api.md](./employee-care-api.md) | `GET /kb-life/care` + `loginCode` |
-| `pages/kb-life/events/index` | `pages/kb-life/events/index.ts`<br>`pages/kb-life/events/index.wxml` | 🟠 `getCompanyActivities` 在 release 可用 | `GET /kb-life/activities` |
-| `pages/kb-life/events/annual-dinner/index` | 各 `index.ts` / `index.wxml` | 🟠 活动详情非 Mock | 由 activities 配置 |
-| `pages/kb-life/events/outings/index` | 同上 | 🟠 同上 | 同上 |
-| `pages/kb-life/events/health/index` | 同上 | 🟠 含 `wx.downloadFile` | 同上 |
-| `pages/kb-life/events/highlight-moments/index` | 各 `index.ts` / `index.wxml` | 🟠 相册列表 | `GET /kb-life/activities`（`highlightMoments.albums`） |
-| `pages/kb-life/events/highlight-moments/album/index` | 同上 | 🟠 单相册图片网格；含 `wx.previewImage` | 同上（按 `album.id` 取图） |
+| `subpackages/kb-life/campus-map/index` | `subpackages/kb-life/campus-map/index.ts`<br>`subpackages/kb-life/campus-map/index.wxml`<br>`utils/campus-location.ts` | 🟠 `rejectVisitorCampusAccess` + 服务端 `requireBoundIdentity` | `GET /kb-life/campus-map?location=` + `loginCode` |
+| `subpackages/kb-life/shuttle-bus/index` | `subpackages/kb-life/shuttle-bus/index.ts`<br>`subpackages/kb-life/shuttle-bus/index.wxml`<br>`utils/shuttle-map.ts` | 🟠 同上 | `GET /kb-life/shuttle?location=` + `loginCode` |
+| `subpackages/kb-life/canteen/index` | `subpackages/kb-life/canteen/index.ts`<br>`subpackages/kb-life/canteen/index.wxml` | 🟠 同上 | `GET /kb-life/canteen?location=` + `loginCode` |
+| `subpackages/kb-life/holiday-calendar/index` | `subpackages/kb-life/holiday-calendar/index.ts`<br>`subpackages/kb-life/holiday-calendar/index.wxml` | 🟠 同上 | `GET /kb-life/holiday-calendar?location=` + `loginCode` |
+| `subpackages/kb-life/open-positions/index` | `subpackages/kb-life/open-positions/index.ts`<br>`subpackages/kb-life/open-positions/index.wxml` | 🟠 **访客可读**；release 需 CMS 已发布岗位或接受空列表 | `GET /kb-life/open-positions` |
+| `subpackages/kb-life/open-positions/detail` | `subpackages/kb-life/open-positions/detail.ts`<br>`subpackages/kb-life/open-positions/detail.wxml` | 🟠 同上；投递按钮仍为引导文案 | `GET /kb-life/open-positions/:id` |
+| `subpackages/kb-life/guidance/index` | `subpackages/kb-life/guidance/index.ts`<br>`subpackages/kb-life/guidance/index.wxml` | 🟠 **访客可读**（列表 + 子手册页） | `GET /kb-life/guidance-documents` |
+| `subpackages/kb-life/handbook/index` | `subpackages/kb-life/handbook/index.ts`<br>`subpackages/kb-life/handbook/index.wxml` | 🟠 访客可读 | `GET /kb-life/handbook` |
+| `subpackages/kb-life/financial-handbook/index` | 财务手册 hub（注意事项 / 使用手册入口） | 🟠 访客可读 | `GET /kb-life/financial-handbook` |
+| `subpackages/kb-life/financial-handbook/document/index` | 分区详情 + `wx.downloadFile` | 🟠 访客可读 | `GET /kb-life/financial-handbook`（按 `section` 展示） |
+| `subpackages/kb-life/care/index` | `subpackages/kb-life/care/index.ts`<br>`subpackages/kb-life/care/index.wxml`<br>`services/kb-life.service.ts` | ✅ 策略 B：`GET /kb-life/care` + 身份绑定；见 [employee-care-api.md](./employee-care-api.md) | `GET /kb-life/care` + `loginCode` |
+| `subpackages/kb-life/events/highlight-moments/index` | 各 `index.ts` / `index.wxml` | 🟠 **KB Life「精彩瞬间」二级页**（相册列表） | `GET /kb-life/activities`（`highlightMoments.albums`） |
+| `subpackages/kb-life/events/index` | redirect 至精彩瞬间 | ⚪ 旧 hub 兼容 | — |
+| `subpackages/kb-life/events/highlight-moments/album/index` | 同上 | 🟠 单相册图片网格；含 `wx.previewImage` | 同上（按 `album.id` 取图） |
+| — | `apps/miniprogram/source-pages/kb-life-events/{annual-dinner,outings,health}` | ⚪ 已下线并移出 `miniprogramRoot`，不进入上传包 | — |
 
 ---
 

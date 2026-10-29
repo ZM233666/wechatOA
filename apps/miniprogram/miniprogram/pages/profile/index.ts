@@ -99,7 +99,9 @@ Page({
   },
 
   async loadProfile() {
-    this.setData({ pageStatus: 'loading', errorText: '' });
+    if (this.data.pageStatus !== 'success') {
+      this.setData({ pageStatus: 'loading', errorText: '' });
+    }
     try {
       const result = await getProfile();
       this.setData({

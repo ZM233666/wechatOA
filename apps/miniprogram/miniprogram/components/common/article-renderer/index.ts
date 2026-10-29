@@ -1,3 +1,4 @@
+import { normalizeCarouselIntervalMs } from '../../../constants/design';
 import type { ArticleContentBlock, RichTextSpan } from '../../../types/content';
 import { getCurrentEnvVersion } from '../../../config/env';
 
@@ -20,6 +21,10 @@ const TAB_PATHS = new Set([
   '/pages/kb-life/index',
   '/pages/profile/index',
 ]);
+
+function isMiniProgramPagePath(url: string): boolean {
+  return url.startsWith('/pages/') || url.startsWith('/subpackages/');
+}
 
 interface RenderSpan extends RichTextSpan {
   className: string;
@@ -46,6 +51,7 @@ interface RenderBlock {
   slides?: Array<{ url: string; alt: string }>;
   autoplay?: boolean;
   interval?: number;
+  loop?: boolean;
   src?: string;
   poster?: string;
 }
@@ -108,7 +114,8 @@ function toRenderBlocks(blocks: ArticleContentBlock[]): RenderBlock[] {
           })),
           caption: block.caption,
           autoplay: block.autoplay === true,
-          interval: block.interval && block.interval > 0 ? block.interval : 5000,
+          interval: normalizeCarouselIntervalMs(block.interval),
+          loop: block.loop !== false,
         };
       }
       if (block.type === 'video') {
@@ -167,7 +174,7 @@ Component({
     },
     onSpanLink(event: WechatMiniprogram.TouchEvent) {
       const { href } = event.currentTarget.dataset as { href?: string };
-      this.openLink(href, href && href.startsWith('/pages/') ? 'internal' : 'external');
+      this.openLink(href, href && isMiniProgramPagePath(href) ? 'internal' : 'external');
     },
     onCarouselImageTap(event: WechatMiniprogram.TouchEvent) {
       if (!this.properties.carouselPreview) {
@@ -188,7 +195,7 @@ Component({
       if (!url) {
         return;
       }
-      if (linkType === 'internal' && url.startsWith('/pages/')) {
+      if (linkType === 'internal' && isMiniProgramPagePath(url)) {
         const path = url.split('?')[0];
         if (TAB_PATHS.has(path)) {
           wx.switchTab({ url: path });

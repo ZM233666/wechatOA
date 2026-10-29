@@ -1,11 +1,12 @@
 {
-  "title": "精彩瞬间 (Highlight Moments)",
-  "subtitle": "管理员创建的相册，记录活动与团队影像",
+  "title": "精彩瞬间",
+  "subtitle": "",
   "albums": [
     {
       "id": "album-annual-2025",
       "title": "2025 年会",
       "subtitle": "Annual Dinner 2025",
+      "content": "回顾 2025 年度表彰与晚宴精彩现场，感谢每一位同事的付出与参与。",
       "dateLabel": "2025-12",
       "coverImage": {
         "url": "/mock-assets/kb-life/banner-001.png",
@@ -20,21 +21,24 @@
           "alt": "年会现场 1",
           "width": 1200,
           "height": 540,
-          "aspectRatio": 2.2222
+          "aspectRatio": 2.2222,
+          "allowDownload": true
         },
         {
           "url": "/mock-assets/kb-life/banner-002.png",
           "alt": "年会现场 2",
           "width": 1200,
           "height": 540,
-          "aspectRatio": 2.2222
+          "aspectRatio": 2.2222,
+          "allowDownload": false
         },
         {
           "url": "/mock-assets/kb-life/banner-003.png",
           "alt": "年会合影",
           "width": 1200,
           "height": 540,
-          "aspectRatio": 2.2222
+          "aspectRatio": 2.2222,
+          "allowDownload": true
         }
       ]
     },
@@ -42,6 +46,7 @@
       "id": "album-team-outing-2025",
       "title": "秋游团建",
       "subtitle": "Team Outing · Autumn",
+      "content": "秋日户外团建，徒步、游戏与团队挑战，记录同事们的笑脸与协作瞬间。",
       "dateLabel": "2025-10",
       "coverImage": {
         "url": "/mock-assets/kb-life/banner-002.png",
@@ -56,14 +61,16 @@
           "alt": "团建活动 1",
           "width": 1200,
           "height": 540,
-          "aspectRatio": 2.2222
+          "aspectRatio": 2.2222,
+          "allowDownload": true
         },
         {
           "url": "/mock-assets/kb-life/banner-003.png",
           "alt": "团建活动 2",
           "width": 1200,
           "height": 540,
-          "aspectRatio": 2.2222
+          "aspectRatio": 2.2222,
+          "allowDownload": true
         }
       ]
     }

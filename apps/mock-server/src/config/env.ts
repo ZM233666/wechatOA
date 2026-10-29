@@ -18,7 +18,7 @@ const envSchema = z
     MOCK_PUBLIC_BASE_URL: z.string().optional().default(''),
     MOCK_DELAY_ENABLED: z
       .union([z.boolean(), z.enum(['true', 'false', '1', '0'])])
-      .default('true')
+      .default('false')
       .transform((value) => value === true || value === 'true' || value === '1'),
     MOCK_DELAY_MIN: z.coerce.number().int().min(0).default(100),
     MOCK_DELAY_MAX: z.coerce.number().int().min(0).default(350),
@@ -121,6 +121,16 @@ const envSchema = z
     COMPANY_EVENTS_API_BASE_URL: z.string().min(1).default('http://127.0.0.1:8000'),
     COMPANY_EVENTS_USERNAME: z.string().default('superadmin'),
     COMPANY_EVENTS_PASSWORD: z.string().default('admin123456'),
+    /** 精彩瞬间：从 Django Mini GET /api/v1/mini/kb-life/activities 读取 highlightMoments */
+    HIGHLIGHT_MOMENTS_ENABLED: z
+      .union([z.boolean(), z.enum(['true', 'false', '1', '0'])])
+      .default('false')
+      .transform((value) => value === true || value === 'true' || value === '1'),
+    HIGHLIGHT_MOMENTS_API_BASE_URL: z.string().min(1).default('http://127.0.0.1:8000'),
+    HIGHLIGHT_MOMENTS_USERNAME: z.string().default('superadmin'),
+    HIGHLIGHT_MOMENTS_PASSWORD: z.string().default('admin123456'),
+    /** live 相册数据内存缓存（毫秒）；改封面后想立刻看到可改小或重启 mock-server */
+    HIGHLIGHT_MOMENTS_SYNC_TTL_MS: z.coerce.number().int().min(0).default(60_000),
     CAMPUS_MAP_ENABLED: z
       .union([z.boolean(), z.enum(['true', 'false', '1', '0'])])
       .default('false')

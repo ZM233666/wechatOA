@@ -1,7 +1,7 @@
-import type { ImageResource } from '../types/content';
-import { toAssetUrl } from '../utils/format';
-import { API_ENDPOINTS } from './endpoints';
-import { get } from './request';
+import type { ImageResource } from '../../types/content';
+import { toAssetUrl } from '../../utils/format';
+import { API_ENDPOINTS } from '../../services/endpoints';
+import { get } from '../../services/request';
 
 export interface BrandValue {
   title: string;

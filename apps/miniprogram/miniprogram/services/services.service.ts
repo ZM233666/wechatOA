@@ -3,7 +3,7 @@ import { MY_DASHBOARD_MODULES } from '../mock/services';
 import { toAssetUrl } from '../utils/format';
 import { API_ENDPOINTS } from './endpoints';
 import { getLoginCodeQueryParams } from './identity-binding.service';
-import { get } from './request';
+import { get, withRequestCache } from './request';
 
 export interface ServiceHeroCard {
   id: string;
@@ -205,37 +205,39 @@ export async function getInsightReports(): Promise<InsightCover[]> {
 }
 
 export async function getInsightReport(id: string): Promise<InsightReportView> {
-  const data = await get<InsightReportDto>(API_ENDPOINTS.serviceInsightDetail(id), {
-    ...(await getLoginCodeQueryParams()),
+  return withRequestCache(`insight:${id}`, 5 * 60_000, async () => {
+    const data = await get<InsightReportDto>(API_ENDPOINTS.serviceInsightDetail(id), {
+      ...(await getLoginCodeQueryParams()),
+    });
+    const pages = data.pages ?? [];
+    return {
+      id: data.id,
+      title: data.title,
+      titleEn: data.titleEn,
+      caption: data.caption,
+      kicker: data.kicker,
+      english: data.english,
+      image: toAssetUrl(data.coverImage),
+      gating: data.gating,
+      tag: data.tag,
+      pdfUrl: data.pdfUrl,
+      pages: pages.map((page) => ({
+        id: page.id,
+        type: page.type,
+        title: page.title,
+        coverImage: page.coverImage ? toAssetUrl(page.coverImage) : undefined,
+        headlineCn: page.headlineCn,
+        headlineEn: page.headlineEn,
+        institute: page.institute,
+        brand: page.brand,
+        toc: page.toc,
+        chapterLabel: page.chapterLabel,
+        chapterTitle: page.chapterTitle,
+        bodyImage: page.bodyImage ? toAssetUrl(page.bodyImage) : undefined,
+        paragraphs: page.paragraphs,
+        bullets: page.bullets,
+        thumbTone: page.type,
+      })),
+    };
   });
-  const pages = data.pages ?? [];
-  return {
-    id: data.id,
-    title: data.title,
-    titleEn: data.titleEn,
-    caption: data.caption,
-    kicker: data.kicker,
-    english: data.english,
-    image: toAssetUrl(data.coverImage),
-    gating: data.gating,
-    tag: data.tag,
-    pdfUrl: data.pdfUrl,
-    pages: pages.map((page) => ({
-      id: page.id,
-      type: page.type,
-      title: page.title,
-      coverImage: page.coverImage ? toAssetUrl(page.coverImage) : undefined,
-      headlineCn: page.headlineCn,
-      headlineEn: page.headlineEn,
-      institute: page.institute,
-      brand: page.brand,
-      toc: page.toc,
-      chapterLabel: page.chapterLabel,
-      chapterTitle: page.chapterTitle,
-      bodyImage: page.bodyImage ? toAssetUrl(page.bodyImage) : undefined,
-      paragraphs: page.paragraphs,
-      bullets: page.bullets,
-      thumbTone: page.type,
-    })),
-  };
 }

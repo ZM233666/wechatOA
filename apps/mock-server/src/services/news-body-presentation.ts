@@ -29,3 +29,19 @@ export function shouldPreferNewsRichContentBlocks(
   }
   return isPlaceholderArticleHtml(contentHtml);
 }
+
+export function hasUsableNewsBody(
+  bodyFormat: 'html' | 'blocks' | undefined,
+  richContent: ArticleContentBlock[],
+  contentHtml?: string | null,
+): boolean {
+  const preferBlocks = shouldPreferNewsRichContentBlocks(bodyFormat, richContent, contentHtml);
+  if (!preferBlocks) {
+    return !isPlaceholderArticleHtml(contentHtml);
+  }
+  return richContent.some(
+    (block) =>
+      block.type !== 'paragraph' ||
+      block.spans.some((span) => span.text.trim() && span.text.trim() !== '暂无正文'),
+  );
+}

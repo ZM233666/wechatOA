@@ -30,7 +30,7 @@ function route(id: string, name: string, stops: ShuttleStop[]): ShuttleRoute {
   };
 }
 
-/** 数据来源：assets/images/kb-life/New Shuttle Bus-KB新.pdf */
+/** 数据来源：apps/miniprogram/source-assets/New Shuttle Bus-KB新.pdf（不进入小程序代码包） */
 export const SHUTTLE_ROUTES: ShuttleRoute[] = [
   route('K01', '新区线', [
     { time: '7:37', name: '友新路教师新村公交站' },

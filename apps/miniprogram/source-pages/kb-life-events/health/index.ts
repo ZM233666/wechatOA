@@ -1,3 +1,4 @@
+/** 模块已暂时下线；恢复入口见 fixtures/kb-life/activities-nav-items.disabled.json */
 import { getCompanyActivities } from '../../../../services/kb-life.service';
 import { RequestError } from '../../../../types/api';
 

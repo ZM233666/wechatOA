@@ -61,12 +61,11 @@ Page({
   },
 
   onShow() {
-    refreshIfIdentitySessionChanged(this, () => {
+    const identityChanged = refreshIfIdentitySessionChanged(this, () => {
       void this.loadEntries();
     });
     if (!shouldBlockWetalkForNonEmployee()) {
-      void this.loadWetalkFeatured();
-      if (this.data.listVisible) {
+      if (!identityChanged && this.data.listVisible && !this.data.wetalkItems.length) {
         void this.loadWetalkList();
       }
     } else {
@@ -219,7 +218,7 @@ Page({
       wx.hideLoading();
     }
     wx.navigateTo({
-      url: withCampusLocationQuery('/pages/kb-life/campus-map/index', location),
+      url: withCampusLocationQuery('/subpackages/kb-life/campus-map/index', location),
     });
   },
 

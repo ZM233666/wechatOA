@@ -1,30 +1,5 @@
+<!-- hub 已下线，见 index.ts redirect -->
 <view class="page page--events">
-  <nav-brand title="Company Events" show-back="{{true}}"></nav-brand>
-
-  <view class="events">
-    <text class="events__heading">公司事件 (Company Events)</text>
-
-    <view wx:if="{{pageStatus === 'loading'}}" class="events__state">加载中…</view>
-    <view wx:elif="{{pageStatus === 'error'}}" class="events__state events__state--error">{{errorText}}</view>
-
-    <view
-      wx:if="{{pageStatus === 'success'}}"
-      class="event-card tap-feedback"
-      wx:for="{{events}}"
-      wx:key="id"
-      data-id="{{item.id}}"
-      hover-stop-propagation="{{true}}"
-      catchtap="onEventTap"
-    >
-      <view class="event-card__icon-wrap" style="background: {{item.iconBg}};">
-        <image class="event-card__icon" src="{{item.icon}}" mode="aspectFit"></image>
-      </view>
-      <view class="event-card__meta">
-        <text class="event-card__title">{{item.title}}</text>
-        <text class="event-card__subtitle">{{item.subtitle}}</text>
-      </view>
-      <text class="event-card__arrow">›</text>
-    </view>
-  </view>
-  <app-tab-bar></app-tab-bar>
+  <nav-brand title="Highlights" show-back="{{true}}"></nav-brand>
+  <view class="events__state">跳转中…</view>
 </view>

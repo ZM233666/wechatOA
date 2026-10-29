@@ -3,7 +3,7 @@ import {
   getProductSystemHeading,
   resolveProductSystemId,
   type ProductListItemView,
-} from '../../services/products.service';
+} from './products.service';
 import { RequestError } from '../../types/api';
 import { fallbackImageUrl } from '../../utils/format';
 

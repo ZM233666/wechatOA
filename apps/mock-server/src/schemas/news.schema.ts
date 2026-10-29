@@ -17,7 +17,7 @@ export const newsSummarySchema = z.object({
   slug: z.string().min(1),
   title: z.string().min(1).max(160),
   subtitle: z.string(),
-  summary: z.string().min(1).max(220),
+  summary: z.string().max(220),
   category: categorySchema,
   publishedAt: z.string().datetime(),
   coverImage: imageResourceSchema,
@@ -66,7 +66,7 @@ export const newsArticleFixtureSchema = z
     bodyFormat: z.enum(['html', 'blocks']).optional(),
     richContent: z.array(articleContentBlockSchema).min(1),
     relatedArticleIds: z.array(z.string()),
-    /** CMS 填写的摘要原文；Banner 仅展示此字段，为空则不显示副文案 */
+    /** CMS 摘要原文；为空时列表/Banner 不展示副文案（不回退正文截取） */
     explicitSummary: z.string().optional(),
     share: z.object({
       title: z.string().min(1),

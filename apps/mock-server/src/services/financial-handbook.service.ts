@@ -155,7 +155,7 @@ export function refreshFinancialHandbookFromMinio(): void {
 }
 
 export async function loadFinancialHandbook(): Promise<FinancialHandbookPayload> {
-  await syncPdfCatalogFromMinio('financial-handbook');
+  void syncPdfCatalogFromMinio('financial-handbook');
   const meta = readJsonFile('kb-life/financial-handbook.json', financialHandbookSchema);
 
   let liveManualPdfUrl: string | undefined;

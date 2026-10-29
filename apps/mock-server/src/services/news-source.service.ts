@@ -9,7 +9,7 @@ import {
   refreshArticleNewsInBackground,
   syncArticleNews,
 } from './article-news.service';
-import { shouldPreferNewsRichContentBlocks } from './news-body-presentation';
+import { hasUsableNewsBody } from './news-body-presentation';
 
 /**
  * 优先使用管理端 article-content 缓存；缓存为空时同步等待一次拉取。
@@ -70,19 +70,9 @@ export async function getNewsArticleForDetail(idOrSlug: string): Promise<NewsArt
     found.id.startsWith('article-')
   ) {
     let hydrated = await hydrateArticleNewsDetail(found);
-    const preferBlocks = shouldPreferNewsRichContentBlocks(
-      hydrated.bodyFormat,
-      hydrated.richContent,
-      hydrated.contentHtml,
-    );
-    const looksEmpty =
-      !preferBlocks ||
-      hydrated.richContent.every(
-        (block) =>
-          block.type === 'paragraph' &&
-          block.spans.every((span) => !span.text.trim() || span.text.trim() === '暂无正文'),
-      );
-    if (looksEmpty) {
+    if (
+      !hasUsableNewsBody(hydrated.bodyFormat, hydrated.richContent, hydrated.contentHtml)
+    ) {
       invalidateArticleNewsDetailCache(hydrated);
       hydrated = await hydrateArticleNewsDetail(found, { skipCache: true });
     }

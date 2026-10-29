@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { imageResourceSchema } from './common.schema';
+import { imageResourceSchema, remoteImageResourceSchema } from './common.schema';
 
 export const kbLifeEntriesSchema = z.object({
   banners: z.array(
@@ -80,19 +80,45 @@ const healthCheckupDetailSchema = z.object({
   images: z.array(imageResourceSchema),
 });
 
+const highlightMomentsAlbumImageSchema = imageResourceSchema.extend({
+  allowDownload: z.boolean(),
+});
+
 const highlightMomentsAlbumSchema = z.object({
   id: z.string().min(1),
   title: z.string().min(1),
   subtitle: z.string(),
+  content: z.string(),
   dateLabel: z.string().optional(),
   coverImage: imageResourceSchema,
-  images: z.array(imageResourceSchema).min(1),
+  images: z.array(highlightMomentsAlbumImageSchema).min(1),
 });
 
 export const highlightMomentsDetailSchema = z.object({
   title: z.string().min(1),
   subtitle: z.string(),
   albums: z.array(highlightMomentsAlbumSchema),
+});
+
+const highlightMomentsAlbumImageLiveSchema = remoteImageResourceSchema.extend({
+  allowDownload: z.boolean(),
+});
+
+const highlightMomentsAlbumLiveSchema = z.object({
+  id: z.string().min(1),
+  title: z.string().min(1),
+  subtitle: z.string(),
+  content: z.string(),
+  dateLabel: z.string().optional(),
+  coverImage: remoteImageResourceSchema,
+  images: z.array(highlightMomentsAlbumImageLiveSchema).min(1),
+});
+
+/** 从 Django Mini 拉取的 highlightMoments（允许 http(s) 图片 URL） */
+export const highlightMomentsDetailLiveSchema = z.object({
+  title: z.string().min(1),
+  subtitle: z.string(),
+  albums: z.array(highlightMomentsAlbumLiveSchema),
 });
 
 export const guidanceDocumentsSchema = z.object({

@@ -1,4 +1,4 @@
-import { getBrand, type BrandValue } from '../../services/brand.service';
+import { getBrand, type BrandValue } from './brand.service';
 import { RequestError } from '../../types/api';
 
 Page({

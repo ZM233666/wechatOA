@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import type { NewsArticleFixture } from '../src/schemas/news.schema';
-import { selectHomeBanners, selectHomeNews } from '../src/services/news.service';
+import { selectHomeBanners, selectHomeNews, toNewsSummary } from '../src/services/news.service';
 
 function makeArticle(overrides: Partial<NewsArticleFixture> & Pick<NewsArticleFixture, 'id' | 'title'>): NewsArticleFixture {
   const base: NewsArticleFixture = {
@@ -64,6 +64,21 @@ describe('home news selection', () => {
     expect(banners[0]?.id).toBe('news-a');
     expect(banners[0]?.newsId).toBe('news-a');
     expect(banners[0]?.description).toBe('这是 CMS 摘要');
+  });
+
+  it('returns empty list summary when CMS summary is blank but body fallback exists', () => {
+    const article = makeArticle({
+      id: 'news-no-summary',
+      title: '动图展示测试',
+      summary: '以下是一个动图展示@keyframes...',
+      explicitSummary: '',
+    });
+    expect(toNewsSummary(article).summary).toBe('');
+  });
+
+  it('keeps fixture summary when explicitSummary is undefined', () => {
+    const article = makeArticle({ id: 'news-fixture', title: 'Fixture' });
+    expect(toNewsSummary(article).summary).toBe('摘要');
   });
 
   it('omits banner description when explicit summary is missing', () => {

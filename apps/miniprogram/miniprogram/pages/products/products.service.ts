@@ -1,7 +1,7 @@
-import type { ArticleContentBlock, ImageResource, PaginatedData } from '../types/content';
-import { toAssetUrl } from '../utils/format';
-import { API_ENDPOINTS } from './endpoints';
-import { get } from './request';
+import type { ArticleContentBlock, ImageResource, PaginatedData } from '../../types/content';
+import { toAssetUrl } from '../../utils/format';
+import { API_ENDPOINTS } from '../../services/endpoints';
+import { get, withRequestCache } from '../../services/request';
 
 const PRODUCT_SYSTEM_ALIASES: Record<string, string> = {
   braking: 'braking',
@@ -135,57 +135,64 @@ export async function getProductCategories(): Promise<{
   slides: ProductHeroSlide[];
   categories: ProductCategoryView[];
 }> {
-  const data = await get<ProductCategoriesDto>(API_ENDPOINTS.productCategories);
-  const categories = data.categories
-    .filter((item) => item.id !== 'digital' && item.featuredProductId !== 'product-004')
-    .map((item) => ({
-      id: item.featuredProductId,
-      title: item.name,
-      titleCn: item.nameCn,
-      subtitleEn: item.subtitleEn,
-      desc: item.description.trim() === '' ? '' : item.description,
-      image: item.coverImage.url ? toAssetUrl(item.coverImage) : '',
-      products: [],
-      richContent: [],
-    }));
-  return {
-    slides: data.slides.map((item) => ({
-      title: item.title,
-      image: toAssetUrl(item.image),
-    })),
-    categories,
-  };
+  return withRequestCache('products:categories', 2 * 60_000, async () => {
+    const data = await get<ProductCategoriesDto>(API_ENDPOINTS.productCategories);
+    const categories = data.categories
+      .filter((item) => item.id !== 'digital' && item.featuredProductId !== 'product-004')
+      .map((item) => ({
+        id: item.featuredProductId,
+        title: item.name,
+        titleCn: item.nameCn,
+        subtitleEn: item.subtitleEn,
+        desc: item.description.trim() === '' ? '' : item.description,
+        image: item.coverImage.url ? toAssetUrl(item.coverImage) : '',
+        products: [],
+        richContent: [],
+      }));
+    return {
+      slides: data.slides.map((item) => ({
+        title: item.title,
+        image: toAssetUrl(item.image),
+      })),
+      categories,
+    };
+  });
 }
 
 export async function getProductDetail(id: string): Promise<ProductCategoryView> {
-  const data = await get<ProductDetailDto>(API_ENDPOINTS.productDetail(id));
-  return {
-    id: data.id,
-    title: data.name,
-    titleCn: data.nameCn,
-    subtitleEn: data.subtitleEn,
-    desc: data.description.trim() === ' ' ? '' : data.description,
-    image: data.coverImage.url ? toAssetUrl(data.coverImage) : '',
-    products: data.relatedProducts.map((item) => ({
-      name: item.name,
-      desc: item.description,
-      img: toAssetUrl(item.image),
-    })),
-    richContent: [],
-  };
+  return withRequestCache(`products:detail:${id}`, 5 * 60_000, async () => {
+    const data = await get<ProductDetailDto>(API_ENDPOINTS.productDetail(id));
+    return {
+      id: data.id,
+      title: data.name,
+      titleCn: data.nameCn,
+      subtitleEn: data.subtitleEn,
+      desc: data.description.trim() === ' ' ? '' : data.description,
+      image: data.coverImage.url ? toAssetUrl(data.coverImage) : '',
+      products: data.relatedProducts.map((item) => ({
+        name: item.name,
+        desc: item.description,
+        img: toAssetUrl(item.image),
+      })),
+      richContent: [],
+    };
+  });
 }
 
 export async function getProductList(
   query: ProductListQuery = {},
 ): Promise<{ items: ProductListItemView[]; hasNext: boolean }> {
-  const data = await get<PaginatedData<ProductSummaryDto>>(API_ENDPOINTS.products, {
-    page: query.page ?? 1,
-    pageSize: query.pageSize ?? 20,
-    category: query.category,
-    keyword: query.keyword,
+  const key = `products:list:${query.page ?? 1}:${query.pageSize ?? 20}:${query.category ?? ''}:${query.keyword ?? ''}`;
+  return withRequestCache(key, 60_000, async () => {
+    const data = await get<PaginatedData<ProductSummaryDto>>(API_ENDPOINTS.products, {
+      page: query.page ?? 1,
+      pageSize: query.pageSize ?? 20,
+      category: query.category,
+      keyword: query.keyword,
+    });
+    return {
+      items: data.items.map(mapProductSummary),
+      hasNext: data.pagination.hasNext,
+    };
   });
-  return {
-    items: data.items.map(mapProductSummary),
-    hasNext: data.pagination.hasNext,
-  };
 }

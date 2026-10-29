@@ -27,7 +27,7 @@
 | GET | `/api/kb-life/entries` | KB Life | - | `KbLifeEntriesData` | `fixtures/kb-life/entries.json` | 未实现 | |
 | GET | `/api/kb-life/canteen` | 食堂 | `location` | `CanteenData` | `fixtures/kb-life/locations/*/canteen.json` | 未实现 | |
 | GET | `/api/kb-life/shuttle` | 班车 | `location` | `ShuttleData` | `MinIO `suzhou/shuttle-bus/` / 本地 Shuttlebus/*.pdf`（Suzhou）或 `locations/*/shuttle.json` | 未实现 | 苏州优先解析 PDF |
-| GET | `/api/kb-life/activities` | 活动入口 | - | `ActivitiesData` | `fixtures/kb-life/activities.json` | 未实现 | |
+| GET | `/api/kb-life/activities` | 活动入口（含 `highlightMoments` 相册） | - | `ActivitiesData` | `fixtures/kb-life/activities.json` + `highlight-moments-albums.json` | 未实现 | 字段说明见 [kb-life-highlight-moments-api.md](./kb-life-highlight-moments-api.md) |
 | GET | `/api/kb-life/wetalk` | WeTalk 列表 | - | `{ items: WetalkIssueSummary[] }` | `fixtures/kb-life/wetalk/*.json` + MinIO `wetalk/`（缓存 `runtime/minio/wetalk/`）/ 可选本地 `files/*.pdf` | 未实现 | 有 `pdfFile` 时返回绝对化 `pdfUrl` |
 | GET | `/api/kb-life/wetalk/:id` | WeTalk 详情 | `id` | `WetalkIssue` | 同上 | 未实现 | PDF 渲成 `sheet` 页走页内阅读器；无 PDF 时回退 JSON `pages` |
 | GET | `/api/kb-life/campus-map` | 园区地图 | `location` | `CampusMapData` | `CAMPUS_MAP_ENABLED` 时 `GET /api/campus-map/files/` + fixture 标题/封面；否则 `locations/*/campus-map.json` + PDF | 未实现 | 有 PDF 时返回 sheet pages + pdfUrl，前端走页内阅读器 |

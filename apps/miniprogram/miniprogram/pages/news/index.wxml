@@ -48,7 +48,7 @@
             <text wx:elif="{{item.featured}}" class="news-card__mark news-card__mark--featured">精选</text>
           </view>
           <text class="news-card__title">{{item.title}}</text>
-          <text class="news-card__summary">{{item.summary}}</text>
+          <text wx:if="{{item.summary}}" class="news-card__summary">{{item.summary}}</text>
           <text class="news-card__date">{{item.date}}</text>
         </view>
       </view>

@@ -22,3 +22,16 @@ export const DESIGN_SPACING = {
   cardRadius: 24,
   cardPadding: 28,
 } as const;
+
+/** 新闻正文 carousel → swiper interval（毫秒），与 Mock DEFAULT_CAROUSEL_INTERVAL_MS 一致 */
+export const CAROUSEL_INTERVAL_DEFAULT_MS = 2000;
+export const CAROUSEL_INTERVAL_MIN_MS = 500;
+export const CAROUSEL_INTERVAL_MAX_MS = 60_000;
+
+export function normalizeCarouselIntervalMs(value: unknown): number {
+  if (typeof value !== 'number' || !Number.isFinite(value) || value <= 0) {
+    return CAROUSEL_INTERVAL_DEFAULT_MS;
+  }
+  const rounded = Math.round(value);
+  return Math.min(CAROUSEL_INTERVAL_MAX_MS, Math.max(CAROUSEL_INTERVAL_MIN_MS, rounded));
+}

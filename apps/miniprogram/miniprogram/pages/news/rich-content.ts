@@ -1,4 +1,4 @@
-import type { ArticleContentBlock } from '../types/content';
+import type { ArticleContentBlock } from '../../types/content';
 
 const NATIVE_BLOCK_TYPES = new Set(['carousel', 'video']);
 

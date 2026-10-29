@@ -73,6 +73,7 @@ export const mediaCarouselBlockSchema = z.object({
   caption: z.string().optional(),
   autoplay: z.boolean().optional(),
   interval: z.number().int().positive().optional(),
+  loop: z.boolean().optional(),
 });
 
 export const videoBlockSchema = z.object({

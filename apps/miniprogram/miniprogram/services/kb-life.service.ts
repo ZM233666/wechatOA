@@ -4,7 +4,7 @@ import { toAssetUrl } from '../utils/format';
 import { API_ENDPOINTS } from './endpoints';
 import { isEmployeeIdentity } from '../utils/identity-access';
 import { getLoginCodeQueryParams } from './identity-binding.service';
-import { get } from './request';
+import { get, withRequestCache } from './request';
 import { RequestError } from '../types/api';
 
 async function withIdentityQuery<T extends Record<string, unknown>>(
@@ -168,18 +168,20 @@ export async function getKbLifeEntries(): Promise<{
   campusServices: CampusService[];
   employeeServices: CampusService[];
 }> {
-  const data = await get<KbLifeEntriesDto>(API_ENDPOINTS.kbLifeEntries);
-  return {
-    banners: data.banners.map((item) => ({
-      id: item.id,
-      title: item.title,
-      subtitle: item.subtitle,
-      image: toAssetUrl(item.image),
-    })),
-    locations: data.locations,
-    campusServices: data.campusServices.map(mapService),
-    employeeServices: data.employeeServices.map(mapService),
-  };
+  return withRequestCache('kb-life:entries', 60_000, async () => {
+    const data = await get<KbLifeEntriesDto>(API_ENDPOINTS.kbLifeEntries);
+    return {
+      banners: data.banners.map((item) => ({
+        id: item.id,
+        title: item.title,
+        subtitle: item.subtitle,
+        image: toAssetUrl(item.image),
+      })),
+      locations: data.locations,
+      campusServices: data.campusServices.map(mapService),
+      employeeServices: data.employeeServices.map(mapService),
+    };
+  });
 }
 
 export async function getCanteen(
@@ -359,16 +361,18 @@ export async function getWetalkIssues(): Promise<WetalkCover[]> {
   if (!isEmployeeIdentity()) {
     return [];
   }
-  const data = await get<{ items: Array<Omit<WetalkIssueDto, 'pages'>> }>(
-    API_ENDPOINTS.kbLifeWetalk,
-    await withIdentityQuery({}),
-  );
-  return data.items.map((item) => ({
-    id: item.id,
-    title: item.title,
-    date: item.date,
-    image: toAssetUrl(item.coverImage),
-  }));
+  return withRequestCache('wetalk:list', 60_000, async () => {
+    const data = await get<{ items: Array<Omit<WetalkIssueDto, 'pages'>> }>(
+      API_ENDPOINTS.kbLifeWetalk,
+      await withIdentityQuery({}),
+    );
+    return data.items.map((item) => ({
+      id: item.id,
+      title: item.title,
+      date: item.date,
+      image: toAssetUrl(item.coverImage),
+    }));
+  });
 }
 
 /** 映射为 InsightReportView，复用 insight-reader（含 PDF→sheet） */
@@ -376,38 +380,40 @@ export async function getWetalkIssueAsReport(id: string): Promise<InsightReportV
   if (!isEmployeeIdentity()) {
     throw new RequestError('此功能仅面向 KB 员工');
   }
-  const data = await get<WetalkIssueDto>(
-    API_ENDPOINTS.kbLifeWetalkDetail(id),
-    await withIdentityQuery({}),
-  );
-  return {
-    id: data.id,
-    title: data.title,
-    titleEn: data.title,
-    caption: data.date,
-    kicker: 'WeTalk',
-    english: data.date,
-    image: toAssetUrl(data.coverImage),
-    gating: false,
-    pdfUrl: data.pdfUrl,
-    pages: data.pages.map((page) => ({
-      id: page.id,
-      type: page.type,
-      title: page.title,
-      coverImage: page.coverImage ? toAssetUrl(page.coverImage) : undefined,
-      headlineCn: page.headlineCn,
-      headlineEn: page.headlineEn,
-      institute: page.institute,
-      brand: page.brand,
-      toc: page.toc,
-      chapterLabel: page.chapterLabel,
-      chapterTitle: page.chapterTitle,
-      bodyImage: page.bodyImage ? toAssetUrl(page.bodyImage) : undefined,
-      paragraphs: page.paragraphs,
-      bullets: page.bullets,
-      thumbTone: page.type,
-    })),
-  };
+  return withRequestCache(`wetalk:detail:${id}`, 5 * 60_000, async () => {
+    const data = await get<WetalkIssueDto>(
+      API_ENDPOINTS.kbLifeWetalkDetail(id),
+      await withIdentityQuery({}),
+    );
+    return {
+      id: data.id,
+      title: data.title,
+      titleEn: data.title,
+      caption: data.date,
+      kicker: 'WeTalk',
+      english: data.date,
+      image: toAssetUrl(data.coverImage),
+      gating: false,
+      pdfUrl: data.pdfUrl,
+      pages: data.pages.map((page) => ({
+        id: page.id,
+        type: page.type,
+        title: page.title,
+        coverImage: page.coverImage ? toAssetUrl(page.coverImage) : undefined,
+        headlineCn: page.headlineCn,
+        headlineEn: page.headlineEn,
+        institute: page.institute,
+        brand: page.brand,
+        toc: page.toc,
+        chapterLabel: page.chapterLabel,
+        chapterTitle: page.chapterTitle,
+        bodyImage: page.bodyImage ? toAssetUrl(page.bodyImage) : undefined,
+        paragraphs: page.paragraphs,
+        bullets: page.bullets,
+        thumbTone: page.type,
+      })),
+    };
+  });
 }
 
 export async function getCampusMap(
@@ -419,31 +425,33 @@ export async function getCampusMap(
   pdfUrl?: string;
   pages: InsightReportView['pages'];
 }> {
-  const data = await get<{
-    title: string;
-    image: ImageResource;
-    location?: string;
-    pdfUrl?: string;
-    pages?: Array<{
-      id: string;
-      type: 'sheet';
+  return withRequestCache(`campus-map:${location}`, 5 * 60_000, async () => {
+    const data = await get<{
       title: string;
-      coverImage?: ImageResource;
-    }>;
-  }>(API_ENDPOINTS.kbLifeCampusMap, await withIdentityQuery({ location }));
-  return {
-    title: data.title,
-    image: toAssetUrl(data.image),
-    location: data.location || location,
-    pdfUrl: data.pdfUrl,
-    pages: (data.pages ?? []).map((page) => ({
-      id: page.id,
-      type: page.type,
-      title: page.title,
-      coverImage: page.coverImage ? toAssetUrl(page.coverImage) : undefined,
-      thumbTone: page.type,
-    })),
-  };
+      image: ImageResource;
+      location?: string;
+      pdfUrl?: string;
+      pages?: Array<{
+        id: string;
+        type: 'sheet';
+        title: string;
+        coverImage?: ImageResource;
+      }>;
+    }>(API_ENDPOINTS.kbLifeCampusMap, await withIdentityQuery({ location }));
+    return {
+      title: data.title,
+      image: toAssetUrl(data.image),
+      location: data.location || location,
+      pdfUrl: data.pdfUrl,
+      pages: (data.pages ?? []).map((page) => ({
+        id: page.id,
+        type: page.type,
+        title: page.title,
+        coverImage: page.coverImage ? toAssetUrl(page.coverImage) : undefined,
+        thumbTone: page.type,
+      })),
+    };
+  });
 }
 
 /** 映射为 InsightReportView，复用 insight-reader 阅读园区地图 PDF */
@@ -501,7 +509,9 @@ async function fetchEmployeeHandbookDocument(
 }
 
 export async function getEmployeeHandbook(): Promise<EmployeeHandbookView> {
-  return fetchEmployeeHandbookDocument(API_ENDPOINTS.kbLifeHandbook);
+  return withRequestCache('kb-life:handbook', 5 * 60_000, () =>
+    fetchEmployeeHandbookDocument(API_ENDPOINTS.kbLifeHandbook),
+  );
 }
 
 export type FinancialGuidanceSectionId = 'notes' | 'manual';
@@ -540,39 +550,41 @@ const FINANCIAL_SECTION_PRESENTATION: Record<
 };
 
 export async function getFinancialGuidanceHandbook(): Promise<FinancialGuidanceHandbookView> {
-  const data = await get<{
-    title: string;
-    edition: string;
-    introCn: string;
-    introEn: string;
-    sections: Array<{
-      id: FinancialGuidanceSectionId;
+  return withRequestCache('kb-life:financial-handbook', 5 * 60_000, async () => {
+    const data = await get<{
       title: string;
-      subtitle: string;
+      edition: string;
       introCn: string;
       introEn: string;
-      pdfUrl?: string;
-    }>;
-  }>(API_ENDPOINTS.kbLifeFinancialHandbook);
-  return {
-    title: data.title,
-    edition: data.edition,
-    introCn: data.introCn,
-    introEn: data.introEn,
-    sections: data.sections.map((section) => {
-      const presentation = FINANCIAL_SECTION_PRESENTATION[section.id];
-      return {
-        id: section.id,
-        title: section.title,
-        subtitle: section.subtitle,
-        introCn: section.introCn,
-        introEn: section.introEn,
-        pdfUrl: section.pdfUrl ? toAssetUrl(section.pdfUrl) : '',
-        icon: presentation.icon,
-        iconBg: presentation.iconBg,
-      };
-    }),
-  };
+      sections: Array<{
+        id: FinancialGuidanceSectionId;
+        title: string;
+        subtitle: string;
+        introCn: string;
+        introEn: string;
+        pdfUrl?: string;
+      }>;
+    }>(API_ENDPOINTS.kbLifeFinancialHandbook);
+    return {
+      title: data.title,
+      edition: data.edition,
+      introCn: data.introCn,
+      introEn: data.introEn,
+      sections: data.sections.map((section) => {
+        const presentation = FINANCIAL_SECTION_PRESENTATION[section.id];
+        return {
+          id: section.id,
+          title: section.title,
+          subtitle: section.subtitle,
+          introCn: section.introCn,
+          introEn: section.introEn,
+          pdfUrl: section.pdfUrl ? toAssetUrl(section.pdfUrl) : '',
+          icon: presentation.icon,
+          iconBg: presentation.iconBg,
+        };
+      }),
+    };
+  });
 }
 
 /** @deprecated 使用 getFinancialGuidanceHandbook */
@@ -745,13 +757,19 @@ export interface HighlightMomentsView {
   albums: HighlightMomentAlbumSummaryView[];
 }
 
+export interface HighlightMomentAlbumImageView {
+  url: string;
+  allowDownload: boolean;
+}
+
 export interface HighlightMomentAlbumDetailView {
   id: string;
   title: string;
   subtitle: string;
+  content: string;
   dateLabel: string;
   coverImage: string;
-  images: string[];
+  images: HighlightMomentAlbumImageView[];
 }
 
 interface ActivitiesDto {
@@ -781,9 +799,10 @@ interface ActivitiesDto {
       id: string;
       title: string;
       subtitle: string;
+      content: string;
       dateLabel?: string;
       coverImage: ImageResource;
-      images: ImageResource[];
+      images: Array<ImageResource & { allowDownload: boolean }>;
     }>;
   } | null;
 }
@@ -793,7 +812,7 @@ function mapHighlightMomentsSection(
 ): HighlightMomentsView {
   return {
     title: section.title,
-    subtitle: section.subtitle,
+    subtitle: '',
     albums: section.albums.map((album) => ({
       id: album.id,
       title: album.title,
@@ -812,9 +831,13 @@ function mapHighlightMomentAlbumDetail(
     id: album.id,
     title: album.title,
     subtitle: album.subtitle,
+    content: album.content ?? '',
     dateLabel: album.dateLabel ?? '',
     coverImage: toAssetUrl(album.coverImage),
-    images: album.images.map((image) => toAssetUrl(image)),
+    images: album.images.map((image) => ({
+      url: toAssetUrl(image),
+      allowDownload: image.allowDownload === true,
+    })),
   };
 }
 
@@ -829,6 +852,12 @@ function mapEventNavItem(item: ActivitiesDto['items'][number]): CompanyEventNavI
   };
 }
 
+function getActivitiesDto(): Promise<ActivitiesDto> {
+  return withRequestCache('kb-life:activities', 2 * 60_000, () =>
+    get<ActivitiesDto>(API_ENDPOINTS.kbLifeActivities),
+  );
+}
+
 export async function getCompanyActivities(): Promise<{
   live: boolean;
   items: CompanyEventNavItem[];
@@ -838,7 +867,7 @@ export async function getCompanyActivities(): Promise<{
   health: HealthCheckupView | null;
   highlightMoments: HighlightMomentsView | null;
 }> {
-  const data = await get<ActivitiesDto>(API_ENDPOINTS.kbLifeActivities);
+  const data = await getActivitiesDto();
   return {
     live: data.live === true,
     items: data.items.map(mapEventNavItem),
@@ -861,7 +890,7 @@ export async function getCompanyActivities(): Promise<{
 export async function getHighlightMomentAlbum(
   albumId: string,
 ): Promise<HighlightMomentAlbumDetailView | null> {
-  const data = await get<ActivitiesDto>(API_ENDPOINTS.kbLifeActivities);
+  const data = await getActivitiesDto();
   const album = data.highlightMoments?.albums.find((item) => item.id === albumId);
   return album ? mapHighlightMomentAlbumDetail(album) : null;
 }

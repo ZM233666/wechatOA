@@ -83,6 +83,8 @@ export interface MediaCarouselBlock {
   caption?: string;
   autoplay?: boolean;
   interval?: number;
+  /** 首尾衔接循环；缺省 true，对应小程序 swiper circular */
+  loop?: boolean;
 }
 
 /** 正文内嵌视频（须为小程序 download 合法域名） */

@@ -55,14 +55,14 @@
 - `/api/kb-life/entries`
 - `/api/kb-life/canteen`
 - `/api/kb-life/shuttle`
-- `/api/kb-life/activities`
+- `/api/kb-life/activities`（`highlightMoments` 相册见 [kb-life-highlight-moments-api.md](./kb-life-highlight-moments-api.md)）
 
 正式 Mini API：
 
 - `/api/v1/mini/kb-life/entries`
 - `/api/v1/mini/kb-life/canteen`
 - `/api/v1/mini/kb-life/shuttle`
-- `/api/v1/mini/kb-life/activities`
+- `/api/v1/mini/kb-life/activities`（精彩瞬间同上）
 
 ## Mock-only 能力边界
 

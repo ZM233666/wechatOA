@@ -29,7 +29,7 @@ describe('htmlToRichContent media blocks', () => {
           'https://minio.example.com/news-articles/2025/10/photo-2.jpg',
         ],
         effect: 'scroll',
-        scrollDuration: 6,
+        intervalMs: 6000,
         loop: true,
       }),
     );
@@ -51,6 +51,20 @@ describe('htmlToRichContent media blocks', () => {
     expect(carousel.slides).toHaveLength(2);
     expect(carousel.autoplay).toBe(true);
     expect(carousel.interval).toBe(6000);
+    expect(carousel.loop).toBe(true);
     expect(blocks.some((b) => b.type === 'paragraph')).toBe(true);
+  });
+
+  it('maps data-loop on kb carousel to richContent.loop', () => {
+    const html = `
+      <div data-kb-block="carousel" data-autoplay="true" data-loop="false">
+        <img src="https://cdn.example.com/a.png" alt="图1" />
+        <img src="https://cdn.example.com/b.png" alt="图2" />
+      </div>
+    `;
+    const { blocks } = htmlToRichContent('article-loop', html);
+    const carousel = blocks.find((b) => b.type === 'carousel');
+    expect(carousel && carousel.type === 'carousel' && carousel.loop).toBe(false);
+    expect(carousel && carousel.type === 'carousel' && carousel.autoplay).toBe(true);
   });
 });

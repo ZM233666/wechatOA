@@ -9,7 +9,53 @@ export type CarouselHtmlPresentation = {
   slides: CarouselSlideSource[];
   autoplay?: boolean;
   intervalMs?: number;
+  loop?: boolean;
 };
+
+/** 与小程序 article-renderer 默认一致 */
+export const DEFAULT_CAROUSEL_INTERVAL_MS = 2000;
+export const DEFAULT_CAROUSEL_LOOP = true;
+
+function parseDataBooleanAttribute(el: HTMLElement, name: string): boolean | undefined {
+  const raw = (el.getAttribute(name) ?? '').trim().toLowerCase();
+  if (!raw) {
+    return undefined;
+  }
+  if (raw === 'true' || raw === '1' || raw === 'yes') {
+    return true;
+  }
+  if (raw === 'false' || raw === '0' || raw === 'no') {
+    return false;
+  }
+  return undefined;
+}
+
+/** `data-loop` 优先于 `data-circular`（均映射小程序 swiper circular） */
+export function parseDataLoopAttribute(el: HTMLElement): boolean | undefined {
+  const fromLoop = parseDataBooleanAttribute(el, 'data-loop');
+  if (fromLoop !== undefined) {
+    return fromLoop;
+  }
+  return parseDataBooleanAttribute(el, 'data-circular');
+}
+
+export function loopFromAaConfig(json: Record<string, unknown>): boolean | undefined {
+  if (typeof json.loop === 'boolean') {
+    return json.loop;
+  }
+  return undefined;
+}
+
+export function resolveCarouselLoop(
+  el: HTMLElement,
+  configJson?: Record<string, unknown>,
+): boolean {
+  return (
+    parseDataLoopAttribute(el) ??
+    (configJson ? loopFromAaConfig(configJson) : undefined) ??
+    DEFAULT_CAROUSEL_LOOP
+  );
+}
 
 function parseCarouselSlidesJson(raw: string): CarouselSlideSource[] | null {
   const trimmed = raw.trim();
@@ -44,6 +90,48 @@ function parseCarouselSlidesJson(raw: string): CarouselSlideSource[] | null {
   }
 }
 
+export function parseDataIntervalAttribute(el: HTMLElement): number | undefined {
+  const intervalRaw = Number(el.getAttribute('data-interval') ?? '');
+  if (Number.isFinite(intervalRaw) && intervalRaw > 0) {
+    return Math.round(intervalRaw);
+  }
+  return undefined;
+}
+
+/** 从 aa-svg-gallery 的 data-aa-config JSON 解析停留时长（一律毫秒） */
+export function intervalMsFromAaConfig(json: Record<string, unknown>): number | undefined {
+  const candidates = [json.intervalMs, json.interval, json.scrollDuration];
+  for (const value of candidates) {
+    if (typeof value === 'number' && Number.isFinite(value) && value > 0) {
+      return Math.round(value);
+    }
+  }
+  return undefined;
+}
+
+export function resolveCarouselIntervalMs(
+  el: HTMLElement,
+  configJson?: Record<string, unknown>,
+): number {
+  return (
+    parseDataIntervalAttribute(el) ??
+    (configJson ? intervalMsFromAaConfig(configJson) : undefined) ??
+    DEFAULT_CAROUSEL_INTERVAL_MS
+  );
+}
+
+/** aa-svg-gallery：autoplay 与 loop 独立；未写 autoplay 时保留旧稿 loop/effect 推断 */
+function resolveAaGalleryAutoplay(el: HTMLElement, json: Record<string, unknown>): boolean {
+  const fromAttr = parseDataBooleanAttribute(el, 'data-autoplay');
+  if (fromAttr !== undefined) {
+    return fromAttr;
+  }
+  if (typeof json.autoplay === 'boolean') {
+    return json.autoplay;
+  }
+  return json.loop !== false || json.effect === 'scroll';
+}
+
 function parseAaSvgGalleryConfig(el: HTMLElement): CarouselHtmlPresentation | null {
   const hasMarker =
     el.getAttribute('data-aa-svg-gallery') != null || /\baa-svg-gallery\b/.test(el.getAttribute('class') ?? '');
@@ -61,12 +149,13 @@ function parseAaSvgGalleryConfig(el: HTMLElement): CarouselHtmlPresentation | nu
           .filter(Boolean)
           .map((url) => ({ url }));
         if (slides.length) {
-          const scrollDuration = Number(json.scrollDuration ?? 6);
-          const loop = json.loop !== false;
+          const loop = resolveCarouselLoop(el, json);
+          const slideSources = loop ? dedupeSlideSources(slides) : slides;
           return {
-            slides,
-            autoplay: loop || json.effect === 'scroll',
-            intervalMs: Math.max(1000, (Number.isFinite(scrollDuration) ? scrollDuration : 6) * 1000),
+            slides: slideSources,
+            autoplay: resolveAaGalleryAutoplay(el, json),
+            intervalMs: resolveCarouselIntervalMs(el, json),
+            loop,
           };
         }
       }
@@ -83,7 +172,12 @@ function parseAaSvgGalleryConfig(el: HTMLElement): CarouselHtmlPresentation | nu
   if (!fromImgs.length) {
     return null;
   }
-  return { slides: fromImgs, autoplay: true, intervalMs: 6000 };
+  return {
+    slides: fromImgs,
+    autoplay: true,
+    intervalMs: resolveCarouselIntervalMs(el),
+    loop: resolveCarouselLoop(el),
+  };
 }
 
 export function dedupeSlideSources(sources: CarouselSlideSource[]): CarouselSlideSource[] {
@@ -136,11 +230,12 @@ export function extractCarouselPresentation(el: HTMLElement): CarouselHtmlPresen
   if (!slideSources.length) {
     return null;
   }
-  const autoplayRaw = (el.getAttribute('data-autoplay') ?? '').trim().toLowerCase();
-  const intervalRaw = Number(el.getAttribute('data-interval') ?? '');
+  const autoplayAttr = parseDataBooleanAttribute(el, 'data-autoplay');
+  const intervalMs = parseDataIntervalAttribute(el);
   return {
     slides: slideSources,
-    autoplay: autoplayRaw === 'true' || autoplayRaw === '1',
-    intervalMs: Number.isFinite(intervalRaw) && intervalRaw > 0 ? intervalRaw : undefined,
+    autoplay: autoplayAttr === true,
+    intervalMs,
+    loop: resolveCarouselLoop(el),
   };
 }

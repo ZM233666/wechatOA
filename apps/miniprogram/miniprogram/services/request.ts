@@ -2,6 +2,9 @@ import { getApiEnvironment, getCurrentEnvVersion, isForbiddenProductionApiBaseUr
 import { RequestError, type ApiResponse, type RequestOptions } from '../types/api';
 import { buildAuthorizationHeader, clearAccessToken } from './auth-session';
 
+const responseCache = new Map<string, { value: unknown; expiresAt: number }>();
+const inFlightRequests = new Map<string, Promise<unknown>>();
+
 function joinUrl(baseUrl: string, path: string): string {
   const normalizedBase = baseUrl.replace(/\/+$/, '');
   const normalizedPath = path.startsWith('/') ? path : `/${path}`;
@@ -142,6 +145,47 @@ export function get<T>(
   timeout?: number,
 ): Promise<T> {
   return request<T>({ url, method: 'GET', data, header, timeout });
+}
+
+export async function withRequestCache<T>(
+  key: string,
+  ttlMs: number,
+  loader: () => Promise<T>,
+): Promise<T> {
+  const cached = responseCache.get(key);
+  if (cached && cached.expiresAt > Date.now()) {
+    return cached.value as T;
+  }
+  if (cached) {
+    responseCache.delete(key);
+  }
+  const pending = inFlightRequests.get(key);
+  if (pending) {
+    return pending as Promise<T>;
+  }
+  const requestPromise = (async () => {
+    try {
+      const value = await loader();
+      responseCache.set(key, { value, expiresAt: Date.now() + ttlMs });
+      return value;
+    } finally {
+      inFlightRequests.delete(key);
+    }
+  })();
+  inFlightRequests.set(key, requestPromise);
+  return requestPromise;
+}
+
+export function invalidateRequestCache(prefix?: string): void {
+  if (!prefix) {
+    responseCache.clear();
+    return;
+  }
+  for (const key of responseCache.keys()) {
+    if (key.startsWith(prefix)) {
+      responseCache.delete(key);
+    }
+  }
 }
 
 export function post<T>(url: string, data?: RequestOptions['data'], header?: Record<string, string>) {

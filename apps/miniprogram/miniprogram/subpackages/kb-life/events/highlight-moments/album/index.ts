@@ -1,4 +1,7 @@
-import { getHighlightMomentAlbum } from '../../../../../services/kb-life.service';
+import {
+  getHighlightMomentAlbum,
+  type HighlightMomentAlbumImageView,
+} from '../../../../../services/kb-life.service';
 import { RequestError } from '../../../../../types/api';
 
 Page({
@@ -10,11 +13,14 @@ Page({
       id: '',
       title: '',
       subtitle: '',
+      content: '',
       dateLabel: '',
       coverImage: '',
-      images: [] as string[],
+      images: [] as HighlightMomentAlbumImageView[],
     },
   },
+
+  skipShowRefresh: true,
 
   onLoad(query: Record<string, string | undefined>) {
     const albumId = query.id?.trim() ?? '';
@@ -24,6 +30,16 @@ Page({
       return;
     }
     void this.loadAlbum();
+  },
+
+  onShow() {
+    if (this.skipShowRefresh) {
+      this.skipShowRefresh = false;
+      return;
+    }
+    if (this.data.albumId) {
+      void this.loadAlbum();
+    }
   },
 
   async loadAlbum() {
@@ -48,10 +64,24 @@ Page({
     if (!url) {
       return;
     }
-    const urls = this.data.album.images;
+    const images = this.data.album.images;
+    const current = images.find((item) => item.url === url);
+    if (!current) {
+      return;
+    }
+    if (current.allowDownload) {
+      const downloadableUrls = images.filter((item) => item.allowDownload).map((item) => item.url);
+      wx.previewImage({
+        current: url,
+        urls: downloadableUrls.length ? downloadableUrls : [url],
+        showmenu: true,
+      });
+      return;
+    }
     wx.previewImage({
       current: url,
-      urls: urls.length ? urls : [url],
+      urls: [url],
+      showmenu: false,
     });
   },
 });

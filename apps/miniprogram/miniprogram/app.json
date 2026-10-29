@@ -2,37 +2,75 @@
   "pages": [
     "pages/index/index",
     "pages/services/index",
-    "pages/services/my-dashboard/index",
-    "pages/services/insights/index",
-    "pages/services/insights/reader",
-    "pages/services/insights/access-denied/index",
     "pages/kb-life/index",
-    "pages/kb-life/campus-map/index",
-    "pages/profile/index",
-    "pages/news/index",
-    "pages/news/detail",
-    "pages/brand/index",
-    "pages/products/index",
-    "pages/products/detail",
-    "pages/cases/index",
-    "pages/cases/detail",
-    "pages/kb-life/shuttle-bus/index",
-    "pages/kb-life/canteen/index",
-    "pages/kb-life/holiday-calendar/index",
-    "pages/kb-life/open-positions/index",
-    "pages/kb-life/open-positions/detail",
-    "pages/kb-life/guidance/index",
-    "pages/kb-life/handbook/index",
-    "pages/kb-life/financial-handbook/index",
-    "pages/kb-life/financial-handbook/document/index",
-    "pages/kb-life/care/index",
-    "pages/kb-life/events/index",
-    "pages/kb-life/events/annual-dinner/index",
-    "pages/kb-life/events/outings/index",
-    "pages/kb-life/events/health/index",
-    "pages/kb-life/events/highlight-moments/index",
-    "pages/kb-life/events/highlight-moments/album/index"
+    "pages/profile/index"
   ],
+  "subPackages": [
+    {
+      "root": "subpackages/services",
+      "name": "services",
+      "pages": [
+        "my-dashboard/index",
+        "insights/index",
+        "insights/reader",
+        "insights/access-denied/index"
+      ]
+    },
+    {
+      "root": "subpackages/kb-life",
+      "name": "kb-life",
+      "pages": [
+        "campus-map/index",
+        "shuttle-bus/index",
+        "canteen/index",
+        "holiday-calendar/index",
+        "open-positions/index",
+        "open-positions/detail",
+        "guidance/index",
+        "handbook/index",
+        "financial-handbook/index",
+        "financial-handbook/document/index",
+        "care/index",
+        "events/index",
+        "events/highlight-moments/index",
+        "events/highlight-moments/album/index"
+      ]
+    },
+    {
+      "root": "pages/news",
+      "name": "news",
+      "pages": ["index", "detail"]
+    },
+    {
+      "root": "pages/brand",
+      "name": "brand",
+      "pages": ["index"]
+    },
+    {
+      "root": "pages/products",
+      "name": "products",
+      "pages": ["index", "detail", "list"]
+    },
+    {
+      "root": "pages/cases",
+      "name": "cases",
+      "pages": ["index", "detail"]
+    }
+  ],
+  "preloadRule": {
+    "pages/index/index": {
+      "network": "wifi",
+      "packages": ["news", "brand", "products", "cases"]
+    },
+    "pages/services/index": {
+      "network": "all",
+      "packages": ["services"]
+    },
+    "pages/kb-life/index": {
+      "network": "all",
+      "packages": ["kb-life"]
+    }
+  },
   "window": {
     "navigationBarTitleText": "Knorr-Bremse",
     "navigationBarBackgroundColor": "#ffffff",

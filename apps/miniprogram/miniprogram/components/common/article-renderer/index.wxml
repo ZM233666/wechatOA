@@ -65,7 +65,7 @@
         indicator-active-color="#003B70"
         autoplay="{{item.autoplay}}"
         interval="{{item.interval}}"
-        circular="{{true}}"
+        circular="{{item.loop}}"
       >
         <swiper-item wx:for="{{item.slides}}" wx:for-item="slide" wx:key="url">
           <image
