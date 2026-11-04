@@ -37,7 +37,9 @@
       <view class="fin-hub-card__meta">
         <text class="fin-hub-card__title">{{item.title}}</text>
         <text class="fin-hub-card__subtitle">{{item.subtitle}}</text>
+        <!-- 本版本不提供 PDF 下载
         <text class="fin-hub-card__hint">{{item.pdfUrl ? 'PDF 可下载' : 'PDF 暂未上传'}}</text>
+        -->
       </view>
       <text class="fin-hub-card__arrow">›</text>
     </view>

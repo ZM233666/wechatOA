@@ -6,6 +6,7 @@ import {
   fetchArticleContentDetail,
   fetchNewsArticlesFromBackend,
   isArticleNewsEnabled,
+  type ArticleContentRow,
 } from './article-content.client';
 import { mapArticleRowToNewsFixture } from './article-news.mapper';
 import { hydrateArticleMedia } from './article-media-mirror.service';
@@ -33,6 +34,32 @@ const detailRequests = new Map<string, Promise<NewsArticleFixture>>();
 
 function articleBackendId(fixtureId: string): string {
   return fixtureId.replace(/^article-/, '');
+}
+
+/** 列表接口常不带 cover_url，仅有 cover 文件 id；补拉详情以拿到 CMS 封面 */
+async function enrichArticleRowForMedia(row: ArticleContentRow): Promise<ArticleContentRow> {
+  if (row.cover_url?.trim()) {
+    return row;
+  }
+  const needsDetail =
+    row.cover != null || (Array.isArray(row.attachments) && row.attachments.length > 0);
+  if (!needsDetail) {
+    return row;
+  }
+  try {
+    const detail = await fetchArticleContentDetail(row.id);
+    return {
+      ...row,
+      cover_url: detail.cover_url ?? row.cover_url,
+      cover: detail.cover ?? row.cover,
+      attachments: detail.attachments ?? row.attachments,
+      content_html: row.content_html ?? detail.content_html,
+    };
+  } catch (error: unknown) {
+    const message = error instanceof Error ? error.message : String(error);
+    logWarn('Article list row cover enrich failed', { id: row.id, message });
+    return row;
+  }
 }
 
 function deriveCategories(articles: NewsArticleFixture[]): Array<{ id: string; name: string }> {
@@ -66,8 +93,9 @@ export async function syncArticleNews(options?: {
     state.lastAttemptMs = Date.now();
     try {
       const rows = await fetchNewsArticlesFromBackend();
+      const enrichedRows = await Promise.all(rows.map((row) => enrichArticleRowForMedia(row)));
       const articles = await Promise.all(
-        rows.map(async (row) => hydrateArticleMedia(row, mapArticleRowToNewsFixture(row))),
+        enrichedRows.map(async (row) => hydrateArticleMedia(row, mapArticleRowToNewsFixture(row))),
       );
       const latestById = new Map(articles.map((article) => [article.id, article]));
       for (const [key, cached] of detailCache) {

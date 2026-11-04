@@ -53,7 +53,7 @@
 | `subpackages/kb-life/care/index` | `subpackages/kb-life/care/index.ts`<br>`subpackages/kb-life/care/index.wxml`<br>`services/kb-life.service.ts` | ✅ 策略 B：`GET /kb-life/care` + 身份绑定；见 [employee-care-api.md](./employee-care-api.md) | `GET /kb-life/care` + `loginCode` |
 | `subpackages/kb-life/events/highlight-moments/index` | 各 `index.ts` / `index.wxml` | 🟠 **KB Life「精彩瞬间」二级页**（相册列表） | `GET /kb-life/activities`（`highlightMoments.albums`） |
 | `subpackages/kb-life/events/index` | redirect 至精彩瞬间 | ⚪ 旧 hub 兼容 | — |
-| `subpackages/kb-life/events/highlight-moments/album/index` | 同上 | 🟠 单相册图片网格；含 `wx.previewImage` | 同上（按 `album.id` 取图） |
+| `subpackages/kb-life/events/highlight-moments/album/index` | 同上 | 🟠 单相册图片网格；含 `wx.previewImage` | `GET /kb-life/highlight-moments/albums/:id`（404 回退 activities） |
 | — | `apps/miniprogram/source-pages/kb-life-events/{annual-dinner,outings,health}` | ⚪ 已下线并移出 `miniprogramRoot`，不进入上传包 | — |
 
 ---

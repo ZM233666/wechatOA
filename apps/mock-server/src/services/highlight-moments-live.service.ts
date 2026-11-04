@@ -2,7 +2,6 @@ import type { HighlightMomentsDetail } from '@app/shared';
 import { mockEnv } from '../config/env';
 import { highlightMomentsDetailLiveSchema } from '../schemas/kb-life.schema';
 import { logInfo, logWarn } from '../utils/logger';
-import { livePageBudgetMs, raceWithBudget } from './live-api-timeout';
 import {
   fetchMiniKbLifeActivitiesRaw,
   isHighlightMomentsLiveEnabled,
@@ -78,20 +77,25 @@ export async function loadLiveHighlightMoments(): Promise<HighlightMomentsDetail
   if (inFlight) {
     return inFlight;
   }
+  const previous = cache;
   inFlight = (async () => {
     try {
-      const data = await raceWithBudget(fetchLiveHighlightMoments(), null, livePageBudgetMs());
+      const data = await fetchLiveHighlightMoments();
       cache = { at: Date.now(), data, ok: true };
       return data;
     } catch (error) {
       logWarn('Highlight moments live load failed', {
         error: error instanceof Error ? error.message : String(error),
       });
-      cache = { at: Date.now(), data: cache?.ok ? cache.data : null, ok: false };
+      cache = { at: Date.now(), data: previous?.ok ? previous.data : null, ok: false };
       return cache.data ?? null;
     } finally {
       inFlight = null;
     }
   })();
+  if (previous?.ok) {
+    return previous.data;
+  }
+  /** 首屏等真实 Django 结果，避免 2s 超时把空列表当成「无相册」写入缓存 */
   return inFlight;
 }

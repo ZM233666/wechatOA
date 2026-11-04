@@ -64,6 +64,9 @@ Page({
     const identityChanged = refreshIfIdentitySessionChanged(this, () => {
       void this.loadEntries();
     });
+    if (!identityChanged) {
+      void this.loadEntries();
+    }
     if (!shouldBlockWetalkForNonEmployee()) {
       if (!identityChanged && this.data.listVisible && !this.data.wetalkItems.length) {
         void this.loadWetalkList();
@@ -91,7 +94,10 @@ Page({
   },
 
   async loadEntries() {
-    this.setData({ pageStatus: 'loading' });
+    const keepContent = this.data.pageStatus === 'success' && this.data.campusServices.length + this.data.employeeServices.length > 0;
+    if (!keepContent) {
+      this.setData({ pageStatus: 'loading' });
+    }
     try {
       const [result] = await Promise.all([getKbLifeEntries(), this.loadWetalkFeatured()]);
       const selectedLocation = getStoredCampusLocation(result.locations);
@@ -107,6 +113,9 @@ Page({
         pageStatus: 'success',
       });
     } catch (error) {
+      if (keepContent) {
+        return;
+      }
       this.setData({
         pageStatus: 'error',
         errorText: error instanceof RequestError ? error.message : 'KB Life 加载失败',
@@ -169,6 +178,27 @@ Page({
       readerIssueId: '',
       navTitle: 'KB Life',
     });
+  },
+
+  onLifeBannerTap(event: WechatMiniprogram.TouchEvent) {
+    const { id } = event.currentTarget.dataset as { id?: string };
+    const banner = this.data.banners.find((item) => item.id === id);
+    if (!banner) {
+      return;
+    }
+    if (banner.careId && shouldBlockCampusServicesForVisitor()) {
+      wx.showToast({ title: '请先完成身份绑定', icon: 'none' });
+      return;
+    }
+    if (banner.targetUrl?.startsWith('/')) {
+      wx.navigateTo({ url: banner.targetUrl });
+      return;
+    }
+    if (banner.careId) {
+      wx.navigateTo({
+        url: `/subpackages/kb-life/care/index?initiativeId=${encodeURIComponent(banner.careId)}`,
+      });
+    }
   },
 
   onCampusTap(event: WechatMiniprogram.TouchEvent) {

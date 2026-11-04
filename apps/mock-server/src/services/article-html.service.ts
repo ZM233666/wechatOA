@@ -178,10 +178,60 @@ export function prepareArticleHtml(
   return output || '<p>暂无正文</p>';
 }
 
+function stripEditorChrome(el: HTMLElement): void {
+  const tag = el.tagName?.toLowerCase() ?? '';
+  if (tag === 'style' || tag === 'script' || tag === 'noscript') {
+    el.remove();
+    return;
+  }
+  if (isArticleCarouselContainer(el)) {
+    el.remove();
+    return;
+  }
+  [...el.childNodes].forEach((child) => {
+    if (child.nodeType === 1) {
+      stripEditorChrome(child as HTMLElement);
+    }
+  });
+}
+
+function stripChromeWithRegex(html: string): string {
+  return html
+    .replace(/<style\b[\s\S]*?<\/style>/gi, '')
+    .replace(/<script\b[\s\S]*?<\/script>/gi, '')
+    .replace(/@keyframes\s+[\w-]+\s*\{(?:[^{}]|\{[^{}]*\})*\}/g, '')
+    .trim();
+}
+
+/** 去掉编辑器轮播残留（style/@keyframes、gallery 容器）；轮播由 richContent 渲染 */
+export function sanitizeRichTextHtml(html: string): string {
+  const trimmed = (html || '').trim();
+  if (!trimmed) {
+    return '';
+  }
+  try {
+    const root = parse(`<div id="article-root">${trimmed}</div>`, {
+      blockTextElements: { script: false, style: false, pre: true },
+    });
+    const container = root.querySelector('#article-root');
+    if (!container) {
+      return '';
+    }
+    stripEditorChrome(container);
+    return container.innerHTML.trim();
+  } catch {
+    return stripChromeWithRegex(trimmed);
+  }
+}
+
 export function extractPlainTextFromHtml(html: string): string {
-  const root = parse(`<div id="article-root">${html || ''}</div>`);
+  const cleaned = sanitizeRichTextHtml(html);
+  const root = parse(`<div id="article-root">${cleaned}</div>`);
   const container = root.querySelector('#article-root');
-  const text = (container?.text ?? '').replace(/\s+/g, ' ').trim();
+  const text = (container?.text ?? '')
+    .replace(/@keyframes\s+[\w-]+\s*\{(?:[^{}]|\{[^{}]*\})*\}/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim();
   return text;
 }
 

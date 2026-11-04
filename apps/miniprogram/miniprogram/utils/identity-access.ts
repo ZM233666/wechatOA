@@ -3,6 +3,7 @@
  * `syncIdentitySession()` 与服务器对齐一次；点击 My Dashboard / 园区服务 / Insights 等
  * 不再重复请求身份接口，仅做同步 tier 判断。
  */
+import { isIdentityGuardBypassEnabled } from '../config/env';
 import type { IdentityBindingRecord } from '../services/identity-binding.service';
 import { getStoredIdentityBinding } from '../services/identity-binding.service';
 
@@ -31,24 +32,39 @@ export function resolveIdentityAccessTier(
 
 /** 未绑定或未知 roleLabel 视为访客 */
 export function getIdentityAccessTier(): IdentityAccessTier {
+  if (isIdentityGuardBypassEnabled()) {
+    return 'employee';
+  }
   return resolveIdentityAccessTier(getStoredIdentityBinding());
 }
 
 export function isIdentityBound(): boolean {
+  if (isIdentityGuardBypassEnabled()) {
+    return true;
+  }
   return getIdentityAccessTier() !== 'visitor';
 }
 
 export function isEmployeeIdentity(): boolean {
+  if (isIdentityGuardBypassEnabled()) {
+    return true;
+  }
   return getIdentityAccessTier() === 'employee';
 }
 
 /** 园区地图 / 班车 / 食堂 / 假期日历：仅已绑定身份（员工或客户）可访问 */
 export function shouldBlockCampusServicesForUnbound(): boolean {
+  if (isIdentityGuardBypassEnabled()) {
+    return false;
+  }
   return !isIdentityBound();
 }
 
 /** WeTalk：仅 Employee 身份可访问 */
 export function shouldBlockWetalkForNonEmployee(): boolean {
+  if (isIdentityGuardBypassEnabled()) {
+    return false;
+  }
   return !isEmployeeIdentity();
 }
 
@@ -59,6 +75,9 @@ export function shouldBlockGuidanceDocumentsForNonEmployee(): boolean {
 
 /** KB Insights（gating）：未绑定身份不可访问 */
 export function shouldBlockGatedInsightForUnbound(gating = false): boolean {
+  if (isIdentityGuardBypassEnabled()) {
+    return false;
+  }
   return gating && !isIdentityBound();
 }
 
@@ -68,6 +87,9 @@ export function openIdentityBindingInProfile(): void {
 
 /** My Dashboard、园区服务等：未绑定身份不可访问 */
 export function shouldBlockMyDashboardForUnbound(): boolean {
+  if (isIdentityGuardBypassEnabled()) {
+    return false;
+  }
   return !isIdentityBound();
 }
 

@@ -33,13 +33,33 @@ function localMirrorPath(
   };
 }
 
+/** 去掉预签名 query，避免每次打开都因 X-Amz-Date 变化而重新下载 */
+export function stableRemoteMediaKey(src: string): string {
+  const trimmed = src.trim();
+  if (!trimmed) {
+    return '';
+  }
+  try {
+    if (/^https?:\/\//i.test(trimmed)) {
+      const url = new URL(trimmed);
+      url.search = '';
+      url.hash = '';
+      return url.toString();
+    }
+  } catch {
+    // fall through
+  }
+  const queryAt = trimmed.indexOf('?');
+  return queryAt >= 0 ? trimmed.slice(0, queryAt) : trimmed;
+}
+
 function fileNameForSrc(src: string, kind: string, index: number): string {
-  const hash = createHash('sha1').update(src).digest('hex').slice(0, 16);
+  const hash = createHash('sha1').update(stableRemoteMediaKey(src)).digest('hex').slice(0, 16);
   let ext = '.png';
   try {
     const pathname = src.startsWith('http://') || src.startsWith('https://')
       ? new URL(src).pathname
-      : src;
+      : src.split('?')[0] ?? src;
     ext = path.extname(pathname) || '.png';
   } catch {
     ext = '.png';
@@ -77,7 +97,7 @@ async function fetchBuffer(url: string, authToken?: string): Promise<Buffer | nu
   try {
     const response = await fetch(url, {
       headers,
-      signal: AbortSignal.timeout(30_000),
+      signal: AbortSignal.timeout(8_000),
     });
     if (!response.ok) {
       return null;
@@ -122,6 +142,24 @@ function collectMinioObjectKeys(mediaPath: string): string[] {
   return [...keys];
 }
 
+const MINIO_GET_TIMEOUT_MS = 8_000;
+
+async function withTimeout<T>(task: Promise<T>, timeoutMs: number): Promise<T> {
+  let timer: ReturnType<typeof setTimeout> | undefined;
+  try {
+    return await Promise.race([
+      task,
+      new Promise<T>((_, reject) => {
+        timer = setTimeout(() => reject(new Error('timeout')), timeoutMs);
+      }),
+    ]);
+  } finally {
+    if (timer) {
+      clearTimeout(timer);
+    }
+  }
+}
+
 async function fetchFromMinio(mediaPath: string): Promise<Buffer | null> {
   if (!isMinioPdfEnabled()) {
     return null;
@@ -129,12 +167,17 @@ async function fetchFromMinio(mediaPath: string): Promise<Buffer | null> {
   const client = createMinioClient();
   for (const objectKey of collectMinioObjectKeys(mediaPath)) {
     try {
-      const stream = await client.getObject(mockEnv.MINIO_BUCKET, objectKey);
-      const chunks: Buffer[] = [];
-      for await (const chunk of stream) {
-        chunks.push(Buffer.isBuffer(chunk) ? chunk : Buffer.from(chunk));
-      }
-      const buffer = Buffer.concat(chunks);
+      const buffer = await withTimeout(
+        (async () => {
+          const stream = await client.getObject(mockEnv.MINIO_BUCKET, objectKey);
+          const chunks: Buffer[] = [];
+          for await (const chunk of stream) {
+            chunks.push(Buffer.isBuffer(chunk) ? chunk : Buffer.from(chunk));
+          }
+          return Buffer.concat(chunks);
+        })(),
+        MINIO_GET_TIMEOUT_MS,
+      );
       if (isLikelyImageBuffer(buffer)) {
         return buffer;
       }
@@ -172,7 +215,7 @@ async function fetchByFileId(fileId: number | string, authToken?: string): Promi
   const url = `${apiBase}/api/system/file/${fileId}/`;
   const response = await fetch(url, {
     headers: authToken ? { Authorization: `JWT ${authToken}` } : {},
-    signal: AbortSignal.timeout(30_000),
+    signal: AbortSignal.timeout(8_000),
   });
   if (!response.ok) {
     return null;
@@ -214,12 +257,23 @@ async function loadRemoteMediaBuffer(
       ? trimmed
       : absoluteMediaUrl(trimmed, options.mediaBaseUrl);
 
+  /** 私有 MinIO 直链通常 403，先走 SDK，避免每个文件空等 HTTP 超时 */
+  if (isMinioOrPresignedMediaUrl(absolute) || isMinioOrPresignedMediaUrl(trimmed)) {
+    const fromMinio = await fetchFromMinio(trimmed);
+    if (fromMinio) {
+      return fromMinio;
+    }
+  }
+
   return (
     (await fetchBuffer(absolute, options.authToken)) ??
     (await fetchFromMinio(trimmed)) ??
     (options.fileId != null ? await fetchByFileId(options.fileId, options.authToken) : null)
   );
 }
+
+const mirroredPathCache = new Map<string, string>();
+const mirroredPathInflight = new Map<string, Promise<string>>();
 
 export async function mirrorRemoteMediaUrl(
   articleId: string,
@@ -246,32 +300,49 @@ export async function mirrorRemoteMediaUrl(
       : absoluteMediaUrl(trimmed, options.mediaBaseUrl);
 
   const fileName = fileNameForSrc(absolute, options.kind ?? 'media', options.index ?? 0);
-  const { relative, absolute: localAbs } = localMirrorPath(articleId, fileName);
-  if (fs.existsSync(localAbs)) {
-    const cached = fs.readFileSync(localAbs);
-    if (isLikelyImageBuffer(cached)) {
+  const cacheKey = `${articleId}::${fileName}`;
+  const cachedPath = mirroredPathCache.get(cacheKey);
+  if (cachedPath) {
+    return cachedPath;
+  }
+  const pending = mirroredPathInflight.get(cacheKey);
+  if (pending) {
+    return pending;
+  }
+
+  const run = (async () => {
+    const { relative, absolute: localAbs } = localMirrorPath(articleId, fileName);
+    if (fs.existsSync(localAbs)) {
+      mirroredPathCache.set(cacheKey, relative);
       return relative;
     }
-    fs.unlinkSync(localAbs);
-  }
 
-  let buffer = await loadRemoteMediaBuffer(trimmed, {
-    mediaBaseUrl: options.mediaBaseUrl,
-    authToken: options.authToken,
-    fileId: options.fileId,
-  });
-  if (!buffer?.length && isMinioOrPresignedMediaUrl(trimmed)) {
-    buffer = await fetchFromMinio(trimmed);
-  }
-  if (!buffer?.length) {
-    logWarn('Unable to mirror article media', { articleId, src: trimmed.slice(0, 200) });
-    return '';
-  }
+    let buffer = await loadRemoteMediaBuffer(trimmed, {
+      mediaBaseUrl: options.mediaBaseUrl,
+      authToken: options.authToken,
+      fileId: options.fileId,
+    });
+    if (!buffer?.length && isMinioOrPresignedMediaUrl(trimmed)) {
+      buffer = await fetchFromMinio(trimmed);
+    }
+    if (!buffer?.length) {
+      logWarn('Unable to mirror article media', { articleId, src: trimmed.slice(0, 200) });
+      return '';
+    }
 
-  fs.mkdirSync(path.dirname(localAbs), { recursive: true });
-  fs.writeFileSync(localAbs, buffer);
-  logInfo('Mirrored article media', { articleId, src: trimmed, local: relative });
-  return relative;
+    fs.mkdirSync(path.dirname(localAbs), { recursive: true });
+    fs.writeFileSync(localAbs, buffer);
+    mirroredPathCache.set(cacheKey, relative);
+    logInfo('Mirrored article media', { articleId, src: trimmed, local: relative });
+    return relative;
+  })();
+
+  mirroredPathInflight.set(cacheKey, run);
+  try {
+    return await run;
+  } finally {
+    mirroredPathInflight.delete(cacheKey);
+  }
 }
 
 function isMinioOrPresignedMediaUrl(url: string): boolean {
@@ -305,6 +376,31 @@ function isRemoteMediaUrl(url: string, mediaBaseUrl: string): boolean {
     return true;
   }
   return isMinioOrPresignedMediaUrl(url);
+}
+
+function resolveRemoteCoverUrl(
+  candidates: Array<{ url: string; fileId?: number | null }>,
+  mappedCoverUrl: string,
+  mediaBaseUrl: string,
+): string {
+  const tryUrl = (raw: string): string => {
+    const trimmed = raw.trim();
+    if (!trimmed || trimmed.startsWith('/mock-assets/')) {
+      return '';
+    }
+    if (trimmed.startsWith('http://') || trimmed.startsWith('https://')) {
+      return trimmed;
+    }
+    return absoluteMediaUrl(trimmed, mediaBaseUrl);
+  };
+
+  for (const candidate of candidates) {
+    const resolved = tryUrl(candidate.url);
+    if (resolved.startsWith('http://') || resolved.startsWith('https://')) {
+      return resolved;
+    }
+  }
+  return tryUrl(mappedCoverUrl);
 }
 
 export function coverMirrorCandidates(row: ArticleContentRow): Array<{ url: string; fileId?: number | null }> {
@@ -438,14 +534,19 @@ export async function hydrateArticleMedia(
     }
   }
   if (!coverUrl.startsWith('/mock-assets/')) {
-    coverUrl = DEFAULT_COVER.url;
-    if (row.cover_url?.trim()) {
-      logWarn('Cover unavailable; using placeholder instead of inline content image', {
-        articleId,
-        coverUrl: row.cover_url,
-        coverFileId: row.cover ?? null,
-        triedAttachments: row.attachments?.length ?? 0,
-      });
+    const remoteFallback = resolveRemoteCoverUrl(coverCandidates, fixture.coverImage.url, mediaBaseUrl);
+    if (remoteFallback.startsWith('http://') || remoteFallback.startsWith('https://')) {
+      coverUrl = remoteFallback;
+    } else {
+      coverUrl = DEFAULT_COVER.url;
+      if (row.cover_url?.trim() || row.cover != null) {
+        logWarn('Cover mirror failed; using placeholder', {
+          articleId,
+          coverUrl: row.cover_url,
+          coverFileId: row.cover ?? null,
+          triedAttachments: row.attachments?.length ?? 0,
+        });
+      }
     }
   }
 
@@ -455,6 +556,11 @@ export async function hydrateArticleMedia(
     alt: fixture.coverImage.alt || fixture.title,
   };
 
+  const shareImageUrl =
+    coverUrl.startsWith('/mock-assets/') || coverUrl.startsWith('http://') || coverUrl.startsWith('https://')
+      ? coverUrl
+      : fixture.share.imageUrl;
+
   return {
     ...fixture,
     coverImage,
@@ -463,7 +569,7 @@ export async function hydrateArticleMedia(
     contentHtml: contentHtml || fixture.contentHtml,
     share: {
       ...fixture.share,
-      imageUrl: coverUrl.startsWith('/mock-assets/') ? coverUrl : fixture.share.imageUrl,
+      imageUrl: shareImageUrl,
     },
   };
 }

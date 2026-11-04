@@ -31,6 +31,7 @@
         "financial-handbook/index",
         "financial-handbook/document/index",
         "care/index",
+        "care/detail",
         "events/index",
         "events/highlight-moments/index",
         "events/highlight-moments/album/index"

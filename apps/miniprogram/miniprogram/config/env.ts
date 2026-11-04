@@ -156,3 +156,8 @@ export function getApiBaseUrl(): string {
 export function getCurrentEnvVersion(): MiniProgramEnvVersion {
   return resolveEnvVersion();
 }
+
+/** develop 联调：跳过身份/角色门禁，游客可访问全部功能（与 Mock IDENTITY_GUARD_DISABLED 对齐） */
+export function isIdentityGuardBypassEnabled(): boolean {
+  return getCurrentEnvVersion() === 'develop';
+}

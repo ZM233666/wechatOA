@@ -4,9 +4,11 @@ import {
   getCampusMap,
   getCanteen,
   getEmployeeCare,
+  getEmployeeCareDetail,
   getEmployeeHandbook,
   getFinancialHandbook,
   getGuidanceDocuments,
+  getHighlightMomentAlbum,
   getHolidayCalendar,
   getKbLifeEntries,
   getOpenPositionDetailHandler,
@@ -24,10 +26,12 @@ kbLifeRouter.get('/kb-life/handbook', getEmployeeHandbook);
 kbLifeRouter.get('/kb-life/guidance-documents', getGuidanceDocuments);
 kbLifeRouter.get('/kb-life/financial-handbook', getFinancialHandbook);
 kbLifeRouter.get('/kb-life/care', getEmployeeCare);
+kbLifeRouter.get('/kb-life/care/:id', getEmployeeCareDetail);
 kbLifeRouter.get('/kb-life/open-positions', getOpenPositions);
 kbLifeRouter.get('/kb-life/open-positions/:id', getOpenPositionDetailHandler);
 kbLifeRouter.get('/kb-life/shuttle', getShuttle);
 kbLifeRouter.get('/kb-life/shuttle/trip-plan', getShuttleTripPlan);
+kbLifeRouter.get('/kb-life/highlight-moments/albums/:id', getHighlightMomentAlbum);
 kbLifeRouter.get('/kb-life/activities', getActivities);
 kbLifeRouter.get('/kb-life/wetalk', getWetalkIssues);
 kbLifeRouter.get('/kb-life/wetalk/:id', getWetalkIssueDetail);

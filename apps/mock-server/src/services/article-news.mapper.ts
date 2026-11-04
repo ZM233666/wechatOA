@@ -150,9 +150,12 @@ export function mapArticleRowToNewsFixture(row: ArticleContentRow): NewsArticleF
   const category = categoryFromRow(row);
   const authorName = (row.author || 'KB China').trim() || 'KB China';
   const sourceName = (row.source || authorName).trim() || authorName;
-  const shareImage = coverImage.url.startsWith('/mock-assets/')
-    ? coverImage.url
-    : DEFAULT_COVER.url;
+  const shareImage =
+    coverImage.url.startsWith('/mock-assets/') ||
+    coverImage.url.startsWith('http://') ||
+    coverImage.url.startsWith('https://')
+      ? coverImage.url
+      : DEFAULT_COVER.url;
 
   return {
     id: `article-${id}`,

@@ -1,4 +1,4 @@
-import type { ImageResource } from '../types/content';
+import type { ArticleContentBlock, ImageResource } from '../types/content';
 import { OPEN_POSITIONS_DISPLAY_TITLE } from '../constants/kb-life';
 import { getStoredCampusLocation } from '../utils/campus-location';
 import { toAssetUrl } from '../utils/format';
@@ -20,6 +20,8 @@ export interface LifeBanner {
   title: string;
   subtitle: string;
   image: string;
+  careId?: string;
+  targetUrl?: string;
 }
 
 export interface CampusService {
@@ -82,7 +84,14 @@ export interface ShuttleRoute {
 }
 
 interface KbLifeEntriesDto {
-  banners: Array<{ id: string; title: string; subtitle: string; image: ImageResource }>;
+  banners: Array<{
+    id: string;
+    title: string;
+    subtitle: string;
+    image: ImageResource;
+    careId?: string;
+    targetUrl?: string;
+  }>;
   locations: string[];
   campusServices: Array<{ id: string; title: string; subtitle: string; icon: ImageResource; path?: string }>;
   employeeServices: Array<{ id: string; title: string; subtitle: string; icon: ImageResource; path?: string }>;
@@ -171,7 +180,7 @@ export async function getKbLifeEntries(): Promise<{
   campusServices: CampusService[];
   employeeServices: CampusService[];
 }> {
-  return withRequestCache('kb-life:entries:v2', 60_000, async () => {
+  return withRequestCache('kb-life:entries:v5', 60_000, async () => {
     const data = await get<KbLifeEntriesDto>(API_ENDPOINTS.kbLifeEntries);
     return {
       banners: data.banners.map((item) => ({
@@ -179,6 +188,8 @@ export async function getKbLifeEntries(): Promise<{
         title: item.title,
         subtitle: item.subtitle,
         image: toAssetUrl(item.image),
+        careId: item.careId,
+        targetUrl: item.targetUrl,
       })),
       locations: data.locations,
       campusServices: data.campusServices.map(mapService),
@@ -627,14 +638,17 @@ export async function getGuidanceDocuments(): Promise<{
     }>;
   }>(API_ENDPOINTS.kbLifeGuidanceDocuments);
   return {
-    items: data.items.map((item) => ({
-      id: item.id,
-      title: item.title,
-      subtitle: item.subtitle,
-      icon: toAssetUrl(item.icon),
-      iconBg: item.iconBg,
-      path: item.path,
-    })),
+    items: data.items
+      // 本版本不提供员工手册
+      .filter((item) => item.id !== 'employee-handbook')
+      .map((item) => ({
+        id: item.id,
+        title: item.title,
+        subtitle: item.subtitle,
+        icon: toAssetUrl(item.icon),
+        iconBg: item.iconBg,
+        path: item.path,
+      })),
   };
 }
 
@@ -650,7 +664,47 @@ export interface EmployeeCareInitiativeView {
   category: string;
   date: string;
   description: string;
+  image?: string;
+}
+
+export interface EmployeeCareArticleDetailView {
+  id: string;
+  title: string;
+  category: string;
+  date: string;
+  author: string;
+  dateLabel: string;
   image: string;
+  contentHtml: string;
+  richContent: ArticleContentBlock[];
+  bodyFormat?: 'html' | 'blocks';
+}
+
+export async function getEmployeeCareDetail(id: string): Promise<EmployeeCareArticleDetailView> {
+  const data = await get<{
+    id: string;
+    title: string;
+    category: string;
+    date: string;
+    author?: string;
+    contentHtml: string;
+    coverImage?: ImageResource;
+    richContent?: ArticleContentBlock[];
+    bodyFormat?: 'html' | 'blocks';
+  }>(API_ENDPOINTS.kbLifeCareDetail(id), await withIdentityQuery({}));
+  const author = (data.author || '').trim();
+  return {
+    id: data.id,
+    title: data.title,
+    category: data.category,
+    date: data.date,
+    author,
+    dateLabel: [author, data.date].filter(Boolean).join(' · '),
+    contentHtml: data.contentHtml,
+    richContent: data.richContent ?? [],
+    bodyFormat: data.bodyFormat,
+    image: data.coverImage ? toAssetUrl(data.coverImage) : '',
+  };
 }
 
 export async function getEmployeeCare(): Promise<{
@@ -665,7 +719,7 @@ export async function getEmployeeCare(): Promise<{
       category: string;
       date: string;
       description: string;
-      image: ImageResource;
+      image?: ImageResource;
     }>;
   }>(API_ENDPOINTS.kbLifeCare, await withIdentityQuery({}));
   return {
@@ -680,7 +734,7 @@ export async function getEmployeeCare(): Promise<{
       category: item.category,
       date: item.date,
       description: item.description,
-      image: toAssetUrl(item.image),
+      ...(item.image ? { image: toAssetUrl(item.image) } : {}),
     })),
   };
 }
@@ -856,7 +910,7 @@ function mapEventNavItem(item: ActivitiesDto['items'][number]): CompanyEventNavI
 }
 
 function getActivitiesDto(): Promise<ActivitiesDto> {
-  return withRequestCache('kb-life:activities', 2 * 60_000, () =>
+  return withRequestCache('kb-life:activities:v6', 2 * 60_000, () =>
     get<ActivitiesDto>(API_ENDPOINTS.kbLifeActivities),
   );
 }
@@ -893,7 +947,24 @@ export async function getCompanyActivities(): Promise<{
 export async function getHighlightMomentAlbum(
   albumId: string,
 ): Promise<HighlightMomentAlbumDetailView | null> {
+  const id = albumId.trim();
+  if (!id) {
+    return null;
+  }
+  try {
+    const album = await withRequestCache(`kb-life:highlight-album:${id}`, 2 * 60_000, () =>
+      get<NonNullable<ActivitiesDto['highlightMoments']>['albums'][number]>(
+        API_ENDPOINTS.kbLifeHighlightMomentAlbum(id),
+      ),
+    );
+    return mapHighlightMomentAlbumDetail(album);
+  } catch (error) {
+    const missing = error instanceof RequestError && error.statusCode === 404;
+    if (!missing) {
+      throw error;
+    }
+  }
   const data = await getActivitiesDto();
-  const album = data.highlightMoments?.albums.find((item) => item.id === albumId);
+  const album = data.highlightMoments?.albums.find((item) => item.id === id);
   return album ? mapHighlightMomentAlbumDetail(album) : null;
 }

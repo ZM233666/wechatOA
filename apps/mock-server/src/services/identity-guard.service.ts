@@ -1,7 +1,12 @@
 import type { Request } from 'express';
 import { ERROR_CODES } from '@app/shared';
+import { mockEnv } from '../config/env';
 import { HttpError } from '../middleware/error-handler.middleware';
 import { getIdentityBindingStatus } from './identity-binding.service';
+
+export function isIdentityGuardDisabled(): boolean {
+  return mockEnv.IDENTITY_GUARD_DISABLED;
+}
 
 export type IdentityAccessTier = 'visitor' | 'customer' | 'employee';
 
@@ -29,6 +34,9 @@ export function getIdentityAccessTierFromLoginCode(loginCode: string): IdentityA
 
 /** 已绑定（Employee 或 Customer） */
 export function requireBoundIdentity(req: Request): void {
+  if (isIdentityGuardDisabled()) {
+    return;
+  }
   const tier = getIdentityAccessTierFromLoginCode(readLoginCodeFromRequest(req));
   if (tier === 'visitor') {
     throw new HttpError(
@@ -42,6 +50,9 @@ export function requireBoundIdentity(req: Request): void {
 
 /** 仅 Employee 身份（WeTalk、员工手册等） */
 export function requireEmployeeIdentity(req: Request): void {
+  if (isIdentityGuardDisabled()) {
+    return;
+  }
   const tier = getIdentityAccessTierFromLoginCode(readLoginCodeFromRequest(req));
   if (tier !== 'employee') {
     throw new HttpError(

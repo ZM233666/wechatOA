@@ -43,7 +43,10 @@ Page({
   },
 
   async loadAlbum() {
-    this.setData({ pageStatus: 'loading', errorText: '' });
+    const keepContent = this.data.pageStatus === 'success' && this.data.album.images.length > 0;
+    if (!keepContent) {
+      this.setData({ pageStatus: 'loading', errorText: '' });
+    }
     try {
       const album = await getHighlightMomentAlbum(this.data.albumId);
       if (!album) {
@@ -52,6 +55,9 @@ Page({
       }
       this.setData({ album, pageStatus: 'success' });
     } catch (error) {
+      if (keepContent) {
+        return;
+      }
       this.setData({
         pageStatus: 'error',
         errorText: error instanceof RequestError ? error.message : '相册加载失败',

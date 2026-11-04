@@ -8,6 +8,8 @@ export const kbLifeEntriesSchema = z.object({
       title: z.string().min(1),
       subtitle: z.string().min(1),
       image: imageResourceSchema,
+      careId: z.string().optional(),
+      targetUrl: z.string().optional(),
     }),
   ),
   locations: z.array(z.string().min(1)),
@@ -316,7 +318,8 @@ export const employeeCareSchema = z.object({
       category: z.string().min(1),
       date: z.string().min(1),
       description: z.string().min(1),
-      image: imageResourceSchema,
+      image: imageResourceSchema.optional(),
+      showOnKbLifeBanner: z.boolean().optional(),
     }),
   ),
 });

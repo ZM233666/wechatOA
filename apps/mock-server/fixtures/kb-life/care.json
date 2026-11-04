@@ -14,6 +14,7 @@
     {
       "id": "care-wash",
       "title": "Global Care: Advancing WASH Projects in Southeast Asia",
+      "showOnKbLifeBanner": true,
       "category": "Global Care",
       "date": "2026-08-01",
       "description": "Knorr-Bremse Global Care continues to fund clean water, sanitation, and hygiene projects, offering new prospects for communities in need.",
@@ -28,6 +29,7 @@
     {
       "id": "care-greening",
       "title": "Local Care: Employees Volunteer for Urban Greening",
+      "showOnKbLifeBanner": true,
       "category": "Local Care",
       "date": "2026-07-28",
       "description": "Our local teams partnered with city parks to plant trees, demonstrating our commitment to environmental sustainability.",
@@ -42,6 +44,7 @@
     {
       "id": "care-ecovadis",
       "title": "Knorr-Bremse Awarded EcoVadis Gold Status",
+      "showOnKbLifeBanner": true,
       "category": "Sustainability",
       "date": "2026-07-15",
       "description": "Recognized for our dedication to sustainable development, corporate social responsibility, and green supply chain initiatives.",

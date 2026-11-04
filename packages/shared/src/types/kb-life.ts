@@ -5,6 +5,9 @@ export interface KbLifeBanner {
   title: string;
   subtitle: string;
   image: ImageResource;
+  /** 关联关怀 initiative；小程序顶栏 Banner 可跳转关怀页 */
+  careId?: string;
+  targetUrl?: string;
 }
 
 export interface KbLifeServiceEntry {
@@ -315,7 +318,10 @@ export interface EmployeeCareInitiative {
   category: string;
   date: string;
   description: string;
-  image: ImageResource;
+  /** CMS 未上传封面时不返回，列表仅展示文字 */
+  image?: ImageResource;
+  /** CMS 勾选后在 KB Life 顶栏轮播展示（类比新闻 `showOnBanner`） */
+  showOnKbLifeBanner?: boolean;
 }
 
 export interface EmployeeCareData {

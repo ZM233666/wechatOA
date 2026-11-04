@@ -23,6 +23,7 @@
       <view class="handbook-hero__body">
         <text class="handbook-hero__intro">{{introCn}}</text>
         <text class="handbook-hero__intro handbook-hero__intro--en">{{introEn}}</text>
+        <!-- 本版本不提供 PDF 下载
         <view
           class="handbook-hero__btn tap-feedback {{pdfUrl ? '' : 'handbook-hero__btn--disabled'}}"
           bindtap="onDownload"
@@ -34,6 +35,7 @@
           ></image>
           <text class="handbook-hero__btn-text">下载 PDF 版 / Download PDF</text>
         </view>
+        -->
       </view>
     </view>
   </view>

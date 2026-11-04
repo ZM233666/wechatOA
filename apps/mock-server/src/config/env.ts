@@ -23,6 +23,11 @@ const envSchema = z
     MOCK_DELAY_MIN: z.coerce.number().int().min(0).default(100),
     MOCK_DELAY_MAX: z.coerce.number().int().min(0).default(350),
     MOCK_DEFAULT_SCENARIO: z.enum(SCENARIOS).default('normal'),
+    /** develop 默认 true：游客可访问受保护接口；test 环境默认 false 以保留门禁单测 */
+    IDENTITY_GUARD_DISABLED: z
+      .union([z.boolean(), z.enum(['true', 'false', '1', '0'])])
+      .default(process.env.NODE_ENV === 'test' ? 'false' : 'true')
+      .transform((value) => value === true || value === 'true' || value === '1'),
     CORS_ORIGINS: z.string().min(1).default('*'),
     MINIO_ENABLED: z
       .union([z.boolean(), z.enum(['true', 'false', '1', '0'])])
@@ -49,7 +54,7 @@ const envSchema = z
     MINIO_FINANCIAL_HANDBOOK_PRECAUTIONS_SUBDIR: z.string().default('precautions'),
     NEWS_ARTICLE_ENABLED: z
       .union([z.boolean(), z.enum(['true', 'false', '1', '0'])])
-      .default('false')
+      .default('true')
       .transform((value) => value === true || value === 'true' || value === '1'),
     NEWS_ARTICLE_API_BASE_URL: z.string().min(1).default('http://127.0.0.1:8000'),
     NEWS_ARTICLE_MEDIA_BASE_URL: z.string().default('http://127.0.0.1:8000'),

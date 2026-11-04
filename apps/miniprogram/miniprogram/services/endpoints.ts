@@ -72,6 +72,8 @@ export const API_ENDPOINTS = {
   get kbLifeActivities() {
     return p('/kb-life/activities');
   },
+  kbLifeHighlightMomentAlbum: (id: string) =>
+    p(`/kb-life/highlight-moments/albums/${encodeURIComponent(id)}`),
   get kbLifeWetalk() {
     return p('/kb-life/wetalk');
   },
@@ -94,6 +96,7 @@ export const API_ENDPOINTS = {
   get kbLifeCare() {
     return p('/kb-life/care');
   },
+  kbLifeCareDetail: (id: string) => p(`/kb-life/care/${encodeURIComponent(id)}`),
   get kbLifeOpenPositions() {
     return p('/kb-life/open-positions');
   },

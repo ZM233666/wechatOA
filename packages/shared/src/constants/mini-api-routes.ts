@@ -46,6 +46,7 @@ export const MINI_API_DYNAMIC_ROUTE_TEMPLATES = [
   '/services/:id',
   '/services/insights/:id',
   '/kb-life/wetalk/:id',
+  '/kb-life/highlight-moments/albums/:id',
   '/kb-life/open-positions/:id',
   '/profile/identity-binding',
 ] as const;

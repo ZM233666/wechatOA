@@ -1,4 +1,4 @@
-import type { HomeBanner, NewsDetail, NewsSummary } from '@app/shared';
+import type { HomeBanner, ImageResource, NewsDetail, NewsSummary } from '@app/shared';
 import { mockEnv } from '../config/env';
 import type { NewsArticleFixture } from '../schemas/news.schema';
 import { getMockNow } from '../utils/clock';
@@ -91,6 +91,40 @@ export function selectHomeBanners(articles: NewsArticleFixture[], at: Date = get
       targetUrl: `/pages/news/detail?id=${article.id}`,
       newsId: article.id,
     }));
+}
+
+/** Fixture 新闻封面为占位图时，复用 home.json 的 Banner 视觉资源 */
+export function applyHomeBannerArtwork(
+  banners: HomeBanner[],
+  artwork: HomeBanner[],
+): HomeBanner[] {
+  if (banners.length === 0 || artwork.length === 0) {
+    return banners;
+  }
+  return banners.map((banner, index) => {
+    const image = artwork[index % artwork.length]?.image;
+    return image ? { ...banner, image } : banner;
+  });
+}
+
+export function applyNewsSummaryArtwork(
+  items: NewsSummary[],
+  artwork: ImageResource[],
+): NewsSummary[] {
+  if (items.length === 0 || artwork.length === 0) {
+    return items;
+  }
+  return items.map((item, index) => {
+    const coverImage = artwork[index % artwork.length];
+    if (!coverImage) {
+      return item;
+    }
+    return {
+      ...item,
+      coverImage,
+      thumbnailImage: coverImage,
+    };
+  });
 }
 
 export function toNewsDetail(

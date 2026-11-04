@@ -1,6 +1,12 @@
 import { describe, expect, it } from 'vitest';
 import type { NewsArticleFixture } from '../src/schemas/news.schema';
-import { selectHomeBanners, selectHomeNews, toNewsSummary } from '../src/services/news.service';
+import {
+  applyHomeBannerArtwork,
+  applyNewsSummaryArtwork,
+  selectHomeBanners,
+  selectHomeNews,
+  toNewsSummary,
+} from '../src/services/news.service';
 
 function makeArticle(overrides: Partial<NewsArticleFixture> & Pick<NewsArticleFixture, 'id' | 'title'>): NewsArticleFixture {
   const base: NewsArticleFixture = {
@@ -144,5 +150,42 @@ describe('home news selection', () => {
     expect(latest).toHaveLength(1);
     expect(latest[0]?.id).toBe('news-published');
     expect(latest[0]?.coverImage.url).toContain('news-published-cover.png');
+  });
+
+  it('replaces fixture news covers with home banner artwork', () => {
+    const banners = selectHomeBanners([
+      makeArticle({
+        id: 'news-a',
+        title: 'Banner 标题',
+        placement: { showOnBanner: true, showOnHome: true, pinned: false, featured: false, sortOrder: 0 },
+      }),
+    ]);
+    const enriched = applyHomeBannerArtwork(banners, [
+      {
+        id: 'banner-001',
+        title: '视觉 Banner',
+        image: {
+          url: '/mock-assets/banners/banner-001.png',
+          alt: 'banner',
+          width: 1200,
+          height: 540,
+          aspectRatio: 2.2222,
+        },
+        targetUrl: '/pages/news/index',
+      },
+    ]);
+    expect(enriched[0]?.image.url).toBe('/mock-assets/banners/banner-001.png');
+    expect(enriched[0]?.title).toBe('Banner 标题');
+
+    const latest = applyNewsSummaryArtwork(selectHomeNews([makeArticle({ id: 'news-a', title: '列表' })]), [
+      {
+        url: '/mock-assets/banners/banner-002.png',
+        alt: 'banner',
+        width: 1200,
+        height: 540,
+        aspectRatio: 2.2222,
+      },
+    ]);
+    expect(latest[0]?.coverImage.url).toBe('/mock-assets/banners/banner-002.png');
   });
 });

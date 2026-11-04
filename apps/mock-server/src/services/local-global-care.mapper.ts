@@ -44,6 +44,14 @@ function toImage(url: string, alt: string): ImageResource {
   };
 }
 
+function initiativeCoverImage(url: string, alt: string): ImageResource | undefined {
+  const raw = cleanUrl(url);
+  if (!raw) {
+    return undefined;
+  }
+  return toImage(raw, alt);
+}
+
 function formatCareDate(iso: string | null | undefined): string {
   const raw = cleanUrl(iso ?? '');
   if (!raw) {
@@ -77,52 +85,47 @@ export function mapLocalGlobalCareToEmployeeCare(
 
   if (isPublished(row.global_status)) {
     const title = cleanUrl(row.global_published_title || row.global_title) || 'Global Care';
+    const globalCover = initiativeCoverImage(
+      row.global_published_cover_url || row.global_cover_url || '',
+      title,
+    );
     initiatives.push({
       id: `care-global-${campus}`,
       title,
       category: 'Global Care',
       date: formatCareDate(row.global_published_at),
       description: excerpt(row.global_published_content_html || row.global_content_html || '') || title,
-      image: toImage(row.global_published_cover_url || row.global_cover_url || '', title),
+      ...(globalCover ? { image: globalCover } : {}),
+      showOnKbLifeBanner: Boolean(row.global_show_on_kb_life_banner),
     });
   }
 
   if (isPublished(row.local_status)) {
     const title = cleanUrl(row.local_published_title || row.local_title) || 'Local Care';
+    const localCover = initiativeCoverImage(
+      row.local_published_cover_url || row.local_cover_url || '',
+      title,
+    );
     initiatives.push({
       id: `care-local-${campus}`,
       title,
       category: 'Local Care',
       date: formatCareDate(row.local_published_at),
       description: excerpt(row.local_published_content_html || row.local_content_html || '') || title,
-      image: toImage(row.local_published_cover_url || row.local_cover_url || '', title),
+      ...(localCover ? { image: localCover } : {}),
+      showOnKbLifeBanner: Boolean(row.local_show_on_kb_life_banner),
     });
   }
 
   initiatives.sort((a, b) => (b.date || '').localeCompare(a.date || ''));
 
-  const globalTitle = cleanUrl(row.global_published_title || row.global_title);
-  const localTitle = cleanUrl(row.local_published_title || row.local_title);
-  const heroTitle =
-    globalTitle ||
-    localTitle ||
-    fallbackHero?.title ||
-    'Knorr-Bremse Local Care & Global Care';
-  const heroSubtitle =
-    excerpt(row.global_published_content_html || row.local_published_content_html || '', 280) ||
-    fallbackHero?.subtitle ||
-    'Social engagement at Knorr-Bremse locations.';
-  const heroCover =
-    cleanUrl(row.global_published_cover_url || row.global_cover_url) ||
-    cleanUrl(row.local_published_cover_url || row.local_cover_url) ||
-    fallbackHero?.image.url ||
-    DEFAULT_HERO_IMAGE.url;
-
   return {
     hero: {
-      title: heroTitle,
-      subtitle: heroSubtitle,
-      image: toImage(heroCover, heroTitle),
+      title: fallbackHero?.title || 'Local / Global Care',
+      subtitle:
+        fallbackHero?.subtitle ||
+        'Social engagement at Knorr-Bremse locations.',
+      image: fallbackHero?.image || DEFAULT_HERO_IMAGE,
     },
     initiatives,
   };

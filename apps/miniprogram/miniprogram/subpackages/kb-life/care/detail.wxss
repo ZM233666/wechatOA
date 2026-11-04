@@ -1,0 +1,57 @@
+page {
+  background: #f5f7fa;
+}
+
+.page--care-detail {
+  min-height: 100vh;
+  background: #f5f7fa;
+}
+
+.care-detail__cover {
+  width: 100%;
+  display: block;
+  background: #e5e7eb;
+}
+
+.care-detail__body {
+  padding: 32rpx 32rpx 48rpx;
+  overflow-x: hidden;
+  box-sizing: border-box;
+}
+
+.care-detail__badge {
+  display: inline-block;
+  font-size: 22rpx;
+  color: #003b70;
+  background: #e8f1fa;
+  padding: 6rpx 16rpx;
+  border-radius: 999rpx;
+  margin-bottom: 16rpx;
+}
+
+.care-detail__title {
+  display: block;
+  font-size: 36rpx;
+  font-weight: 700;
+  color: #111827;
+  line-height: 1.4;
+  margin-bottom: 12rpx;
+}
+
+.care-detail__meta {
+  display: block;
+  font-size: 24rpx;
+  color: #9ca3af;
+  margin-bottom: 28rpx;
+}
+
+.care-detail__dot {
+  color: #9ca3af;
+}
+
+.care-detail__html {
+  display: block;
+  width: 100%;
+  max-width: 100%;
+  overflow: hidden;
+}

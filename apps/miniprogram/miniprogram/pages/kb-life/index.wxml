@@ -71,12 +71,11 @@
         circular="{{true}}"
       >
         <swiper-item wx:for="{{banners}}" wx:key="id">
-          <view class="life-banner__item">
+          <view class="life-banner__item tap-feedback" data-id="{{item.id}}" bindtap="onLifeBannerTap">
             <image class="life-banner__image" src="{{item.image}}" mode="aspectFill"></image>
             <view class="life-banner__mask"></view>
             <view class="life-banner__content">
               <text class="life-banner__title">{{item.title}}</text>
-              <text class="life-banner__subtitle">{{item.subtitle}}</text>
             </view>
           </view>
         </swiper-item>

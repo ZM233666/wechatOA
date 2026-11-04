@@ -21,7 +21,7 @@ Page({
     pdfUrl: '',
     pageStatus: 'loading' as 'loading' | 'success' | 'error',
     errorText: '',
-    downloading: false,
+    // downloading: false,
   },
 
   onLoad(query: Record<string, string | undefined>) {
@@ -69,39 +69,40 @@ Page({
     }
   },
 
-  onDownload() {
-    const pdfUrl = this.data.pdfUrl.trim();
-    if (!pdfUrl || this.data.downloading) {
-      if (!pdfUrl) {
-        wx.showToast({ title: '暂无可下载的 PDF', icon: 'none' });
-      }
-      return;
-    }
-    this.setData({ downloading: true });
-    wx.showLoading({ title: '正在下载…', mask: true });
-    wx.downloadFile({
-      url: pdfUrl,
-      success: (res) => {
-        if (res.statusCode !== 200 || !res.tempFilePath) {
-          wx.showToast({ title: '下载失败', icon: 'none' });
-          return;
-        }
-        wx.openDocument({
-          filePath: res.tempFilePath,
-          fileType: 'pdf',
-          showMenu: true,
-          fail: () => {
-            wx.showToast({ title: '无法打开 PDF', icon: 'none' });
-          },
-        });
-      },
-      fail: () => {
-        wx.showToast({ title: '下载失败，请检查网络', icon: 'none' });
-      },
-      complete: () => {
-        wx.hideLoading();
-        this.setData({ downloading: false });
-      },
-    });
-  },
+  // 本版本不提供 PDF 下载
+  // onDownload() {
+  //   const pdfUrl = this.data.pdfUrl.trim();
+  //   if (!pdfUrl || this.data.downloading) {
+  //     if (!pdfUrl) {
+  //       wx.showToast({ title: '暂无可下载的 PDF', icon: 'none' });
+  //     }
+  //     return;
+  //   }
+  //   this.setData({ downloading: true });
+  //   wx.showLoading({ title: '正在下载…', mask: true });
+  //   wx.downloadFile({
+  //     url: pdfUrl,
+  //     success: (res) => {
+  //       if (res.statusCode !== 200 || !res.tempFilePath) {
+  //         wx.showToast({ title: '下载失败', icon: 'none' });
+  //         return;
+  //       }
+  //       wx.openDocument({
+  //         filePath: res.tempFilePath,
+  //         fileType: 'pdf',
+  //         showMenu: true,
+  //         fail: () => {
+  //           wx.showToast({ title: '无法打开 PDF', icon: 'none' });
+  //         },
+  //       });
+  //     },
+  //     fail: () => {
+  //       wx.showToast({ title: '下载失败，请检查网络', icon: 'none' });
+  //     },
+  //     complete: () => {
+  //       wx.hideLoading();
+  //       this.setData({ downloading: false });
+  //     },
+  //   });
+  // },
 });

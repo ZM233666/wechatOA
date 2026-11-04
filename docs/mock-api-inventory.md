@@ -24,10 +24,11 @@
 | GET | `/api/services/insights` | KB Insights 列表 | - | `{ items: InsightReportSummary[] }` | `fixtures/services/insights/*.json` + MinIO `kb-insights/`（缓存 `runtime/minio/kb-insights/`）/ 可选本地 `files/*.pdf` | 未实现 | 有 `pdfFile` 时返回绝对化 `pdfUrl` |
 | GET | `/api/services/insights/:id` | KB Insights 详情 | `id` | `InsightReport` | 同上 | 未实现 | PDF 渲成 `sheet` 页走页内阅读器；无 PDF 时回退 JSON `pages` |
 | GET | `/api/services/:id` | 预留 | `id` | `ServiceDetail` | 同上 `details` | 未实现 | |
-| GET | `/api/kb-life/entries` | KB Life | - | `KbLifeEntriesData` | `fixtures/kb-life/entries.json` | 未实现 | |
+| GET | `/api/kb-life/entries` | KB Life | `location`（可选，映射关怀 campus） | `KbLifeEntriesData` | `banners` 优先来自关怀 `showOnKbLifeBanner`；否则 `entries.json` | 未实现 | 顶栏类比首页新闻 Banner |
 | GET | `/api/kb-life/canteen` | 食堂 | `location` | `CanteenData` | `fixtures/kb-life/locations/*/canteen.json` | 未实现 | |
 | GET | `/api/kb-life/shuttle` | 班车 | `location` | `ShuttleData` | `MinIO `suzhou/shuttle-bus/` / 本地 Shuttlebus/*.pdf`（Suzhou）或 `locations/*/shuttle.json` | 未实现 | 苏州优先解析 PDF |
-| GET | `/api/kb-life/activities` | 活动入口（含 `highlightMoments` 相册） | - | `ActivitiesData` | `fixtures/kb-life/activities.json` + `highlight-moments-albums.json` | 未实现 | 字段说明见 [kb-life-highlight-moments-api.md](./kb-life-highlight-moments-api.md) |
+| GET | `/api/kb-life/activities` | 活动入口（含 `highlightMoments` 相册列表） | - | `ActivitiesData` | `fixtures/kb-life/activities.json` + `highlight-moments-albums.json` | 未实现 | 列表仅镜像封面；字段说明见 [kb-life-highlight-moments-api.md](./kb-life-highlight-moments-api.md) |
+| GET | `/api/kb-life/highlight-moments/albums/:id` | 精彩瞬间单本相册 | `id` | `HighlightMomentsAlbum` | 同上 live / fixture | 未实现 | 按相册镜像照片；小程序相册页优先使用 |
 | GET | `/api/kb-life/wetalk` | WeTalk 列表 | - | `{ items: WetalkIssueSummary[] }` | `fixtures/kb-life/wetalk/*.json` + MinIO `wetalk/`（缓存 `runtime/minio/wetalk/`）/ 可选本地 `files/*.pdf` | 未实现 | 有 `pdfFile` 时返回绝对化 `pdfUrl` |
 | GET | `/api/kb-life/wetalk/:id` | WeTalk 详情 | `id` | `WetalkIssue` | 同上 | 未实现 | PDF 渲成 `sheet` 页走页内阅读器；无 PDF 时回退 JSON `pages` |
 | GET | `/api/kb-life/campus-map` | 园区地图 | `location` | `CampusMapData` | `CAMPUS_MAP_ENABLED` 时 `GET /api/campus-map/files/` + fixture 标题/封面；否则 `locations/*/campus-map.json` + PDF | 未实现 | 有 PDF 时返回 sheet pages + pdfUrl，前端走页内阅读器 |
@@ -36,6 +37,7 @@
 | GET | `/api/kb-life/handbook` | 员工手册 | `loginCode` | `EmployeeHandbookData` | `fixtures/kb-life/handbook.json` + MinIO/本地 PDF | 未实现 | 须 Employee 身份 |
 | GET | `/api/kb-life/financial-handbook` | 财务指导手册（注意事项 + 使用手册） | 否（访客可读） | `FinancialGuidanceHandbookData` | `fixtures/kb-life/financial-handbook.json` + MinIO `finance-handbook/` 多 PDF + 可选 `FINANCIAL_HANDBOOK_*` | Mock 已接 | `sections[]`：`notes` / `manual`；管理端 API 暂映射至 `manual` |
 | GET | `/api/kb-life/care` | 员工关怀 | `loginCode` | `EmployeeCareData` | `LOCAL_GLOBAL_CARE_ENABLED` 时 `GET /api/local-global-care/care/current/` 映射；否则 `fixtures/kb-life/care.json` | 未实现 | 须已绑定（Employee 或 Customer） |
+| GET | `/api/kb-life/care/:id` | 关怀文章详情 | `loginCode` | `EmployeeCareArticleDetail` | Mini `GET /api/v1/mini/kb-life/local-global-care/{id}/`；`contentHtml` + `richContent`（轮播为 `carousel` 块，与新闻详情一致） | 未实现 | 须已绑定；未发布返回 404 |
 | GET | `/api/kb-life/open-positions` | 在聘岗位列表 | — | `OpenPositionsListData` | `JOB_OPENINGS_ENABLED` 时 `article-content?content_type=job_openings`；否则 `fixtures/kb-life/open-positions.json` | 未实现 | **访客可读**（已发布岗位） |
 | GET | `/api/kb-life/open-positions/:id` | 在聘岗位详情 | — | `OpenPositionDetail` | 同上 + 详情拉取 `content/{id}/` | 未实现 | 公开 id 形如 `job-{cmsId}` |
 | GET | `/api/profile` | 我的 | `loginCode`（wx.login，与身份绑定同一 openid） | `ProfileData` | 按绑定 `roleLabel` 选 guest / customer / logged-in 夹具 | 未实现 | 未绑定为访客；禁止 `loggedIn` / `role` query |

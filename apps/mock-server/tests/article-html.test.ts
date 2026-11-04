@@ -3,6 +3,7 @@ import {
   absolutizeHtmlAssetUrls,
   extractPlainTextFromHtml,
   prepareArticleHtml,
+  sanitizeRichTextHtml,
 } from '../src/services/article-html.service';
 
 const SAMPLE_HTML = `
@@ -50,5 +51,29 @@ describe('article-html.service', () => {
     expect(text).toContain('克诺尔在中国三十年风雨同舟');
     expect(text).toContain('绿色正文');
     expect(text).toContain('普通段落');
+  });
+
+  it('does not leak leftover carousel keyframes into summary or rich-text html', () => {
+    const html = `
+      <p>你好，这是一篇全球关怀的test文章 。。。</p>
+      <style>@keyframes aagaey8r96v{0.000%{transform:translateX(-0.00px)}100%{transform:translateX(0)}}</style>
+      <section class="aa-svg-gallery" data-aa-svg-gallery="1"></section>
+    `;
+    const text = extractPlainTextFromHtml(html);
+    expect(text).toBe('你好，这是一篇全球关怀的test文章 。。。');
+    expect(text).not.toContain('@keyframes');
+    const cleaned = sanitizeRichTextHtml(html);
+    expect(cleaned).toContain('全球关怀');
+    expect(cleaned).not.toContain('@keyframes');
+    expect(cleaned).not.toContain('aa-svg-gallery');
+  });
+
+  it('strips leftover carousel shells from html (carousel is rendered via richContent)', () => {
+    const html =
+      '<p>正文</p><section class="aa-svg-gallery" data-aa-svg-gallery="1"><img src="/media/a.png" alt="a"></section>';
+    const cleaned = sanitizeRichTextHtml(html);
+    expect(cleaned).toContain('正文');
+    expect(cleaned).not.toContain('aa-svg-gallery');
+    expect(cleaned).not.toContain('<img');
   });
 });

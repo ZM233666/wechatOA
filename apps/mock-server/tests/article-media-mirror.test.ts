@@ -1,5 +1,8 @@
 import { describe, expect, it } from 'vitest';
-import { coverMirrorCandidates } from '../src/services/article-media-mirror.service';
+import {
+  coverMirrorCandidates,
+  stableRemoteMediaKey,
+} from '../src/services/article-media-mirror.service';
 
 describe('coverMirrorCandidates', () => {
   it('prefers cover_url then de-duplicates attachment urls', () => {
@@ -19,5 +22,18 @@ describe('coverMirrorCandidates', () => {
       '/media/files/c/9/inline-a.png',
       '/media/files/7/e/fallback.png',
     ]);
+  });
+});
+
+describe('stableRemoteMediaKey', () => {
+  it('strips presigned query so the same object reuses disk cache', () => {
+    const first =
+      'http://218.78.140.89:9000/wechat-official-account/care/train.jpg?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Date=20261104T060902Z';
+    const second =
+      'http://218.78.140.89:9000/wechat-official-account/care/train.jpg?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Date=20261104T061500Z';
+    expect(stableRemoteMediaKey(first)).toBe(stableRemoteMediaKey(second));
+    expect(stableRemoteMediaKey(first)).toBe(
+      'http://218.78.140.89:9000/wechat-official-account/care/train.jpg',
+    );
   });
 });

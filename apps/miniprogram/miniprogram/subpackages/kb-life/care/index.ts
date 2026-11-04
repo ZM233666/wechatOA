@@ -4,7 +4,6 @@ import {
   type EmployeeCareInitiativeView,
 } from '../../../services/kb-life.service';
 import { RequestError } from '../../../types/api';
-import { showComingSoonModal } from '../coming-soon';
 import { rejectUnboundIdentityAccess } from '../../../utils/identity-access';
 
 Page({
@@ -19,15 +18,39 @@ Page({
     errorText: '',
   },
 
-  onLoad() {
+  pendingInitiativeId: '' as string,
+  accessAllowed: false,
+  skipNextShowLoad: false,
+
+  onLoad(query: Record<string, string | undefined>) {
     if (rejectUnboundIdentityAccess('/pages/kb-life/index')) {
       return;
     }
+    this.accessAllowed = true;
+    this.skipNextShowLoad = true;
+    this.pendingInitiativeId = (query.initiativeId ?? '').trim();
     void this.loadCare();
   },
 
-  async loadCare() {
-    this.setData({ pageStatus: 'loading', errorText: '' });
+  onShow() {
+    if (!this.accessAllowed) {
+      return;
+    }
+    if (this.skipNextShowLoad) {
+      this.skipNextShowLoad = false;
+      return;
+    }
+    void this.loadCare({ silent: true });
+  },
+
+  async loadCare(options?: { silent?: boolean }) {
+    const keepContent =
+      Boolean(options?.silent) &&
+      this.data.pageStatus === 'success' &&
+      this.data.initiatives.length > 0;
+    if (!keepContent) {
+      this.setData({ pageStatus: 'loading', errorText: '' });
+    }
     try {
       const result = await getEmployeeCare();
       const empty = !result.initiatives.length;
@@ -36,7 +59,17 @@ Page({
         initiatives: result.initiatives,
         pageStatus: empty ? 'empty' : 'success',
       });
+      const jumpId = this.pendingInitiativeId;
+      if (jumpId && result.initiatives.some((item) => item.id === jumpId)) {
+        this.pendingInitiativeId = '';
+        wx.navigateTo({
+          url: `/subpackages/kb-life/care/detail?id=${encodeURIComponent(jumpId)}`,
+        });
+      }
     } catch (error) {
+      if (keepContent) {
+        return;
+      }
       this.setData({
         pageStatus: 'error',
         errorText: error instanceof RequestError ? error.message : '员工关怀加载失败',
@@ -45,7 +78,12 @@ Page({
   },
 
   onReadMore(event: WechatMiniprogram.TouchEvent) {
-    const { title } = event.currentTarget.dataset as { title?: string };
-    showComingSoonModal(title || 'Initiative');
+    const { id } = event.currentTarget.dataset as { id?: string };
+    if (!id) {
+      return;
+    }
+    wx.navigateTo({
+      url: `/subpackages/kb-life/care/detail?id=${encodeURIComponent(id)}`,
+    });
   },
 });

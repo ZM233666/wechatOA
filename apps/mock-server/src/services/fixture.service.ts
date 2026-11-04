@@ -784,6 +784,7 @@ const MINI_PROGRAM_PAGES = new Set([
   '/subpackages/kb-life/financial-handbook/index',
   '/subpackages/kb-life/financial-handbook/document/index',
   '/subpackages/kb-life/care/index',
+  '/subpackages/kb-life/care/detail',
   '/subpackages/kb-life/events/index',
   '/subpackages/kb-life/events/highlight-moments/index',
   '/subpackages/kb-life/events/highlight-moments/album/index',

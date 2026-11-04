@@ -15,7 +15,22 @@ import { loadLiveCampusMap } from '../services/campus-map.service';
 import { loadEmployeeHandbook } from '../services/employee-handbook.service';
 import { loadFinancialHandbook } from '../services/financial-handbook.service';
 import { loadGuidanceDocuments } from '../services/guidance-documents.service';
-import { loadLiveEmployeeCare } from '../services/local-global-care.service';
+import {
+  careCampusFromLocation,
+  isLocalGlobalCareEnabled,
+  loadLiveEmployeeCare,
+} from '../services/local-global-care.service';
+import { resolveKbLifeCareBanners } from '../services/local-global-care.service';
+import {
+  hydrateEmployeeCareMedia,
+  hydrateHighlightMomentsAlbum,
+  hydrateHighlightMomentsMedia,
+  hydrateKbLifeBanners,
+  invalidateHydratedCareArticleDetails,
+  loadHydratedCareArticleDetail,
+  prewarmCareArticleDetails,
+  prewarmHighlightMomentsMedia,
+} from '../services/kb-life-media-mirror.service';
 import { loadOpenPositionDetail, loadOpenPositionsList } from '../services/job-openings.service';
 import { loadLiveCanteen, shanghaiMenuDate } from '../services/lunch-menu.service';
 import { activitiesResponseWithoutFakeData, loadLiveActivities } from '../services/company-events.service';
@@ -38,19 +53,42 @@ function resolveCampusLocation(req: Request): string {
   return fallback;
 }
 
-export function getKbLifeEntries(req: Request, res: Response): void {
-  if (req.mockScenario === 'empty') {
-    const empty = {
-      banners: [],
-      locations: getFixtures().kbLifeEntries.locations,
-      campusServices: [],
-      employeeServices: [],
-    };
-    success(res, withAbsoluteAssets(req, empty), req.requestId);
-    return;
+export async function getKbLifeEntries(
+  req: Request,
+  res: Response,
+  next: NextFunction,
+): Promise<void> {
+  try {
+    if (req.mockScenario === 'empty') {
+      const empty = {
+        banners: [],
+        locations: getFixtures().kbLifeEntries.locations,
+        campusServices: [],
+        employeeServices: [],
+      };
+      success(res, withAbsoluteAssets(req, empty), req.requestId);
+      return;
+    }
+    const kbLifeEntries = readJsonFile('kb-life/entries.json', kbLifeEntriesSchema);
+    const campus = careCampusFromLocation(resolveCampusLocation(req));
+    const careBanners = await resolveKbLifeCareBanners(campus);
+    const useCareBanners = careBanners.length > 0;
+    const banners = useCareBanners ? await hydrateKbLifeBanners(careBanners) : kbLifeEntries.banners;
+    success(
+      res,
+      withAbsoluteAssets(req, {
+        ...kbLifeEntries,
+        banners,
+      }),
+      req.requestId,
+    );
+    prewarmCareArticleDetails(
+      (useCareBanners ? careBanners : []).map((banner) => banner.id),
+      campus,
+    );
+  } catch (error) {
+    next(error);
   }
-  const kbLifeEntries = readJsonFile('kb-life/entries.json', kbLifeEntriesSchema);
-  success(res, withAbsoluteAssets(req, kbLifeEntries), req.requestId);
 }
 
 export async function getCanteen(req: Request, res: Response, next: NextFunction): Promise<void> {
@@ -152,11 +190,21 @@ export async function getActivities(req: Request, res: Response, next: NextFunct
       );
       return;
     }
-    const live = await loadLiveActivities();
+    const [live, highlightMomentsLive] = await Promise.all([
+      loadLiveActivities(),
+      loadLiveHighlightMoments(),
+    ]);
     let payload = live ?? activitiesResponseWithoutFakeData();
-    const highlightMomentsLive = await loadLiveHighlightMoments();
     if (highlightMomentsLive !== undefined) {
-      payload = { ...payload, highlightMoments: highlightMomentsLive };
+      payload = {
+        ...payload,
+        highlightMoments: highlightMomentsLive
+          ? await hydrateHighlightMomentsMedia(highlightMomentsLive, { mode: 'covers' })
+          : null,
+      };
+      if (highlightMomentsLive) {
+        prewarmHighlightMomentsMedia(highlightMomentsLive);
+      }
     }
     success(res, withAbsoluteAssets(req, payload), req.requestId);
   } catch (error) {
@@ -278,6 +326,56 @@ export async function getOpenPositionDetailHandler(
   }
 }
 
+export async function getHighlightMomentAlbum(
+  req: Request,
+  res: Response,
+  next: NextFunction,
+): Promise<void> {
+  try {
+    const id = typeof req.params.id === 'string' ? req.params.id.trim() : '';
+    if (!id) {
+      throw new HttpError(404, 'Resource not found', ERROR_CODES.RESOURCE_NOT_FOUND, { id });
+    }
+    const [live, highlightMomentsLive] = await Promise.all([
+      loadLiveActivities(),
+      loadLiveHighlightMoments(),
+    ]);
+    const section =
+      highlightMomentsLive !== undefined
+        ? highlightMomentsLive
+        : (live ?? activitiesResponseWithoutFakeData()).highlightMoments;
+    const album = section?.albums.find((item) => item.id === id);
+    if (!album) {
+      throw new HttpError(404, 'Resource not found', ERROR_CODES.RESOURCE_NOT_FOUND, { id });
+    }
+    success(res, withAbsoluteAssets(req, await hydrateHighlightMomentsAlbum(album)), req.requestId);
+  } catch (error) {
+    next(error);
+  }
+}
+
+export async function getEmployeeCareDetail(
+  req: Request,
+  res: Response,
+  next: NextFunction,
+): Promise<void> {
+  try {
+    requireBoundIdentity(req);
+    const id = typeof req.params.id === 'string' ? req.params.id.trim() : '';
+    if (!id) {
+      throw new HttpError(404, 'Resource not found', ERROR_CODES.RESOURCE_NOT_FOUND, { id });
+    }
+    const campus = careCampusFromLocation(resolveCampusLocation(req));
+    const detail = await loadHydratedCareArticleDetail(id, campus, { force: true });
+    if (!detail) {
+      throw new HttpError(404, 'Resource not found', ERROR_CODES.RESOURCE_NOT_FOUND, { id });
+    }
+    success(res, withAbsoluteAssets(req, detail), req.requestId);
+  } catch (error) {
+    next(error);
+  }
+}
+
 export async function getEmployeeCare(req: Request, res: Response, next: NextFunction): Promise<void> {
   try {
     requireBoundIdentity(req);
@@ -293,9 +391,19 @@ export async function getEmployeeCare(req: Request, res: Response, next: NextFun
       );
       return;
     }
-    const live = await loadLiveEmployeeCare();
-    const data = live ?? fixture;
+    const campus = careCampusFromLocation(resolveCampusLocation(req));
+    const live = await loadLiveEmployeeCare(campus, { force: true });
+    invalidateHydratedCareArticleDetails();
+    const data = live
+      ? await hydrateEmployeeCareMedia(live)
+      : isLocalGlobalCareEnabled()
+        ? { hero: fixture.hero, initiatives: [] }
+        : fixture;
     success(res, withAbsoluteAssets(req, data), req.requestId);
+    prewarmCareArticleDetails(
+      data.initiatives.map((item) => item.id),
+      campus,
+    );
   } catch (error) {
     next(error);
   }

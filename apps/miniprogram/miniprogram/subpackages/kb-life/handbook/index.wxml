@@ -1,3 +1,12 @@
+<!-- 本版本暂不提供员工手册，见 index.ts redirect -->
+<view class="page page--handbook">
+  <nav-brand title="Emp Handbook" show-back="{{true}}"></nav-brand>
+  <view class="handbook" style="padding: 48rpx 32rpx;">
+    <text style="font-size: 28rpx; color: #6b7280;">跳转中…</text>
+  </view>
+</view>
+
+<!--
 <view class="page page--handbook">
   <nav-brand title="Emp Handbook" show-back="{{true}}"></nav-brand>
 
@@ -38,3 +47,4 @@
   </view>
   <app-tab-bar></app-tab-bar>
 </view>
+-->

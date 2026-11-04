@@ -47,7 +47,10 @@ Page({
   },
 
   async loadAlbums() {
-    this.setData({ pageStatus: 'loading', errorText: '' });
+    const keepContent = this.data.pageStatus === 'success' && this.data.section.albums.length > 0;
+    if (!keepContent) {
+      this.setData({ pageStatus: 'loading', errorText: '' });
+    }
     try {
       const result = await getCompanyActivities();
       if (!result.highlightMoments?.albums.length) {
@@ -59,6 +62,9 @@ Page({
         pageStatus: 'success',
       });
     } catch (error) {
+      if (keepContent) {
+        return;
+      }
       this.setData({
         pageStatus: 'error',
         errorText: error instanceof RequestError ? error.message : '精彩瞬间加载失败',

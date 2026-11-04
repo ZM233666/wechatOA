@@ -105,8 +105,8 @@ Mock 等价路径：`GET /api/kb-life/activities`
 
 ### 列表页与详情页数据范围
 
-- **v1（当前小程序）**：详情页不单独请求接口，从同一次 `activities` 响应中按 `album.id` 取完整相册（含全部 `images`）。
-- **可选优化（相册很大时）**：增加 `GET /api/v1/mini/kb-life/highlight-moments/albums/:id`，响应体为单个 `HighlightMomentsAlbum`；列表接口的 `albums` 可只返回摘要（无 `images` 或仅 `coverImage`）。与后端对齐前，小程序仍按「全量嵌在 activities」实现。
+- **列表**：`GET /kb-life/activities` 的 `highlightMoments.albums` 仍带 `images`（用于张数），但 Mock **只同步镜像封面**，相册内照片在后台预热。
+- **详情**：`GET /api/v1/mini/kb-life/highlight-moments/albums/:id`（Mock：`GET /api/kb-life/highlight-moments/albums/:id`）返回单本相册并镜像该相册照片。小程序相册页优先走此接口；若正式后端尚未实现（404），再回退到 `activities` 里按 `album.id` 取图。
 
 ---
 

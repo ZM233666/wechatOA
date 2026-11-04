@@ -35,8 +35,17 @@ export function rewriteAssetUrls<T>(value: T, baseUrl: string): T {
           ),
         ];
       }
-      if (ASSET_KEYS.has(key) && typeof nested === 'string' && nested.startsWith('/mock-assets/')) {
-        return [key, joinBase(baseUrl, nested)];
+      if (ASSET_KEYS.has(key) && typeof nested === 'string') {
+        if (nested.startsWith('/mock-assets/')) {
+          return [key, joinBase(baseUrl, nested)];
+        }
+        if (nested.startsWith('/media/')) {
+          const mediaBase = (mockEnv.NEWS_ARTICLE_MEDIA_BASE_URL || mockEnv.NEWS_ARTICLE_API_BASE_URL).replace(
+            /\/+$/,
+            '',
+          );
+          return [key, joinBase(mediaBase, nested)];
+        }
       }
       return [key, rewriteAssetUrls(nested, baseUrl)];
     });

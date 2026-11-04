@@ -10,7 +10,7 @@
       <view class="event-detail__hero event-detail__hero--highlights">
         <image
           class="event-detail__hero-icon"
-          src="/assets/images/kb-life/event-highlights-white.png"
+          src="/assets/images/kb-life/event-highlights.png"
           mode="aspectFit"
         ></image>
         <text class="event-detail__hero-title">{{section.title}}</text>

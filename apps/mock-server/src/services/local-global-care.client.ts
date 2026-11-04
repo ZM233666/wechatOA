@@ -21,6 +21,9 @@ export type LocalGlobalCareRow = {
   global_published_cover_url?: string;
   local_published_at?: string | null;
   global_published_at?: string | null;
+  /** CMS：勾选后出现在 KB Life 顶栏轮播 */
+  local_show_on_kb_life_banner?: boolean;
+  global_show_on_kb_life_banner?: boolean;
 };
 
 type DetailEnvelope = {
@@ -130,6 +133,45 @@ export async function fetchLocalGlobalCareCurrent(campus: string): Promise<Local
   const params = new URLSearchParams({ campus });
   const envelope = await authedGet<DetailEnvelope>(`/api/local-global-care/care/current/?${params}`);
   if (envelope.code !== 2000 || !envelope.data) {
+    return null;
+  }
+  return envelope.data;
+}
+
+type MiniCareEnvelope = {
+  success?: boolean;
+  data?: import('./local-global-care-mini.mapper').MiniLocalGlobalCarePayload;
+};
+
+/** 小程序契约：GET /api/v1/mini/kb-life/local-global-care/?campus=suzhou（多篇文稿 + Banner 勾选） */
+export async function fetchMiniLocalGlobalCare(
+  campus: string,
+): Promise<import('./local-global-care-mini.mapper').MiniLocalGlobalCarePayload | null> {
+  const params = new URLSearchParams({ campus: campus.trim().toLowerCase() });
+  const envelope = await requestJson<MiniCareEnvelope>(
+    `/api/v1/mini/kb-life/local-global-care/?${params}`,
+    { timeoutMs: liveApiTimeoutMs() },
+  );
+  if (envelope.success !== true || !envelope.data) {
+    return null;
+  }
+  return envelope.data;
+}
+
+type MiniCareArticleEnvelope = {
+  success?: boolean;
+  data?: import('./local-global-care-mini.mapper').MiniCareArticleDto;
+};
+
+/** GET /api/v1/mini/kb-life/local-global-care/articles/:id/ */
+export async function fetchMiniCareArticle(
+  articleId: number,
+): Promise<import('./local-global-care-mini.mapper').MiniCareArticleDto | null> {
+  const envelope = await requestJson<MiniCareArticleEnvelope>(
+    `/api/v1/mini/kb-life/local-global-care/articles/${articleId}/`,
+    { timeoutMs: liveApiTimeoutMs() },
+  );
+  if (envelope.success !== true || !envelope.data) {
     return null;
   }
   return envelope.data;

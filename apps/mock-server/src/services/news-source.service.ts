@@ -1,3 +1,4 @@
+import { logWarn } from '../utils/logger';
 import { getFixtures } from './fixture.service';
 import type { NewsArticleFixture } from '../schemas/news.schema';
 import { isArticleNewsEnabled } from './article-content.client';
@@ -26,6 +27,9 @@ export async function getNewsArticlesForRequest(): Promise<NewsArticleFixture[]>
     if (articles.length) {
       return articles;
     }
+    logWarn(
+      'NEWS_ARTICLE_ENABLED 已开启但未同步到 CMS 文章，首页/列表将回退 fixtures；请确认 Django 已启动且 article-content 可访问',
+    );
   }
   return getFixtures().newsArticles;
 }
