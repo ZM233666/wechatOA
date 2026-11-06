@@ -6,6 +6,7 @@ import { rejectVisitorCampusAccess } from '../../../utils/kb-life-access';
 Page({
   data: {
     location: '',
+    navTitle: 'Canteen',
     intro: '',
     menuTitle: '',
     menuDate: '',

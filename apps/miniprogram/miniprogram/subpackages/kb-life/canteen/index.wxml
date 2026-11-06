@@ -1,5 +1,5 @@
 <view class="page page--canteen">
-  <nav-brand title="Canteen Menu · {{location}}" show-back="{{true}}"></nav-brand>
+  <nav-brand title="{{navTitle}}" show-back="{{true}}" fit="{{true}}"></nav-brand>
 
   <empty-state wx:if="{{pageStatus === 'loading'}}" title="正在加载食堂菜单"></empty-state>
   <empty-state

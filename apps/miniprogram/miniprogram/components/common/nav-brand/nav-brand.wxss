@@ -73,3 +73,14 @@
   text-align: center;
   pointer-events: none;
 }
+
+.nav-brand__title--fit {
+  left: 250rpx;
+  right: 176rpx;
+  font-size: 30rpx;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  box-sizing: border-box;
+  padding: 0 8rpx;
+}

@@ -34,7 +34,7 @@ function getMonthView(
 Page({
   data: {
     location: '',
-    navTitle: 'Holiday Calendar',
+    navTitle: 'Holiday',
     year: HOLIDAY_YEAR,
     weekdays: WEEKDAYS,
     todayKey: '',
@@ -62,7 +62,6 @@ Page({
       const year = result.year || HOLIDAY_YEAR;
       this.setData({
         location: result.location,
-        navTitle: `Holiday Calendar · ${result.location}`,
         year,
         todayKey,
         marks: result.marks,
