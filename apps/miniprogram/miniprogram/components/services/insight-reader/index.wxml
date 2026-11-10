@@ -1,8 +1,8 @@
 <wxs module="book" src="./book.wxs"></wxs>
 <view
   wx:if="{{visible}}"
-  class="insight-reader {{fillParent ? 'insight-reader--fill' : ''}} {{isMapMode ? 'insight-reader--map' : ''}} {{isBookMode ? 'insight-reader--book' : ''}} {{hideDock ? 'insight-reader--no-dock' : ''}} {{bookEntered ? 'insight-reader--entered' : ''}}"
-  style="{{fillParent ? '' : 'height:' + readerHeight + 'px;'}}--header-inset: {{headerInset}}px;"
+  class="insight-reader {{fillParent !== false ? 'insight-reader--fill' : ''}} {{isMapMode ? 'insight-reader--map' : ''}} {{isBookMode ? 'insight-reader--book' : ''}} {{hideDock ? 'insight-reader--no-dock' : ''}} {{bookEntered ? 'insight-reader--entered' : ''}}"
+  style="{{fillParent === false ? ('height:' + readerHeight + 'px;') : ''}}--header-inset: {{headerInset}}px;"
 >
   <empty-state wx:if="{{pageStatus === 'loading'}}" title="{{isMapMode ? '正在打开园区地图' : (isBookMode ? '正在打开刊物' : '正在打开报告')}}"></empty-state>
   <view wx:elif="{{pageStatus === 'error'}}" class="insight-reader__error" bindtap="onClose">

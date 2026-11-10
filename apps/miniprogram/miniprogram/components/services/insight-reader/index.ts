@@ -109,7 +109,6 @@ Component({
     shareTitle: '',
     shareImage: '',
     readerHeight: 0,
-    fillParent: true,
     /** 与 nav-brand 同高，内容从标题栏下沿开始 */
     headerInset: 64,
     /** 关闭/分享与胶囊垂直居中对齐 */
@@ -136,24 +135,32 @@ Component({
   },
 
   observers: {
-    'visible, reportId, source, withTabBar, hasNavBar, fillParent'(visible: boolean, reportId: string) {
-      if (visible) {
-        this.refreshLayout();
-      }
-      if (visible && reportId) {
-        if (this.data.report?.id === reportId && this.data.pageStatus === 'success') {
-          return;
-        }
-        void this.loadReport(reportId);
-        return;
-      }
+    // 不要把会在 refreshLayout/loadReport 里 setData 的字段放进依赖，否则会死循环卡死模拟器
+    'visible, reportId, source'(visible: boolean, reportId: string) {
       if (!visible) {
+        (this as WechatMiniprogram.Component.TrivialInstance & { _loadingReportId?: string })._loadingReportId =
+          '';
         this.setData({
           flipping: false,
           flipDirection: '',
           bookEntered: false,
         });
+        return;
       }
+      this.refreshLayout();
+      if (!reportId) {
+        return;
+      }
+      const self = this as WechatMiniprogram.Component.TrivialInstance & {
+        _loadingReportId?: string;
+      };
+      if (this.data.report?.id === reportId && this.data.pageStatus === 'success') {
+        return;
+      }
+      if (self._loadingReportId === reportId) {
+        return;
+      }
+      void this.loadReport(reportId);
     },
   },
 
@@ -172,9 +179,7 @@ Component({
       const chromeTop = !hasNavBar
         ? Math.max(Math.round(menuButton.top + (menuButton.height - btnSize) / 2), 8)
         : 12;
-      this.setData({
-        fillParent,
-        // fill 模式交给父级 flex，不再用易错的像素高度
+      const next = {
         readerHeight: fillParent
           ? 0
           : measureReaderHeight({
@@ -186,11 +191,25 @@ Component({
         chromeTop,
         isMapMode,
         isBookMode,
-      });
+      };
+      // 值未变则跳过，减少无意义 setData
+      if (
+        this.data.readerHeight === next.readerHeight &&
+        this.data.headerInset === next.headerInset &&
+        this.data.chromeTop === next.chromeTop &&
+        this.data.isMapMode === next.isMapMode &&
+        this.data.isBookMode === next.isBookMode
+      ) {
+        return;
+      }
+      this.setData(next);
     },
 
     async loadReport(id: string) {
-      this.refreshLayout();
+      const self = this as WechatMiniprogram.Component.TrivialInstance & {
+        _loadingReportId?: string;
+      };
+      self._loadingReportId = id;
       this.setData({
         pageStatus: 'loading',
         errorText: '',
@@ -199,6 +218,7 @@ Component({
         flipDirection: '',
         bookEntered: false,
       });
+      this.refreshLayout();
       try {
         const report =
           this.properties.source === 'wetalk'
@@ -206,6 +226,11 @@ Component({
             : this.properties.source === 'campus-map'
               ? await getCampusMapAsReport(id)
               : await getInsightReport(id);
+
+        // 若期间切换了报告，丢弃过期结果
+        if (self._loadingReportId !== id) {
+          return;
+        }
 
         const isMapMode = this.properties.source === 'campus-map';
         const isBookMode = this.properties.source === 'wetalk' || this.properties.source === 'insights';
@@ -218,6 +243,7 @@ Component({
             : page.thumbLabel,
         }));
         if (!pages.length) {
+          self._loadingReportId = '';
           this.setData({
             pageStatus: 'error',
             errorText: '暂无内容',
@@ -251,12 +277,16 @@ Component({
             },
           },
           () => {
+            self._loadingReportId = '';
             if (isBookMode) {
               setTimeout(() => this.setData({ bookEntered: true }), 20);
             }
           },
         );
       } catch (error) {
+        if (self._loadingReportId === id) {
+          self._loadingReportId = '';
+        }
         this.setData({
           pageStatus: 'error',
           errorText: error instanceof RequestError ? error.message : '报告加载失败',
