@@ -1,0 +1,262 @@
+page {
+  background: #f5f7fa;
+}
+
+.page--wetalk {
+  height: 100vh;
+  background: #f5f7fa;
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+  overflow: hidden;
+}
+
+.page--wetalk-reading {
+  overflow: hidden;
+}
+
+.page--wetalk-reading .insight-reader,
+.page--wetalk.page--wetalk-reading > .insight-reader {
+  flex: 1;
+  min-height: 0;
+}
+
+/* 不再额外 padding-bottom：app-tab-bar 自带 placeholder 占位 */
+.wetalk-hub {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  padding: 8rpx 32rpx 0;
+  box-sizing: border-box;
+}
+
+.wetalk-section-head {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8rpx 0 16rpx;
+  flex-shrink: 0;
+}
+
+.wetalk-section-head--magazine {
+  padding-top: 12rpx;
+  padding-bottom: 12rpx;
+}
+
+.wetalk-section-head__left {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  min-width: 0;
+}
+
+.wetalk-section-head__bar {
+  width: 8rpx;
+  height: 28rpx;
+  border-radius: 999rpx;
+  background: #00467f;
+  margin-right: 12rpx;
+  flex-shrink: 0;
+}
+
+.wetalk-section-head__bar--gold {
+  background: #e4a870;
+}
+
+.wetalk-section-head__title {
+  font-size: 30rpx;
+  font-weight: 700;
+  color: #111827;
+  line-height: 1.2;
+}
+
+.wetalk-year {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  padding: 10rpx 20rpx;
+  border-radius: 999rpx;
+  background: #ffffff;
+  box-shadow: 0 4rpx 12rpx rgba(3, 62, 112, 0.06);
+  flex-shrink: 0;
+}
+
+.wetalk-year__text {
+  font-size: 24rpx;
+  color: #00467f;
+  font-weight: 600;
+}
+
+.wetalk-year__arrow {
+  margin-left: 8rpx;
+  font-size: 20rpx;
+  color: #6b7280;
+}
+
+.wetalk-news {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.wetalk-news__scroll {
+  flex: 1;
+  height: 0;
+  min-height: 0;
+  background: #eef2f7;
+  border-radius: 24rpx;
+  padding: 16rpx 16rpx 8rpx;
+  box-sizing: border-box;
+  border: 1rpx solid rgba(3, 62, 112, 0.06);
+}
+
+.news-card {
+  height: 200rpx;
+  background: #ffffff;
+  border-radius: 24rpx;
+  overflow: hidden;
+  margin-bottom: 16rpx;
+  box-shadow: 0 4rpx 16rpx rgba(3, 62, 112, 0.05);
+  display: flex;
+  flex-direction: row;
+}
+
+.news-card__image {
+  width: 34%;
+  height: 100%;
+  flex-shrink: 0;
+  display: block;
+  background: #f3f4f6;
+}
+
+.news-card__body {
+  flex: 1;
+  min-width: 0;
+  padding: 16rpx 20rpx;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  box-sizing: border-box;
+}
+
+.news-card__badge {
+  align-self: flex-start;
+  font-size: 20rpx;
+  font-weight: 500;
+  color: #2563eb;
+  background: #eff6ff;
+  padding: 4rpx 12rpx;
+  border-radius: 8rpx;
+  margin-bottom: 8rpx;
+}
+
+.news-card__title {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  overflow: hidden;
+  font-size: 26rpx;
+  font-weight: 700;
+  color: #111827;
+  line-height: 1.4;
+  margin-bottom: 8rpx;
+}
+
+.news-card__date {
+  display: block;
+  font-size: 22rpx;
+  color: #9ca3af;
+}
+
+/* 杂志区紧贴 tab-bar placeholder，无底部额外空隙 */
+.wetalk-magazine {
+  flex: none;
+  flex-shrink: 0;
+  margin: 0 -32rpx;
+  padding: 0 32rpx;
+  background: #f5f7fa;
+  box-sizing: border-box;
+}
+
+.magazine-card {
+  height: 200rpx;
+  border-radius: 24rpx;
+  overflow: hidden;
+  display: flex;
+  flex-direction: row;
+  background: linear-gradient(135deg, #003b70 0%, #001f3f 100%);
+  box-shadow: 0 10rpx 28rpx rgba(0, 31, 63, 0.28);
+}
+
+.magazine-card__cover {
+  position: relative;
+  width: 34%;
+  flex-shrink: 0;
+  background: #001a33;
+}
+
+.magazine-card__image {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+.magazine-card__mask {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, rgba(0, 31, 63, 0.1) 0%, rgba(0, 31, 63, 0.45) 100%);
+}
+
+.magazine-card__body {
+  flex: 1;
+  min-width: 0;
+  padding: 16rpx 20rpx;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.magazine-card__kicker {
+  display: block;
+  font-size: 18rpx;
+  font-weight: 600;
+  letter-spacing: 1rpx;
+  color: rgba(228, 168, 112, 0.95);
+  margin-bottom: 4rpx;
+}
+
+.magazine-card__title {
+  display: block;
+  font-size: 28rpx;
+  font-weight: 700;
+  color: #ffffff;
+  margin-bottom: 6rpx;
+  line-height: 1.3;
+}
+
+.magazine-card__desc {
+  font-size: 20rpx;
+  color: rgba(255, 255, 255, 0.78);
+  line-height: 1.4;
+  margin-bottom: 12rpx;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 1;
+  overflow: hidden;
+}
+
+.magazine-card__btn {
+  align-self: flex-start;
+  padding: 8rpx 24rpx;
+  border-radius: 999rpx;
+  background: #e4a870;
+}
+
+.magazine-card__btn-text {
+  font-size: 22rpx;
+  font-weight: 700;
+  color: #4a2511;
+}

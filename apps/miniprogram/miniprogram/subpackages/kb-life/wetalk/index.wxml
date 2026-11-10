@@ -1,0 +1,84 @@
+<view class="page page--wetalk {{readerVisible ? 'page--wetalk-reading' : ''}}">
+  <nav-brand wx:if="{{!readerVisible}}" title="WeTalk News" show-back="{{true}}"></nav-brand>
+
+  <insight-reader
+    wx:if="{{readerVisible}}"
+    visible="{{true}}"
+    report-id="{{readerIssueId}}"
+    source="wetalk"
+    has-nav-bar="{{false}}"
+    bind:close="onReaderClose"
+  ></insight-reader>
+
+  <view wx:if="{{!readerVisible}}" class="wetalk-hub">
+    <view class="wetalk-news">
+      <view class="wetalk-section-head">
+        <view class="wetalk-section-head__left">
+          <view class="wetalk-section-head__bar"></view>
+          <text class="wetalk-section-head__title">Latest News</text>
+        </view>
+        <picker mode="selector" range="{{yearOptions}}" value="{{yearIndex}}" bindchange="onYearChange">
+          <view class="wetalk-year tap-feedback">
+            <text class="wetalk-year__text">{{selectedYear}}</text>
+            <text class="wetalk-year__arrow">▾</text>
+          </view>
+        </picker>
+      </view>
+
+      <scroll-view class="wetalk-news__scroll" scroll-y="{{true}}" enhanced="{{true}}" show-scrollbar="{{false}}">
+        <empty-state wx:if="{{pageStatus === 'loading'}}" title="正在加载 WeTalk"></empty-state>
+        <view wx:elif="{{pageStatus === 'error'}}" bindtap="onRetry">
+          <empty-state title="加载失败" description="{{errorText}}"></empty-state>
+        </view>
+        <empty-state wx:elif="{{pageStatus === 'empty'}}" title="暂无新闻" description="当前年份没有可展示的内容"></empty-state>
+
+        <block wx:elif="{{pageStatus === 'success'}}">
+            <view
+              class="news-card tap-feedback"
+              wx:for="{{displayItems}}"
+              wx:key="id"
+              data-id="{{item.id}}"
+              data-kind="{{item.kind}}"
+              bindtap="onNewsTap"
+            >
+              <image class="news-card__image" src="{{item.image}}" mode="aspectFill"></image>
+              <view class="news-card__body">
+                <text class="news-card__badge">WeTalk</text>
+                <text class="news-card__title">{{item.title}}</text>
+                <text class="news-card__date">{{item.date}}</text>
+              </view>
+            </view>
+        </block>
+      </scroll-view>
+    </view>
+
+    <view class="wetalk-magazine">
+      <view class="wetalk-section-head wetalk-section-head--magazine">
+        <view class="wetalk-section-head__left">
+          <view class="wetalk-section-head__bar wetalk-section-head__bar--gold"></view>
+          <text class="wetalk-section-head__title">Magazine</text>
+        </view>
+      </view>
+      <view class="magazine-card tap-feedback" bindtap="onMagazineReadMore">
+        <view class="magazine-card__cover">
+          <image
+            class="magazine-card__image"
+            src="/assets/images/kb-life/wetalk-coverpage.png"
+            mode="aspectFill"
+          ></image>
+          <view class="magazine-card__mask"></view>
+        </view>
+        <view class="magazine-card__body">
+          <text class="magazine-card__kicker">E-Magazine</text>
+          <text class="magazine-card__title">One Magazine-WeTalk</text>
+          <text class="magazine-card__desc">浏览电子杂志合集，了解更多企业动态与服务故事</text>
+          <view class="magazine-card__btn">
+            <text class="magazine-card__btn-text">阅读更多</text>
+          </view>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <app-tab-bar></app-tab-bar>
+</view>

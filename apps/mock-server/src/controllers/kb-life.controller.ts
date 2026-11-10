@@ -36,6 +36,11 @@ import { loadLiveCanteen, shanghaiMenuDate } from '../services/lunch-menu.servic
 import { activitiesResponseWithoutFakeData, loadLiveActivities } from '../services/company-events.service';
 import { loadLiveHighlightMoments } from '../services/highlight-moments-live.service';
 import {
+  loadWetalkCmsPdfIssue,
+  loadWetalkNewsDetail,
+  loadWetalkNewsSummaries,
+} from '../services/article-wetalk.service';
+import {
   requireBoundIdentity,
   requireEmployeeIdentity,
   requireGuidanceDocumentsIdentity,
@@ -212,29 +217,62 @@ export async function getActivities(req: Request, res: Response, next: NextFunct
   }
 }
 
-export function getWetalkIssues(req: Request, res: Response): void {
-  requireEmployeeIdentity(req);
-  syncPdfDrivenCatalogs();
-  const items = getFixtures().wetalkIssues.map(({ pages: _pages, ...summary }) => summary);
-  if (req.mockScenario === 'empty') {
-    success(res, { items: [] }, req.requestId);
-    return;
+export async function getWetalkIssues(
+  req: Request,
+  res: Response,
+  next: NextFunction,
+): Promise<void> {
+  try {
+    requireEmployeeIdentity(req);
+    if (req.mockScenario === 'empty') {
+      success(res, { items: [] }, req.requestId);
+      return;
+    }
+    // WeTalk News：优先管理端 content_type=wetalk 已发布文章
+    const newsItems = await loadWetalkNewsSummaries({ force: true });
+    if (newsItems.length) {
+      success(res, withAbsoluteAssets(req, { items: newsItems }), req.requestId);
+      return;
+    }
+    // 无 CMS 新闻时回退 MinIO/本地 PDF 期次（杂志）
+    syncPdfDrivenCatalogs();
+    const items = getFixtures().wetalkIssues.map(({ pages: _pages, ...summary }) => summary);
+    success(res, withAbsoluteAssets(req, { items }), req.requestId);
+  } catch (error) {
+    next(error);
   }
-  success(res, withAbsoluteAssets(req, { items }), req.requestId);
 }
 
-export function getWetalkIssueDetail(req: Request, res: Response): void {
-  requireEmployeeIdentity(req);
-  const id = String(req.params.id);
-  const issue =
-    refreshWetalkIssueFromDisk(id) ??
-    getFixtures().wetalkIssues.find((item) => item.id === id);
-  if (!issue) {
-    throw new HttpError(404, 'Resource not found', ERROR_CODES.RESOURCE_NOT_FOUND, {
-      id,
-    });
+export async function getWetalkIssueDetail(
+  req: Request,
+  res: Response,
+  next: NextFunction,
+): Promise<void> {
+  try {
+    requireEmployeeIdentity(req);
+    const id = String(req.params.id);
+    const pdfIssue = await loadWetalkCmsPdfIssue(id, { force: true });
+    if (pdfIssue) {
+      success(res, withAbsoluteAssets(req, pdfIssue), req.requestId);
+      return;
+    }
+    const newsDetail = await loadWetalkNewsDetail(id, { force: true });
+    if (newsDetail) {
+      success(res, withAbsoluteAssets(req, newsDetail), req.requestId);
+      return;
+    }
+    const issue =
+      refreshWetalkIssueFromDisk(id) ??
+      getFixtures().wetalkIssues.find((item) => item.id === id);
+    if (!issue) {
+      throw new HttpError(404, 'Resource not found', ERROR_CODES.RESOURCE_NOT_FOUND, {
+        id,
+      });
+    }
+    success(res, withAbsoluteAssets(req, issue), req.requestId);
+  } catch (error) {
+    next(error);
   }
-  success(res, withAbsoluteAssets(req, issue), req.requestId);
 }
 
 export async function getCampusMap(req: Request, res: Response, next: NextFunction): Promise<void> {

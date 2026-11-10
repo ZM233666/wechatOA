@@ -1,0 +1,116 @@
+<view wx:if="{{page && page.type}}" class="reader-page reader-page--{{page.type}} {{isMapMode ? 'reader-page--map' : ''}}">
+  <block wx:if="{{page.type === 'cover'}}">
+    <image
+      wx:if="{{page.coverImage}}"
+      class="reader-page__cover-bg"
+      src="{{page.coverImage}}"
+      mode="aspectFill"
+    ></image>
+    <view class="reader-page__cover-mask"></view>
+    <view class="reader-page__cover-body">
+      <view class="reader-page__card">
+        <view class="reader-page__headline">
+          <text
+            wx:for="{{page.headlineCn}}"
+            wx:for-item="line"
+            wx:key="*this"
+            class="reader-page__headline-line"
+          >{{line}}</text>
+        </view>
+        <text class="reader-page__headline-en">{{page.headlineEn}}</text>
+      </view>
+      <view class="reader-page__cover-foot">
+        <text class="reader-page__institute">{{page.institute}}</text>
+        <text class="reader-page__brand">{{page.brand}}</text>
+      </view>
+    </view>
+  </block>
+
+  <block wx:elif="{{page.type === 'contents'}}">
+    <view class="reader-page__contents">
+      <view class="reader-page__contents-head">
+        <text class="reader-page__contents-en">CONTENTS</text>
+        <text class="reader-page__contents-cn">目录</text>
+      </view>
+      <view
+        class="reader-page__toc"
+        wx:for="{{page.toc}}"
+        wx:for-item="toc"
+        wx:key="index"
+      >
+        <view class="reader-page__toc-title">
+          <text class="reader-page__toc-index">{{toc.index}}</text>
+          <text class="reader-page__toc-en">{{toc.titleEn}}</text>
+          <text class="reader-page__toc-cn">{{toc.titleCn}}</text>
+        </view>
+        <text
+          class="reader-page__toc-line"
+          wx:for="{{toc.lines}}"
+          wx:for-item="line"
+          wx:key="*this"
+        >{{line}}</text>
+      </view>
+    </view>
+  </block>
+
+  <block wx:elif="{{page.type === 'sheet'}}">
+    <view class="reader-page__sheet-stage">
+      <movable-area wx:if="{{isMapMode}}" class="reader-page__map-area" scale-area>
+        <movable-view
+          class="reader-page__map-view"
+          direction="all"
+          scale="{{true}}"
+          scale-min="{{0.8}}"
+          scale-max="{{4}}"
+          scale-value="{{1}}"
+          inertia="{{true}}"
+        >
+          <image
+            class="reader-page__sheet-fit"
+            src="{{page.coverImage}}"
+            mode="aspectFit"
+            show-menu-by-longpress
+          ></image>
+        </movable-view>
+      </movable-area>
+      <image
+        wx:else
+        class="reader-page__sheet-fit"
+        src="{{page.coverImage}}"
+        mode="aspectFit"
+        show-menu-by-longpress
+      ></image>
+    </view>
+  </block>
+
+  <block wx:else>
+    <scroll-view scroll-y class="reader-page__scroll">
+      <image
+        wx:if="{{page.bodyImage}}"
+        class="reader-page__body-image"
+        src="{{page.bodyImage}}"
+        mode="aspectFill"
+      ></image>
+      <view class="reader-page__chapter">
+        <text class="reader-page__chapter-label">{{page.chapterLabel}}</text>
+        <text class="reader-page__chapter-title">{{page.chapterTitle}}</text>
+      </view>
+      <view class="reader-page__body">
+        <text
+          class="reader-page__paragraph"
+          wx:for="{{page.paragraphs}}"
+          wx:for-item="paragraph"
+          wx:key="*this"
+        >{{paragraph}}</text>
+        <view wx:if="{{page.bullets && page.bullets.length}}" class="reader-page__bullets">
+          <text
+            class="reader-page__bullet"
+            wx:for="{{page.bullets}}"
+            wx:for-item="bullet"
+            wx:key="*this"
+          >· {{bullet}}</text>
+        </view>
+      </view>
+    </scroll-view>
+  </block>
+</view>

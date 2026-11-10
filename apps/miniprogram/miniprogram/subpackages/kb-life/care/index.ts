@@ -23,7 +23,7 @@ Page({
   skipNextShowLoad: false,
 
   onLoad(query: Record<string, string | undefined>) {
-    if (rejectUnboundIdentityAccess('/pages/kb-life/index')) {
+    if (rejectUnboundIdentityAccess('/pages/kb-life/index', 'Employee Care')) {
       return;
     }
     this.accessAllowed = true;

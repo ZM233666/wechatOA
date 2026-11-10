@@ -76,13 +76,13 @@
       </view>
 
       <view wx:if="{{bindSheetVisible}}" class="bind-panel">
-        <text class="bind-panel__title">输入公司邮箱</text>
-        <text class="bind-panel__subtitle">Enter your company email to verify identity</text>
+        <text class="bind-panel__title">输入登记邮箱</text>
+        <text class="bind-panel__subtitle">Enter your registered email to verify identity</text>
         <input
           class="bind-panel__input {{bindEmailError ? 'bind-panel__input--error' : ''}}"
           type="text"
           value="{{bindCompanyEmail}}"
-          placeholder="name@company.com"
+          placeholder="name@registered-email.com"
           placeholder-class="bind-panel__placeholder"
           confirm-type="done"
           bindinput="onBindEmailInput"
@@ -108,7 +108,7 @@
         <text class="identity-bound__hint">Identity linked to your company profile</text>
 
         <view class="identity-bound__row">
-          <text class="identity-bound__label">公司邮箱</text>
+          <text class="identity-bound__label">登记邮箱</text>
           <text class="identity-bound__value">{{boundIdentity.companyEmail}}</text>
         </view>
         <view class="identity-bound__row">

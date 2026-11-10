@@ -22,7 +22,7 @@ Page({
   },
 
   onLoad(query: Record<string, string | undefined>) {
-    if (rejectVisitorCampusAccess()) {
+    if (rejectVisitorCampusAccess('Campus Map')) {
       return;
     }
     this.location = resolveCampusLocation(query.location);

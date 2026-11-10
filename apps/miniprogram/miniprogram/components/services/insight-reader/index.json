@@ -1,6 +1,7 @@
 {
   "component": true,
   "usingComponents": {
-    "empty-state": "/components/common/empty-state/empty-state"
+    "empty-state": "/components/common/empty-state/empty-state",
+    "reader-page": "./reader-page"
   }
 }

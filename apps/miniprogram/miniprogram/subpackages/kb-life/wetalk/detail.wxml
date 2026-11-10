@@ -1,0 +1,42 @@
+<view class="page page--wetalk-detail">
+  <nav-brand title="WeTalk News" show-back="{{true}}"></nav-brand>
+
+  <empty-state wx:if="{{pageStatus === 'loading'}}" title="正在加载文章"></empty-state>
+  <view wx:elif="{{pageStatus === 'error'}}" bindtap="onRetry">
+    <empty-state title="加载失败" description="{{errorText}}"></empty-state>
+  </view>
+  <empty-state wx:elif="{{pageStatus === 'empty'}}" title="未找到该文章"></empty-state>
+
+  <view wx:elif="{{article}}" class="wetalk-detail">
+    <image
+      wx:if="{{article.image}}"
+      class="wetalk-detail__cover"
+      src="{{article.image}}"
+      mode="widthFix"
+    ></image>
+    <view class="wetalk-detail__body">
+      <text class="wetalk-detail__badge">{{article.category}}</text>
+      <text class="wetalk-detail__title">{{article.title}}</text>
+      <text class="wetalk-detail__meta">{{article.dateLabel}}</text>
+      <article-renderer
+        wx:if="{{useBlockBody}}"
+        class="wetalk-detail__html"
+        blocks="{{article.richContent}}"
+        carousel-preview="{{false}}"
+      ></article-renderer>
+      <html-content
+        wx:elif="{{article.contentHtml}}"
+        class="wetalk-detail__html"
+        html="{{article.contentHtml}}"
+      ></html-content>
+      <article-renderer
+        wx:else
+        class="wetalk-detail__html"
+        blocks="{{article.richContent}}"
+        carousel-preview="{{false}}"
+      ></article-renderer>
+    </view>
+  </view>
+
+  <app-tab-bar></app-tab-bar>
+</view>

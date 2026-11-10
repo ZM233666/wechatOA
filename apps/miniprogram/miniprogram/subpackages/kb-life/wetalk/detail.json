@@ -1,0 +1,11 @@
+{
+  "navigationStyle": "custom",
+  "backgroundColor": "#F5F7FA",
+  "usingComponents": {
+    "nav-brand": "/components/common/nav-brand/nav-brand",
+    "empty-state": "/components/common/empty-state/empty-state",
+    "article-renderer": "/components/common/article-renderer/index",
+    "html-content": "/components/common/html-content/index",
+    "app-tab-bar": "/components/common/app-tab-bar/app-tab-bar"
+  }
+}

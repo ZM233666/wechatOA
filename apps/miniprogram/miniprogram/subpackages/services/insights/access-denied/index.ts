@@ -1,16 +1,12 @@
-Page({
-  data: {
-    title: 'KB Insights',
-  },
+import { openAccessDeniedPage, openIdentityBindingInProfile } from '../../../../utils/identity-access';
 
-  onLoad(query: Record<string, string | undefined>) {
-    const id = query.id ?? '';
-    if (id) {
-      this.setData({ title: 'Insight Report' });
-    }
+/** 兼容旧路径：进入后转到通用无权限页 */
+Page({
+  onLoad() {
+    openAccessDeniedPage({ kind: 'unbound', title: 'KB Insights' });
   },
 
   onGoIdentityBinding() {
-    wx.switchTab({ url: '/pages/profile/index' });
+    openIdentityBindingInProfile();
   },
 });

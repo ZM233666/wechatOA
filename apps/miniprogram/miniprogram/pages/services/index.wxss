@@ -9,6 +9,11 @@ page {
 
 .page--services.page--services-reading {
   background: #111111;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  box-sizing: border-box;
 }
 
 .services {

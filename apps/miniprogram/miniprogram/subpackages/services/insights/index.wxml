@@ -1,9 +1,11 @@
 <view class="page page--insights {{readerVisible ? 'page--insights-reading' : ''}}">
-  <nav-brand title="KB Insights" show-back="{{true}}"></nav-brand>
+  <nav-brand wx:if="{{!readerVisible}}" title="KB Insights" show-back="{{true}}"></nav-brand>
 
   <insight-reader
-    visible="{{readerVisible}}"
+    wx:if="{{readerVisible}}"
+    visible="{{true}}"
     report-id="{{readerReportId}}"
+    has-nav-bar="{{false}}"
     bind:close="onReaderClose"
   ></insight-reader>
 

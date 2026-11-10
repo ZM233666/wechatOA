@@ -17,7 +17,7 @@ Page({
   },
 
   onLoad(query: Record<string, string | undefined>) {
-    if (rejectVisitorCampusAccess()) {
+    if (rejectVisitorCampusAccess('Canteen')) {
       return;
     }
     this.location = resolveCampusLocation(query.location);

@@ -8,9 +8,10 @@
   ></nav-brand>
 
   <insight-reader
-    visible="{{readerVisible}}"
+    wx:if="{{readerVisible}}"
+    visible="{{true}}"
     report-id="{{readerReportId}}"
-    with-tab-bar="{{true}}"
+    has-nav-bar="{{false}}"
     bind:close="onReaderClose"
   ></insight-reader>
 

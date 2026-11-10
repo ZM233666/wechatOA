@@ -17,6 +17,7 @@ import {
   isVisitorRestrictedCampusService,
   shouldBlockCampusServicesForVisitor,
 } from '../../utils/kb-life-access';
+import { openAccessDeniedPage, openIdentityBindingInProfile } from '../../utils/identity-access';
 import {
   bindIdentitySessionRefresh,
   refreshIfIdentitySessionChanged,
@@ -42,10 +43,7 @@ Page({
     readerSource: 'wetalk' as 'wetalk' | 'campus-map' | 'shuttle-bus',
     /** 上层页面展示的最近 1 期 */
     wetalkFeatured: null as WetalkCover | null,
-    wetalkItems: [] as WetalkCover[],
-    listStatus: 'idle' as 'idle' | 'loading' | 'success' | 'empty' | 'error',
-    listErrorText: '',
-    shareTitle: 'WeTalk E-Magazine',
+    shareTitle: 'WeTalk News',
     shareImage: '',
   },
 
@@ -67,11 +65,7 @@ Page({
     if (!identityChanged) {
       void this.loadEntries();
     }
-    if (!shouldBlockWetalkForNonEmployee()) {
-      if (!identityChanged && this.data.listVisible && !this.data.wetalkItems.length) {
-        void this.loadWetalkList();
-      }
-    } else {
+    if (shouldBlockWetalkForNonEmployee()) {
       this.setData({ wetalkFeatured: null });
     }
     const pendingMap = wx.getStorageSync('kbLifeOpenCampusMap') as string | undefined;
@@ -140,23 +134,6 @@ Page({
     }
   },
 
-  async loadWetalkList() {
-    this.setData({ listStatus: 'loading', listErrorText: '' });
-    try {
-      const items = await getWetalkIssues();
-      this.setData({
-        wetalkItems: items,
-        wetalkFeatured: items[0] ?? null,
-        listStatus: items.length ? 'success' : 'empty',
-      });
-    } catch (error) {
-      this.setData({
-        listStatus: 'error',
-        listErrorText: error instanceof RequestError ? error.message : 'WeTalk 列表加载失败',
-      });
-    }
-  },
-
   onLocationChange(event: WechatMiniprogram.PickerChange) {
     const index = Number(event.detail.value);
     const selectedLocation = setStoredCampusLocation(
@@ -169,15 +146,12 @@ Page({
     });
   },
 
-  showCampusDenied() {
-    this.setData({
-      deniedVisible: true,
-      deniedKind: 'campus',
-      listVisible: false,
-      readerVisible: false,
-      readerIssueId: '',
-      navTitle: 'KB Life',
-    });
+  showCampusDenied(title = 'Campus Services') {
+    openAccessDeniedPage({ kind: 'unbound', title, mode: 'navigate' });
+  },
+
+  onGoIdentityBinding() {
+    openIdentityBindingInProfile();
   },
 
   onLifeBannerTap(event: WechatMiniprogram.TouchEvent) {
@@ -187,7 +161,7 @@ Page({
       return;
     }
     if (banner.careId && shouldBlockCampusServicesForVisitor()) {
-      wx.showToast({ title: '请先完成身份绑定', icon: 'none' });
+      openAccessDeniedPage({ kind: 'unbound', title: 'Employee Care', mode: 'navigate' });
       return;
     }
     if (banner.targetUrl?.startsWith('/')) {
@@ -204,7 +178,13 @@ Page({
   onCampusTap(event: WechatMiniprogram.TouchEvent) {
     const { id } = event.currentTarget.dataset as { id?: string };
     if (isVisitorRestrictedCampusService(id) && shouldBlockCampusServicesForVisitor()) {
-      this.showCampusDenied();
+      const titles: Record<string, string> = {
+        'campus-map': 'Campus Map',
+        'shuttle-bus': 'Shuttle Bus',
+        cafeteria: 'Canteen',
+        holiday: 'Holiday',
+      };
+      this.showCampusDenied(titles[id || ''] || 'Campus Services');
       return;
     }
     if (id === 'campus-map') {
@@ -255,7 +235,7 @@ Page({
   onEmployeeTap(event: WechatMiniprogram.TouchEvent) {
     const { id } = event.currentTarget.dataset as { id?: string };
     if (id === 'care' && shouldBlockCampusServicesForVisitor()) {
-      wx.showToast({ title: '请先完成身份绑定', icon: 'none' });
+      openAccessDeniedPage({ kind: 'unbound', title: 'Employee Care', mode: 'navigate' });
       return;
     }
     const target = this.data.employeeServices.find((item) => item.id === id);
@@ -268,73 +248,19 @@ Page({
 
   onWetalkTap() {
     if (shouldBlockWetalkForNonEmployee()) {
-      this.setData({
-        deniedVisible: true,
-        deniedKind: 'wetalk',
-        listVisible: false,
-        readerVisible: false,
-        readerIssueId: '',
-        navTitle: 'WeTalk E-Magazine',
-      });
+      openAccessDeniedPage({ kind: 'employee', title: 'WeTalk', mode: 'navigate' });
       return;
     }
-    const featured = this.data.wetalkFeatured;
-    if (featured) {
-      this.setData({
-        readerVisible: true,
-        readerIssueId: featured.id,
-        readerSource: 'wetalk',
-        deniedVisible: false,
-        listVisible: false,
-        shareTitle: featured.title,
-        shareImage: featured.image,
-        navTitle: 'WeTalk E-Magazine',
-      });
-      return;
-    }
-    this.setData({
-      listVisible: true,
-      deniedVisible: false,
-      readerVisible: false,
-      readerIssueId: '',
-      navTitle: 'WeTalk E-Magazine',
-    });
-    void this.loadWetalkList();
-  },
-
-  onWetalkIssueTap(event: WechatMiniprogram.TouchEvent) {
-    const { id } = event.currentTarget.dataset as { id?: string };
-    if (!id) {
-      return;
-    }
-    if (shouldBlockWetalkForNonEmployee()) {
-      this.setData({
-        deniedVisible: true,
-        deniedKind: 'wetalk',
-        listVisible: false,
-        readerVisible: false,
-        readerIssueId: '',
-      });
-      return;
-    }
-    const issue = this.data.wetalkItems.find((item) => item.id === id);
-    this.setData({
-      readerVisible: true,
-      readerIssueId: id,
-      readerSource: 'wetalk',
-      shareTitle: issue?.title || 'WeTalk E-Magazine',
-      shareImage: issue?.image || '',
-    });
+    wx.navigateTo({ url: '/subpackages/kb-life/wetalk/index' });
   },
 
   onReaderClose() {
-    // 阅读器关闭后若已回到主页，需把导航标题从 WeTalk / 地图改回 KB Life
-    const stayInWetalk = this.data.listVisible || this.data.deniedVisible;
+    // 阅读器关闭后把导航标题从地图等改回 KB Life
     this.setData({
       readerVisible: false,
       readerIssueId: '',
       readerSource: 'wetalk',
-      navTitle: stayInWetalk ? 'WeTalk E-Magazine' : 'KB Life',
+      navTitle: 'KB Life',
     });
   },
 

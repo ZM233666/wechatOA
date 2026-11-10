@@ -11,7 +11,7 @@ Page({
   },
 
   onLoad() {
-    if (rejectUnboundIdentityAccess()) {
+    if (rejectUnboundIdentityAccess('/pages/services/index', 'My Dashboard')) {
       return;
     }
     void this.loadModules();

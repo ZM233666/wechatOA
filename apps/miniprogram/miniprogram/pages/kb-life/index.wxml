@@ -1,16 +1,18 @@
 <view class="page page--life {{readerVisible ? 'page--life-reading' : ''}}">
   <nav-brand
+    wx:if="{{!readerVisible}}"
     title="{{navTitle}}"
-    show-back="{{(listVisible || deniedVisible) && !readerVisible}}"
-    back-as-event="{{listVisible || deniedVisible}}"
+    show-back="{{deniedVisible}}"
+    back-as-event="{{deniedVisible}}"
     bind:back="onListBack"
   ></nav-brand>
 
   <insight-reader
-    visible="{{readerVisible}}"
+    wx:if="{{readerVisible}}"
+    visible="{{true}}"
     report-id="{{readerIssueId}}"
     source="{{readerSource}}"
-    with-tab-bar="{{true}}"
+    has-nav-bar="{{false}}"
     bind:close="onReaderClose"
   ></insight-reader>
 
@@ -28,34 +30,12 @@
       <text class="wetalk-denied__desc">此功能仅面向KB员工开放。</text>
       <text class="wetalk-denied__desc-en">This feature is only open to KB employees.</text>
     </block>
-  </view>
-
-  <view wx:if="{{!readerVisible && listVisible}}" class="wetalk-panel">
-    <empty-state wx:if="{{listStatus === 'loading'}}" title="正在加载 WeTalk"></empty-state>
-    <empty-state wx:elif="{{listStatus === 'error'}}" title="加载失败" description="{{listErrorText}}"></empty-state>
-    <empty-state wx:elif="{{listStatus === 'empty'}}" title="暂无电子杂志"></empty-state>
-    <view wx:if="{{listStatus === 'success'}}" class="wetalk-panel__grid">
-      <view
-        class="wetalk-issue tap-feedback"
-        wx:for="{{wetalkItems}}"
-        wx:key="id"
-        data-id="{{item.id}}"
-        bindtap="onWetalkIssueTap"
-      >
-        <view class="wetalk-issue__cover">
-          <image class="wetalk-issue__image" src="{{item.image}}" mode="aspectFill"></image>
-          <view class="wetalk-issue__mask"></view>
-          <text class="wetalk-issue__badge">WeTalk</text>
-        </view>
-        <view class="wetalk-issue__meta">
-          <text class="wetalk-issue__title">{{item.title}}</text>
-          <text class="wetalk-issue__date">{{item.date}}</text>
-        </view>
-      </view>
+    <view class="wetalk-denied__btn tap-feedback" bindtap="onGoIdentityBinding">
+      <text class="wetalk-denied__btn-text">前往身份绑定</text>
     </view>
   </view>
 
-  <view wx:if="{{!readerVisible && !listVisible && !deniedVisible}}" class="life">
+  <view wx:if="{{!readerVisible && !deniedVisible}}" class="life">
     <empty-state wx:if="{{pageStatus === 'loading'}}" title="正在加载 KB Life"></empty-state>
     <empty-state wx:elif="{{pageStatus === 'error'}}" title="加载失败" description="{{errorText}}"></empty-state>
     <block wx:if="{{pageStatus === 'success'}}">

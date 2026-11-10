@@ -3,7 +3,8 @@
     "pages/index/index",
     "pages/services/index",
     "pages/kb-life/index",
-    "pages/profile/index"
+    "pages/profile/index",
+    "pages/access-denied/index"
   ],
   "subPackages": [
     {
@@ -32,6 +33,8 @@
         "financial-handbook/document/index",
         "care/index",
         "care/detail",
+        "wetalk/index",
+        "wetalk/detail",
         "events/index",
         "events/highlight-moments/index",
         "events/highlight-moments/album/index"

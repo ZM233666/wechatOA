@@ -8,6 +8,7 @@ import {
 } from './services/minio-pdf.service';
 import { isArticleNewsEnabled } from './services/article-content.client';
 import { getArticleNewsStatus, syncArticleNews } from './services/article-news.service';
+import { getArticleWetalkStatus, syncArticleWetalk } from './services/article-wetalk.service';
 import { isBrandIntroEnabled } from './services/brand-intro.client';
 import { getBrandIntroStatus, syncBrandIntro } from './services/brand-intro.service';
 import { logError, logInfo, logWarn } from './utils/logger';
@@ -104,6 +105,36 @@ async function bootstrap(): Promise<void> {
     const message = error instanceof Error ? error.message : 'Unknown fixture error';
     logError(message);
     process.exit(1);
+  }
+
+  // WeTalk News 需在 PDF fixture 就绪后同步，才能给 PDF 文稿匹配封面/渲页
+  if (isArticleNewsEnabled()) {
+    logInfo('Syncing WeTalk news from article-content before boot', {
+      base: mockEnv.NEWS_ARTICLE_API_BASE_URL,
+      includeDrafts: mockEnv.NEWS_ARTICLE_INCLUDE_DRAFTS,
+    });
+    const maxAttempts = 3;
+    for (let attempt = 1; attempt <= maxAttempts; attempt += 1) {
+      await syncArticleWetalk({ force: true });
+      const wetalkStatus = getArticleWetalkStatus();
+      if (!wetalkStatus.lastError) {
+        logInfo('WeTalk news ready', { count: wetalkStatus.count, attempt });
+        break;
+      }
+      if (attempt < maxAttempts) {
+        const waitMs = attempt * 1000;
+        logWarn('WeTalk news sync failed; retrying', {
+          attempt,
+          waitMs,
+          message: wetalkStatus.lastError,
+        });
+        await new Promise((resolve) => setTimeout(resolve, waitMs));
+        continue;
+      }
+      logWarn('WeTalk news sync reported error; /kb-life/wetalk will fall back to PDF catalog', {
+        message: wetalkStatus.lastError,
+      });
+    }
   }
 
   const app = createApp();

@@ -46,7 +46,7 @@ Page({
   },
 
   onLoad(query: Record<string, string | undefined>) {
-    if (rejectVisitorCampusAccess()) {
+    if (rejectVisitorCampusAccess('Shuttle Bus')) {
       return;
     }
     this.location = resolveCampusLocation(query.location);

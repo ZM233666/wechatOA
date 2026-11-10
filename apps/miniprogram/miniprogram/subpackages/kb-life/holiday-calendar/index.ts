@@ -45,7 +45,7 @@ Page({
   },
 
   onLoad(query: Record<string, string | undefined>) {
-    if (rejectVisitorCampusAccess()) {
+    if (rejectVisitorCampusAccess('Holiday')) {
       return;
     }
     this.location = resolveCampusLocation(query.location);

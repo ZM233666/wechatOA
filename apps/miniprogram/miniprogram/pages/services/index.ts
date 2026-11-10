@@ -6,7 +6,10 @@ import {
   type ServiceHeroCard,
 } from '../../services/services.service';
 import { RequestError } from '../../types/api';
-import { shouldBlockMyDashboardForUnbound } from '../../utils/identity-access';
+import {
+  openAccessDeniedPage,
+  shouldBlockMyDashboardForUnbound,
+} from '../../utils/identity-access';
 import {
   bindIdentitySessionRefresh,
   refreshIfIdentitySessionChanged,
@@ -146,7 +149,7 @@ Page({
     const { id } = event.currentTarget.dataset as { id?: string };
     if (id === 'fast-phm') {
       if (shouldBlockMyDashboardForUnbound()) {
-        wx.showToast({ title: '请先完成身份绑定', icon: 'none' });
+        openAccessDeniedPage({ kind: 'unbound', title: 'My Dashboard', mode: 'navigate' });
         return;
       }
       wx.navigateTo({ url: MY_DASHBOARD_PAGE_PATH });

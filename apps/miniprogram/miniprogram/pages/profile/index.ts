@@ -14,6 +14,7 @@ import {
 } from '../../services/profile.service';
 import { RequestError } from '../../types/api';
 import { fallbackImageUrl, formatDisplayDate } from '../../utils/format';
+import { PROFILE_OPEN_IDENTITY_BINDING_KEY } from '../../utils/identity-access';
 
 function isCompanyEmail(value: string): boolean {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value.trim());
@@ -50,6 +51,9 @@ Page({
   },
 
   onShow() {
+    if (this.consumeOpenIdentityBindingRequest()) {
+      return;
+    }
     const { settingView } = this.data;
     if (settingView === 'main') {
       void this.syncIdentityAndProfile();
@@ -62,6 +66,31 @@ Page({
     if (settingView === 'identity-binding') {
       void this.loadIdentityBindingState();
     }
+  },
+
+  /** 无权限页「前往身份绑定」：switchTab 后打开身份绑定视图 */
+  consumeOpenIdentityBindingRequest(): boolean {
+    let pending = '';
+    try {
+      pending = String(wx.getStorageSync(PROFILE_OPEN_IDENTITY_BINDING_KEY) || '');
+      if (pending) {
+        wx.removeStorageSync(PROFILE_OPEN_IDENTITY_BINDING_KEY);
+      }
+    } catch {
+      pending = '';
+    }
+    if (!pending) {
+      return false;
+    }
+    this.setData({
+      settingView: 'identity-binding',
+      navTitle: '身份绑定',
+      bindCompanyEmail: '',
+      bindEmailError: '',
+      bindSheetVisible: false,
+    });
+    void this.loadIdentityBindingState();
+    return true;
   },
 
   applyIdentityBindingRecord(record: IdentityBindingRecord | null) {
@@ -188,7 +217,7 @@ Page({
   async onSubmitBindEmail() {
     const email = this.data.bindCompanyEmail.trim();
     if (!email) {
-      this.setData({ bindEmailError: '请输入公司邮箱' });
+      this.setData({ bindEmailError: '请输入登记邮箱' });
       return;
     }
     if (!isCompanyEmail(email)) {

@@ -81,7 +81,56 @@ export function shouldBlockGatedInsightForUnbound(gating = false): boolean {
   return gating && !isIdentityBound();
 }
 
+/** Setting Tab 打开「身份绑定」视图的一次性标记 */
+export const PROFILE_OPEN_IDENTITY_BINDING_KEY = 'profileOpenIdentityBinding';
+
+export type AccessDeniedKind = 'unbound' | 'employee';
+
+export function buildAccessDeniedUrl(options?: {
+  kind?: AccessDeniedKind;
+  title?: string;
+}): string {
+  const kind = options?.kind === 'employee' ? 'employee' : 'unbound';
+  const title = (options?.title || '').trim();
+  const query = [`kind=${kind}`];
+  if (title) {
+    query.push(`title=${encodeURIComponent(title)}`);
+  }
+  return `/pages/access-denied/index?${query.join('&')}`;
+}
+
+/** 跳转通用无权限提示页（含「前往身份绑定」按钮） */
+export function openAccessDeniedPage(options?: {
+  kind?: AccessDeniedKind;
+  title?: string;
+  /** 默认 redirectTo，避免返回键回到无权限内容页 */
+  mode?: 'navigate' | 'redirect';
+}): void {
+  const url = buildAccessDeniedUrl(options);
+  if (options?.mode === 'navigate') {
+    wx.navigateTo({
+      url,
+      fail: () => wx.redirectTo({ url }),
+    });
+    return;
+  }
+  wx.redirectTo({
+    url,
+    fail: () =>
+      wx.navigateTo({
+        url,
+        fail: () => wx.switchTab({ url: '/pages/profile/index' }),
+      }),
+  });
+}
+
+/** 打开 Setting Tab 并进入身份绑定页 */
 export function openIdentityBindingInProfile(): void {
+  try {
+    wx.setStorageSync(PROFILE_OPEN_IDENTITY_BINDING_KEY, '1');
+  } catch {
+    // ignore storage failures; still switch to Setting
+  }
   wx.switchTab({ url: '/pages/profile/index' });
 }
 
@@ -93,36 +142,29 @@ export function shouldBlockMyDashboardForUnbound(): boolean {
   return !isIdentityBound();
 }
 
-/** 独立子页入口拦截（My Dashboard 等） */
-export function rejectUnboundIdentityAccess(fallbackTab = '/pages/services/index'): boolean {
+/** 独立子页入口拦截（My Dashboard / Employee Care 等） */
+export function rejectUnboundIdentityAccess(
+  _fallbackTab = '/pages/services/index',
+  title = '',
+): boolean {
   if (!shouldBlockMyDashboardForUnbound()) {
     return false;
   }
-  wx.showToast({ title: '请先完成身份绑定', icon: 'none' });
-  setTimeout(() => {
-    wx.navigateBack({
-      fail: () => wx.switchTab({ url: fallbackTab }),
-    });
-  }, 300);
+  openAccessDeniedPage({ kind: 'unbound', title });
   return true;
 }
 
-function rejectWhenEmployeeGated(shouldBlock: () => boolean): boolean {
+function rejectWhenEmployeeGated(shouldBlock: () => boolean, title = ''): boolean {
   if (!shouldBlock()) {
     return false;
   }
-  wx.showToast({ title: '请先绑定员工身份', icon: 'none' });
-  setTimeout(() => {
-    wx.navigateBack({
-      fail: () => openIdentityBindingInProfile(),
-    });
-  }, 300);
+  openAccessDeniedPage({ kind: 'employee', title });
   return true;
 }
 
 /** WeTalk / 仍要求 Employee 的子页入口拦截 */
-export function rejectEmployeeOnlyAccess(): boolean {
-  return rejectWhenEmployeeGated(shouldBlockWetalkForNonEmployee);
+export function rejectEmployeeOnlyAccess(title = 'WeTalk'): boolean {
+  return rejectWhenEmployeeGated(shouldBlockWetalkForNonEmployee, title);
 }
 
 /** 指导文件相关页入口拦截（develop 不拦截访客） */

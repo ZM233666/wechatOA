@@ -1,4 +1,5 @@
 import {
+  openAccessDeniedPage,
   shouldBlockCampusServicesForUnbound,
 } from './identity-access';
 
@@ -19,13 +20,10 @@ export function isVisitorRestrictedCampusService(id?: string): boolean {
 }
 
 /** 独立子页入口拦截：返回 true 表示已拒绝并应中止加载 */
-export function rejectVisitorCampusAccess(): boolean {
+export function rejectVisitorCampusAccess(title = ''): boolean {
   if (!shouldBlockCampusServicesForVisitor()) {
     return false;
   }
-  wx.showToast({ title: '请先完成身份绑定', icon: 'none' });
-  setTimeout(() => {
-    wx.navigateBack({ fail: () => wx.switchTab({ url: '/pages/kb-life/index' }) });
-  }, 300);
+  openAccessDeniedPage({ kind: 'unbound', title });
   return true;
 }

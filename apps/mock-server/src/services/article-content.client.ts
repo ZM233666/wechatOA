@@ -22,6 +22,12 @@ export type ArticleContentRow = {
   create_datetime?: string;
   update_datetime?: string;
   volume_no?: string;
+  /** WeTalk PDF 文稿：有值则为 PDF 类型 */
+  pdf_file?: number | string | null;
+  pdf_url?: string | null;
+  pdf_file_name?: string | null;
+  render_mode?: string;
+  content_source?: string;
   attachments?: Array<{
     url?: string;
     attachment_type?: string;
@@ -144,11 +150,13 @@ export async function fetchArticleContentList(options?: {
   status?: string;
   page?: number;
   limit?: number;
+  /** 默认 article；WeTalk News 用 wetalk */
+  contentType?: string;
 }): Promise<ArticleContentRow[]> {
   const page = options?.page ?? 1;
   const limit = options?.limit ?? 50;
   const params = new URLSearchParams({
-    content_type: 'article',
+    content_type: options?.contentType || 'article',
     page: String(page),
     limit: String(limit),
   });
@@ -183,6 +191,26 @@ export async function fetchNewsArticlesFromBackend(): Promise<ArticleContentRow[
     limit: mockEnv.NEWS_ARTICLE_LIMIT,
   });
   logInfo('Fetched article-content rows', { count: rows.length, includeDrafts: false });
+  return rows;
+}
+
+/** WeTalk News：管理端 content_type=wetalk */
+export async function fetchWetalkArticlesFromBackend(): Promise<ArticleContentRow[]> {
+  const includeDrafts = mockEnv.NEWS_ARTICLE_INCLUDE_DRAFTS;
+  if (includeDrafts) {
+    const rows = await fetchArticleContentList({
+      contentType: 'wetalk',
+      limit: mockEnv.NEWS_ARTICLE_LIMIT,
+    });
+    logInfo('Fetched wetalk article-content rows', { count: rows.length, includeDrafts: true });
+    return rows;
+  }
+  const rows = await fetchArticleContentList({
+    contentType: 'wetalk',
+    status: 'published',
+    limit: mockEnv.NEWS_ARTICLE_LIMIT,
+  });
+  logInfo('Fetched wetalk article-content rows', { count: rows.length, includeDrafts: false });
   return rows;
 }
 

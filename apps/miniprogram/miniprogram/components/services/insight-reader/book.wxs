@@ -1,0 +1,147 @@
+/**
+ * 翻书手势（UI 线程跟手）
+ * transform 直接 setStyle，不走 setData
+ */
+function clamp(v, min, max) {
+  if (v < min) return min
+  if (v > max) return max
+  return v
+}
+
+function applyLeaf(instance, deg, hard, origin) {
+  if (!instance) return
+  instance.setStyle({
+    transform: 'rotateY(' + deg + 'deg)',
+    'transform-origin': origin || 'left center',
+    transition: hard ? 'transform 280ms cubic-bezier(0.25, 0.8, 0.25, 1)' : 'none'
+  })
+}
+
+function touchStart(event, ownerInstance) {
+  var state = ownerInstance.getState()
+  if (state.locked) return
+  var touch = event.touches[0]
+  if (!touch) return
+  state.active = true
+  state.dragging = false
+  state.direction = ''
+  state.startX = touch.clientX
+  state.startY = touch.clientY
+  state.startTime = Date.now()
+  state.progress = 0
+  applyLeaf(event.instance, 0, false, 'left center')
+}
+
+function touchMove(event, ownerInstance) {
+  var state = ownerInstance.getState()
+  if (!state.active || state.locked) return
+  var touch = event.touches[0]
+  if (!touch) return
+
+  var dx = touch.clientX - state.startX
+  var dy = touch.clientY - state.startY
+
+  // 纵向意图：放弃翻页，把滚动还给系统，避免 touchcancel 冲突
+  if (!state.dragging && Math.abs(dy) > 12 && Math.abs(dy) > Math.abs(dx) * 1.1) {
+    state.active = false
+    state.dragging = false
+    return
+  }
+  if (!state.dragging && Math.abs(dx) < 8) return
+  state.dragging = true
+
+  var direction = dx < 0 ? 'next' : 'prev'
+  if (direction === 'next' && !state.canNext) {
+    dx = clamp(dx, -28, 0)
+  } else if (direction === 'prev' && !state.canPrev) {
+    dx = clamp(dx, 0, 28)
+  }
+
+  if (state.direction !== direction) {
+    state.direction = direction
+    ownerInstance.callMethod('onBookDirLock', { direction: direction })
+  }
+
+  var progress = clamp(Math.abs(dx) / 190, 0, 1)
+  var origin = direction === 'next' ? 'left center' : 'right center'
+  var deg = direction === 'next' ? -progress * 58 : progress * 58
+  state.progress = progress
+  applyLeaf(event.instance, deg, false, origin)
+}
+
+function touchEnd(event, ownerInstance) {
+  var state = ownerInstance.getState()
+  if (!state.active || state.locked) return
+
+  var touch = event.changedTouches[0]
+  var dx = touch ? touch.clientX - state.startX : 0
+  var elapsed = Math.max(Date.now() - (state.startTime || Date.now()), 1)
+  var velocity = dx / elapsed
+  var progress = state.progress || 0
+  var direction = state.direction || (dx < 0 ? 'next' : 'prev')
+  var origin = direction === 'next' ? 'left center' : 'right center'
+
+  if (!state.dragging) {
+    state.active = false
+    return
+  }
+
+  var shouldFlip =
+    progress >= 0.2 ||
+    Math.abs(dx) >= 44 ||
+    (direction === 'next' && velocity < -0.35) ||
+    (direction === 'prev' && velocity > 0.35)
+
+  if (
+    shouldFlip &&
+    ((direction === 'next' && state.canNext) || (direction === 'prev' && state.canPrev))
+  ) {
+    state.locked = true
+    state.active = false
+    state.dragging = false
+    applyLeaf(event.instance, direction === 'next' ? -86 : 86, true, origin)
+    ownerInstance.callMethod('onBookFlipCommit', { direction: direction })
+    return
+  }
+
+  state.active = false
+  state.dragging = false
+  applyLeaf(event.instance, 0, true, origin)
+  ownerInstance.callMethod('onBookFlipCancel', {})
+}
+
+/** 系统滚动等触发的 touchcancel：不可 preventDefault，只做软复位 */
+function touchCancel(event, ownerInstance) {
+  var state = ownerInstance.getState()
+  if (state.locked) return
+  state.active = false
+  state.dragging = false
+  state.direction = ''
+  state.progress = 0
+  applyLeaf(event.instance, 0, false, 'left center')
+  ownerInstance.callMethod('onBookFlipCancel', {})
+}
+
+function syncProps(newValue, oldValue, ownerInstance, instance) {
+  var state = ownerInstance.getState()
+  if (!newValue) return
+  state.canNext = !!newValue.canNext
+  state.canPrev = !!newValue.canPrev
+  if (newValue.resetToken !== state.resetToken) {
+    state.resetToken = newValue.resetToken
+    state.locked = false
+    state.active = false
+    state.dragging = false
+    state.direction = ''
+    state.progress = 0
+    applyLeaf(instance, 0, false, 'left center')
+  }
+}
+
+module.exports = {
+  touchStart: touchStart,
+  touchMove: touchMove,
+  touchEnd: touchEnd,
+  touchCancel: touchCancel,
+  syncProps: syncProps
+}

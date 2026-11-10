@@ -340,11 +340,16 @@ export function filterShuttleRoutes(routes: ShuttleRoute[], keyword: string): Sh
   });
 }
 
+export type WetalkContentKind = 'article' | 'pdf';
+
 export interface WetalkCover {
   id: string;
   title: string;
   date: string;
   image: string;
+  /** article=图文；pdf=PDF 文稿 */
+  kind: WetalkContentKind;
+  kindLabel: string;
 }
 
 interface WetalkIssueDto {
@@ -375,18 +380,81 @@ export async function getWetalkIssues(): Promise<WetalkCover[]> {
   if (!isEmployeeIdentity()) {
     return [];
   }
-  return withRequestCache('wetalk:list', 60_000, async () => {
-    const data = await get<{ items: Array<Omit<WetalkIssueDto, 'pages'>> }>(
-      API_ENDPOINTS.kbLifeWetalk,
-      await withIdentityQuery({}),
-    );
-    return data.items.map((item) => ({
-      id: item.id,
-      title: item.title,
-      date: item.date,
-      image: toAssetUrl(item.coverImage),
-    }));
+  return withRequestCache('wetalk:list', 15_000, async () => {
+    const data = await get<{
+      items: Array<
+        Omit<WetalkIssueDto, 'pages'> & {
+          pages?: WetalkIssueDto['pages'];
+          kind?: WetalkContentKind;
+          pdfUrl?: string;
+        }
+      >;
+    }>(API_ENDPOINTS.kbLifeWetalk, await withIdentityQuery({}));
+    return (data.items || []).map((item) => {
+      const kind: WetalkContentKind =
+        item.kind === 'pdf' || Boolean(item.pdfUrl) || String(item.id).startsWith('pdf-')
+          ? 'pdf'
+          : 'article';
+      return {
+        id: item.id,
+        title: item.title,
+        date: item.date,
+        image: toAssetUrl(item.coverImage),
+        kind,
+        kindLabel: kind === 'pdf' ? 'PDF' : 'Article',
+      };
+    });
   });
+}
+
+export interface WetalkNewsDetailView {
+  id: string;
+  title: string;
+  category: string;
+  date: string;
+  author: string;
+  dateLabel: string;
+  image: string;
+  contentHtml: string;
+  richContent: ArticleContentBlock[];
+  bodyFormat?: 'html' | 'blocks';
+}
+
+/** WeTalk News 文章详情（管理端 content_type=wetalk） */
+export async function getWetalkNewsDetail(id: string): Promise<WetalkNewsDetailView> {
+  if (!isEmployeeIdentity()) {
+    throw new RequestError('此功能仅面向 KB 员工');
+  }
+  const data = await get<{
+    id: string;
+    title: string;
+    category: string;
+    date: string;
+    author?: string;
+    contentHtml: string;
+    coverImage?: ImageResource;
+    richContent?: ArticleContentBlock[];
+    bodyFormat?: 'html' | 'blocks';
+    pages?: WetalkIssueDto['pages'];
+    pdfUrl?: string;
+  }>(API_ENDPOINTS.kbLifeWetalkDetail(id), await withIdentityQuery({}));
+  // PDF 期次无 contentHtml：不是 News 文章
+  if (Array.isArray(data.pages) || data.pdfUrl) {
+    throw new RequestError('该内容为电子杂志，请从 Magazine 入口阅读', 404);
+  }
+  const author = (data.author || '').trim();
+  return {
+    id: data.id,
+    title: data.title,
+    category: data.category || 'WeTalk',
+    date: data.date,
+    author,
+    dateLabel: [author, data.date].filter(Boolean).join(' · '),
+    contentHtml: data.contentHtml || '',
+    richContent: data.richContent ?? [],
+    bodyFormat: data.bodyFormat,
+    image: data.coverImage ? toAssetUrl(data.coverImage) : '',
+  };
 }
 
 /** 映射为 InsightReportView，复用 insight-reader（含 PDF→sheet） */
@@ -399,6 +467,9 @@ export async function getWetalkIssueAsReport(id: string): Promise<InsightReportV
       API_ENDPOINTS.kbLifeWetalkDetail(id),
       await withIdentityQuery({}),
     );
+    if (!data.pages?.length && !data.pdfUrl) {
+      throw new RequestError('WeTalk 期次缺少可读内容', 404);
+    }
     return {
       id: data.id,
       title: data.title,
@@ -409,7 +480,7 @@ export async function getWetalkIssueAsReport(id: string): Promise<InsightReportV
       image: toAssetUrl(data.coverImage),
       gating: false,
       pdfUrl: data.pdfUrl,
-      pages: data.pages.map((page) => ({
+      pages: (data.pages || []).map((page) => ({
         id: page.id,
         type: page.type,
         title: page.title,
