@@ -1,9 +1,10 @@
 import type { ImageResource } from '../types/content';
 import { MY_DASHBOARD_MODULES } from '../mock/services';
 import { toAssetUrl } from '../utils/format';
+import { getIdentitySessionRevision } from './identity-session.service';
 import { API_ENDPOINTS } from './endpoints';
 import { getLoginCodeQueryParams } from './identity-binding.service';
-import { get, withRequestCache } from './request';
+import { get, withRequestCache, withStaleWhileRevalidate } from './request';
 
 export interface ServiceHeroCard {
   id: string;
@@ -182,21 +183,29 @@ export async function getServices(): Promise<{
   heroCards: ServiceHeroCard[];
   insightCovers: InsightCover[];
 }> {
-  const data = await get<ServicesPageDto>(API_ENDPOINTS.services);
-  return {
-    heroCards: data.heroCards.map((item) => ({
-      id: item.id,
-      title: item.title,
-      subtitle: item.subtitle,
-      footerTitle: item.footerTitle,
-      footerHint: item.footerHint,
-      image: toAssetUrl(item.coverImage),
-      icon: toAssetUrl(item.icon),
-      iconTone: item.iconTone,
-      showOnline: item.showOnline,
-    })),
-    insightCovers: data.insightCovers.map((item) => mapInsightCover(item)),
-  };
+  const identityRevision = getIdentitySessionRevision();
+  return withStaleWhileRevalidate(
+    `services:${identityRevision}`,
+    30_000,
+    2 * 60_000,
+    async () => {
+      const data = await get<ServicesPageDto>(API_ENDPOINTS.services);
+      return {
+        heroCards: data.heroCards.map((item) => ({
+          id: item.id,
+          title: item.title,
+          subtitle: item.subtitle,
+          footerTitle: item.footerTitle,
+          footerHint: item.footerHint,
+          image: toAssetUrl(item.coverImage),
+          icon: toAssetUrl(item.icon),
+          iconTone: item.iconTone,
+          showOnline: item.showOnline,
+        })),
+        insightCovers: data.insightCovers.map((item) => mapInsightCover(item)),
+      };
+    },
+  );
 }
 
 export async function getInsightReports(): Promise<InsightCover[]> {

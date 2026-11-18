@@ -73,7 +73,11 @@
         bindchange="onSwiperChange"
       >
         <swiper-item wx:for="{{pages}}" wx:key="id">
-          <view class="insight-reader__page-wrap">
+          <!-- 只挂载当前页及相邻页，避免地图打开时同时下载和解码全部大图。 -->
+          <view
+            wx:if="{{index >= current - 1 && index <= current + 1}}"
+            class="insight-reader__page-wrap"
+          >
             <reader-page page="{{item}}" isMapMode="{{isMapMode}}"></reader-page>
           </view>
         </swiper-item>

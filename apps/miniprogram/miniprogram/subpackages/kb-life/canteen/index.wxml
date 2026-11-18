@@ -54,6 +54,7 @@
             class="menu-section__image"
             src="{{imageUrl}}"
             mode="widthFix"
+            lazy-load="{{true}}"
           ></image>
         </view>
       </view>

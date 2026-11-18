@@ -22,7 +22,7 @@
           bindtap="onReadMore"
         >
           <view wx:if="{{item.image}}" class="care-card__cover">
-            <image class="care-card__image" src="{{item.image}}" mode="aspectFill"></image>
+            <image class="care-card__image" src="{{item.image}}" mode="aspectFill" lazy-load="{{true}}"></image>
             <text class="care-card__badge">{{item.category}}</text>
           </view>
           <view class="care-card__body">

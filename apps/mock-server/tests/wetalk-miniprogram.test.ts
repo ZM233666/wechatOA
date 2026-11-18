@@ -12,6 +12,23 @@ const downloadFile = vi.fn();
 let loginCode = 'test-only-code';
 let clock = Date.now();
 const openRemotePdf = vi.fn();
+const responseCache = new Map<string, { value: unknown; expiresAt: number }>();
+const invalidateRequestCache = vi.fn((prefix?: string) => {
+  for (const key of responseCache.keys()) {
+    if (!prefix || key.startsWith(prefix)) responseCache.delete(key);
+  }
+});
+async function withRequestCache<T>(
+  key: string,
+  ttlMs: number,
+  loader: () => Promise<T>,
+): Promise<T> {
+  const cached = responseCache.get(key);
+  if (cached && cached.expiresAt > clock) return cached.value as T;
+  const value = await loader();
+  responseCache.set(key, { value, expiresAt: clock + ttlMs });
+  return value;
+}
 class TestRequestError extends Error {
   constructor(message: string, readonly statusCode?: number) { super(message); }
 }
@@ -30,13 +47,15 @@ const dependencies: Record<string, unknown> = {
     getCurrentEnvVersion: () => 'develop',
     isForbiddenProductionApiBaseUrl: () => false,
   },
-  './request': { get: request }, './endpoints': { API_ENDPOINTS: endpoints },
+  './request': { get: request, invalidateRequestCache, withRequestCache },
+  './endpoints': { API_ENDPOINTS: endpoints },
   './identity-binding.service': { getLoginCodeQueryParams: async () => ({ loginCode }) },
   '../utils/open-remote-pdf': { openRemotePdf }, '../types/api': { RequestError: TestRequestError },
 };
 const serviceSource = readFileSync(resolve(miniRoot, 'services/wetalk.service.ts'), 'utf8');
 const serviceExports = {} as {
   getWetalkIssues: () => Promise<Array<Record<string, unknown>>>;
+  getWetalkFeatured: () => Promise<Record<string, unknown> | null>;
   getWetalkMagazines: () => Promise<Array<Record<string, unknown>>>;
   getWetalkDetail: (type: string, id: string) => Promise<Record<string, unknown>>;
   openWetalkPdf: (type: string, id: string) => Promise<void>;
@@ -54,13 +73,30 @@ runInNewContext(ts.transpileModule(serviceSource, { compilerOptions: {
     return dependencies[id];
   },
 });
-const { getWetalkIssues, getWetalkMagazines, getWetalkDetail, openWetalkPdf } = serviceExports;
+const { getWetalkFeatured, getWetalkIssues, getWetalkMagazines, getWetalkDetail, openWetalkPdf } =
+  serviceExports;
 const item = { id: 12, type: 'news', title: 'test', volumeNo: '2024-01', summary: '', author: '',
   coverUrl: 'https://assets.test/cover.png', pdfUrl: 'https://assets.test/report.pdf',
   pdfFileName: 'report.pdf', publishTime: '2026-03-16T10:00:00+08:00', views: 0 };
-beforeEach(() => { vi.clearAllMocks(); loginCode = 'test-only-code'; clock = Date.now(); });
+beforeEach(() => {
+  vi.clearAllMocks();
+  responseCache.clear();
+  loginCode = 'test-only-code';
+  clock = Date.now();
+});
 
 describe('WeTalk frontend public contract', () => {
+  it('fetches only the latest item for the KB Life featured card', async () => {
+    request.mockResolvedValueOnce({ items: [item], total: 12, page: 1, limit: 1 });
+    await expect(getWetalkFeatured()).resolves.toMatchObject({ id: '12', type: 'news' });
+    expect(request).toHaveBeenCalledOnce();
+    expect(request).toHaveBeenCalledWith(
+      '/api/wetalk/news/',
+      { page: 1, limit: 1 },
+      { 'X-Login-Code': 'test-only-code' },
+    );
+  });
+
   it('maps camelCase cover/date/volume/type and retains no PDF URL in list cards', async () => {
     request.mockResolvedValueOnce({ items: [item], total: 1, page: 1, limit: 50 });
     const cards = await getWetalkIssues();
@@ -169,13 +205,26 @@ describe('WeTalk page return freshness', () => {
         if (id.endsWith('/services/wetalk.service')) return serviceExports;
         if (id.endsWith('/types/api')) return { RequestError: TestRequestError };
         if (id.endsWith('/utils/identity-access')) return { rejectEmployeeOnlyAccess: gate };
+        if (id.endsWith('/utils/friendly-page-error')) {
+          return {
+            friendlyUnavailablePageData: () => ({
+              pageStatus: 'empty',
+              emptyTitle: '暂无内容',
+              emptyDesc: '',
+              errorText: '',
+            }),
+            logPageLoadIssue: vi.fn(),
+          };
+        }
         throw new Error(`Unexpected page dependency: ${id}`);
       },
     });
     const load = vi.fn();
     const context = { data: { pageStatus: 'success', articleId: '12' }, loadList: load, loadArticle: load };
     const onShow = config.onShow as (this: typeof context) => void;
-    onShow.call(context); expect(load).toHaveBeenCalledTimes(1);
+    onShow.call(context);
+    expect(load).toHaveBeenCalledTimes(1);
+    if (page !== 'detail') expect(load).toHaveBeenCalledWith(true);
     load.mockClear(); context.data.pageStatus = 'loading';
     onShow.call(context); expect(load).not.toHaveBeenCalled();
     context.data.pageStatus = 'success'; gate.mockReturnValueOnce(true);
@@ -196,12 +245,15 @@ describe('WeTalk book manifest frontend adapter', () => {
       coverImage: `/api/wetalk/news/12/reader/pages/${version}/1` });
     expect(request).toHaveBeenCalledWith('/api/wetalk/news/12/reader', undefined, { 'X-Login-Code': 'test-only-code' }, 90000);
   });
-  it('isolates magazine IDs and refreshes the reader manifest on every opening', async () => {
+  it('isolates magazine IDs and reuses the reader manifest during a rapid reopen', async () => {
     request.mockResolvedValue({ ...book, type: 'emagazine' });
     expect((await serviceExports.getWetalkBook('emagazine', '12')).id).toBe('emagazine:12');
     await serviceExports.getWetalkBook('emagazine', '12');
-    expect(request).toHaveBeenCalledTimes(2);
+    expect(request).toHaveBeenCalledTimes(1);
     expect(request.mock.calls[0][0]).toBe('/api/wetalk/emagazines/12/reader');
+    clock += 31_000;
+    await serviceExports.getWetalkBook('emagazine', '12');
+    expect(request).toHaveBeenCalledTimes(2);
   });
   it.each([{ ...book, pages: [], pageCount: 0 }, { ...book, pages: book.pages.slice().reverse() },
     { ...book, type: 'emagazine' }, { ...book, version: '../private' }])('rejects invalid/empty/out-of-order manifests', async data => {
@@ -228,6 +280,7 @@ describe('protected image download credentials', () => {
     await expect(serviceExports.downloadWetalkReaderImage(imagePath.replace(/1$/, '2'))).rejects.toMatchObject({ statusCode: 401 });
     downloadFile.mockImplementationOnce((options: { success: (result: unknown) => void }) => options.success({ statusCode: 410 }));
     await expect(serviceExports.downloadWetalkReaderImage(imagePath.replace(/1$/, '3'))).rejects.toThrow('阅读已过期');
+    expect(invalidateRequestCache).toHaveBeenCalledWith('wetalk-book:');
   });
 });
 

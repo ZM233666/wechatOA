@@ -7,6 +7,7 @@ import { logInfo, logWarn } from '../utils/logger';
 
 const ROOT = path.resolve(__dirname, '../../');
 const DEFAULT_SYNC_TTL_MS = 30_000;
+const PDF_DOWNLOAD_CONCURRENCY = 4;
 
 export type MinioPdfCatalogId =
   | 'insights'
@@ -449,17 +450,37 @@ export async function syncPdfCatalogFromMinio(
       const remotes = await listRemoteObjects(client, catalog.getPrefix());
       fs.mkdirSync(catalog.cacheDir, { recursive: true });
 
-      let downloaded = 0;
-      for (const remote of remotes) {
+      const pendingDownloads = remotes.filter((remote) => {
         const localPath = path.join(
           catalog.cacheDir,
           ...remote.fileName.replace(/\\/g, '/').split('/').filter(Boolean),
         );
-        if (!needsDownload(localPath, remote)) {
-          continue;
-        }
-        await downloadObject(client, remote, localPath);
-        downloaded += 1;
+        return needsDownload(localPath, remote);
+      });
+      let downloaded = 0;
+      let nextDownloadIndex = 0;
+      const workers = Array.from(
+        {
+          length: Math.min(PDF_DOWNLOAD_CONCURRENCY, pendingDownloads.length),
+        },
+        async () => {
+          while (nextDownloadIndex < pendingDownloads.length) {
+            const remote = pendingDownloads[nextDownloadIndex];
+            nextDownloadIndex += 1;
+            if (!remote) {
+              return;
+            }
+            const localPath = path.join(
+              catalog.cacheDir,
+              ...remote.fileName.replace(/\\/g, '/').split('/').filter(Boolean),
+            );
+            await downloadObject(client, remote, localPath);
+            downloaded += 1;
+          }
+        },
+      );
+      if (workers.length) {
+        await Promise.all(workers);
       }
 
       const remoteNames = new Set(remotes.map((item) => item.fileName));

@@ -4,6 +4,12 @@ import { buildAuthorizationHeader, clearAccessToken } from './auth-session';
 
 const responseCache = new Map<string, { value: unknown; expiresAt: number }>();
 const inFlightRequests = new Map<string, Promise<unknown>>();
+const getInFlightRequests = new Map<string, Promise<unknown>>();
+const staleResponseCache = new Map<
+  string,
+  { value: unknown; expiresAt: number; staleUntil: number }
+>();
+const staleRefreshRequests = new Map<string, Promise<unknown>>();
 
 function joinUrl(baseUrl: string, path: string): string {
   const normalizedBase = baseUrl.replace(/\/+$/, '');
@@ -144,7 +150,34 @@ export function get<T>(
   header?: Record<string, string>,
   timeout?: number,
 ): Promise<T> {
-  return request<T>({ url, method: 'GET', data, header, timeout });
+  const env = getApiEnvironment();
+  const compactData = compactRequestData(data);
+  const key = JSON.stringify([
+    env.apiBaseUrl,
+    url,
+    compactData ?? null,
+    buildHeader(header),
+    timeout ?? env.timeout,
+  ]);
+  const pending = getInFlightRequests.get(key);
+  if (pending) {
+    return pending as Promise<T>;
+  }
+  const current = request<T>({
+    url,
+    method: 'GET',
+    data: compactData,
+    header,
+    timeout,
+  });
+  getInFlightRequests.set(key, current);
+  const clearPending = () => {
+    if (getInFlightRequests.get(key) === current) {
+      getInFlightRequests.delete(key);
+    }
+  };
+  void current.then(clearPending, clearPending);
+  return current;
 }
 
 export async function withRequestCache<T>(
@@ -176,14 +209,71 @@ export async function withRequestCache<T>(
   return requestPromise;
 }
 
+/**
+ * Fresh 期间直接返回；进入 stale 窗口后立即返回旧值并在后台刷新。
+ * 首次加载或超过 stale 窗口时仍等待请求，避免无限展示过期数据。
+ */
+export async function withStaleWhileRevalidate<T>(
+  key: string,
+  freshTtlMs: number,
+  staleTtlMs: number,
+  loader: () => Promise<T>,
+): Promise<T> {
+  const now = Date.now();
+  const cached = staleResponseCache.get(key);
+  if (cached && cached.expiresAt > now) {
+    return cached.value as T;
+  }
+
+  const refresh = () => {
+    const pending = staleRefreshRequests.get(key);
+    if (pending) {
+      return pending as Promise<T>;
+    }
+    const current = (async () => {
+      try {
+        const value = await loader();
+        const refreshedAt = Date.now();
+        staleResponseCache.set(key, {
+          value,
+          expiresAt: refreshedAt + freshTtlMs,
+          staleUntil: refreshedAt + freshTtlMs + staleTtlMs,
+        });
+        return value;
+      } finally {
+        staleRefreshRequests.delete(key);
+      }
+    })();
+    staleRefreshRequests.set(key, current);
+    return current;
+  };
+
+  if (cached && cached.staleUntil > now) {
+    void refresh().catch(() => {
+      // 后台刷新失败时继续使用仍在 stale 窗口内的数据。
+    });
+    return cached.value as T;
+  }
+  if (cached) {
+    staleResponseCache.delete(key);
+  }
+  return refresh();
+}
+
 export function invalidateRequestCache(prefix?: string): void {
   if (!prefix) {
     responseCache.clear();
+    staleResponseCache.clear();
     return;
   }
   for (const key of responseCache.keys()) {
     if (key.startsWith(prefix)) {
       responseCache.delete(key);
+    }
+  }
+  for (const key of staleResponseCache.keys()) {
+    if (key.startsWith(prefix)) {
+      staleResponseCache.delete(key);
     }
   }
 }

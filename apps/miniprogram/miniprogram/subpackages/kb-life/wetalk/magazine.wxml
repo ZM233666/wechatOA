@@ -39,7 +39,7 @@
           style="animation-delay: {{index * 60}}ms;"
         >
           <view class="mag-card__cover">
-            <image wx:if="{{item.image}}" class="mag-card__image" src="{{item.image}}" mode="aspectFill"></image>
+            <image wx:if="{{item.image}}" class="mag-card__image" src="{{item.image}}" mode="aspectFill" lazy-load="{{true}}"></image>
             <view class="mag-card__shade"></view>
             <text class="mag-card__badge">{{item.issueLabel}}</text>
           </view>
@@ -61,7 +61,7 @@
           style="animation-delay: {{index * 60 + 80}}ms;"
         >
           <view class="mag-card__cover">
-            <image wx:if="{{item.image}}" class="mag-card__image" src="{{item.image}}" mode="aspectFill"></image>
+            <image wx:if="{{item.image}}" class="mag-card__image" src="{{item.image}}" mode="aspectFill" lazy-load="{{true}}"></image>
             <view class="mag-card__shade"></view>
             <text class="mag-card__badge">{{item.issueLabel}}</text>
           </view>

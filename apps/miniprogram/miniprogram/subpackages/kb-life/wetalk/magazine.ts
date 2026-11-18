@@ -2,9 +2,8 @@ import {
   getWetalkMagazines,
   type WetalkCover,
 } from '../../../services/wetalk.service';
-import { RequestError } from '../../../types/api';
 import { rejectEmployeeOnlyAccess } from '../../../utils/identity-access';
-import { friendlyUnavailablePageData, logPageLoadIssue } from '../../../utils/friendly-page-error';
+import { friendlyUnavailablePageData } from '../../../utils/friendly-page-error';
 
 type PageStatus = 'loading' | 'success' | 'empty' | 'error';
 
@@ -70,7 +69,7 @@ Page({
       return;
     }
     // Returning from a detail/PDF view refreshes potentially expired cover URLs.
-    if (this.data.pageStatus !== 'loading') void this.loadList();
+    if (this.data.pageStatus !== 'loading') void this.loadList(true);
   },
 
   onShareAppMessage() {
@@ -81,8 +80,11 @@ Page({
     };
   },
 
-  async loadList() {
-    this.setData({ pageStatus: 'loading', errorText: '' });
+  async loadList(silent = false) {
+    const keepContent = silent && this.data.pageStatus === 'success' && this.data.items.length > 0;
+    if (!keepContent) {
+      this.setData({ pageStatus: 'loading', errorText: '' });
+    }
     try {
       const magazines = await getWetalkMagazines();
       const items = toMagazineCards(magazines);
@@ -96,7 +98,10 @@ Page({
         shareTitle: items[0]?.title || 'WeTalk Magazine',
         shareImage: items[0]?.image || '',
       });
-    } catch (error) {
+    } catch {
+      if (keepContent) {
+        return;
+      }
       this.setData({
         pageStatus: 'empty',
         ...friendlyUnavailablePageData(),

@@ -1,7 +1,7 @@
 import type { HomeBanner, HomeData, NewsSummary, QuickEntry } from '../types/home';
 import { formatDisplayDate, toAssetUrl } from '../utils/format';
 import { API_ENDPOINTS } from './endpoints';
-import { get } from './request';
+import { get, withStaleWhileRevalidate } from './request';
 
 export interface HomeViewData {
   newsStatus: HomeData['newsStatus'] | null;
@@ -11,30 +11,32 @@ export interface HomeViewData {
 }
 
 export async function getHome(): Promise<HomeViewData> {
-  const data = await get<HomeData>(API_ENDPOINTS.home);
-  return {
-    newsStatus: data.newsStatus ?? null,
-    banners: data.banners.map((item) => ({
-      id: item.id,
-      title: item.title,
-      ...(item.description ? { description: item.description } : {}),
-      image: toAssetUrl(item.image),
-      newsId: item.newsId,
-      targetUrl: item.targetUrl,
-    })),
-    entries: data.quickEntries.map((item) => ({
-      id: item.id,
-      title: item.title,
-      subtitle: item.subtitle,
-      icon: toAssetUrl(item.icon),
-      target: item.target,
-    })),
-    newsList: data.latestNews.map((item) => ({
-      id: item.id,
-      title: item.title,
-      date: formatDisplayDate(item.publishedAt),
-      image: toAssetUrl(item.coverImage),
-      category: item.category.name,
-    })),
-  };
+  return withStaleWhileRevalidate('home', 30_000, 5 * 60_000, async () => {
+    const data = await get<HomeData>(API_ENDPOINTS.home);
+    return {
+      newsStatus: data.newsStatus ?? null,
+      banners: data.banners.map((item) => ({
+        id: item.id,
+        title: item.title,
+        ...(item.description ? { description: item.description } : {}),
+        image: toAssetUrl(item.image),
+        newsId: item.newsId,
+        targetUrl: item.targetUrl,
+      })),
+      entries: data.quickEntries.map((item) => ({
+        id: item.id,
+        title: item.title,
+        subtitle: item.subtitle,
+        icon: toAssetUrl(item.icon),
+        target: item.target,
+      })),
+      newsList: data.latestNews.map((item) => ({
+        id: item.id,
+        title: item.title,
+        date: formatDisplayDate(item.publishedAt),
+        image: toAssetUrl(item.coverImage),
+        category: item.category.name,
+      })),
+    };
+  });
 }

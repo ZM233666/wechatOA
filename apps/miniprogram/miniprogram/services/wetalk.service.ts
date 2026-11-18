@@ -2,7 +2,7 @@ import { getApiBaseUrl, getApiEnvironment, getCurrentEnvVersion, isForbiddenProd
 import type { InsightReportView } from './services.service';
 import { API_ENDPOINTS } from './endpoints';
 import { getLoginCodeQueryParams } from './identity-binding.service';
-import { get } from './request';
+import { get, invalidateRequestCache, withRequestCache } from './request';
 import { RequestError } from '../types/api';
 import { openRemotePdf } from '../utils/open-remote-pdf';
 
@@ -76,6 +76,19 @@ function assertItem(value: WetalkItem, type: WetalkType): void {
   }
 }
 
+function toWetalkCover(item: WetalkItem, headers: Record<string, string>): WetalkCover {
+  return {
+    id: String(item.id),
+    type: item.type,
+    title: item.title,
+    volumeNo: item.volumeNo,
+    date: item.publishTime,
+    image: resolveWetalkCoverImage(item, headers),
+    kind: item.pdfUrl ? 'pdf' : 'article',
+    kindLabel: item.pdfUrl ? 'PDF' : 'News',
+  };
+}
+
 // Same KB Life session code, sent as a header so request debug logs do not print it.
 async function identityHeaders(): Promise<Record<string, string>> {
   const identity = await getLoginCodeQueryParams();
@@ -97,10 +110,7 @@ async function listCovers(type: WetalkType): Promise<WetalkCover[]> {
     }
     data.items.forEach(item => {
       assertItem(item, type);
-      covers.push({ id: String(item.id), type: item.type, title: item.title,
-        volumeNo: item.volumeNo, date: item.publishTime,
-        image: resolveWetalkCoverImage(item, headers),
-        kind: item.pdfUrl ? 'pdf' : 'article', kindLabel: item.pdfUrl ? 'PDF' : 'News' });
+      covers.push(toWetalkCover(item, headers));
     });
     received += data.items.length;
     if (received >= data.total) return covers;
@@ -110,6 +120,20 @@ async function listCovers(type: WetalkType): Promise<WetalkCover[]> {
 }
 export function getWetalkIssues(): Promise<WetalkCover[]> { return listCovers('news'); }
 export function getWetalkMagazines(): Promise<WetalkCover[]> { return listCovers('emagazine'); }
+export async function getWetalkFeatured(): Promise<WetalkCover | null> {
+  const headers = await identityHeaders();
+  const data = await get<WetalkList>(API_ENDPOINTS.kbLifeWetalk, { page: 1, limit: 1 }, headers);
+  if (!data || !Array.isArray(data.items) || !Number.isInteger(data.total) || data.total < 0 ||
+    data.page !== 1 || data.limit !== 1 || data.items.length > 1) {
+    throw new RequestError('WeTalk 推荐响应格式错误');
+  }
+  const item = data.items[0];
+  if (!item) {
+    return null;
+  }
+  assertItem(item, 'news');
+  return toWetalkCover(item, headers);
+}
 
 export async function getWetalkDetail(type: WetalkType, id: string): Promise<WetalkItem> {
   if (!/^[1-9]\d*$/.test(id)) throw new RequestError('无效的 WeTalk ID', 404);
@@ -133,23 +157,31 @@ interface WetalkBookManifest {
   id: number; type: WetalkType; title: string; volumeNo: string; publishTime: string; coverUrl: string;
   version: string; pageCount: number; pages: Array<{ number: number; width: number; height: number }>;
 }
-/** No five-minute manifest cache: each opening reauthorizes and resolves the current signed PDF. */
+/** 短缓存只覆盖快速关闭/重开；页图返回 410 时会立即失效并重新授权。 */
 export async function getWetalkBook(type: WetalkType, id: string): Promise<InsightReportView> {
   if (!/^[1-9]\d*$/.test(id)) throw new RequestError('无效的 WeTalk ID', 404);
   const resource = type === 'news' ? 'news' : 'emagazines';
-  const data = await get<WetalkBookManifest>(API_ENDPOINTS.kbLifeWetalkReader(resource, id),
-    undefined, await identityHeaders(), 90_000);
-  if (!data || String(data.id) !== id || data.type !== type || !/^[a-f0-9]{64}$/.test(data.version) ||
-    !Array.isArray(data.pages) || !data.pages.length || data.pages.length > 120 || data.pages.length !== data.pageCount ||
-    data.pages.some((page, index) => page.number !== index + 1 || !Number.isInteger(page.width) ||
-      !Number.isInteger(page.height) || page.width <= 0 || page.height <= 0 || page.width * page.height > 12_000_000)) {
-    throw new RequestError('WeTalk 阅读清单格式错误');
-  }
-  return { id: `${type}:${id}`, title: data.title, titleEn: data.title, caption: data.volumeNo || data.publishTime,
-    kicker: 'WeTalk', english: data.publishTime, image: data.coverUrl, gating: false,
-    pages: data.pages.map(page => ({ id: `${type}:${id}:${data.version}:${page.number}`, type: 'sheet',
-      title: `第 ${page.number} 页`, thumbTone: 'sheet', protectedImage: true,
-      coverImage: API_ENDPOINTS.kbLifeWetalkReaderPage(resource, id, data.version, page.number) })) };
+  const headers = await identityHeaders();
+  const identityScope = headers['X-Login-Code'] || 'anonymous';
+  return withRequestCache(`wetalk-book:${type}:${id}:${identityScope}`, 30_000, async () => {
+    const data = await get<WetalkBookManifest>(
+      API_ENDPOINTS.kbLifeWetalkReader(resource, id),
+      undefined,
+      headers,
+      90_000,
+    );
+    if (!data || String(data.id) !== id || data.type !== type || !/^[a-f0-9]{64}$/.test(data.version) ||
+      !Array.isArray(data.pages) || !data.pages.length || data.pages.length > 120 || data.pages.length !== data.pageCount ||
+      data.pages.some((page, index) => page.number !== index + 1 || !Number.isInteger(page.width) ||
+        !Number.isInteger(page.height) || page.width <= 0 || page.height <= 0 || page.width * page.height > 12_000_000)) {
+      throw new RequestError('WeTalk 阅读清单格式错误');
+    }
+    return { id: `${type}:${id}`, title: data.title, titleEn: data.title, caption: data.volumeNo || data.publishTime,
+      kicker: 'WeTalk', english: data.publishTime, image: data.coverUrl, gating: false,
+      pages: data.pages.map(page => ({ id: `${type}:${id}:${data.version}:${page.number}`, type: 'sheet',
+        title: `第 ${page.number} 页`, thumbTone: 'sheet', protectedImage: true,
+        coverImage: API_ENDPOINTS.kbLifeWetalkReaderPage(resource, id, data.version, page.number) })) };
+  });
 }
 
 // Short, bounded temporary-file reuse keeps the preloaded under-page ready during a flip.
@@ -177,7 +209,10 @@ export async function downloadWetalkReaderImage(imagePath: string): Promise<stri
     wx.downloadFile({ url: env.apiBaseUrl.replace(/\/+$/, '') + imagePath, header: headers, timeout: 20_000,
       success(result) {
         if (result.statusCode === 200 && result.tempFilePath) resolve(result.tempFilePath);
-        else reject(new RequestError(result.statusCode === 410 ? '阅读已过期，请关闭后重新打开' : '页图暂不可用，点击重试', result.statusCode));
+        else {
+          if (result.statusCode === 410) invalidateRequestCache('wetalk-book:');
+          reject(new RequestError(result.statusCode === 410 ? '阅读已过期，请关闭后重新打开' : '页图暂不可用，点击重试', result.statusCode));
+        }
       },
       fail() { reject(new RequestError('页图暂不可用，点击重试')); },
     });

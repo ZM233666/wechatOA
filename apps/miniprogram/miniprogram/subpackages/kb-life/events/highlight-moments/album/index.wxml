@@ -32,6 +32,7 @@
             wx:key="url"
             src="{{item.url}}"
             mode="aspectFill"
+            lazy-load="{{true}}"
             show-menu-by-longpress="{{item.allowDownload}}"
             data-url="{{item.url}}"
             bindtap="onPreviewImage"

@@ -40,7 +40,7 @@
         data-id="{{item.id}}"
         bindtap="onNewsTap"
       >
-        <image class="news-card__image" src="{{item.image}}" mode="aspectFill" data-id="{{item.id}}" binderror="onNewsImageError"></image>
+        <image class="news-card__image" src="{{item.image}}" mode="aspectFill" lazy-load="{{true}}" data-id="{{item.id}}" binderror="onNewsImageError"></image>
         <view class="news-card__body">
           <view class="news-card__meta">
             <text class="news-card__badge">{{item.category}}</text>

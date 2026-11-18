@@ -22,6 +22,7 @@
           class="product-card__image"
           src="{{item.image}}"
           mode="aspectFill"
+          lazy-load="{{true}}"
           data-id="{{item.id}}"
           binderror="onProductImageError"
         ></image>

@@ -5,9 +5,8 @@ import {
   type NewsCategoryView,
   type NewsListItemView,
 } from './news.service';
-import { RequestError } from '../../types/api';
 import { fallbackImageUrl } from '../../utils/format';
-import { friendlyUnavailablePageData, logPageLoadIssue } from '../../utils/friendly-page-error';
+import { friendlyUnavailablePageData } from '../../utils/friendly-page-error';
 
 Page({
   data: {
@@ -47,8 +46,10 @@ Page({
   },
 
   async bootstrap() {
+    const categoriesRequest = getNewsCategories();
+    void this.loadNews(true);
     try {
-      const categories = await getNewsCategories();
+      const categories = await categoriesRequest;
       if (!this.data.pageAlive) {
         return;
       }
@@ -61,7 +62,6 @@ Page({
         categories: [{ id: 'all', name: '全部', articleCount: 0 }],
       });
     }
-    void this.loadNews(true);
   },
 
   async loadNews(reset: boolean) {
@@ -109,7 +109,7 @@ Page({
         pageStatus: newsList.length === 0 ? 'empty' : 'success',
       });
       prefetchNewsDetails(result.items.slice(0, 3).map((item) => item.id));
-    } catch (error) {
+    } catch {
       if (!this.data.pageAlive) {
         return;
       }

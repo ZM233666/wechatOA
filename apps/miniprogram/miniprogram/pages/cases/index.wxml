@@ -16,7 +16,7 @@
       data-id="{{item.id}}"
       bindtap="onCaseTap"
     >
-      <image class="case-card__image" src="{{item.image}}" mode="aspectFill" data-id="{{item.id}}" binderror="onCaseImageError"></image>
+      <image class="case-card__image" src="{{item.image}}" mode="aspectFill" lazy-load="{{true}}" data-id="{{item.id}}" binderror="onCaseImageError"></image>
       <view class="case-card__body">
         <text class="case-card__title">{{item.title}}</text>
         <text class="case-card__desc">{{item.desc}}</text>

@@ -35,7 +35,7 @@
               data-kind="{{item.kind}}"
               bindtap="onNewsTap"
             >
-              <image wx:if="{{item.image}}" class="news-card__image" src="{{item.image}}" mode="aspectFill"></image>
+              <image wx:if="{{item.image}}" class="news-card__image" src="{{item.image}}" mode="aspectFill" lazy-load="{{true}}"></image>
               <view wx:else class="news-card__image"></view>
               <view class="news-card__body">
                 <text class="news-card__badge">WeTalk</text>

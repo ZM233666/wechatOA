@@ -1,7 +1,6 @@
 import { getWetalkIssues, type WetalkCover } from '../../../services/wetalk.service';
-import { RequestError } from '../../../types/api';
 import { rejectEmployeeOnlyAccess } from '../../../utils/identity-access';
-import { friendlyUnavailablePageData, logPageLoadIssue } from '../../../utils/friendly-page-error';
+import { friendlyUnavailablePageData } from '../../../utils/friendly-page-error';
 
 type PageStatus = 'loading' | 'success' | 'empty' | 'error';
 
@@ -68,7 +67,7 @@ Page({
       return;
     }
     // Returning from a detail/PDF view refreshes potentially expired cover URLs.
-    if (this.data.pageStatus !== 'loading') void this.loadList();
+    if (this.data.pageStatus !== 'loading') void this.loadList(true);
   },
 
   onShareAppMessage() {
@@ -79,8 +78,12 @@ Page({
     };
   },
 
-  async loadList() {
-    this.setData({ pageStatus: 'loading', errorText: '' });
+  async loadList(silent = false) {
+    const keepContent =
+      silent && this.data.pageStatus === 'success' && this.data.allItems.length > 0;
+    if (!keepContent) {
+      this.setData({ pageStatus: 'loading', errorText: '' });
+    }
     try {
       const items = sortByDateDesc(await getWetalkIssues());
       const yearOptions = buildYearOptions(items);
@@ -97,7 +100,10 @@ Page({
         shareTitle: items[0]?.title || 'WeTalk News',
         shareImage: items[0]?.image || '',
       });
-    } catch (error) {
+    } catch {
+      if (keepContent) {
+        return;
+      }
       this.setData({
         pageStatus: 'empty',
         ...friendlyUnavailablePageData(),

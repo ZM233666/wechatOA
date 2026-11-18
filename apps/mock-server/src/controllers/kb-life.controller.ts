@@ -231,7 +231,7 @@ export async function getWetalkIssues(
       return;
     }
     // WeTalk News：优先管理端 content_type=wetalk 已发布文章
-    const newsItems = await loadWetalkNewsSummaries({ force: true });
+    const newsItems = await loadWetalkNewsSummaries();
     if (newsItems.length) {
       success(res, withAbsoluteAssets(req, { items: newsItems }), req.requestId);
       return;

@@ -1,6 +1,4 @@
-import { getInsightReport } from '../services/services.service';
 import { openAccessDeniedPage, shouldBlockGatedInsightForUnbound } from './identity-access';
-import { RequestError } from '../types/api';
 
 export function shouldBlockInsightForVisitor(gating = false): boolean {
   return shouldBlockGatedInsightForUnbound(gating);
@@ -13,34 +11,17 @@ export function openInsightAccessDenied(_id: string): void {
 
 /**
  * 打开 Insight：统一进入小程序内翻页阅读器。
- * PDF 源由 mock 在打开时即时渲成 sheet 页（与 mock 报告共用同一阅读器）。
+ * 点击后立即展示阅读器加载态，报告获取与空内容处理统一由阅读器负责。
  */
-export async function openInsightContent(options: {
+export function openInsightContent(options: {
   id: string;
   gating?: boolean;
   onOpenReader: (id: string) => void;
-}): Promise<void> {
+}): void {
   const { id, gating = false, onOpenReader } = options;
   if (shouldBlockInsightForVisitor(gating)) {
     openInsightAccessDenied(id);
     return;
   }
-
-  wx.showLoading({ title: '打开中', mask: true });
-  try {
-    const report = await getInsightReport(id);
-    if (!report.pages.length) {
-      wx.showToast({ title: '暂无内容', icon: 'none' });
-      return;
-    }
-    onOpenReader(id);
-  } catch (error) {
-    console.warn('[insights-open]', error instanceof Error ? error.message : error);
-    wx.showToast({
-      title: '暂无法打开，请稍后再试',
-      icon: 'none',
-    });
-  } finally {
-    wx.hideLoading();
-  }
+  onOpenReader(id);
 }

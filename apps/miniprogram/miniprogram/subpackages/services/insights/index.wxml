@@ -29,7 +29,7 @@
             <text class="insight-cover__name">{{item.title}}</text>
             <text class="insight-cover__en">{{item.english}}</text>
           </view>
-          <image class="insight-cover__image" src="{{item.image}}" mode="aspectFill"></image>
+          <image class="insight-cover__image" src="{{item.image}}" mode="aspectFill" lazy-load="{{true}}"></image>
           <text wx:if="{{item.tag || item.pdfUrl}}" class="insight-cover__tag">{{item.tag || 'PDF'}}</text>
         </view>
         <text class="insight-cover__caption">{{item.caption}}</text>

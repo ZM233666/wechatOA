@@ -342,7 +342,7 @@ export function filterShuttleRoutes(routes: ShuttleRoute[], keyword: string): Sh
 }
 
 // Public Mini API adapters; keep existing KB Life imports source-compatible.
-export { getWetalkIssues, getWetalkMagazines } from './wetalk.service';
+export { getWetalkFeatured, getWetalkIssues, getWetalkMagazines } from './wetalk.service';
 export type { WetalkContentKind, WetalkCover } from './wetalk.service';
 
 /** Explicit type + numeric ID prevents News/Magazine ID collisions in the shared reader. */

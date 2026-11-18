@@ -1,13 +1,11 @@
 import { COMING_SOON_TOAST } from '../../constants/routes';
 import {
-  getCampusMap,
   getKbLifeEntries,
-  getWetalkIssues,
+  getWetalkFeatured,
   type CampusService,
   type LifeBanner,
   type WetalkCover,
 } from '../../services/kb-life.service';
-import { RequestError } from '../../types/api';
 import {
   getStoredCampusLocation,
   setStoredCampusLocation,
@@ -30,6 +28,9 @@ import {
   friendlyUnavailablePageData,
   logPageLoadIssue,
 } from '../../utils/friendly-page-error';
+
+const KB_LIFE_REFRESH_INTERVAL_MS = 60_000;
+
 Page({
   data: {
     banners: [] as LifeBanner[],
@@ -70,7 +71,13 @@ Page({
     const identityChanged = refreshIfIdentitySessionChanged(this, () => {
       void this.loadEntries();
     });
-    if (!identityChanged) {
+    const lastLoadedAt =
+      (this as unknown as { _lastEntriesLoadedAt?: number })._lastEntriesLoadedAt ?? 0;
+    if (
+      !identityChanged &&
+      this.data.pageStatus === 'success' &&
+      Date.now() - lastLoadedAt >= KB_LIFE_REFRESH_INTERVAL_MS
+    ) {
       void this.loadEntries();
     }
     if (shouldBlockWetalkForNonEmployee()) {
@@ -105,6 +112,7 @@ Page({
       const selectedLocation = getStoredCampusLocation(result.locations);
       const locationIndex = Math.max(result.locations.indexOf(selectedLocation), 0);
       setStoredCampusLocation(selectedLocation, result.locations);
+      (this as unknown as { _lastEntriesLoadedAt?: number })._lastEntriesLoadedAt = Date.now();
       this.setData({
         banners: result.banners,
         locations: result.locations,
@@ -126,8 +134,7 @@ Page({
   /** 上层卡片：仅最近 1 个（接口已按 PDF 时间倒序） */
   async loadWetalkFeatured() {
     try {
-      const items = await getWetalkIssues();
-      const featured = items[0] ?? null;
+      const featured = await getWetalkFeatured();
       this.setData({
         wetalkFeatured: featured,
         shareTitle: featured?.title || 'WeTalk E-Magazine',
@@ -208,34 +215,22 @@ Page({
     this.onComingSoon();
   },
 
-  /** 有 pages（PDF 渲页或图片）时在 Tab 页内打开阅读器；否则进独立缩放页 */
-  async openCampusMapReader() {
+  /** 先展示阅读器加载态，由阅读器统一获取地图，避免点击前阻塞和重复请求。 */
+  openCampusMapReader() {
     if (shouldBlockCampusServicesForVisitor()) {
       this.showCampusDenied();
       return;
     }
     const location = this.data.selectedLocation || getStoredCampusLocation();
-    try {
-      wx.showLoading({ title: '加载中', mask: true });
-      const map = await getCampusMap(location);
-      if (map.pages.length) {
-        this.setData({
-          readerVisible: true,
-          readerIssueId: map.location,
-          readerSource: 'campus-map',
-          listVisible: false,
-          deniedVisible: false,
-          shareTitle: map.title,
-          shareImage: map.image,
-        });
-        return;
-      }
-      wx.showToast({ title: '暂无信息提供', icon: 'none' });
-    } catch {
-      wx.showToast({ title: '暂无信息提供', icon: 'none' });
-    } finally {
-      wx.hideLoading();
-    }
+    this.setData({
+      readerVisible: true,
+      readerIssueId: location,
+      readerSource: 'campus-map',
+      listVisible: false,
+      deniedVisible: false,
+      shareTitle: 'Campus Map',
+      shareImage: '',
+    });
   },
 
   onEmployeeTap(event: WechatMiniprogram.TouchEvent) {
