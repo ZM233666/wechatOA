@@ -1,6 +1,7 @@
 import { getProductDetail, type ProductCategoryView } from './products.service';
 import { RequestError } from '../../types/api';
 import { fallbackImageUrl } from '../../utils/format';
+import { friendlyUnavailablePageData, logPageLoadIssue } from '../../utils/friendly-page-error';
 
 Page({
   data: {
@@ -49,7 +50,7 @@ Page({
         category: null,
         pageStatus: status,
         requesting: false,
-        errorText: error instanceof RequestError ? error.message : '产品详情加载失败',
+        ...friendlyUnavailablePageData(),
       });
     }
   },

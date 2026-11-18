@@ -24,7 +24,7 @@
         data-id="{{item.id}}"
         binderror="onImageError"
       ></image>
-      <view wx:else class="ar-image__fallback">图片加载失败</view>
+      <view wx:else class="ar-image__fallback">图片暂不可用</view>
       <text wx:if="{{item.caption}}" class="ar-image__caption">{{item.caption}}</text>
     </view>
 

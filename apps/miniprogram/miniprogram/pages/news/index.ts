@@ -7,6 +7,7 @@ import {
 } from './news.service';
 import { RequestError } from '../../types/api';
 import { fallbackImageUrl } from '../../utils/format';
+import { friendlyUnavailablePageData, logPageLoadIssue } from '../../utils/friendly-page-error';
 
 Page({
   data: {
@@ -118,7 +119,7 @@ Page({
         loadingMore: false,
         requesting: false,
         pageStatus: reset ? 'error' : this.data.pageStatus,
-        errorText: error instanceof RequestError ? error.message : '新闻加载失败',
+        ...friendlyUnavailablePageData(),
       });
     }
   },

@@ -148,9 +148,8 @@ export async function fetchMiniLocalGlobalCare(
   campus: string,
 ): Promise<import('./local-global-care-mini.mapper').MiniLocalGlobalCarePayload | null> {
   const params = new URLSearchParams({ campus: campus.trim().toLowerCase() });
-  const envelope = await requestJson<MiniCareEnvelope>(
+  const envelope = await authedGet<MiniCareEnvelope>(
     `/api/v1/mini/kb-life/local-global-care/?${params}`,
-    { timeoutMs: liveApiTimeoutMs() },
   );
   if (envelope.success !== true || !envelope.data) {
     return null;
@@ -167,9 +166,8 @@ type MiniCareArticleEnvelope = {
 export async function fetchMiniCareArticle(
   articleId: number,
 ): Promise<import('./local-global-care-mini.mapper').MiniCareArticleDto | null> {
-  const envelope = await requestJson<MiniCareArticleEnvelope>(
+  const envelope = await authedGet<MiniCareArticleEnvelope>(
     `/api/v1/mini/kb-life/local-global-care/articles/${articleId}/`,
-    { timeoutMs: liveApiTimeoutMs() },
   );
   if (envelope.success !== true || !envelope.data) {
     return null;

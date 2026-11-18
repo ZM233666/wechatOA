@@ -24,16 +24,16 @@
     <scroll-view class="shuttle-list" scroll-y="{{true}}">
       <empty-state wx:if="{{pageStatus === 'loading'}}" title="正在加载班车信息"></empty-state>
       <empty-state
-        wx:elif="{{pageStatus === 'error'}}"
-        title="加载失败"
-        description="{{errorText}}"
+        wx:elif="{{pageStatus === 'empty'}}"
+        title="{{emptyTitle}}"
+        description="{{emptyDesc}}"
       ></empty-state>
       <block wx:elif="{{pageStatus === 'success'}}">
         <view wx:if="{{routes.length === 0}}" class="shuttle-empty">
           <view class="shuttle-empty__icon">
             <image src="/assets/images/kb-life/search.png" mode="aspectFit"></image>
           </view>
-          <text class="shuttle-empty__text">未找到匹配的线路站点 (No routes found)</text>
+          <text class="shuttle-empty__text">未找到匹配的线路站点 (No matching routes or stops)</text>
         </view>
 
         <view wx:for="{{routes}}" wx:key="id" class="route-card">
@@ -106,9 +106,9 @@
     <view class="shuttle-map__body">
       <empty-state wx:if="{{pageStatus === 'loading'}}" title="正在加载线路图"></empty-state>
       <empty-state
-        wx:elif="{{pageStatus === 'error'}}"
-        title="加载失败"
-        description="{{errorText}}"
+        wx:elif="{{pageStatus === 'empty'}}"
+        title="{{emptyTitle || '暂无内容'}}"
+        description="{{emptyDesc}}"
       ></empty-state>
       <empty-state wx:elif="{{mapRoutes.length === 0}}" title="暂无线路图" description="请先在管理端维护站点经纬度"></empty-state>
       <block wx:else>

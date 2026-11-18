@@ -60,9 +60,9 @@ export function shanghaiMenuDate(now = new Date()): string {
   }).format(now);
 }
 
-export function campusCodeFromLocation(location: string): string {
-  return location.trim().toLowerCase();
-}
+import { campusCodeFromLocation } from './kb-life-campus-code';
+
+export { campusCodeFromLocation };
 
 function toImage(url: string, alt: string): ImageResource {
   return {

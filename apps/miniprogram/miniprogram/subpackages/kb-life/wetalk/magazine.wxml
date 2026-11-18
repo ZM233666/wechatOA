@@ -1,0 +1,80 @@
+<view class="page page--magazine {{readerVisible ? 'page--magazine-reading' : ''}}">
+  <insight-reader wx:if="{{readerVisible}}" visible="{{true}}" source="wetalk"
+    report-id="{{readerIssueId}}" has-nav-bar="{{false}}" bind:close="onReaderClose"></insight-reader>
+  <block wx:if="{{!readerVisible}}">
+  <nav-brand title="WeTalk Magazine" show-back="{{true}}"></nav-brand>
+
+  <scroll-view
+    class="magazine-page"
+    scroll-y="{{true}}"
+    enhanced="{{true}}"
+    show-scrollbar="{{false}}"
+  >
+    <view class="magazine-hero">
+      <view class="magazine-hero__rail"></view>
+      <view class="magazine-hero__copy">
+        <text class="magazine-hero__kicker">One Magazine · WeTalk</text>
+        <text class="magazine-hero__title">电子杂志合集</text>
+      </view>
+    </view>
+
+    <empty-state wx:if="{{pageStatus === 'loading'}}" title="正在加载杂志"></empty-state>
+    <view wx:elif="{{pageStatus === 'empty'}}" bindtap="onRetry">
+      <empty-state title="{{emptyTitle || '暂无内容'}}" description="{{emptyDesc}}"></empty-state>
+    </view>
+    <empty-state
+      wx:elif="{{pageStatus === 'empty'}}"
+      title="暂无杂志"
+      description="当前没有可展示的电子杂志期次"
+    ></empty-state>
+
+    <view wx:elif="{{pageStatus === 'success'}}" class="magazine-shelf">
+      <view class="magazine-col magazine-col--left">
+        <view
+          class="mag-card tap-feedback"
+          wx:for="{{leftItems}}"
+          wx:key="id"
+          data-id="{{item.id}}"
+          bindtap="onMagazineTap"
+          style="animation-delay: {{index * 60}}ms;"
+        >
+          <view class="mag-card__cover">
+            <image wx:if="{{item.image}}" class="mag-card__image" src="{{item.image}}" mode="aspectFill"></image>
+            <view class="mag-card__shade"></view>
+            <text class="mag-card__badge">{{item.issueLabel}}</text>
+          </view>
+          <view class="mag-card__meta">
+            <text class="mag-card__issue">{{item.issueLabel}}</text>
+            <text class="mag-card__title">{{item.title}}</text>
+            <text class="mag-card__date">{{item.date}}</text>
+          </view>
+        </view>
+      </view>
+
+      <view class="magazine-col magazine-col--right">
+        <view
+          class="mag-card tap-feedback"
+          wx:for="{{rightItems}}"
+          wx:key="id"
+          data-id="{{item.id}}"
+          bindtap="onMagazineTap"
+          style="animation-delay: {{index * 60 + 80}}ms;"
+        >
+          <view class="mag-card__cover">
+            <image wx:if="{{item.image}}" class="mag-card__image" src="{{item.image}}" mode="aspectFill"></image>
+            <view class="mag-card__shade"></view>
+            <text class="mag-card__badge">{{item.issueLabel}}</text>
+          </view>
+          <view class="mag-card__meta">
+            <text class="mag-card__issue">{{item.issueLabel}}</text>
+            <text class="mag-card__title">{{item.title}}</text>
+            <text class="mag-card__date">{{item.date}}</text>
+          </view>
+        </view>
+      </view>
+    </view>
+  </scroll-view>
+
+  </block>
+  <app-tab-bar></app-tab-bar>
+</view>

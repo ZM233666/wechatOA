@@ -37,9 +37,9 @@
 
   <view wx:if="{{!readerVisible && !deniedVisible}}" class="life">
     <empty-state wx:if="{{pageStatus === 'loading'}}" title="正在加载 KB Life"></empty-state>
-    <empty-state wx:elif="{{pageStatus === 'error'}}" title="加载失败" description="{{errorText}}"></empty-state>
+    <empty-state wx:elif="{{pageStatus === 'empty'}}" title="{{emptyTitle || '暂无内容'}}" description="{{emptyDesc}}"></empty-state>
     <block wx:if="{{pageStatus === 'success'}}">
-    <view class="life-banner">
+    <view wx:if="{{banners.length > 0}}" class="life-banner">
       <swiper
         class="life-banner__swiper"
         indicator-dots="{{true}}"

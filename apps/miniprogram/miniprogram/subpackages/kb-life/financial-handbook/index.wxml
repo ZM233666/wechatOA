@@ -3,9 +3,9 @@
 
   <empty-state wx:if="{{pageStatus === 'loading'}}" title="正在加载财务指导手册"></empty-state>
   <empty-state
-    wx:elif="{{pageStatus === 'error'}}"
-    title="加载失败"
-    description="{{errorText}}"
+    wx:elif="{{pageStatus === 'empty'}}"
+    title="{{emptyTitle || '暂无内容'}}"
+    description="{{emptyDesc}}"
   ></empty-state>
 
   <view wx:elif="{{pageStatus === 'success'}}" class="fin-hub">

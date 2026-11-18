@@ -3,7 +3,7 @@ import { isArticleNewsEnabled } from '../services/article-content.client';
 import { getFixtures } from '../services/fixture.service';
 import { withAbsoluteAssets } from '../services/asset-url.service';
 import { selectHomeBanners, selectHomeNews } from '../services/news.service';
-import { getNewsArticlesForRequest } from '../services/news-source.service';
+import { getNewsArticlesForRequest, getNewsSourceStatus } from '../services/news-source.service';
 import { success } from '../utils/response';
 
 export async function getHome(req: Request, res: Response, next: NextFunction): Promise<void> {
@@ -24,11 +24,12 @@ export async function getHome(req: Request, res: Response, next: NextFunction): 
     const fixtures = getFixtures();
     const newsArticles = await getNewsArticlesForRequest();
     const newsBanners = selectHomeBanners(newsArticles);
-    const useArticleNews = isArticleNewsEnabled() && newsArticles.some((item) => item.id.startsWith('article-'));
+    const useArticleNews = isArticleNewsEnabled();
     const home = {
       ...fixtures.home,
       banners: newsBanners.length > 0 ? newsBanners : useArticleNews ? [] : fixtures.home.banners,
       latestNews: selectHomeNews(newsArticles),
+      newsStatus: getNewsSourceStatus(),
     };
     success(res, withAbsoluteAssets(req, home), req.requestId);
   } catch (error) {

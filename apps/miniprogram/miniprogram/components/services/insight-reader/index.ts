@@ -5,6 +5,7 @@ import {
 } from '../../../services/services.service';
 import { getCampusMapAsReport, getWetalkIssueAsReport } from '../../../services/kb-life.service';
 import { RequestError } from '../../../types/api';
+import { friendlyUnavailablePageData, logPageLoadIssue } from '../../../utils/friendly-page-error';
 
 type ReaderPage = InsightReportPageView & { thumbLabel: string };
 
@@ -104,7 +105,9 @@ Component({
     current: 0,
     canPrev: false,
     canNext: false,
-    pageStatus: 'idle' as 'idle' | 'loading' | 'success' | 'error',
+    pageStatus: 'idle' as 'idle' | 'loading' | 'success' | 'empty',
+    emptyTitle: '暂无内容',
+    emptyDesc: '当前暂无可展示的信息，请稍后再试。',
     errorText: '',
     shareTitle: '',
     shareImage: '',
@@ -244,10 +247,7 @@ Component({
         }));
         if (!pages.length) {
           self._loadingReportId = '';
-          this.setData({
-            pageStatus: 'error',
-            errorText: '暂无内容',
-          });
+          this.setData(friendlyUnavailablePageData());
           return;
         }
 
@@ -287,10 +287,8 @@ Component({
         if (self._loadingReportId === id) {
           self._loadingReportId = '';
         }
-        this.setData({
-          pageStatus: 'error',
-          errorText: error instanceof RequestError ? error.message : '报告加载失败',
-        });
+        logPageLoadIssue('insight-reader', error);
+        this.setData(friendlyUnavailablePageData());
       }
     },
 

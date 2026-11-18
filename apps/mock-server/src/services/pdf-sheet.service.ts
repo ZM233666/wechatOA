@@ -1,4 +1,6 @@
-import { execFileSync } from 'node:child_process';
+import { execFile, execFileSync } from 'node:child_process';
+import { promisify } from 'node:util';
+const execFileAsync = promisify(execFile);
 import fs from 'node:fs';
 import path from 'node:path';
 import { logError, logInfo } from '../utils/logger';
@@ -77,4 +79,26 @@ export function ensurePdfSheets(options: {
       `PDF 即时渲页失败: ${id}。请确认已安装 PyMuPDF（pip install pymupdf）。详情: ${message}`,
     );
   }
+}
+
+
+/** Bounded asynchronous variant for live Mini PDFs; legacy Insights behavior is unchanged. */
+let livePython: Promise<string> | undefined;
+async function pdfPython(): Promise<string> {
+  if (!livePython) livePython = (async () => {
+    for (const candidate of ['python3', '/usr/local/bin/python3', '/opt/homebrew/bin/python3']) {
+      try { await execFileAsync(candidate, ['-c', 'import fitz'], { timeout: 5_000, maxBuffer: 4096 }); return candidate; }
+      catch { /* Try only an already-installed interpreter; never install packages. */ }
+    }
+    throw new PdfSheetRenderError('PDF renderer unavailable (PyMuPDF required)');
+  })();
+  return livePython;
+}
+export async function renderLivePdfSheets(pdfAbsolute: string, sheetsDir: string): Promise<void> {
+  const python = await pdfPython();
+  try {
+    await execFileAsync(python, [SCRIPT_PATH, pdfAbsolute, sheetsDir, '--zoom', '2',
+      '--max-pages', '120', '--max-pixels', '12000000', '--max-total-pixels', '120000000',
+      '--max-output-bytes', '157286400'], { timeout: 45_000, maxBuffer: 8192 });
+  } catch { throw new PdfSheetRenderError('PDF rendering failed or exceeded safety limits'); }
 }

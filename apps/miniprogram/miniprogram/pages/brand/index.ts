@@ -1,5 +1,6 @@
 import { getBrand, type BrandValue } from './brand.service';
 import { RequestError } from '../../types/api';
+import { friendlyUnavailablePageData, logPageLoadIssue } from '../../utils/friendly-page-error';
 
 Page({
   data: {
@@ -54,7 +55,7 @@ Page({
         error instanceof RequestError && error.statusCode === 404 ? 'empty' : 'error';
       this.setData({
         pageStatus: status,
-        errorText: error instanceof RequestError ? error.message : '品牌信息加载失败',
+        ...friendlyUnavailablePageData(),
       });
     } finally {
       if (fromPullDown) {

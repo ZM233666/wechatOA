@@ -5,7 +5,7 @@
     <text class="guidance__heading">指导文件 (Guidance Documents)</text>
 
     <empty-state wx:if="{{pageStatus === 'loading'}}" title="正在加载"></empty-state>
-    <view wx:elif="{{pageStatus === 'error'}}" class="guidance__state guidance__state--error">{{errorText}}</view>
+    <empty-state wx:elif="{{pageStatus === 'empty'}}" title="{{emptyTitle}}" description="{{emptyDesc}}"></empty-state>
 
     <view
       wx:if="{{pageStatus === 'success'}}"

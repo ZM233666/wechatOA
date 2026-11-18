@@ -15,6 +15,7 @@ import {
 import { RequestError } from '../../types/api';
 import { fallbackImageUrl, formatDisplayDate } from '../../utils/format';
 import { PROFILE_OPEN_IDENTITY_BINDING_KEY } from '../../utils/identity-access';
+import { friendlyUnavailablePageData, logPageLoadIssue } from '../../utils/friendly-page-error';
 
 function isCompanyEmail(value: string): boolean {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value.trim());
@@ -139,8 +140,8 @@ Page({
       });
     } catch (error) {
       this.setData({
-        pageStatus: 'error',
-        errorText: error instanceof RequestError ? error.message : '个人中心加载失败',
+        pageStatus: 'empty',
+        ...friendlyUnavailablePageData(),
       });
     }
   },
@@ -154,10 +155,9 @@ Page({
         basicInfoStatus: 'success',
       });
     } catch (error) {
-      this.setData({
-        basicInfoStatus: 'error',
-        basicInfoErrorText: error instanceof RequestError ? error.message : '基本信息加载失败',
-      });
+      logPageLoadIssue('profile-basic-info', error);
+      const { emptyTitle, emptyDesc, errorText } = friendlyUnavailablePageData();
+      this.setData({ basicInfoStatus: 'empty', emptyTitle, emptyDesc, errorText });
     }
   },
 

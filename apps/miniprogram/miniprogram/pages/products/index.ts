@@ -1,28 +1,14 @@
-import {
-  getProductCategories,
-  type ProductCategoryView,
-} from './products.service';
-import { RequestError } from '../../types/api';
+import { getProductCategories, type ProductCategoryView } from './products.service';
 import { fallbackImageUrl } from '../../utils/format';
-
-function filterCategories(list: ProductCategoryView[], keyword: string): ProductCategoryView[] {
-  const value = keyword.trim().toLowerCase();
-  if (!value) {
-    return list;
-  }
-  return list.filter((item) => {
-    const haystack = `${item.title} ${item.titleCn} ${item.subtitleEn} ${item.desc}`.toLowerCase();
-    return haystack.indexOf(value) >= 0;
-  });
-}
+import { friendlyUnavailablePageData, logPageLoadIssue } from '../../utils/friendly-page-error';
 
 Page({
   data: {
     keyword: '',
     categories: [] as ProductCategoryView[],
-    allCategories: [] as ProductCategoryView[],
     pageStatus: 'loading' as 'loading' | 'success' | 'empty' | 'error',
-    errorText: '',
+    emptyTitle: '',
+    emptyDesc: '',
     pageAlive: true,
     requesting: false,
     contactVisible: false,
@@ -48,29 +34,27 @@ Page({
       return;
     }
     this.data.requesting = true;
-    this.setData({ requesting: true, pageStatus: 'loading', errorText: '' });
+    this.setData({ requesting: true, pageStatus: 'loading' });
     try {
       const result = await getProductCategories();
       if (!this.data.pageAlive) {
         return;
       }
-      const categories = filterCategories(result.categories, this.data.keyword);
       this.data.requesting = false;
       this.setData({
-        allCategories: result.categories,
-        categories,
+        categories: result.categories,
         requesting: false,
-        pageStatus: categories.length === 0 ? 'empty' : 'success',
+        pageStatus: result.categories.length === 0 ? 'empty' : 'success',
       });
     } catch (error) {
       if (!this.data.pageAlive) {
         return;
       }
       this.data.requesting = false;
+      logPageLoadIssue('products-index', error);
       this.setData({
         requesting: false,
-        pageStatus: 'error',
-        errorText: error instanceof RequestError ? error.message : '产品加载失败',
+        ...friendlyUnavailablePageData(),
       });
     }
   },
@@ -84,25 +68,25 @@ Page({
     if (!id) {
       return;
     }
-    const patch = (item: ProductCategoryView) =>
-      item.id === id ? { ...item, image: fallbackImageUrl(item.image) } : item;
     this.setData({
-      categories: this.data.categories.map(patch),
-      allCategories: this.data.allCategories.map(patch),
+      categories: this.data.categories.map((item) =>
+        item.id === id ? { ...item, image: fallbackImageUrl(item.image) } : item,
+      ),
     });
   },
 
   onSearchInput(event: WechatMiniprogram.Input) {
-    const keyword = event.detail.value;
-    this.setData({
-      keyword,
-      categories: filterCategories(this.data.allCategories, keyword),
-    });
+    this.setData({ keyword: event.detail.value });
   },
 
   onSearch() {
-    this.setData({
-      categories: filterCategories(this.data.allCategories, this.data.keyword),
+    const keyword = this.data.keyword.trim();
+    if (!keyword) {
+      wx.showToast({ title: '请输入关键词', icon: 'none' });
+      return;
+    }
+    wx.navigateTo({
+      url: `/pages/products/search?keyword=${encodeURIComponent(keyword)}`,
     });
   },
 

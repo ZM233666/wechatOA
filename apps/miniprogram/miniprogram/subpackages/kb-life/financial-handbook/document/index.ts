@@ -2,7 +2,7 @@ import {
   getFinancialGuidanceHandbook,
   type FinancialGuidanceSectionId,
 } from '../../../../services/kb-life.service';
-import { RequestError } from '../../../../types/api';
+import { friendlyUnavailablePageData, logPageLoadIssue } from '../../../../utils/friendly-page-error';
 
 const NAV_TITLE: Record<FinancialGuidanceSectionId, string> = {
   notes: 'Fin Notes',
@@ -27,10 +27,7 @@ Page({
   onLoad(query: Record<string, string | undefined>) {
     const section = query.section;
     if (section !== 'notes' && section !== 'manual') {
-      this.setData({
-        pageStatus: 'error',
-        errorText: '无效的文档类型',
-      });
+      this.setData(friendlyUnavailablePageData({ title: '暂无文档' }));
       return;
     }
     this.setData({
@@ -46,10 +43,7 @@ Page({
       const handbook = await getFinancialGuidanceHandbook();
       const section = handbook.sections.find((item) => item.id === sectionId);
       if (!section) {
-        this.setData({
-          pageStatus: 'error',
-          errorText: '未找到该文档',
-        });
+        this.setData(friendlyUnavailablePageData({ title: '暂无文档' }));
         return;
       }
       this.setData({
@@ -62,10 +56,8 @@ Page({
         pageStatus: 'success',
       });
     } catch (error) {
-      this.setData({
-        pageStatus: 'error',
-        errorText: error instanceof RequestError ? error.message : '文档加载失败',
-      });
+      logPageLoadIssue('financial-handbook-document', error);
+      this.setData(friendlyUnavailablePageData({ title: '暂无文档' }));
     }
   },
 

@@ -1,0 +1,198 @@
+page {
+  background: #f5f7fa;
+}
+
+.page--magazine {
+  min-height: 100vh;
+  background:
+    radial-gradient(120% 60% at 100% 0%, rgba(228, 168, 112, 0.12), transparent 55%),
+    linear-gradient(180deg, #eef3f8 0%, #f5f7fa 42%, #f5f7fa 100%);
+  box-sizing: border-box;
+}
+
+.page--magazine-reading {
+  height: 100vh;
+  background: #111111;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  box-sizing: border-box;
+}
+
+.page--magazine-reading .insight-reader,
+.page--magazine.page--magazine-reading > .insight-reader {
+  flex: 1;
+  min-height: 0;
+}
+
+.magazine-page {
+  height: calc(100vh - 100rpx - env(safe-area-inset-bottom));
+  box-sizing: border-box;
+}
+
+.magazine-hero {
+  margin: 8rpx 32rpx 28rpx;
+  padding: 28rpx 28rpx 28rpx 24rpx;
+  border-radius: 24rpx;
+  background: linear-gradient(135deg, #003b70 0%, #002a50 55%, #001a33 100%);
+  box-shadow: 0 12rpx 32rpx rgba(0, 42, 80, 0.22);
+  display: flex;
+  flex-direction: row;
+  align-items: stretch;
+  overflow: hidden;
+  position: relative;
+}
+
+.magazine-hero__rail {
+  width: 8rpx;
+  border-radius: 8rpx;
+  background: linear-gradient(180deg, #e4a870, #cda96a);
+  margin-right: 20rpx;
+  flex-shrink: 0;
+}
+
+.magazine-hero__copy {
+  flex: 1;
+  min-width: 0;
+}
+
+.magazine-hero__kicker {
+  display: block;
+  font-size: 20rpx;
+  font-weight: 600;
+  letter-spacing: 2rpx;
+  color: rgba(228, 168, 112, 0.95);
+  margin-bottom: 10rpx;
+}
+
+.magazine-hero__title {
+  display: block;
+  font-size: 40rpx;
+  font-weight: 800;
+  color: #ffffff;
+  line-height: 1.25;
+  margin-bottom: 10rpx;
+}
+
+.magazine-hero__desc {
+  display: block;
+  font-size: 22rpx;
+  color: rgba(255, 255, 255, 0.78);
+  line-height: 1.5;
+}
+
+.magazine-shelf {
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+  justify-content: space-between;
+  padding: 0 28rpx calc(48rpx + env(safe-area-inset-bottom));
+  box-sizing: border-box;
+}
+
+.magazine-col {
+  width: 48%;
+  display: flex;
+  flex-direction: column;
+}
+
+/* 右列整体下错半张封面，形成交错书架感 */
+.magazine-col--right {
+  padding-top: 72rpx;
+}
+
+.mag-card {
+  width: 100%;
+  margin-bottom: 36rpx;
+  opacity: 0;
+  transform: translateY(24rpx);
+  animation: mag-card-in 520ms cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+@keyframes mag-card-in {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.mag-card__cover {
+  position: relative;
+  width: 100%;
+  padding-top: 132%;
+  border-radius: 18rpx;
+  overflow: hidden;
+  background: #1f2937;
+  box-shadow:
+    0 14rpx 28rpx rgba(0, 31, 63, 0.16),
+    0 2rpx 8rpx rgba(0, 0, 0, 0.06);
+}
+
+.mag-card__image {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+.mag-card__shade {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 42%;
+  background: linear-gradient(180deg, transparent 0%, rgba(0, 26, 51, 0.55) 100%);
+  pointer-events: none;
+}
+
+.mag-card__badge {
+  position: absolute;
+  left: 14rpx;
+  bottom: 14rpx;
+  z-index: 1;
+  padding: 6rpx 14rpx;
+  border-radius: 999rpx;
+  background: rgba(228, 168, 112, 0.95);
+  color: #3b2412;
+  font-size: 18rpx;
+  font-weight: 700;
+  letter-spacing: 0.5rpx;
+  max-width: 86%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.mag-card__meta {
+  padding: 16rpx 6rpx 0;
+}
+
+.mag-card__issue {
+  display: block;
+  font-size: 18rpx;
+  font-weight: 700;
+  letter-spacing: 1rpx;
+  color: #cda96a;
+  margin-bottom: 6rpx;
+}
+
+.mag-card__title {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  overflow: hidden;
+  font-size: 26rpx;
+  font-weight: 700;
+  color: #003b70;
+  line-height: 1.35;
+  margin-bottom: 6rpx;
+  min-height: 70rpx;
+}
+
+.mag-card__date {
+  display: block;
+  font-size: 20rpx;
+  color: #8a94a3;
+  line-height: 1.3;
+}

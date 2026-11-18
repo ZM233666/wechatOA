@@ -264,6 +264,50 @@ export function resolveSuzhouCampusMapPdfAbsolute(fileName: string): string | nu
   return resolveCatalogPdfAbsolute('suzhou-campus-map', fileName);
 }
 
+const CAMPUS_MAP_IMAGE_NAME = /\.(png|jpe?g|webp|gif)$/i;
+
+function listImageFilesInDir(absoluteDir: string): Array<{ fileName: string; mtimeMs: number }> {
+  if (!fs.existsSync(absoluteDir)) {
+    return [];
+  }
+  const items: Array<{ fileName: string; mtimeMs: number }> = [];
+  const entries = fs.readdirSync(absoluteDir, { withFileTypes: true });
+  for (const entry of entries) {
+    if (!entry.isFile() || entry.name.startsWith('.')) {
+      continue;
+    }
+    if (!CAMPUS_MAP_IMAGE_NAME.test(entry.name)) {
+      continue;
+    }
+    items.push({
+      fileName: entry.name,
+      mtimeMs: fs.statSync(path.join(absoluteDir, entry.name)).mtimeMs,
+    });
+  }
+  return items.sort((a, b) => a.fileName.localeCompare(b.fileName, undefined, { numeric: true }));
+}
+
+export function listSuzhouCampusMapImageFileNames(): string[] {
+  const catalog = CATALOGS['suzhou-campus-map'];
+  const merged = new Map<string, number>();
+  listImageFilesInDir(catalog.cacheDir).forEach((item) => merged.set(item.fileName, item.mtimeMs));
+  listImageFilesInDir(catalog.localDir).forEach((item) => {
+    if (!merged.has(item.fileName)) {
+      merged.set(item.fileName, item.mtimeMs);
+    }
+  });
+  return [...merged.entries()]
+    .sort((a, b) => a[0].localeCompare(b[0], undefined, { numeric: true }))
+    .map(([fileName]) => fileName);
+}
+
+export function resolveSuzhouCampusMapImageAbsolute(fileName: string): string | null {
+  if (!fileName || fileName.includes('..') || !CAMPUS_MAP_IMAGE_NAME.test(fileName)) {
+    return null;
+  }
+  return resolveCatalogPdfAbsolute('suzhou-campus-map', fileName);
+}
+
 export function resolveSuzhouShuttleBusPdfAbsolute(fileName: string): string | null {
   return resolveCatalogPdfAbsolute('suzhou-shuttle-bus', fileName);
 }

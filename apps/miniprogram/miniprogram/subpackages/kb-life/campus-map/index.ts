@@ -1,5 +1,6 @@
 import { getCampusMap } from '../../../services/kb-life.service';
-import { RequestError } from '../../../types/api';
+import { KB_LIFE_NO_CONTENT_DESC, KB_LIFE_NO_CONTENT_TITLE } from '../../../constants/kb-life-empty';
+import { friendlyUnavailablePageData, logPageLoadIssue } from '../../../utils/friendly-page-error';
 import { resolveCampusLocation } from '../../../utils/campus-location';
 import { rejectVisitorCampusAccess } from '../../../utils/kb-life-access';
 
@@ -15,7 +16,9 @@ Page({
     scale: 1,
     useReader: false,
     readerVisible: false,
-    pageStatus: 'loading' as 'loading' | 'success' | 'error',
+    pageStatus: 'loading' as 'loading' | 'success' | 'error' | 'empty',
+    emptyTitle: KB_LIFE_NO_CONTENT_TITLE,
+    emptyDesc: KB_LIFE_NO_CONTENT_DESC,
     errorText: '',
     statusBarHeight: 20,
     navBarHeight: 44,
@@ -41,7 +44,7 @@ Page({
     this.setData({ pageStatus: 'loading' });
     try {
       const result = await getCampusMap(this.location);
-      const useReader = Boolean(result.pdfUrl && result.pages.length);
+      const useReader = Boolean(result.pages.length);
       // PDF 阅读改回 KB Life Tab 页，以保留底部导航
       if (useReader) {
         wx.setStorageSync('kbLifeOpenCampusMap', result.location);
@@ -61,6 +64,15 @@ Page({
         });
         return;
       }
+      if (!result.image) {
+        this.setData({
+          location: result.location,
+          useReader: false,
+          readerVisible: false,
+          pageStatus: 'empty',
+        });
+        return;
+      }
       this.setData({
         location: result.location,
         title: result.title,
@@ -71,11 +83,14 @@ Page({
         pageStatus: 'success',
       });
     } catch (error) {
+      logPageLoadIssue('campus-map', error);
       this.setData({
-        pageStatus: 'error',
         useReader: false,
         readerVisible: false,
-        errorText: error instanceof RequestError ? error.message : '园区地图加载失败',
+        ...friendlyUnavailablePageData({
+          title: KB_LIFE_NO_CONTENT_TITLE,
+          description: KB_LIFE_NO_CONTENT_DESC,
+        }),
       });
     }
   },

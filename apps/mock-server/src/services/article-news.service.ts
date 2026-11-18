@@ -1,5 +1,6 @@
 import { mockEnv } from '../config/env';
 import { logInfo, logWarn } from '../utils/logger';
+import { articleApiErrorCategory } from './article-api-error';
 import type { NewsArticleFixture } from '../schemas/news.schema';
 import {
   ARTICLE_NEWS_SYNC_TTL_MS,
@@ -56,7 +57,7 @@ async function enrichArticleRowForMedia(row: ArticleContentRow): Promise<Article
       content_html: row.content_html ?? detail.content_html,
     };
   } catch (error: unknown) {
-    const message = error instanceof Error ? error.message : String(error);
+    const message = articleApiErrorCategory(error);
     logWarn('Article list row cover enrich failed', { id: row.id, message });
     return row;
   }
@@ -82,10 +83,10 @@ export async function syncArticleNews(options?: {
   }
   const ttlMs = options?.ttlMs ?? ARTICLE_NEWS_SYNC_TTL_MS;
   const now = Date.now();
-  if (!options?.force && state.inFlight) {
+  if (state.inFlight) {
     return state.inFlight;
   }
-  if (!options?.force && now - state.lastSuccessMs < ttlMs && state.articles.length) {
+  if (!options?.force && !state.lastError && state.lastSuccessMs > 0 && now - state.lastSuccessMs < ttlMs) {
     return state.articles;
   }
 
@@ -110,14 +111,21 @@ export async function syncArticleNews(options?: {
       state.lastError = undefined;
       void prewarmArticleNewsDetails(articles);
       logInfo('Synced news from article-content', {
+        source: 'cms',
+        state: articles.length ? 'success' : 'empty',
         count: articles.length,
         includeDrafts: mockEnv.NEWS_ARTICLE_INCLUDE_DRAFTS,
       });
       return articles;
     } catch (error: unknown) {
-      const message = error instanceof Error ? error.message : String(error);
+      const message = articleApiErrorCategory(error);
       state.lastError = message;
-      logWarn('Article news sync failed; keeping previous cache/fixtures fallback', { message });
+      logWarn('Article news sync failed', {
+        source: 'cms',
+        state: state.lastSuccessMs > 0 ? 'stale' : 'error',
+        count: state.articles.length,
+        errorCategory: message,
+      });
       return state.articles;
     } finally {
       state.inFlight = null;
@@ -187,7 +195,7 @@ export async function hydrateArticleNewsDetail(
       }
       return hydrated;
     } catch (error: unknown) {
-      const message = error instanceof Error ? error.message : String(error);
+      const message = articleApiErrorCategory(error);
       logWarn('Article news detail fetch failed; using list row without body', {
         id: backendId,
         message,

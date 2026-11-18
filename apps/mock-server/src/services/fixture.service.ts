@@ -33,9 +33,11 @@ import {
 import {
   findSuzhouCampusMapPdfFileName,
   listInsightPdfFileNames,
+  listSuzhouCampusMapImageFileNames,
   listWetalkPdfFileNames,
   refreshAllMinioPdfsInBackground,
   resolveInsightPdfAbsolute,
+  resolveSuzhouCampusMapImageAbsolute,
   resolveSuzhouCampusMapPdfAbsolute,
   resolveWetalkPdfAbsolute,
   SUZHOU_MINIO_LOCATION,
@@ -437,7 +439,9 @@ const INSIGHT_SHEETS_URL_PREFIX = '/mock-assets/services/insights/sheets/';
 const WETALK_PDF_URL_PREFIX = '/mock-assets/kb-life/wetalk/files/';
 const WETALK_SHEETS_URL_PREFIX = '/mock-assets/kb-life/wetalk/sheets/';
 const CAMPUS_MAP_PDF_URL_PREFIX = '/mock-assets/kb-life/campus-maps/files/';
+const CAMPUS_MAP_IMAGE_URL_PREFIX = '/mock-assets/kb-life/campus-maps/images/';
 const CAMPUS_MAP_SHEETS_URL_PREFIX = '/mock-assets/kb-life/campus-maps/sheets/';
+const CAMPUS_MAP_IMAGE_NAME = /\.(png|jpe?g|webp|gif)$/i;
 
 type SheetPage = {
   id: string;
@@ -604,6 +608,114 @@ function resolveWetalkIssue(
   };
 }
 
+function readCampusMapImageSize(absolute: string): { width: number; height: number } {
+  let width = 1200;
+  let height = 900;
+  try {
+    const buffer = fs.readFileSync(absolute);
+    if (buffer.length >= 24 && buffer[0] === 0x89 && buffer[1] === 0x50) {
+      width = buffer.readUInt32BE(16) || width;
+      height = buffer.readUInt32BE(20) || height;
+    }
+  } catch {
+    // keep defaults
+  }
+  return { width, height };
+}
+
+function isCampusMapImageFileName(fileName: string): boolean {
+  return CAMPUS_MAP_IMAGE_NAME.test(fileName);
+}
+
+function listMapDirImageFileNames(mapDir: string): string[] {
+  if (!fs.existsSync(mapDir)) {
+    return [];
+  }
+  return fs
+    .readdirSync(mapDir)
+    .filter((name) => isCampusMapImageFileName(name) && !name.startsWith('.'))
+    .sort((a, b) => a.localeCompare(b, undefined, { numeric: true }));
+}
+
+export function resolveCampusMapImageAbsolute(location: string, fileName: string): string | null {
+  if (!fileName || fileName.includes('..') || !isCampusMapImageFileName(fileName)) {
+    return null;
+  }
+  if (location === SUZHOU_MINIO_LOCATION) {
+    return resolveSuzhouCampusMapImageAbsolute(fileName);
+  }
+  const absolute = path.join(FIXTURES_DIR, 'kb-life/locations', location, 'Map', fileName);
+  return fs.existsSync(absolute) ? absolute : null;
+}
+
+function findCampusMapImageFileNames(location: string, declared?: string): string[] {
+  if (declared) {
+    return resolveCampusMapImageAbsolute(location, declared) ? [declared] : [];
+  }
+  if (location === SUZHOU_MINIO_LOCATION) {
+    return listSuzhouCampusMapImageFileNames();
+  }
+  return listMapDirImageFileNames(path.join(FIXTURES_DIR, 'kb-life/locations', location, 'Map'));
+}
+
+function campusMapImagePublicUrl(location: string, fileName: string): string {
+  return `${CAMPUS_MAP_IMAGE_URL_PREFIX}${encodeURIComponent(location)}/${encodeURIComponent(fileName)}`;
+}
+
+function buildCampusMapPagesFromImageFiles(
+  location: string,
+  fileNames: string[],
+  title: string,
+): CampusMapData['pages'] {
+  return fileNames.map((fileName, index) => {
+    const absolute = resolveCampusMapImageAbsolute(location, fileName);
+    const { width, height } = absolute ? readCampusMapImageSize(absolute) : { width: 1200, height: 900 };
+    return {
+      id: `${location}-map-img-${index + 1}`,
+      type: 'sheet' as const,
+      title: fileNames.length <= 1 ? 'MAP' : `Page ${index + 1}`,
+      coverImage: {
+        url: campusMapImagePublicUrl(location, fileName),
+        alt: `${title} ${index + 1}`,
+        width,
+        height,
+        aspectRatio: Number((width / height).toFixed(4)),
+      },
+    };
+  });
+}
+
+function buildCampusMapFromImageFiles(
+  location: string,
+  rest: Pick<CampusMapData, 'title' | 'image'>,
+  fileNames: string[],
+): CampusMapData {
+  const pages = buildCampusMapPagesFromImageFiles(location, fileNames, rest.title);
+  if (!pages?.length) {
+    throw new FixtureValidationError(`园区地图 ${location} 图片文件不可用`);
+  }
+  return {
+    ...rest,
+    image: pages[0]?.coverImage ?? rest.image,
+    pages,
+  };
+}
+
+function buildCampusMapFromFixtureImage(rest: Pick<CampusMapData, 'title' | 'image'>, location: string): CampusMapData {
+  const cover = rest.image;
+  return {
+    ...rest,
+    pages: [
+      {
+        id: `${location}-map-cover`,
+        type: 'sheet',
+        title: 'MAP',
+        coverImage: cover,
+      },
+    ],
+  };
+}
+
 function findCampusMapPdfFileName(location: string, declared?: string): string | null {
   // 仅苏州走 MinIO suzhou/campus-map；其他地点仍读本地 Map/
   if (location === SUZHOU_MINIO_LOCATION) {
@@ -690,26 +802,35 @@ function resolveCampusMap(
   location: string,
   raw: ReturnType<typeof campusMapSchema.parse>,
 ): CampusMapData {
-  const { pdfFile, pages, ...rest } = raw;
+  const { pdfFile, imageFile, pages, ...rest } = raw;
   const declaredPages = pages ?? [];
   const resolvedPdfFile = findCampusMapPdfFileName(location, pdfFile);
 
-  if (!resolvedPdfFile) {
+  if (resolvedPdfFile) {
+    const pdfAbsolute = resolveCampusMapPdfAbsolute(location, resolvedPdfFile);
+    if (pdfAbsolute) {
+      return buildCampusMapFromPdfFile(location, rest, pdfAbsolute, resolvedPdfFile, declaredPages);
+    }
+  }
+
+  if (declaredPages.length) {
     return {
       ...rest,
-      pages: declaredPages.length ? declaredPages : undefined,
+      image: declaredPages[0]?.coverImage ?? rest.image,
+      pages: declaredPages,
     };
   }
 
-  const pdfAbsolute = resolveCampusMapPdfAbsolute(location, resolvedPdfFile);
-  if (!pdfAbsolute) {
-    return {
-      ...rest,
-      pages: declaredPages.length ? declaredPages : undefined,
-    };
+  const imageFiles = findCampusMapImageFileNames(location, imageFile);
+  if (imageFiles.length) {
+    return buildCampusMapFromImageFiles(location, rest, imageFiles);
   }
 
-  return buildCampusMapFromPdfFile(location, rest, pdfAbsolute, resolvedPdfFile, declaredPages);
+  if (rest.image?.url) {
+    return buildCampusMapFromFixtureImage(rest, location);
+  }
+
+  return { ...rest };
 }
 
 /** 将 `/mock-assets/...` 解析为磁盘绝对路径（Insight / WeTalk / 园区地图 PDF 来自 fixtures） */
@@ -730,6 +851,16 @@ export function resolveMockAssetAbsolutePath(assetPath: string): string {
     return (
       resolveLiveCampusMapPdfAbsolute(location, fileName) ??
       resolveCampusMapPdfAbsolute(location, fileName) ??
+      path.join(FIXTURES_DIR, 'kb-life/locations', location, 'Map', fileName)
+    );
+  }
+  if (assetPath.startsWith(CAMPUS_MAP_IMAGE_URL_PREFIX)) {
+    const rest = assetPath.slice(CAMPUS_MAP_IMAGE_URL_PREFIX.length);
+    const slash = rest.indexOf('/');
+    const location = decodeURIComponent(slash >= 0 ? rest.slice(0, slash) : rest);
+    const fileName = decodeURIComponent(slash >= 0 ? rest.slice(slash + 1) : '');
+    return (
+      resolveCampusMapImageAbsolute(location, fileName) ??
       path.join(FIXTURES_DIR, 'kb-life/locations', location, 'Map', fileName)
     );
   }

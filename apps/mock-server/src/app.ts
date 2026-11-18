@@ -9,7 +9,7 @@ import { delayMiddleware } from './middleware/delay.middleware';
 import { notFoundMiddleware } from './middleware/not-found.middleware';
 import { errorHandlerMiddleware } from './middleware/error-handler.middleware';
 import { createApiRouter } from './routes';
-import { FIXTURES_DIR, PUBLIC_DIR } from './services/fixture.service';
+import { FIXTURES_DIR, PUBLIC_DIR, resolveCampusMapImageAbsolute } from './services/fixture.service';
 import { NEWS_MEDIA_DIR } from './services/html-to-rich-content';
 import { resolveLiveCampusMapPdfAbsolute } from './services/campus-map.pdf-cache';
 import { FINANCIAL_HANDBOOK_LOCAL_PDF_DIR } from './services/financial-handbook.service';
@@ -99,6 +99,25 @@ export function createApp(): Express {
       (location === SUZHOU_MINIO_LOCATION
         ? resolveSuzhouCampusMapPdfAbsolute(fileName)
         : path.join(FIXTURES_DIR, 'kb-life/locations', location, 'Map', fileName));
+    if (!absolute || !fs.existsSync(absolute)) {
+      next();
+      return;
+    }
+    res.sendFile(absolute);
+  });
+  app.use('/mock-assets/kb-life/campus-maps/images', (req, res, next) => {
+    const parts = req.path.replace(/^\//, '').split('/').filter(Boolean);
+    if (parts.length < 2) {
+      next();
+      return;
+    }
+    const location = decodeURIComponent(parts[0] ?? '');
+    const fileName = decodeURIComponent(parts.slice(1).join('/'));
+    if (!fileName || fileName.includes('..')) {
+      next();
+      return;
+    }
+    const absolute = resolveCampusMapImageAbsolute(location, fileName);
     if (!absolute || !fs.existsSync(absolute)) {
       next();
       return;

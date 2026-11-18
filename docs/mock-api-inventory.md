@@ -24,14 +24,14 @@
 | GET | `/api/services/insights` | KB Insights 列表 | - | `{ items: InsightReportSummary[] }` | `fixtures/services/insights/*.json` + MinIO `kb-insights/`（缓存 `runtime/minio/kb-insights/`）/ 可选本地 `files/*.pdf` | 未实现 | 有 `pdfFile` 时返回绝对化 `pdfUrl` |
 | GET | `/api/services/insights/:id` | KB Insights 详情 | `id` | `InsightReport` | 同上 | 未实现 | PDF 渲成 `sheet` 页走页内阅读器；无 PDF 时回退 JSON `pages` |
 | GET | `/api/services/:id` | 预留 | `id` | `ServiceDetail` | 同上 `details` | 未实现 | |
-| GET | `/api/kb-life/entries` | KB Life | `location`（可选，映射关怀 campus） | `KbLifeEntriesData` | `banners` 优先来自关怀 `showOnKbLifeBanner`；否则 `entries.json` | 未实现 | 顶栏类比首页新闻 Banner |
+| GET | `/api/kb-life/entries` | KB Life | `location`（可选，映射关怀 campus） | `KbLifeEntriesData` | `banners` 来自本地/全球关怀 Banner 配置（Live 时无稿则 `[]`） | 未实现 | 顶栏仅关怀稿，非企业文化静态图 |
 | GET | `/api/kb-life/canteen` | 食堂 | `location` | `CanteenData` | `fixtures/kb-life/locations/*/canteen.json` | 未实现 | |
 | GET | `/api/kb-life/shuttle` | 班车 | `location` | `ShuttleData` | `MinIO `suzhou/shuttle-bus/` / 本地 Shuttlebus/*.pdf`（Suzhou）或 `locations/*/shuttle.json` | 未实现 | 苏州优先解析 PDF |
 | GET | `/api/kb-life/activities` | 活动入口（含 `highlightMoments` 相册列表） | - | `ActivitiesData` | `fixtures/kb-life/activities.json` + `highlight-moments-albums.json` | 未实现 | 列表仅镜像封面；字段说明见 [kb-life-highlight-moments-api.md](./kb-life-highlight-moments-api.md) |
 | GET | `/api/kb-life/highlight-moments/albums/:id` | 精彩瞬间单本相册 | `id` | `HighlightMomentsAlbum` | 同上 live / fixture | 未实现 | 按相册镜像照片；小程序相册页优先使用 |
 | GET | `/api/kb-life/wetalk` | WeTalk 列表 | - | `{ items: WetalkIssueSummary[] }` | `fixtures/kb-life/wetalk/*.json` + MinIO `wetalk/`（缓存 `runtime/minio/wetalk/`）/ 可选本地 `files/*.pdf` | 未实现 | 有 `pdfFile` 时返回绝对化 `pdfUrl` |
 | GET | `/api/kb-life/wetalk/:id` | WeTalk 详情 | `id` | `WetalkIssue` | 同上 | 未实现 | PDF 渲成 `sheet` 页走页内阅读器；无 PDF 时回退 JSON `pages` |
-| GET | `/api/kb-life/campus-map` | 园区地图 | `location` | `CampusMapData` | `CAMPUS_MAP_ENABLED` 时 `GET /api/campus-map/files/` + fixture 标题/封面；否则 `locations/*/campus-map.json` + PDF | 未实现 | 有 PDF 时返回 sheet pages + pdfUrl，前端走页内阅读器 |
+| GET | `/api/kb-life/campus-map` | 园区地图 | `location` | `CampusMapData` | `CAMPUS_MAP_ENABLED` 时 `GET /api/campus-map/files/`（PDF 或图片）+ fixture 标题/封面；否则 `locations/*/campus-map.json` + `Map/*.{pdf,png,jpg,...}` | 未实现 | 有 `pages` 时前端走阅读器；PDF 时额外返回 `pdfUrl` |
 | GET | `/api/kb-life/holiday-calendar` | 假日日历 | `location` | `HolidayCalendarData` | `fixtures/kb-life/locations/*/holiday.json` | 未实现 | |
 | GET | `/api/kb-life/guidance-documents` | 指导文件入口列表 | — | `GuidanceDocumentsData` | `fixtures/kb-life/guidance-documents.json` | 未实现 | **访客可读** |
 | GET | `/api/kb-life/handbook` | 员工手册 | `loginCode` | `EmployeeHandbookData` | `fixtures/kb-life/handbook.json` + MinIO/本地 PDF | 未实现 | 须 Employee 身份 |

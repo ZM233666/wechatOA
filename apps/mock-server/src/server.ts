@@ -48,7 +48,9 @@ async function bootstrap(): Promise<void> {
       await syncArticleNews({ force: true });
       const status = getArticleNewsStatus();
       if (!status.lastError) {
-        logInfo('Article news ready', { count: status.count, attempt });
+        logInfo(status.count ? 'Article news ready' : 'Article news empty: no visible CMS news', {
+          source: 'cms', state: status.count ? 'success' : 'empty', count: status.count, attempt,
+        });
         break;
       }
       if (attempt < maxAttempts) {
@@ -62,7 +64,7 @@ async function bootstrap(): Promise<void> {
         continue;
       }
       logWarn(
-        'Article news sync reported error; news APIs will fall back to fixtures until cache fills',
+        'Article news unavailable; news APIs will report an error until CMS recovers',
         { message: status.lastError },
       );
     }

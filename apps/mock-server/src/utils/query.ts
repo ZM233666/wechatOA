@@ -72,5 +72,14 @@ export function matchesKeyword(haystack: string, keyword?: string): boolean {
   if (!keyword) {
     return true;
   }
-  return haystack.toLowerCase().includes(keyword.toLowerCase());
+  const normalizedHaystack = haystack.toLowerCase();
+  const tokens = keyword
+    .toLowerCase()
+    .split(/\s+/)
+    .map((item) => item.trim())
+    .filter(Boolean);
+  if (!tokens.length) {
+    return true;
+  }
+  return tokens.every((token) => normalizedHaystack.includes(token));
 }

@@ -2,10 +2,9 @@
   <nav-brand title="Employee Care" show-back="{{true}}"></nav-brand>
 
   <empty-state wx:if="{{pageStatus === 'loading'}}" title="正在加载员工关怀"></empty-state>
-  <view wx:elif="{{pageStatus === 'error'}}" bindtap="loadCare">
-    <empty-state title="加载失败" description="{{errorText}}"></empty-state>
+  <view wx:elif="{{pageStatus === 'empty'}}" bindtap="loadCare">
+    <empty-state title="{{emptyTitle}}" description="{{emptyDesc}}"></empty-state>
   </view>
-  <empty-state wx:elif="{{pageStatus === 'empty'}}" title="暂无关怀活动"></empty-state>
 
   <block wx:elif="{{pageStatus === 'success'}}">
     <view class="care-body care-body--list">

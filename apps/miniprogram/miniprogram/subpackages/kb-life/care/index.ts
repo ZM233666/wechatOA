@@ -3,8 +3,12 @@ import {
   type EmployeeCareHeroView,
   type EmployeeCareInitiativeView,
 } from '../../../services/kb-life.service';
-import { RequestError } from '../../../types/api';
 import { rejectUnboundIdentityAccess } from '../../../utils/identity-access';
+import {
+  CONTENT_UNAVAILABLE_DESC,
+  friendlyUnavailablePageData,
+  logPageLoadIssue,
+} from '../../../utils/friendly-page-error';
 
 Page({
   data: {
@@ -14,7 +18,9 @@ Page({
       image: '',
     } as EmployeeCareHeroView,
     initiatives: [] as EmployeeCareInitiativeView[],
-    pageStatus: 'loading' as 'loading' | 'success' | 'empty' | 'error',
+    pageStatus: 'loading' as 'loading' | 'success' | 'empty',
+    emptyTitle: '暂无关怀活动',
+    emptyDesc: CONTENT_UNAVAILABLE_DESC,
     errorText: '',
   },
 
@@ -58,6 +64,8 @@ Page({
         hero: result.hero,
         initiatives: result.initiatives,
         pageStatus: empty ? 'empty' : 'success',
+        emptyTitle: '暂无关怀活动',
+        emptyDesc: CONTENT_UNAVAILABLE_DESC,
       });
       const jumpId = this.pendingInitiativeId;
       if (jumpId && result.initiatives.some((item) => item.id === jumpId)) {
@@ -70,10 +78,10 @@ Page({
       if (keepContent) {
         return;
       }
-      this.setData({
-        pageStatus: 'error',
-        errorText: error instanceof RequestError ? error.message : '员工关怀加载失败',
-      });
+      logPageLoadIssue('employee-care', error);
+      this.setData(
+        friendlyUnavailablePageData({ title: '暂无关怀活动', description: CONTENT_UNAVAILABLE_DESC }),
+      );
     }
   },
 

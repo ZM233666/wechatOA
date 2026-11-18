@@ -32,7 +32,7 @@ export function selectKbLifeCareBanners(initiatives: EmployeeCareInitiative[]): 
     .filter((item): item is KbLifeBanner => item != null);
 }
 
-/** 优先使用 Django Mini 的 `local.banner` / `global.banner`（与后台置顶列表一致） */
+/** 本地/全球关怀：CMS `local.banner`、`global.banner` 与 `showOnKbLifeBanner` 勾选项 */
 export function selectKbLifeCareBannersFromMini(payload: MiniLocalGlobalCarePayload): KbLifeBanner[] {
   const published = [...(payload.local?.articles ?? []), ...(payload.global?.articles ?? [])];
   const publishedIds = new Set(published.map((article) => article.id));

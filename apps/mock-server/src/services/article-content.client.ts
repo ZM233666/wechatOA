@@ -1,5 +1,6 @@
 import { mockEnv } from '../config/env';
 import { logInfo } from '../utils/logger';
+import { ArticleApiError, articleApiErrorCategory } from './article-api-error';
 
 export type ArticleContentRow = {
   id: number | string;
@@ -93,14 +94,19 @@ async function requestJson<T>(
       body: options.body ? JSON.stringify(options.body) : undefined,
       signal: controller.signal,
     });
+    if (!response.ok) {
+      throw new ArticleApiError(response.status === 401 || response.status === 403 ? 'auth' : 'http');
+    }
     const text = await response.text();
     let parsed: unknown;
     try {
       parsed = JSON.parse(text);
     } catch {
-      throw new Error(`Article API 非 JSON 响应 (${response.status}): ${text.slice(0, 200)}`);
+      throw new ArticleApiError('contract');
     }
     return parsed as T;
+  } catch (error: unknown) {
+    throw error instanceof ArticleApiError ? error : new ArticleApiError(articleApiErrorCategory(error));
   } finally {
     clearTimeout(timeout);
   }
@@ -123,10 +129,10 @@ export async function loginArticleApi(force = false): Promise<string> {
   );
   const access = payload.data?.access;
   if (payload.code !== 2000 || !access) {
-    throw new Error(`Article API 登录失败: ${payload.msg ?? JSON.stringify(payload)}`);
+    throw new ArticleApiError('auth');
   }
   tokenState = { access, fetchedAtMs: Date.now() };
-  logInfo('Article API login ok', { base: apiBase(), user: mockEnv.NEWS_ARTICLE_USERNAME });
+  logInfo('Article API login ok');
   return access;
 }
 
@@ -164,16 +170,16 @@ export async function fetchArticleContentList(options?: {
     params.set('status', options.status);
   }
   const envelope = await authedGet<ListEnvelope>(`/api/article-content/content/?${params}`);
-  if (envelope.code !== 2000) {
-    throw new Error(`Article 列表失败: ${envelope.msg ?? envelope.code}`);
-  }
-  return Array.isArray(envelope.data) ? envelope.data : [];
+  if (!envelope || typeof envelope !== 'object') throw new ArticleApiError('contract');
+  if (envelope.code !== 2000) throw new ArticleApiError('business');
+  if (!Array.isArray(envelope.data)) throw new ArticleApiError('contract');
+  return envelope.data;
 }
 
 export async function fetchArticleContentDetail(id: string | number): Promise<ArticleContentRow> {
   const envelope = await authedGet<DetailEnvelope>(`/api/article-content/content/${id}/`);
   if (envelope.code !== 2000 || !envelope.data) {
-    throw new Error(`Article 详情失败 (${id}): ${envelope.msg ?? envelope.code}`);
+    throw new ArticleApiError('business');
   }
   return envelope.data;
 }

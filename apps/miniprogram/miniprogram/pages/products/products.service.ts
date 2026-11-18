@@ -65,6 +65,7 @@ export interface ProductCategoryView {
 
 export interface ProductListItemView {
   id: string;
+  productNo?: string;
   name: string;
   summary: string;
   image: string;
@@ -107,6 +108,7 @@ interface ProductDetailDto {
 
 interface ProductSummaryDto {
   id: string;
+  productNo?: string;
   name: string;
   nameCn: string;
   summary: string;
@@ -122,6 +124,7 @@ function resolveCategoryName(categoryId: string, nameCn?: string): string {
 function mapProductSummary(item: ProductSummaryDto): ProductListItemView {
   return {
     id: item.id,
+    productNo: item.productNo?.trim() || item.id,
     name: item.name,
     summary: item.summary,
     image: toAssetUrl(item.coverImage),

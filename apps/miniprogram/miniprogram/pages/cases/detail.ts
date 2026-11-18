@@ -1,6 +1,7 @@
 import { getCaseDetail, type ProjectCaseView } from './cases.service';
 import { RequestError } from '../../types/api';
 import { fallbackImageUrl } from '../../utils/format';
+import { friendlyUnavailablePageData, logPageLoadIssue } from '../../utils/friendly-page-error';
 
 Page({
   data: {
@@ -49,7 +50,7 @@ Page({
         item: null,
         pageStatus: status,
         requesting: false,
-        errorText: error instanceof RequestError ? error.message : '案例详情加载失败',
+        ...friendlyUnavailablePageData(),
       });
     }
   },

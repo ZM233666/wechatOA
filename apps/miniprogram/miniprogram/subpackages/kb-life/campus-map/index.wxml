@@ -21,9 +21,14 @@
     <view class="campus-map__body">
       <empty-state wx:if="{{pageStatus === 'loading'}}" title="正在加载园区地图"></empty-state>
       <empty-state
-        wx:elif="{{pageStatus === 'error'}}"
-        title="加载失败"
-        description="{{errorText}}"
+        wx:elif="{{pageStatus === 'empty'}}"
+        title="{{emptyTitle}}"
+        description="{{emptyDesc}}"
+      ></empty-state>
+      <empty-state
+        wx:elif="{{pageStatus === 'empty'}}"
+        title="{{emptyTitle || '暂无内容'}}"
+        description="{{emptyDesc}}"
       ></empty-state>
       <view wx:elif="{{pageStatus === 'success'}}" class="campus-map__stage">
         <movable-area class="campus-map__area" scale-area>

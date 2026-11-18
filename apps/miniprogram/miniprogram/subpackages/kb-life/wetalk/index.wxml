@@ -1,16 +1,10 @@
 <view class="page page--wetalk {{readerVisible ? 'page--wetalk-reading' : ''}}">
-  <nav-brand wx:if="{{!readerVisible}}" title="WeTalk News" show-back="{{true}}"></nav-brand>
+  <insight-reader wx:if="{{readerVisible}}" visible="{{true}}" source="wetalk"
+    report-id="{{readerIssueId}}" has-nav-bar="{{false}}" bind:close="onReaderClose"></insight-reader>
+  <block wx:if="{{!readerVisible}}">
+  <nav-brand title="WeTalk News" show-back="{{true}}"></nav-brand>
 
-  <insight-reader
-    wx:if="{{readerVisible}}"
-    visible="{{true}}"
-    report-id="{{readerIssueId}}"
-    source="wetalk"
-    has-nav-bar="{{false}}"
-    bind:close="onReaderClose"
-  ></insight-reader>
-
-  <view wx:if="{{!readerVisible}}" class="wetalk-hub">
+  <view class="wetalk-hub">
     <view class="wetalk-news">
       <view class="wetalk-section-head">
         <view class="wetalk-section-head__left">
@@ -27,8 +21,8 @@
 
       <scroll-view class="wetalk-news__scroll" scroll-y="{{true}}" enhanced="{{true}}" show-scrollbar="{{false}}">
         <empty-state wx:if="{{pageStatus === 'loading'}}" title="正在加载 WeTalk"></empty-state>
-        <view wx:elif="{{pageStatus === 'error'}}" bindtap="onRetry">
-          <empty-state title="加载失败" description="{{errorText}}"></empty-state>
+        <view wx:elif="{{pageStatus === 'empty'}}" bindtap="onRetry">
+          <empty-state title="{{emptyTitle || '暂无内容'}}" description="{{emptyDesc}}"></empty-state>
         </view>
         <empty-state wx:elif="{{pageStatus === 'empty'}}" title="暂无新闻" description="当前年份没有可展示的内容"></empty-state>
 
@@ -41,7 +35,8 @@
               data-kind="{{item.kind}}"
               bindtap="onNewsTap"
             >
-              <image class="news-card__image" src="{{item.image}}" mode="aspectFill"></image>
+              <image wx:if="{{item.image}}" class="news-card__image" src="{{item.image}}" mode="aspectFill"></image>
+              <view wx:else class="news-card__image"></view>
               <view class="news-card__body">
                 <text class="news-card__badge">WeTalk</text>
                 <text class="news-card__title">{{item.title}}</text>
@@ -80,5 +75,6 @@
     </view>
   </view>
 
+  </block>
   <app-tab-bar></app-tab-bar>
 </view>

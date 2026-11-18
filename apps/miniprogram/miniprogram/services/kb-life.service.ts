@@ -1,9 +1,9 @@
+import { getWetalkBook } from './wetalk.service';
 import type { ArticleContentBlock, ImageResource } from '../types/content';
 import { OPEN_POSITIONS_DISPLAY_TITLE } from '../constants/kb-life';
 import { getStoredCampusLocation } from '../utils/campus-location';
 import { toAssetUrl } from '../utils/format';
 import { API_ENDPOINTS } from './endpoints';
-import { isEmployeeIdentity } from '../utils/identity-access';
 import { getLoginCodeQueryParams } from './identity-binding.service';
 import { get, withRequestCache } from './request';
 import { RequestError } from '../types/api';
@@ -180,8 +180,9 @@ export async function getKbLifeEntries(): Promise<{
   campusServices: CampusService[];
   employeeServices: CampusService[];
 }> {
-  return withRequestCache('kb-life:entries:v5', 60_000, async () => {
-    const data = await get<KbLifeEntriesDto>(API_ENDPOINTS.kbLifeEntries);
+  const location = getStoredCampusLocation();
+  return withRequestCache(`kb-life:entries:v6:${location}`, 60_000, async () => {
+    const data = await get<KbLifeEntriesDto>(API_ENDPOINTS.kbLifeEntries, { location });
     return {
       banners: data.banners.map((item) => ({
         id: item.id,
@@ -340,165 +341,15 @@ export function filterShuttleRoutes(routes: ShuttleRoute[], keyword: string): Sh
   });
 }
 
-export type WetalkContentKind = 'article' | 'pdf';
+// Public Mini API adapters; keep existing KB Life imports source-compatible.
+export { getWetalkIssues, getWetalkMagazines } from './wetalk.service';
+export type { WetalkContentKind, WetalkCover } from './wetalk.service';
 
-export interface WetalkCover {
-  id: string;
-  title: string;
-  date: string;
-  image: string;
-  /** article=图文；pdf=PDF 文稿 */
-  kind: WetalkContentKind;
-  kindLabel: string;
-}
-
-interface WetalkIssueDto {
-  id: string;
-  title: string;
-  date: string;
-  coverImage: ImageResource;
-  pdfUrl?: string;
-  pages: Array<{
-    id: string;
-    type: 'cover' | 'contents' | 'content' | 'sheet';
-    title: string;
-    coverImage?: ImageResource;
-    headlineCn?: string[];
-    headlineEn?: string;
-    institute?: string;
-    brand?: string;
-    toc?: Array<{ index: string; titleEn: string; titleCn: string; lines: string[] }>;
-    chapterLabel?: string;
-    chapterTitle?: string;
-    bodyImage?: ImageResource;
-    paragraphs?: string[];
-    bullets?: string[];
-  }>;
-}
-
-export async function getWetalkIssues(): Promise<WetalkCover[]> {
-  if (!isEmployeeIdentity()) {
-    return [];
-  }
-  return withRequestCache('wetalk:list', 15_000, async () => {
-    const data = await get<{
-      items: Array<
-        Omit<WetalkIssueDto, 'pages'> & {
-          pages?: WetalkIssueDto['pages'];
-          kind?: WetalkContentKind;
-          pdfUrl?: string;
-        }
-      >;
-    }>(API_ENDPOINTS.kbLifeWetalk, await withIdentityQuery({}));
-    return (data.items || []).map((item) => {
-      const kind: WetalkContentKind =
-        item.kind === 'pdf' || Boolean(item.pdfUrl) || String(item.id).startsWith('pdf-')
-          ? 'pdf'
-          : 'article';
-      return {
-        id: item.id,
-        title: item.title,
-        date: item.date,
-        image: toAssetUrl(item.coverImage),
-        kind,
-        kindLabel: kind === 'pdf' ? 'PDF' : 'Article',
-      };
-    });
-  });
-}
-
-export interface WetalkNewsDetailView {
-  id: string;
-  title: string;
-  category: string;
-  date: string;
-  author: string;
-  dateLabel: string;
-  image: string;
-  contentHtml: string;
-  richContent: ArticleContentBlock[];
-  bodyFormat?: 'html' | 'blocks';
-}
-
-/** WeTalk News 文章详情（管理端 content_type=wetalk） */
-export async function getWetalkNewsDetail(id: string): Promise<WetalkNewsDetailView> {
-  if (!isEmployeeIdentity()) {
-    throw new RequestError('此功能仅面向 KB 员工');
-  }
-  const data = await get<{
-    id: string;
-    title: string;
-    category: string;
-    date: string;
-    author?: string;
-    contentHtml: string;
-    coverImage?: ImageResource;
-    richContent?: ArticleContentBlock[];
-    bodyFormat?: 'html' | 'blocks';
-    pages?: WetalkIssueDto['pages'];
-    pdfUrl?: string;
-  }>(API_ENDPOINTS.kbLifeWetalkDetail(id), await withIdentityQuery({}));
-  // PDF 期次无 contentHtml：不是 News 文章
-  if (Array.isArray(data.pages) || data.pdfUrl) {
-    throw new RequestError('该内容为电子杂志，请从 Magazine 入口阅读', 404);
-  }
-  const author = (data.author || '').trim();
-  return {
-    id: data.id,
-    title: data.title,
-    category: data.category || 'WeTalk',
-    date: data.date,
-    author,
-    dateLabel: [author, data.date].filter(Boolean).join(' · '),
-    contentHtml: data.contentHtml || '',
-    richContent: data.richContent ?? [],
-    bodyFormat: data.bodyFormat,
-    image: data.coverImage ? toAssetUrl(data.coverImage) : '',
-  };
-}
-
-/** 映射为 InsightReportView，复用 insight-reader（含 PDF→sheet） */
-export async function getWetalkIssueAsReport(id: string): Promise<InsightReportView> {
-  if (!isEmployeeIdentity()) {
-    throw new RequestError('此功能仅面向 KB 员工');
-  }
-  return withRequestCache(`wetalk:detail:${id}`, 5 * 60_000, async () => {
-    const data = await get<WetalkIssueDto>(
-      API_ENDPOINTS.kbLifeWetalkDetail(id),
-      await withIdentityQuery({}),
-    );
-    if (!data.pages?.length && !data.pdfUrl) {
-      throw new RequestError('WeTalk 期次缺少可读内容', 404);
-    }
-    return {
-      id: data.id,
-      title: data.title,
-      titleEn: data.title,
-      caption: data.date,
-      kicker: 'WeTalk',
-      english: data.date,
-      image: toAssetUrl(data.coverImage),
-      gating: false,
-      pdfUrl: data.pdfUrl,
-      pages: (data.pages || []).map((page) => ({
-        id: page.id,
-        type: page.type,
-        title: page.title,
-        coverImage: page.coverImage ? toAssetUrl(page.coverImage) : undefined,
-        headlineCn: page.headlineCn,
-        headlineEn: page.headlineEn,
-        institute: page.institute,
-        brand: page.brand,
-        toc: page.toc,
-        chapterLabel: page.chapterLabel,
-        chapterTitle: page.chapterTitle,
-        bodyImage: page.bodyImage ? toAssetUrl(page.bodyImage) : undefined,
-        paragraphs: page.paragraphs,
-        bullets: page.bullets,
-        thumbTone: page.type,
-      })),
-    };
-  });
+/** Explicit type + numeric ID prevents News/Magazine ID collisions in the shared reader. */
+export async function getWetalkIssueAsReport(key: string): Promise<InsightReportView> {
+  const match = /^(news|emagazine):([1-9]\d*)$/.exec(key);
+  if (!match) throw new RequestError('无效的 WeTalk 阅读标识');
+  return getWetalkBook(match[1] as 'news' | 'emagazine', match[2]);
 }
 
 export async function getCampusMap(

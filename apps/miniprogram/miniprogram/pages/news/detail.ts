@@ -2,6 +2,7 @@ import { getNewsDetail, type NewsDetailView } from './news.service';
 import { RequestError } from '../../types/api';
 import { fallbackImageUrl } from '../../utils/format';
 import { shouldRenderArticleAsBlocks } from './rich-content';
+import { friendlyUnavailablePageData, logPageLoadIssue } from '../../utils/friendly-page-error';
 
 Page({
   data: {
@@ -76,7 +77,7 @@ Page({
         news: null,
         pageStatus: status,
         requesting: false,
-        errorText: error instanceof RequestError ? error.message : '新闻详情加载失败',
+        ...friendlyUnavailablePageData(),
       });
     }
   },

@@ -51,3 +51,5 @@ page {
   max-width: 100%;
   overflow: hidden;
 }
+
+.page--wetalk-detail-reading { height: 100vh; display: flex; flex-direction: column; overflow: hidden; background: #111; }

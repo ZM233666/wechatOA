@@ -22,9 +22,9 @@ type CacheEntry = {
 const cache = new Map<string, CacheEntry>();
 const inFlight = new Map<string, Promise<ShuttleData | null>>();
 
-export function campusCodeFromLocation(location: string): string {
-  return location.trim().toLowerCase();
-}
+import { campusCodeFromLocation } from './kb-life-campus-code';
+
+export { campusCodeFromLocation };
 
 function cacheTtl(entry: CacheEntry): number {
   return entry.ok ? SHUTTLE_SCHEDULE_SYNC_TTL_MS : SHUTTLE_SCHEDULE_FAILURE_TTL_MS;

@@ -9,6 +9,7 @@ import { casesRouter } from './cases.routes';
 import { servicesRouter } from './services.routes';
 import { kbLifeRouter } from './kb-life.routes';
 import { profileRouter } from './profile.routes';
+import { wetalkRouter } from './wetalk.routes';
 
 export function createApiRouter(): Router {
   const router = Router();
@@ -21,6 +22,7 @@ export function createApiRouter(): Router {
   router.use(casesRouter);
   router.use(servicesRouter);
   router.use(kbLifeRouter);
+  router.use(wetalkRouter);
   router.use(profileRouter);
   return router;
 }

@@ -1,12 +1,31 @@
 const CAMPUS_LOCATION_STORAGE_KEY = 'kbLifeCampusLocation';
 export const DEFAULT_CAMPUS_LOCATION = 'Suzhou';
 
+function normalizeLocationValue(value: string): string {
+  let text = value.trim();
+  for (let i = 0; i < 2; i += 1) {
+    if (!/%[0-9A-Fa-f]{2}/.test(text)) {
+      break;
+    }
+    try {
+      const decoded = decodeURIComponent(text);
+      if (decoded === text) {
+        break;
+      }
+      text = decoded;
+    } catch {
+      break;
+    }
+  }
+  return text;
+}
+
 export function resolveCampusLocation(
   value: unknown,
   allowed: string[] = [],
 ): string {
   if (typeof value === 'string' && value.trim()) {
-    const trimmed = value.trim();
+    const trimmed = normalizeLocationValue(value);
     if (!allowed.length || allowed.includes(trimmed)) {
       return trimmed;
     }

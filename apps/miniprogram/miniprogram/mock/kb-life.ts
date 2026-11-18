@@ -40,7 +40,7 @@ export const LIFE_BANNERS: LifeBanner[] = [
   },
 ];
 
-export const CAMPUS_LOCATIONS = ['Suzhou', 'Qingdao', 'Daxing', 'Nankou'];
+export const CAMPUS_LOCATIONS = ['Suzhou', 'Qingdao', 'Daxing', 'Nankou', 'BJ Office'];
 
 export const CAMPUS_SERVICES: CampusService[] = [
   {

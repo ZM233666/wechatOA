@@ -9,7 +9,11 @@ import {
 } from '../services/product-source.service';
 import { HttpError } from '../middleware/error-handler.middleware';
 import { matchesProductCategoryFilter } from '../services/product-intro.client';
-import { matchesKeyword, parseOptionalString, parsePaginationQuery } from '../utils/query';
+import {
+  buildProductSearchExtraIndex,
+  productSummaryMatchesKeyword,
+} from '../services/product-search.service';
+import { parseOptionalString, parsePaginationQuery } from '../utils/query';
 import { success } from '../utils/response';
 
 export async function getProductCategories(
@@ -43,14 +47,12 @@ export async function getProducts(
     const category = parseOptionalString(req.query.category);
     const keyword = parseOptionalString(req.query.keyword);
     const allProducts = await getAllProductSummariesForRequest();
+    const searchExtra = buildProductSearchExtraIndex();
     const filtered = allProducts.filter((item) => {
       if (category && !matchesProductCategoryFilter(item.category.id, category)) {
         return false;
       }
-      return matchesKeyword(
-        `${item.name} ${item.nameCn} ${item.summary} ${item.category.name}`,
-        keyword,
-      );
+      return productSummaryMatchesKeyword(item, keyword, searchExtra.get(item.id) ?? '');
     });
     success(res, withAbsoluteAssets(req, paginate(filtered, page, pageSize)), req.requestId);
   } catch (error) {

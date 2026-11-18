@@ -46,6 +46,8 @@ export interface InsightTocItem {
 }
 
 export interface InsightReportPageView {
+  /** Live WeTalk page images require the existing session header, not a public image URL. */
+  protectedImage?: boolean;
   id: string;
   type: 'cover' | 'contents' | 'content' | 'sheet';
   title: string;

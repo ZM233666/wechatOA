@@ -73,10 +73,13 @@
           ></image>
         </movable-view>
       </movable-area>
+      <view wx:elif="{{page.protectedImage && !protectedImagePath}}" class="reader-page__image-status" catchtap="onRetryImage">
+        <text>{{imageLoading ? '正在加载页面…' : imageError}}</text>
+      </view>
       <image
         wx:else
         class="reader-page__sheet-fit"
-        src="{{page.coverImage}}"
+        src="{{page.protectedImage ? protectedImagePath : page.coverImage}}"
         mode="aspectFit"
         show-menu-by-longpress
       ></image>

@@ -11,7 +11,7 @@
 
   <view wx:if="{{!readerVisible}}" class="insights">
     <empty-state wx:if="{{pageStatus === 'loading'}}" title="正在加载洞察"></empty-state>
-    <empty-state wx:elif="{{pageStatus === 'error'}}" title="加载失败" description="{{errorText}}"></empty-state>
+    <empty-state wx:elif="{{pageStatus === 'empty'}}" title="{{emptyTitle || '暂无内容'}}" description="{{emptyDesc}}"></empty-state>
     <empty-state wx:elif="{{pageStatus === 'empty'}}" title="暂无洞察报告"></empty-state>
 
     <view wx:if="{{pageStatus === 'success'}}" class="insights__grid">

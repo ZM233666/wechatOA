@@ -67,6 +67,11 @@
         "value": "(^|/)\\.DS_Store$"
       }
     ],
-    "include": []
+    "include": [
+      {
+        "type": "folder",
+        "value": "miniprogram/subpackages/kb-life/wetalk"
+      }
+    ]
   }
 }

@@ -2,8 +2,9 @@ import { getCurrentEnvVersion, getApiBaseUrl } from '../../config/env';
 import { getHome } from '../../services/home.service';
 import { getHealth } from '../../services/api';
 import { RequestError } from '../../types/api';
-import type { HomeBanner, NewsSummary, QuickEntry } from '../../types/home';
+import type { HomeBanner, HomeData, NewsSummary, QuickEntry } from '../../types/home';
 import { fallbackImageUrl } from '../../utils/format';
+import { friendlyUnavailablePageData, logPageLoadIssue } from '../../utils/friendly-page-error';
 
 const ENTRY_PATHS: Record<string, string> = {
   news: '/pages/news/index',
@@ -18,6 +19,7 @@ function isMiniProgramPagePath(url: string): boolean {
 
 Page({
   data: {
+    newsStatus: null as HomeData['newsStatus'] | null,
     banners: [] as HomeBanner[],
     entries: [] as QuickEntry[],
     newsList: [] as NewsSummary[],
@@ -59,6 +61,7 @@ Page({
       }
       const empty = home.banners.length === 0 && home.entries.length === 0 && home.newsList.length === 0;
       this.setData({
+        newsStatus: home.newsStatus,
         banners: home.banners,
         entries: home.entries,
         newsList: home.newsList,
@@ -69,8 +72,8 @@ Page({
         return;
       }
       this.setData({
-        pageStatus: 'error',
-        errorText: error instanceof RequestError ? error.message : '首页加载失败',
+        pageStatus: 'empty',
+        ...friendlyUnavailablePageData(),
       });
     } finally {
       if (this.data.pageAlive) {
@@ -194,16 +197,10 @@ Page({
       if (!this.data.pageAlive) {
         return;
       }
-      const message =
-        error instanceof RequestError
-          ? error.message
-          : error instanceof Error
-            ? error.message
-            : '检查失败，请确认 Mock Server 已启动';
-
+      console.warn('[home-health]', error instanceof Error ? error.message : error);
       this.setData({
         statusType: 'error',
-        statusText: message,
+        statusText: '暂无法连接服务，请稍后再试',
       });
     } finally {
       if (this.data.pageAlive) {

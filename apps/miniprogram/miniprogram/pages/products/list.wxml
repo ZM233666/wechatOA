@@ -5,16 +5,18 @@
     <text class="product-list__heading">{{headingCn}} / {{headingEn}}</text>
 
     <empty-state wx:if="{{pageStatus === 'loading'}}" title="正在加载产品"></empty-state>
-    <view wx:elif="{{pageStatus === 'error'}}" bindtap="onRetry">
-      <empty-state title="产品加载失败" description="{{errorText}}"></empty-state>
+    <view wx:elif="{{pageStatus === 'empty'}}" bindtap="onRetry">
+      <empty-state title="{{emptyTitle || '暂无内容'}}" description="{{emptyDesc}}"></empty-state>
     </view>
     <empty-state wx:elif="{{pageStatus === 'empty'}}" title="暂无产品" description="当前没有可展示的产品"></empty-state>
 
     <block wx:elif="{{pageStatus === 'success'}}">
       <view
-        class="product-card"
+        class="product-card tap-feedback"
         wx:for="{{products}}"
         wx:key="id"
+        data-id="{{item.id}}"
+        bindtap="onProductTap"
       >
         <image
           class="product-card__image"

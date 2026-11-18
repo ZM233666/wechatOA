@@ -2,12 +2,14 @@ import {
   getHighlightMomentAlbum,
   type HighlightMomentAlbumImageView,
 } from '../../../../../services/kb-life.service';
-import { RequestError } from '../../../../../types/api';
+import { friendlyUnavailablePageData, logPageLoadIssue } from '../../../../../utils/friendly-page-error';
 
 Page({
   data: {
     albumId: '',
-    pageStatus: 'loading' as 'loading' | 'success' | 'not-found' | 'error',
+    pageStatus: 'loading' as 'loading' | 'success' | 'empty',
+    emptyTitle: '',
+    emptyDesc: '',
     errorText: '',
     album: {
       id: '',
@@ -26,7 +28,7 @@ Page({
     const albumId = query.id?.trim() ?? '';
     this.setData({ albumId });
     if (!albumId) {
-      this.setData({ pageStatus: 'not-found' });
+      this.setData(friendlyUnavailablePageData({ title: '暂无相册' }));
       return;
     }
     void this.loadAlbum();
@@ -50,7 +52,7 @@ Page({
     try {
       const album = await getHighlightMomentAlbum(this.data.albumId);
       if (!album) {
-        this.setData({ pageStatus: 'not-found' });
+        this.setData(friendlyUnavailablePageData({ title: '暂无相册' }));
         return;
       }
       this.setData({ album, pageStatus: 'success' });
@@ -58,10 +60,8 @@ Page({
       if (keepContent) {
         return;
       }
-      this.setData({
-        pageStatus: 'error',
-        errorText: error instanceof RequestError ? error.message : '相册加载失败',
-      });
+      logPageLoadIssue('highlight-moment-album', error);
+      this.setData(friendlyUnavailablePageData({ title: '暂无相册' }));
     }
   },
 

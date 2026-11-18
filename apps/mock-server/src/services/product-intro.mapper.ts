@@ -179,6 +179,7 @@ export function mapProductIntroRowToProductSummary(
   const meta = PRODUCT_INTRO_SYSTEMS.find((item) => item.slug === systemSlug)!;
   return {
     id: String(row.id),
+    productNo: row.product_no?.trim() || String(row.id),
     name: row.product_name?.trim() || meta.nameCn,
     nameCn: meta.nameCn,
     summary: row.summary?.trim() || ' ',

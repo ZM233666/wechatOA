@@ -35,6 +35,7 @@
         "care/detail",
         "wetalk/index",
         "wetalk/detail",
+        "wetalk/magazine",
         "events/index",
         "events/highlight-moments/index",
         "events/highlight-moments/album/index"
@@ -53,7 +54,7 @@
     {
       "root": "pages/products",
       "name": "products",
-      "pages": ["index", "detail", "list"]
+      "pages": ["index", "detail", "list", "search"]
     },
     {
       "root": "pages/cases",

@@ -1,4 +1,5 @@
 /**
+import { friendlyUnavailablePageData, logPageLoadIssue } from '../../../utils/friendly-page-error';
  * 本版本暂不提供员工手册。恢复入口：去掉 redirect，还原下方 loadHandbook / 下载逻辑。
  */
 Page({
@@ -33,8 +34,8 @@ Page({
   //     });
   //   } catch (error) {
   //     this.setData({
-  //       pageStatus: 'error',
-  //       errorText: error instanceof RequestError ? error.message : '员工手册加载失败',
+  //       pageStatus: 'empty',
+  //       ...friendlyUnavailablePageData(),
   //     });
   //   }
   // },

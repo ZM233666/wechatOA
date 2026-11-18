@@ -1,8 +1,7 @@
-import { COMING_SOON_TOAST } from '../../../constants/routes';
-import { getWetalkIssues, type WetalkCover } from '../../../services/kb-life.service';
-import { invalidateRequestCache } from '../../../services/request';
+import { getWetalkIssues, type WetalkCover } from '../../../services/wetalk.service';
 import { RequestError } from '../../../types/api';
 import { rejectEmployeeOnlyAccess } from '../../../utils/identity-access';
+import { friendlyUnavailablePageData, logPageLoadIssue } from '../../../utils/friendly-page-error';
 
 type PageStatus = 'loading' | 'success' | 'empty' | 'error';
 
@@ -15,7 +14,7 @@ function extractYear(date: string): number | null {
 }
 
 function sortByDateDesc(items: WetalkCover[]): WetalkCover[] {
-  return [...items].sort((a, b) => {
+  return items.slice().sort((a, b) => {
     const ta = Date.parse(a.date) || 0;
     const tb = Date.parse(b.date) || 0;
     if (tb !== ta) {
@@ -33,7 +32,7 @@ function buildYearOptions(items: WetalkCover[]): string[] {
       years.add(year);
     }
   });
-  return ['全部', ...Array.from(years).sort((a, b) => b - a).map(String)];
+  return ['全部'].concat(Array.from(years).sort((a, b) => b - a).map(String));
 }
 
 function filterByYear(items: WetalkCover[], yearLabel: string): WetalkCover[] {
@@ -46,14 +45,13 @@ function filterByYear(items: WetalkCover[], yearLabel: string): WetalkCover[] {
 Page({
   data: {
     pageStatus: 'loading' as PageStatus,
+    readerVisible: false, readerIssueId: '',
     errorText: '',
     allItems: [] as WetalkCover[],
     displayItems: [] as WetalkCover[],
     yearOptions: ['全部'] as string[],
     yearIndex: 0,
     selectedYear: '全部',
-    readerVisible: false,
-    readerIssueId: '',
     shareTitle: 'WeTalk News',
     shareImage: '',
   },
@@ -62,13 +60,15 @@ Page({
     if (rejectEmployeeOnlyAccess('WeTalk')) {
       return;
     }
-    void this.loadList({ force: true });
+    void this.loadList();
   },
 
   onShow() {
     if (rejectEmployeeOnlyAccess('WeTalk')) {
       return;
     }
+    // Returning from a detail/PDF view refreshes potentially expired cover URLs.
+    if (this.data.pageStatus !== 'loading') void this.loadList();
   },
 
   onShareAppMessage() {
@@ -79,12 +79,9 @@ Page({
     };
   },
 
-  async loadList(options?: { force?: boolean }) {
+  async loadList() {
     this.setData({ pageStatus: 'loading', errorText: '' });
     try {
-      if (options?.force) {
-        invalidateRequestCache('wetalk:');
-      }
       const items = sortByDateDesc(await getWetalkIssues());
       const yearOptions = buildYearOptions(items);
       const yearIndex = Math.min(this.data.yearIndex, Math.max(yearOptions.length - 1, 0));
@@ -102,8 +99,8 @@ Page({
       });
     } catch (error) {
       this.setData({
-        pageStatus: 'error',
-        errorText: error instanceof RequestError ? error.message : 'WeTalk 列表加载失败',
+        pageStatus: 'empty',
+        ...friendlyUnavailablePageData(),
       });
     }
   },
@@ -121,46 +118,23 @@ Page({
   },
 
   onNewsTap(event: WechatMiniprogram.TouchEvent) {
-    const { id, kind } = event.currentTarget.dataset as { id?: string; kind?: string };
-    if (!id) {
+    const id = String(event.currentTarget.dataset.id || '');
+    if (!id) return;
+    const item = this.data.allItems.find(value => value.id === id);
+    if (item?.kind === 'pdf') {
+      this.setData({ readerVisible: true, readerIssueId: `news:${id}` });
       return;
     }
-    const issue = this.data.allItems.find((item) => item.id === id);
-    if (issue) {
-      this.setData({
-        shareTitle: issue.title || 'WeTalk News',
-        shareImage: issue.image || '',
-      });
-    }
-    const contentKind = kind || issue?.kind || 'article';
-    // PDF 文稿走页内阅读器；图文走详情页
-    if (contentKind === 'pdf' || String(id).startsWith('pdf-')) {
-      this.setData({
-        readerVisible: true,
-        readerIssueId: id,
-      });
-      return;
-    }
-    wx.navigateTo({
-      url: `/subpackages/kb-life/wetalk/detail?id=${encodeURIComponent(id)}`,
-    });
+    wx.navigateTo({ url: `/subpackages/kb-life/wetalk/detail?id=${encodeURIComponent(id)}` });
   },
 
-  onReaderClose() {
-    this.setData({
-      readerVisible: false,
-      readerIssueId: '',
-    });
-  },
+  onReaderClose() { this.setData({ readerVisible: false, readerIssueId: '' }); },
 
   onMagazineReadMore() {
-    wx.showToast({
-      title: COMING_SOON_TOAST,
-      icon: 'none',
-    });
+    wx.navigateTo({ url: '/subpackages/kb-life/wetalk/magazine' });
   },
 
   onRetry() {
-    void this.loadList({ force: true });
+    void this.loadList();
   },
 });

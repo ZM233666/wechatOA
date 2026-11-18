@@ -21,8 +21,8 @@
   <view wx:elif="{{pageStatus === 'loading'}}">
     <empty-state title="正在加载文章"></empty-state>
   </view>
-  <view wx:elif="{{pageStatus === 'error'}}" bindtap="onRetry">
-    <empty-state title="文章加载失败" description="{{errorText}}"></empty-state>
+  <view wx:elif="{{pageStatus === 'empty'}}" bindtap="onRetry">
+    <empty-state title="{{emptyTitle || '暂无内容'}}" description="{{emptyDesc}}"></empty-state>
   </view>
   <view wx:else class="news-empty">
     <empty-state title="未找到该新闻" description="请返回列表重试"></empty-state>

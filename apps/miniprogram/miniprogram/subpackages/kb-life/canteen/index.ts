@@ -1,5 +1,6 @@
 import { getCanteen, type CanteenSection } from '../../../services/kb-life.service';
-import { RequestError } from '../../../types/api';
+import { KB_LIFE_NO_CONTENT_DESC, KB_LIFE_NO_CONTENT_TITLE } from '../../../constants/kb-life-empty';
+import { friendlyUnavailablePageData, logPageLoadIssue } from '../../../utils/friendly-page-error';
 import { resolveCampusLocation } from '../../../utils/campus-location';
 import { rejectVisitorCampusAccess } from '../../../utils/kb-life-access';
 
@@ -12,7 +13,9 @@ Page({
     menuDate: '',
     coverImage: '',
     sections: [] as CanteenSection[],
-    pageStatus: 'loading' as 'loading' | 'success' | 'error',
+    pageStatus: 'loading' as 'loading' | 'success' | 'error' | 'empty',
+    emptyTitle: KB_LIFE_NO_CONTENT_TITLE,
+    emptyDesc: KB_LIFE_NO_CONTENT_DESC,
     errorText: '',
   },
 
@@ -31,6 +34,7 @@ Page({
     this.setData({ pageStatus: 'loading' });
     try {
       const result = await getCanteen(this.location);
+      const hasMenu = result.sections.length > 0;
       this.setData({
         location: result.location,
         intro: result.intro,
@@ -38,13 +42,16 @@ Page({
         menuDate: result.menuDate,
         coverImage: result.coverImage,
         sections: result.sections,
-        pageStatus: 'success',
+        pageStatus: hasMenu ? 'success' : 'empty',
       });
     } catch (error) {
-      this.setData({
-        pageStatus: 'error',
-        errorText: error instanceof RequestError ? error.message : '食堂菜单加载失败',
-      });
+      logPageLoadIssue('canteen', error);
+      this.setData(
+        friendlyUnavailablePageData({
+          title: KB_LIFE_NO_CONTENT_TITLE,
+          description: KB_LIFE_NO_CONTENT_DESC,
+        }),
+      );
     }
   },
 });

@@ -19,8 +19,9 @@ import {
   careCampusFromLocation,
   isLocalGlobalCareEnabled,
   loadLiveEmployeeCare,
+  resolveKbLifeCareBanners,
+  resolveEmployeeCareData,
 } from '../services/local-global-care.service';
-import { resolveKbLifeCareBanners } from '../services/local-global-care.service';
 import {
   hydrateEmployeeCareMedia,
   hydrateHighlightMomentsAlbum,
@@ -45,6 +46,7 @@ import {
   requireEmployeeIdentity,
   requireGuidanceDocumentsIdentity,
 } from '../services/identity-guard.service';
+import { normalizeKbLifeLocation } from '../services/kb-life-campus-code';
 import { HttpError } from '../middleware/error-handler.middleware';
 import { success } from '../utils/response';
 
@@ -52,8 +54,9 @@ function resolveCampusLocation(req: Request): string {
   const locations = getFixtures().kbLifeEntries.locations;
   const fallback = locations[0] ?? 'Suzhou';
   const raw = typeof req.query.location === 'string' ? req.query.location.trim() : '';
-  if (raw && locations.includes(raw)) {
-    return raw;
+  const location = raw ? normalizeKbLifeLocation(raw) : '';
+  if (location && locations.includes(location)) {
+    return location;
   }
   return fallback;
 }
@@ -77,8 +80,7 @@ export async function getKbLifeEntries(
     const kbLifeEntries = readJsonFile('kb-life/entries.json', kbLifeEntriesSchema);
     const campus = careCampusFromLocation(resolveCampusLocation(req));
     const careBanners = await resolveKbLifeCareBanners(campus);
-    const useCareBanners = careBanners.length > 0;
-    const banners = useCareBanners ? await hydrateKbLifeBanners(careBanners) : kbLifeEntries.banners;
+    const banners = careBanners.length > 0 ? await hydrateKbLifeBanners(careBanners) : [];
     success(
       res,
       withAbsoluteAssets(req, {
@@ -88,7 +90,7 @@ export async function getKbLifeEntries(
       req.requestId,
     );
     prewarmCareArticleDetails(
-      (useCareBanners ? careBanners : []).map((banner) => banner.id),
+      careBanners.map((banner) => banner.id),
       campus,
     );
   } catch (error) {
@@ -430,13 +432,12 @@ export async function getEmployeeCare(req: Request, res: Response, next: NextFun
       return;
     }
     const campus = careCampusFromLocation(resolveCampusLocation(req));
-    const live = await loadLiveEmployeeCare(campus, { force: true });
+    if (isLocalGlobalCareEnabled()) {
+      await loadLiveEmployeeCare(campus, { force: true });
+    }
     invalidateHydratedCareArticleDetails();
-    const data = live
-      ? await hydrateEmployeeCareMedia(live)
-      : isLocalGlobalCareEnabled()
-        ? { hero: fixture.hero, initiatives: [] }
-        : fixture;
+    const care = await resolveEmployeeCareData(campus);
+    const data = await hydrateEmployeeCareMedia(care);
     success(res, withAbsoluteAssets(req, data), req.requestId);
     prewarmCareArticleDetails(
       data.initiatives.map((item) => item.id),

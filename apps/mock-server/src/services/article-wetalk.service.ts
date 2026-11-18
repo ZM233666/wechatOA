@@ -151,6 +151,13 @@ function coverFromLocalWetalkPdf(pdfFileName?: string | null): ImageResource | n
   return issue?.coverImage || issue?.pages?.[0]?.coverImage || null;
 }
 
+/** 本地 PDF 目录/夹具中的封面图，供 WeTalk Mini 列表兜底 */
+export function resolveCatalogPdfCoverUrl(pdfFileName?: string | null): string | null {
+  const cover = coverFromLocalWetalkPdf(pdfFileName);
+  const url = cover?.url?.trim();
+  return url || null;
+}
+
 async function enrichArticleRowForMedia(row: ArticleContentRow): Promise<ArticleContentRow> {
   const kind = resolveWetalkContentKind(row);
   const needsDetail =

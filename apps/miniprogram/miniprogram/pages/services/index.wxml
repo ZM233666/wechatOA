@@ -17,8 +17,7 @@
 
   <view wx:if="{{!readerVisible && listVisible}}" class="insights-panel">
     <empty-state wx:if="{{listStatus === 'loading'}}" title="正在加载洞察"></empty-state>
-    <empty-state wx:elif="{{listStatus === 'error'}}" title="加载失败" description="{{listErrorText}}"></empty-state>
-    <empty-state wx:elif="{{listStatus === 'empty'}}" title="暂无洞察报告"></empty-state>
+    <empty-state wx:elif="{{listStatus === 'empty'}}" title="{{emptyTitle || '暂无洞察报告'}}" description="{{emptyDesc}}"></empty-state>
     <view wx:if="{{listStatus === 'success'}}" class="insights-panel__grid">
       <view
         class="insight-cover tap-feedback"
@@ -44,8 +43,7 @@
 
   <view wx:if="{{!readerVisible && !listVisible}}" class="services">
     <empty-state wx:if="{{pageStatus === 'loading'}}" title="正在加载服务"></empty-state>
-    <empty-state wx:elif="{{pageStatus === 'error'}}" title="服务加载失败" description="{{errorText}}"></empty-state>
-    <empty-state wx:elif="{{pageStatus === 'empty'}}" title="暂无服务内容"></empty-state>
+    <empty-state wx:elif="{{pageStatus === 'empty'}}" title="{{emptyTitle || '暂无服务内容'}}" description="{{emptyDesc}}"></empty-state>
     <block wx:if="{{pageStatus === 'success'}}">
     <view
       class="hero-card tap-feedback"

@@ -37,7 +37,7 @@
       }
     }
   ],
-  "locations": ["Suzhou", "Qingdao", "Daxing", "Nankou"],
+  "locations": ["Suzhou", "Qingdao", "Daxing", "Nankou", "BJ Office"],
   "campusServices": [
     {
       "id": "campus-map",

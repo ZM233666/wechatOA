@@ -13,8 +13,8 @@
   <view wx:elif="{{pageStatus === 'loading'}}">
     <empty-state title="正在加载案例"></empty-state>
   </view>
-  <view wx:elif="{{pageStatus === 'error'}}" bindtap="onRetry">
-    <empty-state title="案例加载失败" description="{{errorText}}"></empty-state>
+  <view wx:elif="{{pageStatus === 'empty'}}" bindtap="onRetry">
+    <empty-state title="{{emptyTitle || '暂无内容'}}" description="{{emptyDesc}}"></empty-state>
   </view>
   <view wx:else class="case-empty">
     <empty-state title="未找到该项目案例"></empty-state>

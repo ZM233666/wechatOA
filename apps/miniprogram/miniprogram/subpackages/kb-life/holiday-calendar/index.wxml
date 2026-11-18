@@ -4,9 +4,9 @@
   <view class="holiday">
     <empty-state wx:if="{{pageStatus === 'loading'}}" title="正在加载假期日历"></empty-state>
     <empty-state
-      wx:elif="{{pageStatus === 'error'}}"
-      title="加载失败"
-      description="{{errorText}}"
+      wx:elif="{{pageStatus === 'empty'}}"
+      title="{{emptyTitle || '暂无内容'}}"
+      description="{{emptyDesc}}"
     ></empty-state>
     <block wx:if="{{pageStatus === 'success'}}">
     <view class="calendar-card">

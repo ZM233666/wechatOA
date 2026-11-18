@@ -1,10 +1,12 @@
-import { logWarn } from '../utils/logger';
+import { logInfo } from '../utils/logger';
+import { HttpError } from '../middleware/error-handler.middleware';
 import { getFixtures } from './fixture.service';
 import type { NewsArticleFixture } from '../schemas/news.schema';
 import { isArticleNewsEnabled } from './article-content.client';
 import {
   getArticleNewsArticles,
   getArticleNewsCategories,
+  getArticleNewsStatus,
   hydrateArticleNewsDetail,
   invalidateArticleNewsDetailCache,
   refreshArticleNewsInBackground,
@@ -12,36 +14,46 @@ import {
 } from './article-news.service';
 import { hasUsableNewsBody } from './news-body-presentation';
 
-/**
- * 优先使用管理端 article-content 缓存；缓存为空时同步等待一次拉取。
- * 远程仍失败时回退本地 fixtures（联调离线可用）。
- */
-export async function getNewsArticlesForRequest(): Promise<NewsArticleFixture[]> {
-  if (isArticleNewsEnabled()) {
-    let articles = getArticleNewsArticles();
-    if (!articles.length) {
-      articles = await syncArticleNews({ force: true });
-    } else {
-      refreshArticleNewsInBackground();
-    }
-    if (articles.length) {
-      return articles;
-    }
-    logWarn(
-      'NEWS_ARTICLE_ENABLED 已开启但未同步到 CMS 文章，首页/列表将回退 fixtures；请确认 Django 已启动且 article-content 可访问',
-    );
+/** Fixtures are explicit demo/offline mode only (NEWS_ARTICLE_ENABLED=false). */
+export function getNewsSourceStatus() {
+  if (!isArticleNewsEnabled()) {
+    return { source: 'fixtures' as const, state: 'success' as const, count: getFixtures().newsArticles.length };
   }
-  return getFixtures().newsArticles;
+  const status = getArticleNewsStatus();
+  return {
+    source: 'cms' as const,
+    state: status.lastError
+      ? status.lastSuccessMs > 0 ? 'stale' as const : 'error' as const
+      : status.count ? 'success' as const : 'empty' as const,
+    count: status.count,
+    ...(status.lastError ? { errorCategory: status.lastError } : {}),
+  };
+}
+
+export async function getNewsArticlesForRequest(): Promise<NewsArticleFixture[]> {
+  if (!isArticleNewsEnabled()) {
+    const articles = getFixtures().newsArticles;
+    logInfo('News source', getNewsSourceStatus());
+    return articles;
+  }
+  const before = getArticleNewsStatus();
+  if (!before.lastSuccessMs || !getArticleNewsArticles().length) {
+    // Includes a successfully cached empty list; sync respects its normal TTL.
+    await syncArticleNews();
+  } else {
+    refreshArticleNewsInBackground();
+  }
+  const status = getArticleNewsStatus();
+  if (status.lastError && !status.lastSuccessMs) {
+    throw new HttpError(503, '新闻服务暂不可用，请稍后重试', 'NEWS_SOURCE_UNAVAILABLE', getNewsSourceStatus());
+  }
+  return getArticleNewsArticles();
 }
 
 export async function getNewsCategoriesForRequest(): Promise<Array<{ id: string; name: string }>> {
-  if (isArticleNewsEnabled()) {
-    const articles = await getNewsArticlesForRequest();
-    if (articles.length && getArticleNewsArticles().length) {
-      return getArticleNewsCategories();
-    }
-  }
-  return getFixtures().newsCategories;
+  if (!isArticleNewsEnabled()) return getFixtures().newsCategories;
+  await getNewsArticlesForRequest();
+  return getArticleNewsCategories();
 }
 
 export function findNewsArticle(
@@ -61,8 +73,8 @@ export function findNewsArticle(
 export async function getNewsArticleForDetail(idOrSlug: string): Promise<NewsArticleFixture | undefined> {
   const articles = await getNewsArticlesForRequest();
   let found = findNewsArticle(articles, idOrSlug);
-  // CMS 列表为 article-* 时，仍允许用 fixtures 中的稳定 ID（如 news-001）打开详情（文档/编译模式深链）
-  if (!found) {
+  // Never cross from CMS into fixture detail IDs.
+  if (!found && !isArticleNewsEnabled()) {
     found = findNewsArticle(getFixtures().newsArticles, idOrSlug);
   }
   if (!found) {

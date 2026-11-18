@@ -2,11 +2,13 @@ import {
   getCompanyActivities,
   type HighlightMomentAlbumSummaryView,
 } from '../../../../services/kb-life.service';
-import { RequestError } from '../../../../types/api';
+import { friendlyUnavailablePageData, logPageLoadIssue } from '../../../../utils/friendly-page-error';
 
 Page({
   data: {
-    pageStatus: 'loading' as 'loading' | 'success' | 'empty' | 'error',
+    pageStatus: 'loading' as 'loading' | 'success' | 'empty',
+    emptyTitle: '',
+    emptyDesc: '',
     errorText: '',
     section: {
       title: '',
@@ -54,7 +56,7 @@ Page({
     try {
       const result = await getCompanyActivities();
       if (!result.highlightMoments?.albums.length) {
-        this.setData({ pageStatus: 'empty' });
+        this.setData(friendlyUnavailablePageData({ title: '暂无活动相册' }));
         return;
       }
       this.setData({
@@ -65,10 +67,8 @@ Page({
       if (keepContent) {
         return;
       }
-      this.setData({
-        pageStatus: 'error',
-        errorText: error instanceof RequestError ? error.message : '精彩瞬间加载失败',
-      });
+      logPageLoadIssue('highlight-moments', error);
+      this.setData(friendlyUnavailablePageData({ title: '暂无活动相册' }));
     }
   },
 

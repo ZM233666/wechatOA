@@ -1,6 +1,7 @@
 import { getInsightReports, type InsightCover } from '../../../services/services.service';
 import { RequestError } from '../../../types/api';
 import { openInsightContent } from '../../../utils/insights';
+import { friendlyUnavailablePageData, logPageLoadIssue } from '../../../utils/friendly-page-error';
 
 Page({
   data: {
@@ -33,8 +34,8 @@ Page({
       });
     } catch (error) {
       this.setData({
-        pageStatus: 'error',
-        errorText: error instanceof RequestError ? error.message : '洞察列表加载失败',
+        pageStatus: 'empty',
+        ...friendlyUnavailablePageData(),
       });
     }
   },

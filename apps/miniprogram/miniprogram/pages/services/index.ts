@@ -16,6 +16,7 @@ import {
   unbindIdentitySessionRefresh,
 } from '../../utils/identity-session-refresh';
 import { openInsightContent } from '../../utils/insights';
+import { friendlyUnavailablePageData, logPageLoadIssue } from '../../utils/friendly-page-error';
 
 Page({
   data: {
@@ -81,8 +82,8 @@ Page({
       });
     } catch (error) {
       this.setData({
-        pageStatus: 'error',
-        errorText: error instanceof RequestError ? error.message : '服务加载失败',
+        pageStatus: 'empty',
+        ...friendlyUnavailablePageData(),
       });
     }
   },
@@ -96,10 +97,9 @@ Page({
         listStatus: items.length ? 'success' : 'empty',
       });
     } catch (error) {
-      this.setData({
-        listStatus: 'error',
-        listErrorText: error instanceof RequestError ? error.message : '洞察列表加载失败',
-      });
+      logPageLoadIssue('services-insights', error);
+      const { emptyTitle, emptyDesc, errorText } = friendlyUnavailablePageData();
+      this.setData({ listStatus: 'empty', emptyTitle, emptyDesc, errorText });
     }
   },
 

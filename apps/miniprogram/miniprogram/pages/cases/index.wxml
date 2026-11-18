@@ -4,8 +4,8 @@
   <view class="cases">
     <text class="cases__heading">Project Cases</text>
     <empty-state wx:if="{{pageStatus === 'loading'}}" title="正在加载案例"></empty-state>
-    <view wx:elif="{{pageStatus === 'error'}}" bindtap="onRetry">
-      <empty-state title="案例加载失败" description="{{errorText}}"></empty-state>
+    <view wx:elif="{{pageStatus === 'empty'}}" bindtap="onRetry">
+      <empty-state title="{{emptyTitle || '暂无内容'}}" description="{{emptyDesc}}"></empty-state>
     </view>
     <empty-state wx:elif="{{pageStatus === 'empty'}}" title="暂无项目案例"></empty-state>
 

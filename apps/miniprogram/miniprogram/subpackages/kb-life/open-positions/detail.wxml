@@ -2,12 +2,7 @@
   <nav-brand title="Job Details" show-back="{{true}}"></nav-brand>
 
   <empty-state wx:if="{{pageStatus === 'loading'}}" title="正在加载岗位详情"></empty-state>
-  <view wx:elif="{{pageStatus === 'error'}}" class="job-empty">
-    <text class="job-empty__text">{{errorText}}</text>
-  </view>
-  <view wx:elif="{{!job}}" class="job-empty">
-    <text class="job-empty__text">未找到该岗位信息</text>
-  </view>
+  <empty-state wx:elif="{{pageStatus === 'empty'}}" title="{{emptyTitle || '暂无岗位信息'}}" description="{{emptyDesc}}"></empty-state>
 
   <view wx:elif="{{job}}" class="job-detail">
     <view class="job-detail__hero">

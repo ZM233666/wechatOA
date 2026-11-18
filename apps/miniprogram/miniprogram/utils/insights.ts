@@ -35,8 +35,9 @@ export async function openInsightContent(options: {
     }
     onOpenReader(id);
   } catch (error) {
+    console.warn('[insights-open]', error instanceof Error ? error.message : error);
     wx.showToast({
-      title: error instanceof RequestError ? error.message : '打开失败',
+      title: '暂无法打开，请稍后再试',
       icon: 'none',
     });
   } finally {

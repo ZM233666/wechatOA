@@ -6,8 +6,8 @@
       title="正在加载首页"
       description="正在从 Mock API 获取数据"
     ></empty-state>
-    <view wx:elif="{{pageStatus === 'error'}}" bindtap="onRetry">
-      <empty-state title="首页加载失败" description="{{errorText}}"></empty-state>
+    <view wx:elif="{{pageStatus === 'empty'}}" bindtap="onRetry">
+      <empty-state title="{{emptyTitle || '暂无内容'}}" description="{{emptyDesc}}"></empty-state>
     </view>
     <empty-state
       wx:elif="{{pageStatus === 'empty'}}"
@@ -16,7 +16,7 @@
     ></empty-state>
 
     <block wx:if="{{pageStatus === 'success'}}">
-    <view class="home-banner">
+    <view wx:if="{{banners.length > 0}}" class="home-banner">
       <swiper
         class="home-banner__swiper"
         indicator-dots="{{true}}"
@@ -65,6 +65,10 @@
         bind:more="onNewsMore"
       ></section-title>
 
+      <view wx:if="{{newsStatus && newsStatus.state === 'stale'}}">
+        <text>新闻暂未更新，当前显示上次同步内容</text>
+      </view>
+      <empty-state wx:if="{{newsList.length === 0}}" title="暂无新闻" description="当前没有可展示的已发布新闻"></empty-state>
       <view class="home-news__list">
         <view
           class="home-news__item tap-feedback"

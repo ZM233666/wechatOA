@@ -260,8 +260,9 @@ export interface CampusMapPage {
 export interface CampusMapData {
   title: string;
   image: ImageResource;
-  /** PDF 源访问路径；有 PDF 时前端走页内翻页阅读器 */
+  /** PDF 源访问路径（仅 PDF 园区地图） */
   pdfUrl?: string;
+  /** 页图序列：来自 PDF 渲页、Map/ 内图片或封面图；前端有 pages 时走阅读器 */
   pages?: CampusMapPage[];
 }
 

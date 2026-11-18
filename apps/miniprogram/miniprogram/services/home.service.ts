@@ -4,6 +4,7 @@ import { API_ENDPOINTS } from './endpoints';
 import { get } from './request';
 
 export interface HomeViewData {
+  newsStatus: HomeData['newsStatus'] | null;
   banners: HomeBanner[];
   entries: QuickEntry[];
   newsList: NewsSummary[];
@@ -12,6 +13,7 @@ export interface HomeViewData {
 export async function getHome(): Promise<HomeViewData> {
   const data = await get<HomeData>(API_ENDPOINTS.home);
   return {
+    newsStatus: data.newsStatus ?? null,
     banners: data.banners.map((item) => ({
       id: item.id,
       title: item.title,

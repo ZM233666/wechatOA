@@ -15,6 +15,7 @@ import {
   getNewsArticleForDetail,
   getNewsArticlesForRequest,
   getNewsCategoriesForRequest,
+  getNewsSourceStatus,
 } from '../services/news-source.service';
 import { emptyPage, paginate } from '../services/pagination.service';
 import { HttpError } from '../middleware/error-handler.middleware';
@@ -44,7 +45,7 @@ export async function getNewsCategories(
         articleCount: counts.get(category.id) ?? 0,
       })),
     ];
-    success(res, { items }, req.requestId);
+    success(res, { items, newsStatus: getNewsSourceStatus() }, req.requestId);
   } catch (error) {
     next(error);
   }
@@ -74,7 +75,7 @@ export async function getNewsList(req: Request, res: Response, next: NextFunctio
       return matchesNewsKeyword(item, keyword);
     });
     const summaries = filtered.map(toNewsSummary);
-    success(res, withAbsoluteAssets(req, paginate(summaries, page, pageSize)), req.requestId);
+    success(res, withAbsoluteAssets(req, { ...paginate(summaries, page, pageSize), newsStatus: getNewsSourceStatus() }), req.requestId);
   } catch (error) {
     next(error);
   }

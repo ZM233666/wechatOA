@@ -13,6 +13,7 @@ import { getHolidayCalendar } from '../../../services/kb-life.service';
 import { RequestError } from '../../../types/api';
 import { resolveCampusLocation } from '../../../utils/campus-location';
 import { rejectVisitorCampusAccess } from '../../../utils/kb-life-access';
+import { friendlyUnavailablePageData, logPageLoadIssue } from '../../../utils/friendly-page-error';
 
 function getMonthView(
   year: number,
@@ -70,8 +71,8 @@ Page({
       });
     } catch (error) {
       this.setData({
-        pageStatus: 'error',
-        errorText: error instanceof RequestError ? error.message : '假期日历加载失败',
+        pageStatus: 'empty',
+        ...friendlyUnavailablePageData(),
       });
     }
   },

@@ -3,6 +3,7 @@ import { invalidateRequestCache } from '../../../services/request';
 import { RequestError } from '../../../types/api';
 import type { ArticleContentBlock } from '../../../types/content';
 import { rejectUnboundIdentityAccess } from '../../../utils/identity-access';
+import { friendlyUnavailablePageData, logPageLoadIssue } from '../../../utils/friendly-page-error';
 
 const NATIVE_BLOCK_TYPES = new Set(['carousel', 'video']);
 
@@ -81,7 +82,7 @@ Page({
       }
       this.setData({
         pageStatus: notFound ? 'empty' : 'error',
-        errorText: error instanceof RequestError ? error.message : '文章加载失败',
+        ...friendlyUnavailablePageData(),
         article: null,
         useBlockBody: false,
       });

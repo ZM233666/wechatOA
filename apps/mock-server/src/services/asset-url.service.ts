@@ -2,7 +2,8 @@ import type { Request } from 'express';
 import { mockEnv } from '../config/env';
 import { absolutizeHtmlAssetUrls } from './article-html.service';
 
-const ASSET_KEYS = new Set(['url', 'imageUrl', 'pdfUrl']);
+/** Mini Django 字段含 coverUrl；与 ImageResource.url / pdfUrl 一并绝对化 */
+const ASSET_KEYS = new Set(['url', 'imageUrl', 'pdfUrl', 'coverUrl']);
 
 function joinBase(baseUrl: string, assetPath: string): string {
   if (/^https?:\/\//i.test(assetPath)) {

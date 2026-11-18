@@ -232,7 +232,20 @@ export const campusMapSchema = z.object({
     .string()
     .regex(/^[^/\\]+\.pdf$/i, 'pdfFile 必须是 Map/ 下的 .pdf 文件名')
     .optional(),
+  /** 相对 `locations/{Location}/Map/` 的图片；未指定时扫描目录内全部图片（按文件名排序） */
+  imageFile: z
+    .string()
+    .regex(/^[^/\\]+\.(png|jpe?g|webp|gif)$/i, 'imageFile 必须是 Map/ 下的图片文件名')
+    .optional(),
   pages: z.array(campusMapPageSchema).optional(),
+}).superRefine((value, ctx) => {
+  if (value.pdfFile && value.imageFile && value.pdfFile === value.imageFile) {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      message: 'pdfFile 与 imageFile 不能相同',
+      path: ['imageFile'],
+    });
+  }
 });
 
 export const holidayMarkSchema = z.object({

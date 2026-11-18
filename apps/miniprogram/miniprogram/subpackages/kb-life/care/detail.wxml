@@ -2,8 +2,8 @@
   <nav-brand title="Employee Care" show-back="{{true}}"></nav-brand>
 
   <empty-state wx:if="{{pageStatus === 'loading'}}" title="正在加载文章"></empty-state>
-  <view wx:elif="{{pageStatus === 'error'}}" bindtap="onRetry">
-    <empty-state title="加载失败" description="{{errorText}}"></empty-state>
+  <view wx:elif="{{pageStatus === 'empty'}}" bindtap="onRetry">
+    <empty-state title="{{emptyTitle || '暂无内容'}}" description="{{emptyDesc}}"></empty-state>
   </view>
   <empty-state wx:elif="{{pageStatus === 'empty'}}" title="未找到该文章"></empty-state>
 

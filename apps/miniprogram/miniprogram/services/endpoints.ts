@@ -75,9 +75,17 @@ export const API_ENDPOINTS = {
   kbLifeHighlightMomentAlbum: (id: string) =>
     p(`/kb-life/highlight-moments/albums/${encodeURIComponent(id)}`),
   get kbLifeWetalk() {
-    return p('/kb-life/wetalk');
+    return p('/wetalk/news/');
   },
-  kbLifeWetalkDetail: (id: string) => p(`/kb-life/wetalk/${encodeURIComponent(id)}`),
+  kbLifeWetalkDetail: (id: string) => p(`/wetalk/news/${encodeURIComponent(id)}/`),
+  get kbLifeWetalkMagazines() { return p('/wetalk/emagazines/'); },
+  kbLifeWetalkMagazineDetail: (id: string) => p(`/wetalk/emagazines/${encodeURIComponent(id)}/`),
+  kbLifeWetalkReader: (resource: 'news' | 'emagazines', id: string) =>
+    p(`/wetalk/${resource}/${encodeURIComponent(id)}/reader`),
+  kbLifeWetalkReaderPage: (resource: 'news' | 'emagazines', id: string, version: string, page: number) =>
+    p(`/wetalk/${resource}/${encodeURIComponent(id)}/reader/pages/${version}/${page}`),
+  kbLifeWetalkCover: (resource: 'news' | 'emagazines', id: string) =>
+    p(`/wetalk/${resource}/${encodeURIComponent(id)}/cover`),
   get kbLifeCampusMap() {
     return p('/kb-life/campus-map');
   },

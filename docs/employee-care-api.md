@@ -47,7 +47,7 @@ WeTalk / 员工手册为 Employee 专属；员工关怀与园区服务同级，C
 
 ### KB Life 顶栏 Banner
 
-`GET /kb-life/entries` 的 `banners[]` **优先**来自已发布关怀 initiative 中 `showOnKbLifeBanner=true` 的条目（按 `date` 倒序，最多 5 条）。若无勾选项，回退 `fixtures/kb-life/entries.json` 中的静态 `banners`。
+`GET /kb-life/entries` 的 `banners[]` 仅来自**本地/全球关怀**中配置了顶栏 Banner 的已发布稿（`global.banner` / `local.banner`、`showOnKbLifeBanner`，最多 5 条）。Live 无匹配稿时回退 `fixtures/kb-life/care.json` 中带 `showOnKbLifeBanner` 的条目（开发联调）；**不会**使用 `entries.json` 里的企业文化静态轮播图。
 
 Banner 项含 `careId`、`targetUrl`（跳转关怀列表页，可带 `initiativeId` query）。
 
@@ -63,7 +63,7 @@ Mock 映射为 initiative 的 `showOnKbLifeBanner`。
 ## Mock Server
 
 - 默认 Fixture：`apps/mock-server/fixtures/kb-life/care.json`
-- 开启 `LOCAL_GLOBAL_CARE_ENABLED=true` 时：**优先**请求 Django Mini `GET /api/v1/mini/kb-life/local-global-care/?campus=suzhou`（多篇 `LocalGlobalCareArticle`，含 `showOnKbLifeBanner`）；失败或无文稿时回退 JWT 旧接口 `GET /api/local-global-care/care/current/`；再失败则用 fixture
+- 开启 `LOCAL_GLOBAL_CARE_ENABLED=true` 时：**优先**用服务账号 JWT 请求 Django Mini `GET /api/v1/mini/kb-life/local-global-care/?campus=…`（多篇文稿 + `banner` / `showOnKbLifeBanner`）；失败时再试 JWT 旧接口 `GET /api/local-global-care/care/current/`（仅 `published` 稿）；Live 仍无稿则返回空列表，**不回退** fixture 占位文案
 - 控制器：`getEmployeeCare` → `requireBoundIdentity`
 
 ## 小程序

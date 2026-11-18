@@ -24,6 +24,7 @@ export const productCategoriesFileSchema = z.object({
 
 export const productSummarySchema = z.object({
   id: z.string().min(1),
+  productNo: z.string().optional(),
   name: z.string().min(1),
   nameCn: z.string().min(1),
   summary: z.string().min(1),

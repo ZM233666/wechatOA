@@ -6,7 +6,8 @@ import {
   type ShuttleRoute,
   type ShuttleTripPlanResult,
 } from '../../../services/kb-life.service';
-import { RequestError } from '../../../types/api';
+import { KB_LIFE_NO_CONTENT_DESC, KB_LIFE_NO_CONTENT_TITLE } from '../../../constants/kb-life-empty';
+import { friendlyUnavailablePageData, logPageLoadIssue } from '../../../utils/friendly-page-error';
 import { resolveCampusLocation } from '../../../utils/campus-location';
 import { rejectVisitorCampusAccess } from '../../../utils/kb-life-access';
 import {
@@ -39,7 +40,9 @@ Page({
     tripPlanStatus: 'idle' as 'idle' | 'loading' | 'success' | 'error',
     tripPlanError: '',
     tripPlanResult: null as ShuttleTripPlanResult | null,
-    pageStatus: 'loading' as 'loading' | 'success' | 'error',
+    pageStatus: 'loading' as 'loading' | 'success' | 'error' | 'empty',
+    emptyTitle: KB_LIFE_NO_CONTENT_TITLE,
+    emptyDesc: KB_LIFE_NO_CONTENT_DESC,
     errorText: '',
     statusBarHeight: 20,
     navBarHeight: 44,
@@ -77,6 +80,18 @@ Page({
         { id: 'all', name: '全部线路 All Routes' },
         ...mapRoutes.map((route) => ({ id: route.id, name: route.name })),
       ];
+      const hasSchedule = result.routes.length > 0;
+      const hasMap = mapRoutes.length > 0;
+      if (!hasSchedule && !hasMap) {
+        this.setData({
+          location: result.location,
+          notice: result.notice,
+          allRoutes: [],
+          routes: [],
+          pageStatus: 'empty',
+        });
+        return;
+      }
       this.setData({
         location: result.location,
         notice: result.notice,
@@ -94,10 +109,13 @@ Page({
         this.openMapView();
       }
     } catch (error) {
-      this.setData({
-        pageStatus: 'error',
-        errorText: error instanceof RequestError ? error.message : '班车信息加载失败',
-      });
+      logPageLoadIssue('shuttle-bus', error);
+      this.setData(
+        friendlyUnavailablePageData({
+          title: KB_LIFE_NO_CONTENT_TITLE,
+          description: KB_LIFE_NO_CONTENT_DESC,
+        }),
+      );
     }
   },
 
@@ -197,9 +215,10 @@ Page({
         },
       });
     } catch (error) {
+      logPageLoadIssue('shuttle-trip-plan', error);
       this.setData({
         tripPlanStatus: 'error',
-        tripPlanError: error instanceof RequestError ? error.message : '路线规划失败',
+        tripPlanError: '暂无法规划路线，请稍后再试',
       });
     }
   },

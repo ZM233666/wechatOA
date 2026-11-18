@@ -178,3 +178,23 @@ Insights / WeTalk / 苏州地图 / 班车 PDF 仍以 MinIO 或本地 `files/` �
 3. 日常正式联调可停止 `pnpm dev:mock`；**本仓库仍保留** `apps/mock-server` 供独立开发、场景演示与自动化测试
 4. 不要改页面业务逻辑；路径约定仅做 `/api/v1/mini` 前缀对齐
 5. **不要**把迁移目标写成 NestJS / `apps/server`；详见 `docs/mock-to-real-backend.md`
+
+## CMS 新闻空数据与离线演示
+
+- `NEWS_ARTICLE_ENABLED=true`：CMS 为唯一新闻源。成功返回空数组表示真实空态，Home 不回退 fixture Banner，列表/详情/分类也不混入 fixtures。
+- `NEWS_ARTICLE_ENABLED=false`：显式本地演示/离线 fixtures；测试环境保留隔离 fixtures 的既有行为。不要以关闭开关掩盖 CMS 数据或权限问题。
+- 同步失败时保留最近一次成功 CMS 快照（包括成功的空数组），状态为 `stale`；从未成功则返回 HTTP 503 / `NEWS_SOURCE_UNAVAILABLE`。成功同步空数组会替换旧文章，避免已删除新闻继续展示。
+- Home/新闻列表/分类的 `newsStatus` 标明 `source`、`state`、`count` 和可选脱敏 `errorCategory`。后台刷新失败在完成后标为 stale；正在进行的请求可能仍读到刷新前状态。
+- CMS 列表只接受已验证的业务码 2000 + 数组 `data`；非数组是契约错误，不猜测分页键，也不转换成合法空数组。
+- 合法空结果按现有同步 TTL 缓存，避免每次 Home 请求都重新同步；启动日志明确区分 ready 与 empty。
+
+
+### WeTalk 站内书本阅读（BFF 扩展）
+
+- `GET /api/wetalk/{news|emagazines}/:id/reader`：重新读取官方 Mini 已发布详情及当前 PDF，返回版本、页数、顺序和尺寸；不是管理 API/fixtures 数据。
+- `GET /api/wetalk/{news|emagazines}/:id/reader/pages/:version/:page`：带同一 `X-Login-Code`，每次重新校验官方 Mini 可见性，且需此前该身份的有效阅读清单；`private, no-store`，不挂公开静态目录。
+- 缓存位于 `runtime/wetalk-reader`，类型/ID/渲染版本/PDF 完整字节 SHA-256 隔离；每次新打开重新下载当前 PDF 验证内容，不把去 query 的 URL 当版本，也不保存签名 URL/登录 code。阅读租期空闲 10 分钟失效，重新打开即可恢复。
+- 只接受官方详情返回、且属于已配置 CMS/MinIO 精确 origin 的 PDF；拒绝重定向。30MiB 输入、120 页、单页 1200 万像素、总 1.2 亿像素、150MiB 输出、45 秒渲染上限、最多 2 个并发转换，忙时返回 429；不安装依赖。
+- 复用现有 PyMuPDF 脚本。依次检测已有 `python3`、`/usr/local/bin/python3`、`/opt/homebrew/bin/python3`，只选择已能 import fitz 的解释器。原 Insights 同步渲染调用不变。
+- 小程序书本页图用带身份 header 的下载请求获得临时本地文件，不将登录 code 放入图片 URL；按 BFF 地址/内容版本/当前身份隔离，最多 6 张、30 秒的内存索引复用避免翻页重复下载，不写持久存储。既有 Insights/地图普通图片和翻页 UI 保持原机制。
+- 上述 reader/page 是本 BFF 新路由，不是上游 CMS 既有 Mini 契约。正式环境需部署此 BFF/反代至对应路径；不能只直连尚无 reader 路由的 CMS。原始 PDF 系统预览不再是 WeTalk 默认入口。

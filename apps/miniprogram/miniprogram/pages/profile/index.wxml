@@ -8,7 +8,7 @@
 
   <view wx:if="{{settingView === 'main'}}" class="profile">
     <empty-state wx:if="{{pageStatus === 'loading'}}" title="正在加载个人中心"></empty-state>
-    <empty-state wx:elif="{{pageStatus === 'error'}}" title="加载失败" description="{{errorText}}"></empty-state>
+    <empty-state wx:elif="{{pageStatus === 'empty'}}" title="{{emptyTitle || '暂无内容'}}" description="{{emptyDesc}}"></empty-state>
     <block wx:else>
       <view class="profile-hero">
         <image
@@ -43,7 +43,7 @@
 
   <view wx:elif="{{settingView === 'basic-info'}}" class="basic-info">
     <empty-state wx:if="{{basicInfoStatus === 'loading'}}" title="正在加载基本信息"></empty-state>
-    <empty-state wx:elif="{{basicInfoStatus === 'error'}}" title="加载失败" description="{{basicInfoErrorText}}"></empty-state>
+    <empty-state wx:elif="{{basicInfoStatus === 'empty'}}" title="{{emptyTitle || '暂无内容'}}" description="{{emptyDesc}}"></empty-state>
 
     <view wx:elif="{{basicInfoStatus === 'success'}}" class="basic-info__card">
       <view class="basic-info__head">

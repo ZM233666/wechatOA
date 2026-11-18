@@ -46,7 +46,15 @@ export interface HomeApiQuickEntry {
   path: string;
 }
 
+export interface NewsSourceStatus {
+  source: 'cms' | 'fixtures';
+  state: 'success' | 'empty' | 'stale' | 'error';
+  count: number;
+  errorCategory?: string;
+}
+
 export interface HomeData {
+  newsStatus?: NewsSourceStatus;
   banners: HomeApiBanner[];
   quickEntries: HomeApiQuickEntry[];
   latestNews: Array<{

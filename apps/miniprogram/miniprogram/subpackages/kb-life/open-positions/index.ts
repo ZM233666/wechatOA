@@ -1,5 +1,6 @@
 import { getOpenPositions, type OpenPositionSummaryView } from '../../../services/kb-life.service';
 import { RequestError } from '../../../types/api';
+import { friendlyUnavailablePageData, logPageLoadIssue } from '../../../utils/friendly-page-error';
 
 Page({
   data: {
@@ -31,8 +32,8 @@ Page({
       });
     } catch (error) {
       this.setData({
-        pageStatus: 'error',
-        errorText: error instanceof RequestError ? error.message : '岗位列表加载失败',
+        pageStatus: 'empty',
+        ...friendlyUnavailablePageData(),
       });
     }
   },

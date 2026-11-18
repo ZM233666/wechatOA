@@ -2,6 +2,7 @@
   "navigationStyle": "custom",
   "backgroundColor": "#F5F7FA",
   "usingComponents": {
+    "insight-reader": "/components/services/insight-reader/index",
     "nav-brand": "/components/common/nav-brand/nav-brand",
     "empty-state": "/components/common/empty-state/empty-state",
     "article-renderer": "/components/common/article-renderer/index",

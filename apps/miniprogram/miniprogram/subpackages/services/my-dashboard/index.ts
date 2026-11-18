@@ -2,6 +2,7 @@ import { getMyDashboardModules, type MyDashboardModule } from '../../../services
 import { RequestError } from '../../../types/api';
 import { showComingSoonModal } from '../coming-soon';
 import { rejectUnboundIdentityAccess } from '../../../utils/identity-access';
+import { friendlyUnavailablePageData, logPageLoadIssue } from '../../../utils/friendly-page-error';
 
 Page({
   data: {
@@ -27,8 +28,8 @@ Page({
       });
     } catch (error) {
       this.setData({
-        pageStatus: 'error',
-        errorText: error instanceof RequestError ? error.message : '模块加载失败',
+        pageStatus: 'empty',
+        ...friendlyUnavailablePageData(),
       });
     }
   },

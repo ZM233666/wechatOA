@@ -1,5 +1,5 @@
 import { getGuidanceDocuments } from '../../../services/kb-life.service';
-import { RequestError } from '../../../types/api';
+import { friendlyUnavailablePageData, logPageLoadIssue } from '../../../utils/friendly-page-error';
 
 Page({
   data: {
@@ -11,7 +11,9 @@ Page({
       iconBg: string;
       path: string;
     }>,
-    pageStatus: 'loading' as 'loading' | 'success' | 'error',
+    pageStatus: 'loading' as 'loading' | 'success' | 'empty',
+    emptyTitle: '',
+    emptyDesc: '',
     errorText: '',
   },
 
@@ -49,10 +51,8 @@ Page({
         pageStatus: 'success',
       });
     } catch (error) {
-      this.setData({
-        pageStatus: 'error',
-        errorText: error instanceof RequestError ? error.message : '指导文件加载失败',
-      });
+      logPageLoadIssue('guidance', error);
+      this.setData(friendlyUnavailablePageData());
     }
   },
 

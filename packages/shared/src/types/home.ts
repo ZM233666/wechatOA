@@ -55,7 +55,15 @@ export interface HomeBrandInfo {
   logo: ImageResource;
 }
 
+export interface NewsSourceStatus {
+  source: 'cms' | 'fixtures';
+  state: 'success' | 'empty' | 'stale' | 'error';
+  count: number;
+  errorCategory?: string;
+}
+
 export interface HomeData {
+  newsStatus?: NewsSourceStatus;
   banners: HomeBanner[];
   quickEntries: HomeQuickEntry[];
   recommendedProducts: HomeProductCard[];

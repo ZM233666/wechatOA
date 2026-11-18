@@ -5,8 +5,8 @@
   style="{{fillParent === false ? ('height:' + readerHeight + 'px;') : ''}}--header-inset: {{headerInset}}px;"
 >
   <empty-state wx:if="{{pageStatus === 'loading'}}" title="{{isMapMode ? '正在打开园区地图' : (isBookMode ? '正在打开刊物' : '正在打开报告')}}"></empty-state>
-  <view wx:elif="{{pageStatus === 'error'}}" class="insight-reader__error" bindtap="onClose">
-    <empty-state title="{{isMapMode ? '地图加载失败' : '内容加载失败'}}" description="{{errorText}}"></empty-state>
+  <view wx:elif="{{pageStatus === 'empty'}}" class="insight-reader__error" bindtap="onClose">
+    <empty-state title="{{emptyTitle || '暂无内容'}}" description="{{emptyDesc}}"></empty-state>
   </view>
 
   <block wx:elif="{{pageStatus === 'success' && report}}">

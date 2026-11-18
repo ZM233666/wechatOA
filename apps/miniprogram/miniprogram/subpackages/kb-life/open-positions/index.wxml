@@ -6,8 +6,8 @@
     <text class="jobs__heading-sub">Open Positions</text>
 
     <empty-state wx:if="{{pageStatus === 'loading'}}" title="正在加载岗位列表"></empty-state>
-    <view wx:elif="{{pageStatus === 'error'}}" bindtap="loadPositions">
-      <empty-state title="加载失败" description="{{errorText}}"></empty-state>
+    <view wx:elif="{{pageStatus === 'empty'}}" bindtap="loadPositions">
+      <empty-state title="{{emptyTitle || '暂无内容'}}" description="{{emptyDesc}}"></empty-state>
     </view>
     <view wx:elif="{{pageStatus === 'empty'}}" class="jobs-notice">
       <text class="jobs-notice__title">暂无岗位机会</text>

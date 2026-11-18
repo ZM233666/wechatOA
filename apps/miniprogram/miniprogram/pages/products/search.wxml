@@ -1,0 +1,57 @@
+<view class="page page--product-search">
+  <nav-brand title="Search" show-back="{{true}}"></nav-brand>
+
+  <view class="product-list">
+    <view class="product-search">
+      <input
+        class="product-search__input"
+        value="{{keyword}}"
+        placeholder="可输入产品号、产品名称、参数等"
+        placeholder-class="product-search__placeholder"
+        confirm-type="search"
+        bindinput="onSearchInput"
+        bindconfirm="onSearch"
+      />
+      <image class="product-search__icon" src="/assets/images/kb-life/search.png" mode="aspectFit"></image>
+      <view class="product-search__btn tap-feedback" bindtap="onSearch">查询</view>
+    </view>
+
+    <text class="product-list__heading">搜索结果</text>
+
+    <empty-state wx:if="{{pageStatus === 'loading'}}" title="正在搜索产品"></empty-state>
+    <view wx:elif="{{pageStatus === 'empty'}}" bindtap="onRetry">
+      <empty-state title="{{emptyTitle || '暂无匹配产品'}}" description="{{emptyDesc || '可尝试产品名称、产品号或参数关键词'}}"></empty-state>
+    </view>
+
+    <block wx:elif="{{pageStatus === 'success'}}">
+      <view
+        class="product-card tap-feedback"
+        wx:for="{{products}}"
+        wx:key="id"
+        data-id="{{item.id}}"
+        bindtap="onProductTap"
+      >
+        <image
+          class="product-card__image"
+          src="{{item.image}}"
+          mode="aspectFill"
+          data-id="{{item.id}}"
+          binderror="onProductImageError"
+        ></image>
+        <view class="product-card__body">
+          <view class="product-card__meta">
+            <text class="product-card__badge">{{item.categoryName}}</text>
+            <text wx:if="{{item.featured}}" class="product-card__mark">核心产品</text>
+          </view>
+          <text class="product-card__name">{{item.name}}</text>
+          <text class="product-card__no">产品号 {{item.productNo || item.id}}</text>
+          <text class="product-card__summary">{{item.summary}}</text>
+        </view>
+      </view>
+
+      <view wx:if="{{loadingMore}}" class="product-list__footer">加载中...</view>
+      <view wx:elif="{{!hasNext && products.length}}" class="product-list__footer">已加载全部匹配结果</view>
+    </block>
+  </view>
+  <app-tab-bar></app-tab-bar>
+</view>

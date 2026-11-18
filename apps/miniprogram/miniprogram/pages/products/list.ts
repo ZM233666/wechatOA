@@ -4,8 +4,8 @@ import {
   resolveProductSystemId,
   type ProductListItemView,
 } from './products.service';
-import { RequestError } from '../../types/api';
 import { fallbackImageUrl } from '../../utils/format';
+import { friendlyUnavailablePageData, logPageLoadIssue } from '../../utils/friendly-page-error';
 
 Page({
   data: {
@@ -104,11 +104,12 @@ Page({
         return;
       }
       this.data.requesting = false;
+      logPageLoadIssue('products-list', error);
       this.setData({
         loadingMore: false,
         requesting: false,
-        pageStatus: reset ? 'error' : this.data.pageStatus,
-        errorText: error instanceof RequestError ? error.message : '产品列表加载失败',
+        pageStatus: reset ? 'empty' : this.data.pageStatus,
+        ...(reset ? friendlyUnavailablePageData() : {}),
       });
     } finally {
       if (fromPullDown) {
@@ -119,6 +120,16 @@ Page({
 
   onRetry() {
     void this.loadProducts(true);
+  },
+
+  onProductTap(event: WechatMiniprogram.TouchEvent) {
+    const { id } = event.currentTarget.dataset as { id?: string };
+    if (!id) {
+      return;
+    }
+    wx.navigateTo({
+      url: `/pages/products/detail?id=${encodeURIComponent(id)}`,
+    });
   },
 
   onProductImageError(event: WechatMiniprogram.TouchEvent) {

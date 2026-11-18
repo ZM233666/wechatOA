@@ -24,6 +24,12 @@ import {
   unbindIdentitySessionRefresh,
 } from '../../utils/identity-session-refresh';
 import { shouldBlockWetalkForNonEmployee } from '../../utils/wetalk';
+import {
+  CONTENT_UNAVAILABLE_DESC,
+  CONTENT_UNAVAILABLE_TITLE,
+  friendlyUnavailablePageData,
+  logPageLoadIssue,
+} from '../../utils/friendly-page-error';
 Page({
   data: {
     banners: [] as LifeBanner[],
@@ -32,7 +38,9 @@ Page({
     selectedLocation: '',
     campusServices: [] as CampusService[],
     employeeServices: [] as CampusService[],
-    pageStatus: 'loading' as 'loading' | 'success' | 'error',
+    pageStatus: 'loading' as 'loading' | 'success' | 'empty',
+    emptyTitle: CONTENT_UNAVAILABLE_TITLE,
+    emptyDesc: CONTENT_UNAVAILABLE_DESC,
     errorText: '',
     navTitle: 'KB Life',
     listVisible: false,
@@ -110,10 +118,8 @@ Page({
       if (keepContent) {
         return;
       }
-      this.setData({
-        pageStatus: 'error',
-        errorText: error instanceof RequestError ? error.message : 'KB Life 加载失败',
-      });
+      logPageLoadIssue('kb-life', error);
+      this.setData(friendlyUnavailablePageData());
     }
   },
 
@@ -144,6 +150,7 @@ Page({
       locationIndex: index,
       selectedLocation,
     });
+    void this.loadEntries();
   },
 
   showCampusDenied(title = 'Campus Services') {
@@ -201,7 +208,7 @@ Page({
     this.onComingSoon();
   },
 
-  /** PDF 地图在 Tab 页内打开以保留底部导航；无 PDF 时仍进独立缩放页 */
+  /** 有 pages（PDF 渲页或图片）时在 Tab 页内打开阅读器；否则进独立缩放页 */
   async openCampusMapReader() {
     if (shouldBlockCampusServicesForVisitor()) {
       this.showCampusDenied();
@@ -211,8 +218,7 @@ Page({
     try {
       wx.showLoading({ title: '加载中', mask: true });
       const map = await getCampusMap(location);
-      wx.hideLoading();
-      if (map.pdfUrl && map.pages.length) {
+      if (map.pages.length) {
         this.setData({
           readerVisible: true,
           readerIssueId: map.location,
@@ -224,12 +230,12 @@ Page({
         });
         return;
       }
+      wx.showToast({ title: '暂无信息提供', icon: 'none' });
     } catch {
+      wx.showToast({ title: '暂无信息提供', icon: 'none' });
+    } finally {
       wx.hideLoading();
     }
-    wx.navigateTo({
-      url: withCampusLocationQuery('/subpackages/kb-life/campus-map/index', location),
-    });
   },
 
   onEmployeeTap(event: WechatMiniprogram.TouchEvent) {
