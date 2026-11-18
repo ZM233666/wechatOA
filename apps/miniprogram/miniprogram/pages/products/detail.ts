@@ -1,5 +1,4 @@
 import { getProductDetail, type ProductCategoryView } from './products.service';
-import { RequestError } from '../../types/api';
 import { fallbackImageUrl } from '../../utils/format';
 import { friendlyUnavailablePageData, logPageLoadIssue } from '../../utils/friendly-page-error';
 
@@ -44,11 +43,10 @@ Page({
       if (!this.data.pageAlive) {
         return;
       }
-      const status = error instanceof RequestError && error.statusCode === 404 ? 'empty' : 'error';
       this.data.requesting = false;
+      logPageLoadIssue('product-detail', error);
       this.setData({
         category: null,
-        pageStatus: status,
         requesting: false,
         ...friendlyUnavailablePageData(),
       });

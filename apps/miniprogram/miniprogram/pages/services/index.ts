@@ -5,7 +5,6 @@ import {
   type InsightCover,
   type ServiceHeroCard,
 } from '../../services/services.service';
-import { RequestError } from '../../types/api';
 import {
   openAccessDeniedPage,
   shouldBlockMyDashboardForUnbound,

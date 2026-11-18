@@ -259,6 +259,12 @@ export const holidayCalendarSchema = z.object({
   marks: z.record(z.string().min(1), holidayMarkSchema),
 });
 
+/** 按国务院节假日安排维护，园区日历统一引用（不含厂休等企业自定假） */
+export const chinaStatutoryHolidayFileSchema = z.object({
+  year: z.number().int().positive(),
+  marks: z.record(z.string().min(1), holidayMarkSchema),
+});
+
 export const employeeHandbookSchema = z.object({
   title: z.string().min(1),
   edition: z.string().min(1),

@@ -80,8 +80,8 @@ Page({
       if (notFound) {
         invalidateRequestCache('kb-life:entries');
       }
+      logPageLoadIssue('care-detail', error);
       this.setData({
-        pageStatus: notFound ? 'empty' : 'error',
         ...friendlyUnavailablePageData(),
         article: null,
         useBlockBody: false,

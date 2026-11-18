@@ -1,5 +1,4 @@
 import { getNewsDetail, type NewsDetailView } from './news.service';
-import { RequestError } from '../../types/api';
 import { fallbackImageUrl } from '../../utils/format';
 import { shouldRenderArticleAsBlocks } from './rich-content';
 import { friendlyUnavailablePageData, logPageLoadIssue } from '../../utils/friendly-page-error';
@@ -8,7 +7,9 @@ Page({
   data: {
     newsId: '',
     news: null as NewsDetailView | null,
-    pageStatus: 'loading' as 'loading' | 'success' | 'not-found' | 'error',
+    pageStatus: 'loading' as 'loading' | 'success' | 'empty' | 'not-found' | 'error',
+    emptyTitle: '',
+    emptyDesc: '',
     errorText: '',
     favorited: false,
     pageAlive: true,

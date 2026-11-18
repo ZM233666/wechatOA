@@ -22,6 +22,7 @@ import {
   wetalkIssueSchema,
 } from '../schemas/kb-life.schema';
 import { profileSchema } from '../schemas/profile.schema';
+import { buildStatutoryHolidayCalendarForLocation } from './china-statutory-holiday.service';
 import { articleDetailSchema } from '../schemas/article.schema';
 import { resolveLiveCampusMapPdfAbsolute } from './campus-map.pdf-cache';
 import { listPublicNews, selectHomeNews, toNewsSummary } from './news.service';
@@ -117,7 +118,7 @@ function loadCampusLocationResources(locations: string[]): {
       location,
       readJsonFile(`${base}/campus-map.json`, campusMapSchema),
     );
-    holidayByLocation[location] = readJsonFile(`${base}/holiday.json`, holidayCalendarSchema);
+    holidayByLocation[location] = buildStatutoryHolidayCalendarForLocation(location);
 
     if (SHUTTLE_PDF_LOCATIONS.has(location)) {
       try {

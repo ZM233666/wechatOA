@@ -1,5 +1,4 @@
 import { getBrand, type BrandValue } from './brand.service';
-import { RequestError } from '../../types/api';
 import { friendlyUnavailablePageData, logPageLoadIssue } from '../../utils/friendly-page-error';
 
 Page({
@@ -51,10 +50,8 @@ Page({
         pageStatus: 'success',
       });
     } catch (error) {
-      const status =
-        error instanceof RequestError && error.statusCode === 404 ? 'empty' : 'error';
+      logPageLoadIssue('brand', error);
       this.setData({
-        pageStatus: status,
         ...friendlyUnavailablePageData(),
       });
     } finally {

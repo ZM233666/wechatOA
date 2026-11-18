@@ -1,5 +1,4 @@
 import { getInsightReports, type InsightCover } from '../../../services/services.service';
-import { RequestError } from '../../../types/api';
 import { openInsightContent } from '../../../utils/insights';
 import { friendlyUnavailablePageData, logPageLoadIssue } from '../../../utils/friendly-page-error';
 
@@ -33,10 +32,8 @@ Page({
         pageStatus: items.length ? 'success' : 'empty',
       });
     } catch (error) {
-      this.setData({
-        pageStatus: 'empty',
-        ...friendlyUnavailablePageData(),
-      });
+      logPageLoadIssue('insights', error);
+      this.setData(friendlyUnavailablePageData());
     }
   },
 

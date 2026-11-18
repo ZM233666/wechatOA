@@ -56,48 +56,8 @@ export const MONTHS_EN = [
   'December',
 ];
 
-/** 2026 法定节假日与调休（苏州默认，实际以接口按地点返回为准） */
-export const HOLIDAY_MARKS: Record<string, HolidayMark> = {
-  '2026-01-01': { name: '元旦', type: 'holiday' },
-  '2026-01-02': { name: '元旦', type: 'holiday' },
-  '2026-01-03': { name: '元旦', type: 'holiday' },
-  '2026-02-14': { name: '班', type: 'workday' },
-  '2026-02-15': { name: '班', type: 'workday' },
-  '2026-02-16': { name: '除夕', type: 'holiday' },
-  '2026-02-17': { name: '春节', type: 'holiday' },
-  '2026-02-18': { name: '春节', type: 'holiday' },
-  '2026-02-19': { name: '春节', type: 'holiday' },
-  '2026-02-20': { name: '春节', type: 'holiday' },
-  '2026-02-21': { name: '春节', type: 'holiday' },
-  '2026-02-22': { name: '春节', type: 'holiday' },
-  '2026-02-23': { name: '春节', type: 'holiday' },
-  '2026-04-04': { name: '清明', type: 'holiday' },
-  '2026-04-05': { name: '清明', type: 'holiday' },
-  '2026-04-06': { name: '清明', type: 'holiday' },
-  '2026-04-26': { name: '班', type: 'workday' },
-  '2026-05-01': { name: '劳动', type: 'holiday' },
-  '2026-05-02': { name: '劳动', type: 'holiday' },
-  '2026-05-03': { name: '劳动', type: 'holiday' },
-  '2026-05-04': { name: '劳动', type: 'holiday' },
-  '2026-05-05': { name: '劳动', type: 'holiday' },
-  '2026-05-09': { name: '班', type: 'workday' },
-  '2026-06-19': { name: '端午', type: 'holiday' },
-  '2026-06-20': { name: '端午', type: 'holiday' },
-  '2026-06-21': { name: '端午', type: 'holiday' },
-  '2026-09-20': { name: '班', type: 'workday' },
-  '2026-09-25': { name: '中秋', type: 'holiday' },
-  '2026-09-26': { name: '中秋', type: 'holiday' },
-  '2026-09-27': { name: '中秋', type: 'holiday' },
-  '2026-10-01': { name: '国庆', type: 'holiday' },
-  '2026-10-02': { name: '国庆', type: 'holiday' },
-  '2026-10-03': { name: '国庆', type: 'holiday' },
-  '2026-10-04': { name: '国庆', type: 'holiday' },
-  '2026-10-05': { name: '国庆', type: 'holiday' },
-  '2026-10-06': { name: '国庆', type: 'holiday' },
-  '2026-10-07': { name: '国庆', type: 'holiday' },
-  '2026-10-10': { name: '班', type: 'workday' },
-  '2026-12-25': { name: '厂休', type: 'holiday' },
-};
+/** 日历渲染默认空标记；法定节假日与调休以接口返回为准 */
+export const EMPTY_HOLIDAY_MARKS: Record<string, HolidayMark> = {};
 
 function pad(value: number): string {
   return String(value).padStart(2, '0');
@@ -125,7 +85,7 @@ export function buildCalendarCells(
   year: number,
   monthIndex: number,
   todayKey: string = getTodayDateKey(),
-  marks: Record<string, HolidayMark> = HOLIDAY_MARKS,
+  marks: Record<string, HolidayMark> = EMPTY_HOLIDAY_MARKS,
 ): CalendarCell[] {
   const firstDay = new Date(year, monthIndex, 1).getDay();
   const daysInMonth = new Date(year, monthIndex + 1, 0).getDate();
@@ -170,7 +130,7 @@ export function buildCalendarCells(
 export function buildMonthSchedule(
   year: number,
   monthIndex: number,
-  marks: Record<string, HolidayMark> = HOLIDAY_MARKS,
+  marks: Record<string, HolidayMark> = EMPTY_HOLIDAY_MARKS,
 ): MonthScheduleItem[] {
   const prefix = `${year}-${pad(monthIndex + 1)}-`;
   const grouped: Array<{ name: string; days: number[] }> = [];

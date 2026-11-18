@@ -1,5 +1,4 @@
 import { getCases, type ProjectCaseView } from './cases.service';
-import { RequestError } from '../../types/api';
 import { fallbackImageUrl } from '../../utils/format';
 import { friendlyUnavailablePageData, logPageLoadIssue } from '../../utils/friendly-page-error';
 

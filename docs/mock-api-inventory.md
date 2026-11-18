@@ -32,7 +32,7 @@
 | GET | `/api/kb-life/wetalk` | WeTalk 列表 | - | `{ items: WetalkIssueSummary[] }` | `fixtures/kb-life/wetalk/*.json` + MinIO `wetalk/`（缓存 `runtime/minio/wetalk/`）/ 可选本地 `files/*.pdf` | 未实现 | 有 `pdfFile` 时返回绝对化 `pdfUrl` |
 | GET | `/api/kb-life/wetalk/:id` | WeTalk 详情 | `id` | `WetalkIssue` | 同上 | 未实现 | PDF 渲成 `sheet` 页走页内阅读器；无 PDF 时回退 JSON `pages` |
 | GET | `/api/kb-life/campus-map` | 园区地图 | `location` | `CampusMapData` | `CAMPUS_MAP_ENABLED` 时 `GET /api/campus-map/files/`（PDF 或图片）+ fixture 标题/封面；否则 `locations/*/campus-map.json` + `Map/*.{pdf,png,jpg,...}` | 未实现 | 有 `pages` 时前端走阅读器；PDF 时额外返回 `pdfUrl` |
-| GET | `/api/kb-life/holiday-calendar` | 假日日历 | `location` | `HolidayCalendarData` | `fixtures/kb-life/locations/*/holiday.json` | 未实现 | |
+| GET | `/api/kb-life/holiday-calendar` | 假日日历 | `location` | `HolidayCalendarData` | npm `chinese-days@1.5.10` → `dist/years/{year}.json`（全国统一法定假日+调休，各园区仅 `location` 不同） | 未实现 | |
 | GET | `/api/kb-life/guidance-documents` | 指导文件入口列表 | — | `GuidanceDocumentsData` | `fixtures/kb-life/guidance-documents.json` | 未实现 | **访客可读** |
 | GET | `/api/kb-life/handbook` | 员工手册 | `loginCode` | `EmployeeHandbookData` | `fixtures/kb-life/handbook.json` + MinIO/本地 PDF | 未实现 | 须 Employee 身份 |
 | GET | `/api/kb-life/financial-handbook` | 财务指导手册（注意事项 + 使用手册） | 否（访客可读） | `FinancialGuidanceHandbookData` | `fixtures/kb-life/financial-handbook.json` + MinIO `finance-handbook/` 多 PDF + 可选 `FINANCIAL_HANDBOOK_*` | Mock 已接 | `sections[]`：`notes` / `manual`；管理端 API 暂映射至 `manual` |

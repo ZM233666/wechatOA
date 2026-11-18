@@ -1,5 +1,4 @@
 import { getMyDashboardModules, type MyDashboardModule } from '../../../services/services.service';
-import { RequestError } from '../../../types/api';
 import { showComingSoonModal } from '../coming-soon';
 import { rejectUnboundIdentityAccess } from '../../../utils/identity-access';
 import { friendlyUnavailablePageData, logPageLoadIssue } from '../../../utils/friendly-page-error';
@@ -27,10 +26,8 @@ Page({
         pageStatus: modules.length ? 'success' : 'empty',
       });
     } catch (error) {
-      this.setData({
-        pageStatus: 'empty',
-        ...friendlyUnavailablePageData(),
-      });
+      logPageLoadIssue('my-dashboard', error);
+      this.setData(friendlyUnavailablePageData());
     }
   },
 

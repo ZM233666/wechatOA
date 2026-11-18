@@ -1,7 +1,6 @@
 import { getCurrentEnvVersion, getApiBaseUrl } from '../../config/env';
 import { getHome } from '../../services/home.service';
 import { getHealth } from '../../services/api';
-import { RequestError } from '../../types/api';
 import type { HomeBanner, HomeData, NewsSummary, QuickEntry } from '../../types/home';
 import { fallbackImageUrl } from '../../utils/format';
 import { friendlyUnavailablePageData, logPageLoadIssue } from '../../utils/friendly-page-error';

@@ -3,7 +3,7 @@ import {
   type WetalkCover,
 } from '../../../services/wetalk.service';
 import { rejectEmployeeOnlyAccess } from '../../../utils/identity-access';
-import { friendlyUnavailablePageData } from '../../../utils/friendly-page-error';
+import { friendlyUnavailablePageData, logPageLoadIssue } from '../../../utils/friendly-page-error';
 
 type PageStatus = 'loading' | 'success' | 'empty' | 'error';
 
@@ -98,14 +98,12 @@ Page({
         shareTitle: items[0]?.title || 'WeTalk Magazine',
         shareImage: items[0]?.image || '',
       });
-    } catch {
+    } catch (error) {
       if (keepContent) {
         return;
       }
-      this.setData({
-        pageStatus: 'empty',
-        ...friendlyUnavailablePageData(),
-      });
+      logPageLoadIssue('wetalk-magazine', error);
+      this.setData(friendlyUnavailablePageData());
     }
   },
 

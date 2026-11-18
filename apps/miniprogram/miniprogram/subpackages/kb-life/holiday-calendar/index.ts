@@ -10,7 +10,6 @@ import {
   type HolidayMark,
 } from '../holiday-calendar.data';
 import { getHolidayCalendar } from '../../../services/kb-life.service';
-import { RequestError } from '../../../types/api';
 import { resolveCampusLocation } from '../../../utils/campus-location';
 import { rejectVisitorCampusAccess } from '../../../utils/kb-life-access';
 import { friendlyUnavailablePageData, logPageLoadIssue } from '../../../utils/friendly-page-error';

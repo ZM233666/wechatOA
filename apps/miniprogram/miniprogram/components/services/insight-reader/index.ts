@@ -4,7 +4,6 @@ import {
   type InsightReportView,
 } from '../../../services/services.service';
 import { getCampusMapAsReport, getWetalkIssueAsReport } from '../../../services/kb-life.service';
-import { RequestError } from '../../../types/api';
 import { friendlyUnavailablePageData, logPageLoadIssue } from '../../../utils/friendly-page-error';
 
 type ReaderPage = InsightReportPageView & { thumbLabel: string };

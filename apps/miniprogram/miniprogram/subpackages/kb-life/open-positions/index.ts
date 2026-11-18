@@ -1,5 +1,4 @@
 import { getOpenPositions, type OpenPositionSummaryView } from '../../../services/kb-life.service';
-import { RequestError } from '../../../types/api';
 import { friendlyUnavailablePageData, logPageLoadIssue } from '../../../utils/friendly-page-error';
 
 Page({
@@ -31,10 +30,8 @@ Page({
         pageStatus: positions.length ? 'success' : 'empty',
       });
     } catch (error) {
-      this.setData({
-        pageStatus: 'empty',
-        ...friendlyUnavailablePageData(),
-      });
+      logPageLoadIssue('open-positions', error);
+      this.setData(friendlyUnavailablePageData());
     }
   },
 

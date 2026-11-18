@@ -84,6 +84,7 @@ WeChat Miniprogram
 | `/api/kb-life/entries` | `/api/v1/mini/kb-life/entries` | GET | 否 | `kb_life` | 未实现 | |
 | `/api/kb-life/canteen` | `/api/v1/mini/kb-life/canteen` | GET | 否 | `kb_life` | 未实现 | |
 | `/api/kb-life/shuttle` | `/api/v1/mini/kb-life/shuttle` | GET | 否 | `kb_life` | 未实现 | |
+| `/api/kb-life/holiday-calendar` | `/api/v1/mini/kb-life/holiday-calendar` | GET | 是（已绑定） | `kb_life` | 未实现 | 法定假日见 [§6 假期日历数据源](#6-假期日历数据源) |
 | `/api/kb-life/activities` | `/api/v1/mini/kb-life/activities` | GET | 否 | `kb_life` | 未实现 | |
 | `/api/kb-life/handbook` | `/api/v1/mini/kb-life/handbook` | GET | 是（Employee） | `kb_life` | 未实现 | Query `loginCode` / JWT |
 | `/api/kb-life/care` | `/api/v1/mini/kb-life/care` | GET | 是（已绑定） | `kb_life` | 未实现 | Query `loginCode` / JWT；见 [employee-care-api.md](./employee-care-api.md) |
@@ -164,7 +165,42 @@ Django NewsArticle（文章主实体，公开 id/slug 稳定）
 
 ---
 
-## 6. 图片迁移规则
+## 6. 假期日历数据源
+
+KB Life「假期日历」面向员工展示**全国统一法定节假日与国务院调休安排**，不包含厂休、厂庆等企业自定假日。Mock BFF 与目标 Django Mini API 均应输出同一契约 `HolidayCalendarData`（`year`、`location`、`marks`），其中 `marks` 的 key 为 `YYYY-MM-DD`，value 为 `{ name, type: 'holiday' | 'workday' }`（调休上班日 `name` 固定为「班」）。
+
+### 主数据源（Mock，候选 1）
+
+| 项 | 说明 |
+| --- | --- |
+| 包名 | [`chinese-days`](https://www.npmjs.com/package/chinese-days) |
+| 当前 pin | `1.5.10`（`apps/mock-server` 依赖） |
+| 数据文件 | 包内 `dist/years/{year}.json`（`holidays` / `workdays` / `inLieuDays`） |
+| Mock 实现 | `apps/mock-server/src/services/china-statutory-holiday.service.ts` → `fixture.service` 按园区注入相同 `marks`、不同 `location` |
+| 年份解析 | 默认当前公历年；包内无该年文件时回退到包内最新年份（升级依赖即可覆盖新年份，**不再**维护 `fixtures/kb-life/china-statutory-holidays/` 手写 JSON） |
+
+英文节日 CSV 映射为日历展示用中文短名：元旦、春节、清明、劳动、端午、中秋、国庆。
+
+### 正式后端（Django）建议
+
+1. **共用 Provider**：与 Mock 相同规则从 `chinese-days`（或等价离线快照）生成 `marks`；按请求园区只改 `location` 字段。
+2. **不纳入本接口**：企业假期、园区封闭日等应由独立配置或 HR 系统提供，**不得**再写入法定假日日历接口。
+3. **可选审计**：发版前可用 [holiday-cn](https://github.com/NateScarlet/holiday-cn) 等国务院文本对照抽查；日常以包内 `workdays` 与下文验收表为准。
+
+### 验收基准（国务院安排）
+
+发版或升级 `chinese-days` 后，至少跑通 `apps/mock-server/tests/china-statutory-holiday.test.ts`，并对照国办通知核对调休上班日：
+
+| 年度 | 依据 | 调休上班日（`type: workday`） |
+| --- | --- | --- |
+| 2025 | [国办发明电〔2024〕12号](https://www.gov.cn/zhengce/zhengceku/202411/content_6986383.htm) | 01-26、02-08、04-27、09-28、10-11；元旦放假仅 01-01 |
+| 2026 | [国办发明电〔2025〕7号](https://www.gov.cn/zhengce/zhengceku/202511/content_7047091.htm) | 01-04、02-14、02-28、05-09、09-20、10-10；春节含 02-15 起假；中秋 09-25–27 |
+
+小程序路径：`GET /api/kb-life/holiday-calendar`（需已绑定员工身份，`location` 由园区解析）。迁移后路径见 [§3 接口路径映射](#3-接口路径映射)。
+
+---
+
+## 7. 图片迁移规则
 
 | 阶段 | URL 形态 |
 | --- | --- |
@@ -189,7 +225,7 @@ Django NewsArticle（文章主实体，公开 id/slug 稳定）
 
 ---
 
-## 7. Mock-only 功能隔离
+## 8. Mock-only 功能隔离
 
 下列能力**不得**迁移到正式 Django Mini API：
 
@@ -208,7 +244,7 @@ Django NewsArticle（文章主实体，公开 id/slug 稳定）
 
 ---
 
-## 8. 迁移分阶段方案
+## 9. 迁移分阶段方案
 
 ### Phase 0：冻结契约
 
@@ -275,7 +311,7 @@ Django NewsArticle（文章主实体，公开 id/slug 稳定）
 
 ---
 
-## 9. 双后端对比测试
+## 10. 双后端对比测试
 
 对**相同业务语义**的接口，分别请求 Mock 与 Django，比较：
 
@@ -303,7 +339,7 @@ Django NewsArticle（文章主实体，公开 id/slug 稳定）
 
 ---
 
-## 10. 环境切换
+## 11. 环境切换
 
 配置入口：`apps/miniprogram/miniprogram/config/env.ts`（按 `envVersion` 选择）。**所有请求继续经过** `services/request.ts`。
 
@@ -333,7 +369,7 @@ Django NewsArticle（文章主实体，公开 id/slug 稳定）
 
 ---
 
-## 11. 上线切换清单
+## 12. 上线切换清单
 
 发布前逐项确认：
 
@@ -351,7 +387,7 @@ Django NewsArticle（文章主实体，公开 id/slug 稳定）
 
 ---
 
-## 12. 回滚方案
+## 13. 回滚方案
 
 正式 API 出现问题时：
 
@@ -364,7 +400,7 @@ develop 本地仍可随时切回 `pnpm dev:mock`，与生产回滚路径分离�
 
 ---
 
-## 13. 禁止事项
+## 14. 禁止事项
 
 - 不让小程序直接访问 PostgreSQL、Redis 或对象存储**私有**地址
 - 不在页面中直接导入 Fixture JSON
@@ -383,7 +419,7 @@ develop 本地仍可随时切回 `pnpm dev:mock`，与生产回滚路径分离�
 | --- | --- |
 | 冻结契约 | Phase 0 + 第 4 节 |
 | 按路径实现 | 第 3 节映射 + Phase 1–4 |
-| 契约 / 对比测试 | 第 9 节 |
-| Mock-only 隔离 | 第 7 节 |
-| 改 Base URL | 第 10 节 |
-| 上线与退役 NestJS | 第 11–13 节；`apps/server` 仅兼容参考 |
+| 契约 / 对比测试 | 第 10 节 |
+| Mock-only 隔离 | 第 8 节 |
+| 改 Base URL | 第 11 节 |
+| 上线与退役 NestJS | 第 12–14 节；`apps/server` 仅兼容参考 |

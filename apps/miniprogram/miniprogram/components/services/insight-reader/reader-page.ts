@@ -1,5 +1,4 @@
 import { downloadWetalkReaderImage } from '../../../services/wetalk.service';
-import { RequestError } from '../../../types/api';
 
 Component({
   properties: {

@@ -2,7 +2,6 @@ import {
   getFinancialGuidanceHandbook,
   type FinancialGuidanceSectionView,
 } from '../../../services/kb-life.service';
-import { RequestError } from '../../../types/api';
 import { friendlyUnavailablePageData, logPageLoadIssue } from '../../../utils/friendly-page-error';
 
 Page({

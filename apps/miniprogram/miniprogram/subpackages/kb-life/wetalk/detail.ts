@@ -1,5 +1,4 @@
 import { getWetalkDetail, type WetalkItem } from '../../../services/wetalk.service';
-import { RequestError } from '../../../types/api';
 import { rejectEmployeeOnlyAccess } from '../../../utils/identity-access';
 import { friendlyUnavailablePageData, logPageLoadIssue } from '../../../utils/friendly-page-error';
 

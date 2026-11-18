@@ -6,7 +6,7 @@ import {
   type NewsListItemView,
 } from './news.service';
 import { fallbackImageUrl } from '../../utils/format';
-import { friendlyUnavailablePageData } from '../../utils/friendly-page-error';
+import { friendlyUnavailablePageData, logPageLoadIssue } from '../../utils/friendly-page-error';
 
 Page({
   data: {
@@ -109,17 +109,19 @@ Page({
         pageStatus: newsList.length === 0 ? 'empty' : 'success',
       });
       prefetchNewsDetails(result.items.slice(0, 3).map((item) => item.id));
-    } catch {
+    } catch (error) {
       if (!this.data.pageAlive) {
         return;
       }
       this.data.requesting = false;
       this.data.loadingMore = false;
+      if (reset) {
+        logPageLoadIssue('news-list', error);
+      }
       this.setData({
         loadingMore: false,
         requesting: false,
-        pageStatus: reset ? 'error' : this.data.pageStatus,
-        ...friendlyUnavailablePageData(),
+        ...(reset ? friendlyUnavailablePageData() : {}),
       });
     }
   },
