@@ -76,7 +76,7 @@ export const INSIGHT_COVERS: InsightCover[] = [
     title: '2025轨道交通趋势洞察',
     english: 'Rail Transit Trend Insight',
     caption: '2025轨道交通趋势洞察',
-    image: '/assets/images/news/news-1.png',
+    image: '/pages/news/assets/images/news/news-1.png',
     tag: 'Gating',
   },
   {
@@ -85,6 +85,6 @@ export const INSIGHT_COVERS: InsightCover[] = [
     title: 'LCC全生命周期成本分析',
     english: 'Life Cycle Cost Analysis',
     caption: 'LCC全生命周期成本分析',
-    image: '/assets/images/news/news-2.png',
+    image: '/pages/news/assets/images/news/news-2.png',
   },
 ];

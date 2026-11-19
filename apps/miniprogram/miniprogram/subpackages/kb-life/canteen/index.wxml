@@ -17,7 +17,7 @@
     <view class="canteen-hero">
       <image
         class="canteen-hero__image"
-        src="{{coverImage || '/assets/images/kb-life/canteen-hero.png'}}"
+        src="{{coverImage || '/subpackages/kb-life/assets/images/canteen-hero.png'}}"
         mode="aspectFill"
       ></image>
       <view class="canteen-hero__mask"></view>
@@ -30,7 +30,7 @@
     <view class="canteen-body">
       <view class="canteen-card">
         <view class="canteen-card__head">
-          <image class="canteen-card__info" src="/assets/images/kb-life/info.png" mode="aspectFit"></image>
+          <image class="canteen-card__info" src="/subpackages/kb-life/assets/images/info.png" mode="aspectFit"></image>
           <text class="canteen-card__title canteen-card__title--navy">食堂介绍 (Introduction)</text>
         </view>
         <text class="canteen-card__intro">{{intro}}</text>

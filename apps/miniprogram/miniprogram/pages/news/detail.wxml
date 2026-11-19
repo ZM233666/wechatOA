@@ -33,7 +33,7 @@
       <text class="news-detail__star {{favorited ? 'news-detail__star--on' : ''}}">★</text>
     </view>
     <button class="news-detail__action news-detail__share tap-feedback" open-type="share">
-      <image class="news-detail__icon" src="/assets/images/content/icon-share.png" mode="aspectFit"></image>
+      <image class="news-detail__icon" src="/pages/products/assets/images/content/icon-share.png" mode="aspectFit"></image>
     </button>
   </view>
   <app-tab-bar></app-tab-bar>

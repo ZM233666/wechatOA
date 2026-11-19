@@ -47,25 +47,25 @@ export const CAMPUS_SERVICES: CampusService[] = [
     id: 'campus-map',
     title: '园区地图',
     subtitle: 'Campus Map',
-    icon: '/assets/images/kb-life/map.png',
+    icon: '/subpackages/kb-life/assets/images/map.png',
   },
   {
     id: 'shuttle-bus',
     title: '班车时刻',
     subtitle: 'Shuttle Bus',
-    icon: '/assets/images/kb-life/bus.png',
+    icon: '/subpackages/kb-life/assets/images/bus.png',
   },
   {
     id: 'cafeteria',
     title: '食堂菜单',
     subtitle: 'Cafeteria',
-    icon: '/assets/images/kb-life/cafeteria.png',
+    icon: '/subpackages/kb-life/assets/images/cafeteria.png',
   },
   {
     id: 'holiday',
     title: '假期日历',
     subtitle: 'Holiday Calendar',
-    icon: '/assets/images/kb-life/calendar.png',
+    icon: '/subpackages/kb-life/assets/images/calendar.png',
   },
 ];
 
@@ -74,24 +74,24 @@ export const EMPLOYEE_SERVICES: EmployeeService[] = [
     id: 'open-positions',
     title: '岗位机会',
     subtitle: 'Open Positions',
-    icon: '/assets/images/kb-life/positions.png',
+    icon: '/subpackages/kb-life/assets/images/positions.png',
   },
   {
     id: 'guidance',
     title: '指导文件',
     subtitle: 'Guidance Documents',
-    icon: '/assets/images/kb-life/handbook.png',
+    icon: '/subpackages/kb-life/assets/images/handbook.png',
   },
   {
     id: 'care',
     title: '本地/全球关怀',
     subtitle: 'Local/Global Care',
-    icon: '/assets/images/kb-life/care.png',
+    icon: '/subpackages/kb-life/assets/images/care.png',
   },
   {
     id: 'events',
     title: '精彩瞬间',
     subtitle: 'Highlights',
-    icon: '/assets/images/kb-life/events.png',
+    icon: '/subpackages/kb-life/assets/images/events.png',
   },
 ];

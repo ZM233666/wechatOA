@@ -12,7 +12,7 @@
     <view class="fin-hub__hero">
       <image
         class="fin-hub__hero-icon"
-        src="/assets/images/kb-life/handbook-white.png"
+        src="/subpackages/kb-life/assets/images/handbook-white.png"
         mode="aspectFit"
       ></image>
       <text class="fin-hub__hero-title">{{title}}</text>

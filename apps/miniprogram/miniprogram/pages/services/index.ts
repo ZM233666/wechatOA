@@ -2,13 +2,11 @@ import { COMING_SOON_TOAST, MY_DASHBOARD_PAGE_PATH } from '../../constants/route
 import {
   getInsightReports,
   getServices,
+  readPersistedServicesView,
   type InsightCover,
   type ServiceHeroCard,
 } from '../../services/services.service';
-import {
-  openAccessDeniedPage,
-  shouldBlockMyDashboardForUnbound,
-} from '../../utils/identity-access';
+import { hasStoredIdentityBinding } from '../../utils/identity-access';
 import {
   bindIdentitySessionRefresh,
   refreshIfIdentitySessionChanged,
@@ -16,6 +14,10 @@ import {
 } from '../../utils/identity-session-refresh';
 import { openInsightContent } from '../../utils/insights';
 import { friendlyUnavailablePageData, logPageLoadIssue } from '../../utils/friendly-page-error';
+import {
+  openServiceFeatureIntro,
+  resolveServiceHeroFeature,
+} from '../../utils/service-hero-navigation';
 
 Page({
   data: {
@@ -38,7 +40,16 @@ Page({
     bindIdentitySessionRefresh(this, () => {
       void this.reloadServicesForIdentity();
     });
-    void this.loadServices();
+    const persisted = readPersistedServicesView();
+    if (persisted) {
+      const empty = persisted.heroCards.length === 0 && persisted.insightCovers.length === 0;
+      this.setData({
+        heroCards: persisted.heroCards,
+        insightCovers: persisted.insightCovers,
+        pageStatus: empty ? 'empty' : 'success',
+      });
+    }
+    void this.loadServices(Boolean(persisted));
   },
 
   onUnload() {
@@ -69,8 +80,14 @@ Page({
     };
   },
 
-  async loadServices() {
-    this.setData({ pageStatus: 'loading' });
+  async loadServices(silent = false) {
+    const keepContent =
+      silent ||
+      (this.data.pageStatus === 'success' &&
+        (this.data.heroCards.length > 0 || this.data.insightCovers.length > 0));
+    if (!keepContent) {
+      this.setData({ pageStatus: 'loading' });
+    }
     try {
       const result = await getServices();
       const empty = result.heroCards.length === 0 && result.insightCovers.length === 0;
@@ -80,10 +97,12 @@ Page({
         pageStatus: empty ? 'empty' : 'success',
       });
     } catch (error) {
-      this.setData({
-        pageStatus: 'empty',
-        ...friendlyUnavailablePageData(),
-      });
+      if (!keepContent) {
+        this.setData({
+          pageStatus: 'empty',
+          ...friendlyUnavailablePageData(),
+        });
+      }
     }
   },
 
@@ -145,10 +164,22 @@ Page({
   },
 
   onHeroTap(event: WechatMiniprogram.TouchEvent) {
-    const { id } = event.currentTarget.dataset as { id?: string };
-    if (id === 'fast-phm') {
-      if (shouldBlockMyDashboardForUnbound()) {
-        openAccessDeniedPage({ kind: 'unbound', title: 'My Dashboard', mode: 'navigate' });
+    const { heroId, title, index } = event.currentTarget.dataset as {
+      heroId?: string;
+      title?: string;
+      index?: number | string;
+    };
+    const cardIndex = typeof index === 'number' ? index : Number(index);
+    const card =
+      Number.isInteger(cardIndex) && cardIndex >= 0 ? this.data.heroCards[cardIndex] : undefined;
+    const feature = resolveServiceHeroFeature(heroId || card?.id, title || card?.title);
+    if (feature === 'digital-cbm') {
+      openServiceFeatureIntro('digital-cbm');
+      return;
+    }
+    if (feature === 'fast-phm') {
+      if (!hasStoredIdentityBinding()) {
+        openServiceFeatureIntro('fast-phm');
         return;
       }
       wx.navigateTo({ url: MY_DASHBOARD_PAGE_PATH });

@@ -1,7 +1,14 @@
+import {
+  TAB_CACHE_FRESH_MS,
+  TAB_CACHE_KEYS,
+  TAB_CACHE_MAX_AGE_MS,
+  TAB_CACHE_STALE_MS,
+} from '../constants/tab-cache';
 import type { HomeBanner, HomeData, NewsSummary, QuickEntry } from '../types/home';
 import { formatDisplayDate, toAssetUrl } from '../utils/format';
 import { API_ENDPOINTS } from './endpoints';
-import { get, withStaleWhileRevalidate } from './request';
+import { readPersistedSnapshot, withPersistedStaleWhileRevalidate } from './persisted-swr';
+import { get } from './request';
 
 export interface HomeViewData {
   newsStatus: HomeData['newsStatus'] | null;
@@ -10,8 +17,12 @@ export interface HomeViewData {
   newsList: NewsSummary[];
 }
 
+export function readPersistedHomeView(): HomeViewData | null {
+  return readPersistedSnapshot<HomeViewData>(TAB_CACHE_KEYS.home, TAB_CACHE_MAX_AGE_MS);
+}
+
 export async function getHome(): Promise<HomeViewData> {
-  return withStaleWhileRevalidate('home', 30_000, 5 * 60_000, async () => {
+  return withPersistedStaleWhileRevalidate(TAB_CACHE_KEYS.home, TAB_CACHE_FRESH_MS, TAB_CACHE_STALE_MS, async () => {
     const data = await get<HomeData>(API_ENDPOINTS.home);
     return {
       newsStatus: data.newsStatus ?? null,

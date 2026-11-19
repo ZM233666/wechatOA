@@ -13,18 +13,18 @@ export const CANTEEN_MENU_ITEMS: CanteenMenuItem[] = [
     id: 'set-a',
     title: '精选套餐 A (Set A)',
     description: '红烧排骨、清炒时蔬、番茄炒蛋、例汤',
-    image: '/assets/images/kb-life/menu-set-a.png',
+    image: '/subpackages/kb-life/assets/images/menu-set-a.png',
   },
   {
     id: 'healthy',
     title: '健康轻食 (Healthy Diet)',
     description: '香煎鸡胸肉沙拉配油醋汁、全麦面包',
-    image: '/assets/images/kb-life/menu-healthy.png',
+    image: '/subpackages/kb-life/assets/images/menu-healthy.png',
   },
   {
     id: 'noodle',
     title: '特色面档 (Noodle Bar)',
     description: '招牌牛肉面、酸菜肉丝面、手工小笼包',
-    image: '/assets/images/kb-life/menu-noodle.png',
+    image: '/subpackages/kb-life/assets/images/menu-noodle.png',
   },
 ];

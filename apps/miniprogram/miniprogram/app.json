@@ -12,6 +12,7 @@
       "name": "services",
       "pages": [
         "my-dashboard/index",
+        "feature-intro/index",
         "insights/index",
         "insights/reader",
         "insights/access-denied/index"
@@ -64,8 +65,8 @@
   ],
   "preloadRule": {
     "pages/index/index": {
-      "network": "wifi",
-      "packages": ["news", "brand", "products", "cases"]
+      "network": "all",
+      "packages": ["news", "brand", "products", "cases", "services", "kb-life"]
     },
     "pages/services/index": {
       "network": "all",

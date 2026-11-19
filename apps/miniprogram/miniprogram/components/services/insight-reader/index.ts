@@ -56,7 +56,9 @@ function measureReaderHeight(options: {
   return Math.max(Math.floor(height), 320);
 }
 
-const FLIP_SETTLE_MS = 280;
+const FLIP_ANIM_MS = 400;
+/** 遮罩换页时等一帧再露出顶层，避免底层先换成下一页被看见 */
+const FLIP_SWAP_FRAME_MS = 24;
 
 Component({
   options: {
@@ -120,8 +122,12 @@ Component({
     hideDock: false,
     currentPage: null as ReaderPage | null,
     underPage: null as ReaderPage | null,
+    /** 参与 3D 动效的页（向前翻为当前页，向后翻为即将盖回的上页） */
+    flipLeafPage: null as ReaderPage | null,
     flipping: false,
     flipDirection: '' as '' | 'next' | 'prev',
+    /** 向前翻页落定：先藏起顶层叶再复位 transform，避免 -92° 弹回闪烁 */
+    bookSwapMask: false,
     bookEntered: false,
     bookGesture: {
       canPrev: false,
@@ -145,6 +151,7 @@ Component({
         this.setData({
           flipping: false,
           flipDirection: '',
+          bookSwapMask: false,
           bookEntered: false,
         });
         return;
@@ -266,6 +273,7 @@ Component({
             hideDock: isMapMode && pages.length <= 1,
             currentPage: pages[0],
             underPage: pages[1] || pages[0],
+            flipLeafPage: pages[0],
             flipping: false,
             flipDirection: '',
             bookEntered: false,
@@ -305,6 +313,7 @@ Component({
         canNext,
         currentPage,
         underPage,
+        flipLeafPage: currentPage,
         flipping: false,
         flipDirection: '',
         bookGesture: {
@@ -313,6 +322,69 @@ Component({
           resetToken: (this.data.bookGesture?.resetToken || 0) + 1,
         },
       });
+    },
+
+  /**
+   * 翻页落定：向前翻结束时顶层叶在 -92°，须先遮罩藏叶、换正面内容并复位 transform，再露出；
+   * 向后翻结束时叶已在 0°，只同步索引并尽量不改 flipLeafPage 以免重载图片。
+   */
+    async finalizeBookFlip(
+      targetIndex: number,
+      options: { direction: 'next' | 'prev' },
+    ) {
+      if (targetIndex < 0 || targetIndex >= this.data.pages.length) {
+        return;
+      }
+      await new Promise((resolve) => setTimeout(resolve, FLIP_ANIM_MS));
+      const total = this.data.pages.length;
+      const safe = Math.max(0, Math.min(targetIndex, total - 1));
+      const currentPage = this.data.pages[safe] || null;
+      const underPage =
+        this.data.pages[Math.min(safe + 1, total - 1)] || currentPage;
+      const canPrev = safe > 0;
+      const canNext = safe < total - 1;
+      const resetToken = this.data.bookGesture?.resetToken || 0;
+      const gesture = {
+        canPrev,
+        canNext,
+        resetToken: resetToken + 1,
+      };
+
+      if (options.direction === 'next') {
+        this.setData({
+          current: safe,
+          canPrev,
+          canNext,
+          currentPage,
+          flipLeafPage: currentPage,
+          flipping: false,
+          flipDirection: '',
+          bookSwapMask: true,
+          bookGesture: gesture,
+        });
+        await new Promise((resolve) => setTimeout(resolve, FLIP_SWAP_FRAME_MS));
+        this.setData({
+          underPage,
+          bookSwapMask: false,
+        });
+        return;
+      }
+
+      const settle: Record<string, unknown> = {
+        current: safe,
+        canPrev,
+        canNext,
+        currentPage,
+        underPage,
+        flipping: false,
+        flipDirection: '',
+        bookSwapMask: false,
+        bookGesture: gesture,
+      };
+      if (this.data.flipLeafPage?.id !== currentPage?.id) {
+        settle.flipLeafPage = currentPage;
+      }
+      this.setData(settle);
     },
 
     onSwiperChange(event: WechatMiniprogram.SwiperChange) {
@@ -357,33 +429,66 @@ Component({
       this.syncNav(this.data.current + 1);
     },
 
+    onBookFlipProgress(payload: { progress?: number; direction?: string }) {
+      const progress = Number(payload?.progress) || 0;
+      if (progress <= 0.02) {
+        if (this.data.flipDirection) {
+          this.setData({ flipDirection: '' });
+        }
+        return;
+      }
+      const direction = payload?.direction === 'prev' ? 'prev' : 'next';
+      if (this.data.flipDirection !== direction) {
+        this.applyBookDragLayers(direction);
+      }
+    },
+
+    applyBookDragLayers(direction: 'next' | 'prev') {
+      if (direction === 'next') {
+        const idx = this.data.current + 1;
+        this.setData({
+          flipDirection: 'next',
+          flipLeafPage: this.data.currentPage,
+          underPage: this.data.pages[idx] || this.data.currentPage,
+        });
+        return;
+      }
+      const idx = this.data.current - 1;
+      const prevPage = this.data.pages[idx];
+      if (!prevPage) {
+        return;
+      }
+      this.setData({
+        flipDirection: 'prev',
+        flipLeafPage: prevPage,
+        underPage: this.data.currentPage,
+      });
+    },
+
     /** 方向锁定：只换底页一次 */
     onBookDirLock(payload: { direction?: string }) {
       if (this.data.flipping) {
         return;
       }
       const direction = payload?.direction === 'prev' ? 'prev' : 'next';
-      const idx =
-        direction === 'next' ? this.data.current + 1 : this.data.current - 1;
-      const underPage = this.data.pages[idx] || this.data.currentPage;
-      if (this.data.flipDirection === direction && this.data.underPage === underPage) {
+      if (this.data.flipDirection === direction) {
         return;
       }
-      this.setData({
-        flipDirection: direction,
-        underPage,
-      });
+      this.applyBookDragLayers(direction);
     },
 
     onBookFlipCancel() {
       if (this.data.flipping) {
         return;
       }
+      const currentPage = this.data.currentPage;
+      const underPage =
+        this.data.pages[Math.min(this.data.current + 1, this.data.pages.length - 1)] ||
+        currentPage;
       this.setData({
         flipDirection: '',
-        underPage:
-          this.data.pages[Math.min(this.data.current + 1, this.data.pages.length - 1)] ||
-          this.data.currentPage,
+        flipLeafPage: currentPage,
+        underPage,
       });
     },
 
@@ -391,7 +496,11 @@ Component({
       const direction = payload?.direction === 'prev' ? 'prev' : 'next';
       const target =
         direction === 'next' ? this.data.current + 1 : this.data.current - 1;
-      void this.settleFlip(target);
+      if (target < 0 || target >= this.data.pages.length) {
+        this.onBookFlipCancel();
+        return;
+      }
+      void this.finalizeBookFlip(target, { direction });
     },
 
     async playFlip(direction: 'next' | 'prev', targetIndex?: number) {
@@ -408,42 +517,26 @@ Component({
         return;
       }
 
-      this.setData({
-        flipping: true,
-        flipDirection: direction,
-        underPage: this.data.pages[nextIndex],
-      });
-      await new Promise((resolve) => setTimeout(resolve, FLIP_SETTLE_MS));
-      this.syncNav(nextIndex);
-    },
-
-    async settleFlip(targetIndex: number) {
-      if (targetIndex < 0 || targetIndex >= this.data.pages.length) {
+      if (direction === 'next') {
         this.setData({
-          flipping: false,
-          flipDirection: '',
-          bookGesture: {
-            canPrev: this.data.canPrev,
-            canNext: this.data.canNext,
-            resetToken: (this.data.bookGesture?.resetToken || 0) + 1,
-          },
+          flipping: true,
+          flipDirection: 'next',
+          flipLeafPage: this.data.currentPage,
+          underPage: this.data.pages[nextIndex],
         });
-        return;
+      } else {
+        this.setData({
+          flipping: true,
+          flipDirection: 'prev',
+          flipLeafPage: this.data.pages[nextIndex],
+          underPage: this.data.currentPage,
+        });
       }
-      this.setData({ flipping: true });
-      await new Promise((resolve) => setTimeout(resolve, FLIP_SETTLE_MS));
-      this.syncNav(targetIndex);
+      await this.finalizeBookFlip(nextIndex, { direction });
     },
 
     onClose() {
       this.triggerEvent('close');
-    },
-
-    onSave() {
-      wx.showToast({
-        title: '已保存',
-        icon: 'none',
-      });
     },
   },
 });

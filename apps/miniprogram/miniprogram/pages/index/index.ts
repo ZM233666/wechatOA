@@ -1,5 +1,5 @@
 import { getCurrentEnvVersion, getApiBaseUrl } from '../../config/env';
-import { getHome } from '../../services/home.service';
+import { getHome, readPersistedHomeView } from '../../services/home.service';
 import { getHealth } from '../../services/api';
 import type { HomeBanner, HomeData, NewsSummary, QuickEntry } from '../../types/home';
 import { fallbackImageUrl } from '../../utils/format';
@@ -40,19 +40,38 @@ Page({
       showDevTools: envVersion === 'develop',
       apiBaseUrl: getApiBaseUrl(),
     });
-    void this.loadHome();
+    const persisted = readPersistedHomeView();
+    if (persisted) {
+      const empty =
+        persisted.banners.length === 0 &&
+        persisted.entries.length === 0 &&
+        persisted.newsList.length === 0;
+      this.setData({
+        newsStatus: persisted.newsStatus,
+        banners: persisted.banners,
+        entries: persisted.entries,
+        newsList: persisted.newsList,
+        pageStatus: empty ? 'empty' : 'success',
+      });
+    }
+    void this.loadHome(Boolean(persisted));
   },
 
   onUnload() {
     this.data.pageAlive = false;
   },
 
-  async loadHome() {
+  async loadHome(silent = false) {
     if (!this.data.pageAlive || this.data.requesting) {
       return;
     }
     this.data.requesting = true;
-    this.setData({ requesting: true, pageStatus: 'loading', errorText: '' });
+    const keepContent = silent || this.data.pageStatus === 'success';
+    if (!keepContent) {
+      this.setData({ requesting: true, pageStatus: 'loading', errorText: '' });
+    } else {
+      this.setData({ requesting: true, errorText: '' });
+    }
     try {
       const home = await getHome();
       if (!this.data.pageAlive) {
@@ -70,10 +89,12 @@ Page({
       if (!this.data.pageAlive) {
         return;
       }
-      this.setData({
-        pageStatus: 'empty',
-        ...friendlyUnavailablePageData(),
-      });
+      if (!keepContent) {
+        this.setData({
+          pageStatus: 'empty',
+          ...friendlyUnavailablePageData(),
+        });
+      }
     } finally {
       if (this.data.pageAlive) {
         this.data.requesting = false;

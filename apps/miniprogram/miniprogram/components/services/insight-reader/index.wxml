@@ -18,18 +18,6 @@
         <view class="insight-reader__btn tap-feedback" bindtap="onClose">
           <text class="insight-reader__btn-text">✕</text>
         </view>
-        <view class="insight-reader__actions">
-          <button class="insight-reader__btn insight-reader__share tap-feedback" open-type="share">
-            <image
-              class="insight-reader__btn-img"
-              src="/assets/images/content/icon-share.png"
-              mode="aspectFit"
-            ></image>
-          </button>
-          <view class="insight-reader__btn tap-feedback" bindtap="onSave">
-            <text class="insight-reader__btn-icon">⇩</text>
-          </view>
-        </view>
       </view>
 
       <view wx:if="{{isBookMode}}" class="book-stage">
@@ -40,12 +28,14 @@
 
           <view class="book-leaf book-leaf--under">
             <reader-page page="{{underPage}}"></reader-page>
-            <view class="book-leaf__shade {{flipDirection ? 'book-leaf__shade--on' : ''}}"></view>
+            <view
+              class="book-leaf__shade {{flipDirection ? 'book-leaf__shade--on' : ''}} {{flipDirection === 'prev' ? 'book-leaf__shade--prev' : ''}}"
+            ></view>
           </view>
 
           <!-- 手势绑在翻页叶上，WXS 直接改 transform -->
           <view
-            class="book-leaf book-leaf--flip {{flipping ? (flipDirection === 'prev' ? 'book-leaf--exit-prev' : 'book-leaf--exit-next') : ''}}"
+            class="book-leaf book-leaf--flip {{bookSwapMask ? 'book-leaf--swap-mask' : ''}} {{flipping && flipDirection === 'next' ? 'book-leaf--exit-next' : ''}} {{flipping && flipDirection === 'prev' ? 'book-leaf--enter-prev' : ''}}"
             data-gesture="{{bookGesture}}"
             change:data-gesture="{{book.syncProps}}"
             bindtouchstart="{{book.touchStart}}"
@@ -53,9 +43,18 @@
             bindtouchend="{{book.touchEnd}}"
             bindtouchcancel="{{book.touchCancel}}"
           >
-            <view class="book-leaf__face">
-              <reader-page page="{{currentPage}}"></reader-page>
-              <view class="book-leaf__curl"></view>
+            <view class="book-leaf__hinge">
+              <view class="book-leaf__face book-leaf__face--front">
+                <reader-page page="{{flipLeafPage || currentPage}}"></reader-page>
+                <view class="book-leaf__curl"></view>
+                <view class="book-leaf__sheen"></view>
+              </view>
+              <view class="book-leaf__face book-leaf__face--back" aria-hidden="true">
+                <view class="book-leaf__back-paper">
+                  <view class="book-leaf__back-line"></view>
+                  <view class="book-leaf__back-line book-leaf__back-line--short"></view>
+                </view>
+              </view>
             </view>
           </view>
         </view>

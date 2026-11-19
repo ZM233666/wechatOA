@@ -1,3 +1,4 @@
+import { buildServiceFeatureIntroUrl } from '../../../constants/routes';
 import { getMyDashboardModules, type MyDashboardModule } from '../../../services/services.service';
 import { showComingSoonModal } from '../coming-soon';
 import { rejectUnboundIdentityAccess } from '../../../utils/identity-access';
@@ -32,7 +33,11 @@ Page({
   },
 
   onModuleTap(event: WechatMiniprogram.TouchEvent) {
-    const { title } = event.currentTarget.dataset as { title?: string };
+    const { id, title } = event.currentTarget.dataset as { id?: string; title?: string };
+    if (id === 'fast-phm') {
+      wx.navigateTo({ url: buildServiceFeatureIntroUrl('fast-phm') });
+      return;
+    }
     showComingSoonModal(title);
   },
 });

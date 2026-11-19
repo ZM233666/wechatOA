@@ -33,7 +33,7 @@
               <view class="care-card__date">
                 <image
                   class="care-card__clock"
-                  src="/assets/images/kb-life/clock-gray.png"
+                  src="/subpackages/kb-life/assets/images/clock-gray.png"
                   mode="aspectFit"
                 ></image>
                 <text>{{item.date}}</text>

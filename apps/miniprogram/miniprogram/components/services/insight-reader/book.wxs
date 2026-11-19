@@ -8,12 +8,27 @@ function clamp(v, min, max) {
   return v
 }
 
-function applyLeaf(instance, deg, hard, origin) {
+var FLIP_TRANS_MS = 400
+
+function applyLeaf(instance, deg, hard, origin, progress) {
+  if (!instance) return
+  var prog = typeof progress === 'number' ? progress : Math.min(Math.abs(deg) / 92, 1)
+  var lift = (1 - prog) * 2 + prog * 5
+  instance.setStyle({
+    transform: 'rotateY(' + deg + 'deg) translateZ(' + lift + 'px)',
+    'transform-origin': origin || 'left center',
+    transition: hard
+      ? 'transform ' + FLIP_TRANS_MS + 'ms cubic-bezier(0.22, 1, 0.36, 1)'
+      : 'none',
+  })
+}
+
+function resetLeaf(instance) {
   if (!instance) return
   instance.setStyle({
-    transform: 'rotateY(' + deg + 'deg)',
-    'transform-origin': origin || 'left center',
-    transition: hard ? 'transform 280ms cubic-bezier(0.25, 0.8, 0.25, 1)' : 'none'
+    transform: 'rotateY(0deg) translateZ(2px)',
+    'transform-origin': 'left center',
+    transition: 'none',
   })
 }
 
@@ -29,7 +44,7 @@ function touchStart(event, ownerInstance) {
   state.startY = touch.clientY
   state.startTime = Date.now()
   state.progress = 0
-  applyLeaf(event.instance, 0, false, 'left center')
+  applyLeaf(event.instance, 0, false, 'left center', 0)
 }
 
 function touchMove(event, ownerInstance) {
@@ -63,10 +78,11 @@ function touchMove(event, ownerInstance) {
   }
 
   var progress = clamp(Math.abs(dx) / 190, 0, 1)
-  var origin = direction === 'next' ? 'left center' : 'right center'
-  var deg = direction === 'next' ? -progress * 58 : progress * 58
+  var origin = 'left center'
+  var deg = direction === 'next' ? -progress * 92 : -92 * (1 - progress)
   state.progress = progress
-  applyLeaf(event.instance, deg, false, origin)
+  applyLeaf(event.instance, deg, false, origin, progress)
+  ownerInstance.callMethod('onBookFlipProgress', { progress: progress, direction: direction })
 }
 
 function touchEnd(event, ownerInstance) {
@@ -79,7 +95,7 @@ function touchEnd(event, ownerInstance) {
   var velocity = dx / elapsed
   var progress = state.progress || 0
   var direction = state.direction || (dx < 0 ? 'next' : 'prev')
-  var origin = direction === 'next' ? 'left center' : 'right center'
+  var origin = 'left center'
 
   if (!state.dragging) {
     state.active = false
@@ -99,14 +115,14 @@ function touchEnd(event, ownerInstance) {
     state.locked = true
     state.active = false
     state.dragging = false
-    applyLeaf(event.instance, direction === 'next' ? -86 : 86, true, origin)
+    applyLeaf(event.instance, direction === 'next' ? -92 : 0, true, origin, 1)
     ownerInstance.callMethod('onBookFlipCommit', { direction: direction })
     return
   }
 
   state.active = false
   state.dragging = false
-  applyLeaf(event.instance, 0, true, origin)
+  applyLeaf(event.instance, 0, true, origin, 0)
   ownerInstance.callMethod('onBookFlipCancel', {})
 }
 
@@ -118,7 +134,7 @@ function touchCancel(event, ownerInstance) {
   state.dragging = false
   state.direction = ''
   state.progress = 0
-  applyLeaf(event.instance, 0, false, 'left center')
+  applyLeaf(event.instance, 0, false, 'left center', 0)
   ownerInstance.callMethod('onBookFlipCancel', {})
 }
 
@@ -134,7 +150,7 @@ function syncProps(newValue, oldValue, ownerInstance, instance) {
     state.dragging = false
     state.direction = ''
     state.progress = 0
-    applyLeaf(instance, 0, false, 'left center')
+    resetLeaf(instance)
   }
 }
 

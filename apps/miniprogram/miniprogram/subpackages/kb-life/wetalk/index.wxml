@@ -58,7 +58,7 @@
         <view class="magazine-card__cover">
           <image
             class="magazine-card__image"
-            src="/assets/images/kb-life/wetalk-coverpage.png"
+            src="/subpackages/kb-life/assets/images/wetalk-coverpage.png"
             mode="aspectFill"
           ></image>
           <view class="magazine-card__mask"></view>

@@ -1,10 +1,17 @@
+import {
+  TAB_CACHE_FRESH_MS,
+  TAB_CACHE_KEYS,
+  TAB_CACHE_MAX_AGE_MS,
+  TAB_CACHE_STALE_MS,
+} from '../constants/tab-cache';
 import type { ImageResource } from '../types/content';
 import { MY_DASHBOARD_MODULES } from '../mock/services';
 import { toAssetUrl } from '../utils/format';
 import { getIdentitySessionRevision } from './identity-session.service';
 import { API_ENDPOINTS } from './endpoints';
 import { getLoginCodeQueryParams } from './identity-binding.service';
-import { get, withRequestCache, withStaleWhileRevalidate } from './request';
+import { readPersistedSnapshot, withPersistedStaleWhileRevalidate } from './persisted-swr';
+import { get, withRequestCache } from './request';
 
 export interface ServiceHeroCard {
   id: string;
@@ -179,16 +186,20 @@ export async function getMyDashboardModules(): Promise<MyDashboardModule[]> {
   }));
 }
 
-export async function getServices(): Promise<{
+export type ServicesPageView = {
   heroCards: ServiceHeroCard[];
   insightCovers: InsightCover[];
-}> {
+};
+
+export function readPersistedServicesView(): ServicesPageView | null {
+  const key = TAB_CACHE_KEYS.services(getIdentitySessionRevision());
+  return readPersistedSnapshot<ServicesPageView>(key, TAB_CACHE_MAX_AGE_MS);
+}
+
+export async function getServices(): Promise<ServicesPageView> {
   const identityRevision = getIdentitySessionRevision();
-  return withStaleWhileRevalidate(
-    `services:${identityRevision}`,
-    30_000,
-    2 * 60_000,
-    async () => {
+  const cacheKey = TAB_CACHE_KEYS.services(identityRevision);
+  return withPersistedStaleWhileRevalidate(cacheKey, TAB_CACHE_FRESH_MS, TAB_CACHE_STALE_MS, async () => {
       const data = await get<ServicesPageDto>(API_ENDPOINTS.services);
       return {
         heroCards: data.heroCards.map((item) => ({
@@ -204,8 +215,7 @@ export async function getServices(): Promise<{
         })),
         insightCovers: data.insightCovers.map((item) => mapInsightCover(item)),
       };
-    },
-  );
+  });
 }
 
 export async function getInsightReports(): Promise<InsightCover[]> {

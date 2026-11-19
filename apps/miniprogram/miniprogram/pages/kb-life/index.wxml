@@ -69,7 +69,7 @@
           <view class="wetalk__cover">
             <image
               class="wetalk__cover-image"
-              src="{{wetalkFeatured ? wetalkFeatured.image : '/assets/images/news/news-3.png'}}"
+              src="{{wetalkFeatured ? wetalkFeatured.image : '/pages/news/assets/images/news/news-3.png'}}"
               mode="aspectFill"
             ></image>
             <text class="wetalk__badge">WeTalk</text>

@@ -1,10 +1,17 @@
 import { getWetalkBook } from './wetalk.service';
 import type { ArticleContentBlock, ImageResource } from '../types/content';
+import {
+  TAB_CACHE_FRESH_MS,
+  TAB_CACHE_KEYS,
+  TAB_CACHE_MAX_AGE_MS,
+  TAB_CACHE_STALE_MS,
+} from '../constants/tab-cache';
 import { OPEN_POSITIONS_DISPLAY_TITLE } from '../constants/kb-life';
 import { getStoredCampusLocation } from '../utils/campus-location';
 import { toAssetUrl } from '../utils/format';
 import { API_ENDPOINTS } from './endpoints';
 import { getLoginCodeQueryParams } from './identity-binding.service';
+import { readPersistedSnapshot, withPersistedStaleWhileRevalidate } from './persisted-swr';
 import { get, withRequestCache } from './request';
 import { RequestError } from '../types/api';
 
@@ -174,14 +181,23 @@ function mapService(
   };
 }
 
-export async function getKbLifeEntries(): Promise<{
+export type KbLifeEntriesView = {
   banners: LifeBanner[];
   locations: string[];
   campusServices: CampusService[];
   employeeServices: CampusService[];
-}> {
+};
+
+export function readPersistedKbLifeEntries(): KbLifeEntriesView | null {
   const location = getStoredCampusLocation();
-  return withRequestCache(`kb-life:entries:v6:${location}`, 60_000, async () => {
+  const key = TAB_CACHE_KEYS.kbLifeEntries(location);
+  return readPersistedSnapshot<KbLifeEntriesView>(key, TAB_CACHE_MAX_AGE_MS);
+}
+
+export async function getKbLifeEntries(): Promise<KbLifeEntriesView> {
+  const location = getStoredCampusLocation();
+  const cacheKey = TAB_CACHE_KEYS.kbLifeEntries(location);
+  return withPersistedStaleWhileRevalidate(cacheKey, TAB_CACHE_FRESH_MS, TAB_CACHE_STALE_MS, async () => {
     const data = await get<KbLifeEntriesDto>(API_ENDPOINTS.kbLifeEntries, { location });
     return {
       banners: data.banners.map((item) => ({
@@ -476,11 +492,11 @@ const FINANCIAL_SECTION_PRESENTATION: Record<
   { icon: string; iconBg: string }
 > = {
   notes: {
-    icon: '/assets/images/kb-life/handbook.png',
+    icon: '/subpackages/kb-life/assets/images/handbook.png',
     iconBg: '#fef3c7',
   },
   manual: {
-    icon: '/assets/images/kb-life/handbook.png',
+    icon: '/subpackages/kb-life/assets/images/handbook.png',
     iconBg: '#fff7ed',
   },
 };

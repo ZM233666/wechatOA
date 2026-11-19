@@ -1,0 +1,39 @@
+<view class="page page--feature-intro">
+  <nav-brand title="{{navTitle}}" show-back="{{true}}"></nav-brand>
+
+  <scroll-view class="intro-scroll" scroll-y enhanced show-scrollbar="{{false}}">
+    <view class="intro">
+      <view class="intro__hero intro__hero--{{tone}}">
+        <text class="intro__kicker">Services</text>
+        <text class="intro__title">{{navTitle}}</text>
+        <text class="intro__subtitle">{{subtitle}}</text>
+      </view>
+
+      <view class="intro__card">
+        <text class="intro__section-label">功能介绍</text>
+        <text class="intro__desc">{{descZh}}</text>
+        <text class="intro__desc intro__desc--en">{{descEn}}</text>
+      </view>
+
+      <view wx:if="{{!isBound}}" class="intro__auth">
+        <text class="intro__auth-title">认证后解锁完整功能</text>
+        <text class="intro__auth-hint">{{authHintZh}}</text>
+        <text class="intro__auth-hint intro__auth-hint--en">{{authHintEn}}</text>
+        <view class="intro__btn intro__btn--primary tap-feedback" bindtap="onGoIdentityBinding">
+          <text class="intro__btn-text">前往身份绑定</text>
+        </view>
+      </view>
+
+      <view wx:else class="intro__bound">
+        <text class="intro__bound-title">您已完成身份绑定</text>
+        <text class="intro__bound-desc">完整业务功能将在下一阶段开放，敬请期待。</text>
+        <text class="intro__bound-desc-en">Full capabilities will be available in an upcoming release.</text>
+        <view class="intro__btn intro__btn--ghost tap-feedback" bindtap="onComingSoon">
+          <text class="intro__btn-text intro__btn-text--ghost">了解后续规划</text>
+        </view>
+      </view>
+    </view>
+  </scroll-view>
+
+  <app-tab-bar></app-tab-bar>
+</view>

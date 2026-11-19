@@ -4,7 +4,7 @@
     style="padding-top: {{statusBarHeight}}px;"
   >
     <view
-      class="nav-brand__bar"
+      class="nav-brand__bar {{showBack ? 'nav-brand__bar--with-back' : ''}}"
       style="height: {{navBarHeight}}px;"
     >
       <view class="nav-brand__logos">

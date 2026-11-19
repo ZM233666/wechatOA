@@ -9,7 +9,7 @@
         <view class="shuttle-tabs__item tap-feedback" bindtap="onSwitchMap">线路图 Map</view>
       </view>
       <view class="shuttle-search">
-        <image class="shuttle-search__icon" src="/assets/images/kb-life/search.png" mode="aspectFit"></image>
+        <image class="shuttle-search__icon" src="/subpackages/kb-life/assets/images/search.png" mode="aspectFit"></image>
         <input
           class="shuttle-search__input"
           value="{{keyword}}"
@@ -31,7 +31,7 @@
       <block wx:elif="{{pageStatus === 'success'}}">
         <view wx:if="{{routes.length === 0}}" class="shuttle-empty">
           <view class="shuttle-empty__icon">
-            <image src="/assets/images/kb-life/search.png" mode="aspectFit"></image>
+            <image src="/subpackages/kb-life/assets/images/search.png" mode="aspectFit"></image>
           </view>
           <text class="shuttle-empty__text">未找到匹配的线路站点 (No matching routes or stops)</text>
         </view>
@@ -42,7 +42,7 @@
             <text class="route-card__name">{{item.name}}</text>
           </view>
           <view class="route-card__body">
-            <image class="route-card__pin" src="/assets/images/kb-life/pin.png" mode="aspectFit"></image>
+            <image class="route-card__pin" src="/subpackages/kb-life/assets/images/pin.png" mode="aspectFit"></image>
             <view class="route-card__stations">
               <text
                 class="route-card__stop"
@@ -88,7 +88,7 @@
       </picker>
       <view class="shuttle-trip">
         <view class="shuttle-trip__row">
-          <image class="shuttle-trip__icon" src="/assets/images/kb-life/search.png" mode="aspectFit"></image>
+          <image class="shuttle-trip__icon" src="/subpackages/kb-life/assets/images/search.png" mode="aspectFit"></image>
           <input
             class="shuttle-trip__input"
             value="{{tripDestination}}"

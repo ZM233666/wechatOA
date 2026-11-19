@@ -96,3 +96,6 @@ export const NEWS_COMING_SOON_TOAST = '新闻功能将在下一阶段开发';
 /** My Dashboard 二级页（Services Hero「My Dashboard」入口） */
 export const MY_DASHBOARD_PAGE_PATH = '/subpackages/services/my-dashboard/index';
 
+export type { ServiceFeatureKey } from './service-feature-copy';
+export { buildServiceFeatureIntroUrl } from './service-feature-copy';
+

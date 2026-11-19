@@ -58,7 +58,7 @@
       <view class="campus-map__tool tap-feedback" bindtap="onDownload">
         <image
           class="campus-map__tool-img"
-          src="/assets/images/kb-life/download-white.png"
+          src="/subpackages/kb-life/assets/images/download-white.png"
           mode="aspectFit"
         ></image>
       </view>

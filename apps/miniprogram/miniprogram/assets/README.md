@@ -9,7 +9,9 @@
 | TabBar 图标 | `icons/tabbar/tab-*.png` | 临时占位 | KB Life 心形；Setting 为齿轮（`tab-profile*.png`） |
 | 快捷入口图标 | `images/Home/*.png` | 用户提供 | 新闻中心 `news.png`、品牌介绍 `companies.png`、产品介绍 `train.png`、项目案例 `briefcase.png` |
 | Banner | `images/banners/banner-*.png` | 临时占位 | 品牌色渐变图，非正式活动海报 |
-| 新闻缩略图 | `images/news/news-*.png` | 临时占位 | 纯色构图，需替换真实新闻封面 |
+| 新闻缩略图 | `pages/news/assets/images/news/*.png` 或 `pages/products/assets/images/content/news-*.png` | 临时占位 | 已移入分包以控制主包体积 |
+| KB Life 图标/插图 | `subpackages/kb-life/assets/images/*` | 混合 | 含 WeTalk 封面等，不计入主包 |
+| 产品/案例等内容图 | `pages/products/assets/images/content/*` | 临时占位 | 产品/新闻/品牌等分包资源 |
 | 通用占位图 | `images/placeholders/placeholder.png` | 临时占位 | 后续通用兜底 |
 
 ## 建议尺寸

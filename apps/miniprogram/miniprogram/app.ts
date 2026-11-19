@@ -4,6 +4,7 @@ import {
   getIdentitySessionSnapshot,
   syncIdentitySession,
 } from './services/identity-session.service';
+import { prefetchMainTabData } from './services/tab-prefetch.service';
 
 App<IAppOption>({
   globalData: {
@@ -20,6 +21,6 @@ App<IAppOption>({
     } catch {
       // ignore
     }
-    void syncIdentitySession();
+    void syncIdentitySession().then(() => prefetchMainTabData());
   },
 });

@@ -74,7 +74,7 @@
 
     <view class="schedule">
       <view class="schedule__head">
-        <image class="schedule__icon" src="/assets/images/kb-life/calendar-gold.png" mode="aspectFit"></image>
+        <image class="schedule__icon" src="/subpackages/kb-life/assets/images/calendar-gold.png" mode="aspectFit"></image>
         <text class="schedule__title">当月假期安排 (Monthly Schedule)</text>
       </view>
 

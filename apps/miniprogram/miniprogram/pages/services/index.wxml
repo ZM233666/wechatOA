@@ -48,8 +48,11 @@
     <view
       class="hero-card tap-feedback"
       wx:for="{{heroCards}}"
+      wx:for-index="heroIndex"
       wx:key="id"
-      data-id="{{item.id}}"
+      data-hero-id="{{item.id}}"
+      data-title="{{item.title}}"
+      data-index="{{heroIndex}}"
       bindtap="onHeroTap"
     >
       <view class="hero-card__banner">

@@ -213,6 +213,25 @@ export async function withRequestCache<T>(
  * Fresh 期间直接返回；进入 stale 窗口后立即返回旧值并在后台刷新。
  * 首次加载或超过 stale 窗口时仍等待请求，避免无限展示过期数据。
  */
+/** 用磁盘或预取结果预热内存 SWR（savedAt 为上次成功写入时间） */
+export function primeStaleWhileRevalidateCache<T>(
+  key: string,
+  value: T,
+  freshTtlMs: number,
+  staleTtlMs: number,
+  savedAt: number,
+): void {
+  staleResponseCache.set(key, {
+    value,
+    expiresAt: savedAt + freshTtlMs,
+    staleUntil: savedAt + freshTtlMs + staleTtlMs,
+  });
+}
+
+export function hasStaleWhileRevalidateCache(key: string): boolean {
+  return staleResponseCache.has(key);
+}
+
 export async function withStaleWhileRevalidate<T>(
   key: string,
   freshTtlMs: number,

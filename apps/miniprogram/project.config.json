@@ -65,6 +65,10 @@
       {
         "type": "regexp",
         "value": "(^|/)\\.DS_Store$"
+      },
+      {
+        "type": "folder",
+        "value": "source-pages"
       }
     ],
     "include": [

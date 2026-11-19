@@ -2,6 +2,13 @@ import { getApiBaseUrl, getApiEnvironment, getCurrentEnvVersion, isForbiddenProd
 import type { InsightReportView } from './services.service';
 import { API_ENDPOINTS } from './endpoints';
 import { getLoginCodeQueryParams } from './identity-binding.service';
+import {
+  TAB_CACHE_FRESH_MS,
+  TAB_CACHE_KEYS,
+  TAB_CACHE_MAX_AGE_MS,
+  TAB_CACHE_STALE_MS,
+} from '../constants/tab-cache';
+import { readPersistedSnapshot, withPersistedStaleWhileRevalidate } from './persisted-swr';
 import { get, invalidateRequestCache, withRequestCache } from './request';
 import { RequestError } from '../types/api';
 import { openRemotePdf } from '../utils/open-remote-pdf';
@@ -120,19 +127,41 @@ async function listCovers(type: WetalkType): Promise<WetalkCover[]> {
 }
 export function getWetalkIssues(): Promise<WetalkCover[]> { return listCovers('news'); }
 export function getWetalkMagazines(): Promise<WetalkCover[]> { return listCovers('emagazine'); }
+export function readPersistedWetalkFeatured(): WetalkCover | null {
+  const value = readPersistedSnapshot<WetalkCover | null>(
+    TAB_CACHE_KEYS.kbLifeWetalkFeatured,
+    TAB_CACHE_MAX_AGE_MS,
+  );
+  return value ?? null;
+}
+
 export async function getWetalkFeatured(): Promise<WetalkCover | null> {
-  const headers = await identityHeaders();
-  const data = await get<WetalkList>(API_ENDPOINTS.kbLifeWetalk, { page: 1, limit: 1 }, headers);
-  if (!data || !Array.isArray(data.items) || !Number.isInteger(data.total) || data.total < 0 ||
-    data.page !== 1 || data.limit !== 1 || data.items.length > 1) {
-    throw new RequestError('WeTalk 推荐响应格式错误');
-  }
-  const item = data.items[0];
-  if (!item) {
-    return null;
-  }
-  assertItem(item, 'news');
-  return toWetalkCover(item, headers);
+  return withPersistedStaleWhileRevalidate(
+    TAB_CACHE_KEYS.kbLifeWetalkFeatured,
+    TAB_CACHE_FRESH_MS,
+    TAB_CACHE_STALE_MS,
+    async () => {
+      const headers = await identityHeaders();
+      const data = await get<WetalkList>(API_ENDPOINTS.kbLifeWetalk, { page: 1, limit: 1 }, headers);
+      if (
+        !data ||
+        !Array.isArray(data.items) ||
+        !Number.isInteger(data.total) ||
+        data.total < 0 ||
+        data.page !== 1 ||
+        data.limit !== 1 ||
+        data.items.length > 1
+      ) {
+        throw new RequestError('WeTalk 推荐响应格式错误');
+      }
+      const item = data.items[0];
+      if (!item) {
+        return null;
+      }
+      assertItem(item, 'news');
+      return toWetalkCover(item, headers);
+    },
+  );
 }
 
 export async function getWetalkDetail(type: WetalkType, id: string): Promise<WetalkItem> {

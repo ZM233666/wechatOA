@@ -15,6 +15,7 @@
       wx:for="{{modules}}"
       wx:key="id"
       bindtap="onModuleTap"
+      data-id="{{item.id}}"
       data-title="{{item.title}}"
     >
       <view class="module-card__icon-wrap" style="background: {{item.iconBg}};">

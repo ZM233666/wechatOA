@@ -45,6 +45,14 @@ export function isIdentityBound(): boolean {
   return getIdentityAccessTier() !== 'visitor';
 }
 
+/**
+ * 是否已完成企业身份绑定（仅读本地快照，不受 develop 门禁绕过影响）。
+ * 用于功能介绍、绑定引导等 UI，应与 Setting 页展示一致。
+ */
+export function hasStoredIdentityBinding(): boolean {
+  return resolveIdentityAccessTier(getStoredIdentityBinding()) !== 'visitor';
+}
+
 export function isEmployeeIdentity(): boolean {
   if (isIdentityGuardBypassEnabled()) {
     return true;

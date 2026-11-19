@@ -2,10 +2,12 @@ import { COMING_SOON_TOAST } from '../../constants/routes';
 import {
   getKbLifeEntries,
   getWetalkFeatured,
+  readPersistedKbLifeEntries,
   type CampusService,
   type LifeBanner,
   type WetalkCover,
 } from '../../services/kb-life.service';
+import { readPersistedWetalkFeatured } from '../../services/wetalk.service';
 import {
   getStoredCampusLocation,
   setStoredCampusLocation,
@@ -60,7 +62,27 @@ Page({
     bindIdentitySessionRefresh(this, () => {
       void this.loadEntries();
     });
-    void this.loadEntries();
+    const persisted = readPersistedKbLifeEntries();
+    const wetalkFeatured = readPersistedWetalkFeatured();
+    if (persisted) {
+      const selectedLocation = getStoredCampusLocation(persisted.locations);
+      const locationIndex = Math.max(persisted.locations.indexOf(selectedLocation), 0);
+      setStoredCampusLocation(selectedLocation, persisted.locations);
+      this.setData({
+        banners: persisted.banners,
+        locations: persisted.locations,
+        locationIndex,
+        selectedLocation,
+        campusServices: persisted.campusServices,
+        employeeServices: persisted.employeeServices,
+        pageStatus: 'success',
+        wetalkFeatured,
+        shareTitle: wetalkFeatured?.title || 'WeTalk E-Magazine',
+        shareImage: wetalkFeatured?.image || '',
+      });
+      (this as unknown as { _lastEntriesLoadedAt?: number })._lastEntriesLoadedAt = Date.now();
+    }
+    void this.loadEntries(Boolean(persisted));
   },
 
   onUnload() {
@@ -102,8 +124,11 @@ Page({
     };
   },
 
-  async loadEntries() {
-    const keepContent = this.data.pageStatus === 'success' && this.data.campusServices.length + this.data.employeeServices.length > 0;
+  async loadEntries(silent = false) {
+    const keepContent =
+      silent ||
+      (this.data.pageStatus === 'success' &&
+        this.data.campusServices.length + this.data.employeeServices.length > 0);
     if (!keepContent) {
       this.setData({ pageStatus: 'loading' });
     }
