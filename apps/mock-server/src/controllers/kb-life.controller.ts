@@ -79,7 +79,7 @@ export async function getKbLifeEntries(
     }
     const kbLifeEntries = readJsonFile('kb-life/entries.json', kbLifeEntriesSchema);
     const campus = careCampusFromLocation(resolveCampusLocation(req));
-    const careBanners = await resolveKbLifeCareBanners(campus);
+    const careBanners = await resolveKbLifeCareBanners();
     const banners = careBanners.length > 0 ? await hydrateKbLifeBanners(careBanners) : [];
     success(
       res,

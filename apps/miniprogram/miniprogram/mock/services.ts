@@ -8,6 +8,7 @@ export interface ServiceHeroCard {
   icon: string;
   iconTone: 'blue' | 'gold';
   showOnline?: boolean;
+  externalUrl?: string;
 }
 
 export interface InsightCover {
@@ -30,7 +31,8 @@ export const SERVICE_HERO_CARDS: ServiceHeroCard[] = [
     image: '/assets/images/banners/banner-1.png',
     icon: '/assets/images/Services/monitor.png',
     iconTone: 'blue',
-    showOnline: true,
+    showOnline: false,
+    externalUrl: '/api/health',
   },
   {
     id: 'fast-phm',
@@ -50,6 +52,7 @@ export interface MyDashboardModuleMock {
   subtitle: string;
   icon: string;
   iconBg: string;
+  externalUrl?: string;
 }
 
 export const MY_DASHBOARD_MODULES: MyDashboardModuleMock[] = [
@@ -59,6 +62,7 @@ export const MY_DASHBOARD_MODULES: MyDashboardModuleMock[] = [
     subtitle: 'Predictive Health Management',
     icon: '/assets/images/Services/alert.png',
     iconBg: '#fffbeb',
+    externalUrl: '/api/health',
   },
   {
     id: 'ftq-system',

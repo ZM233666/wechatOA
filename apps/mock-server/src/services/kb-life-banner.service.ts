@@ -22,6 +22,21 @@ function initiativeToKbLifeBanner(item: EmployeeCareInitiative): KbLifeBanner | 
   };
 }
 
+/** 多园区合并时按 careId/id 去重 */
+export function dedupeKbLifeBanners(banners: KbLifeBanner[]): KbLifeBanner[] {
+  const seen = new Set<string>();
+  const out: KbLifeBanner[] = [];
+  for (const item of banners) {
+    const key = item.careId ?? item.id;
+    if (seen.has(key)) {
+      continue;
+    }
+    seen.add(key);
+    out.push(item);
+  }
+  return out;
+}
+
 /** 与首页 `selectHomeBanners` 类似：CMS 勾选「KB Life 顶栏」的全部已发布稿 */
 export function selectKbLifeCareBanners(initiatives: EmployeeCareInitiative[]): KbLifeBanner[] {
   return initiatives

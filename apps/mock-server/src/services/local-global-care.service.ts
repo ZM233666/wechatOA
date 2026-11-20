@@ -16,6 +16,8 @@ import {
 import { mapLocalGlobalCareToEmployeeCare } from './local-global-care.mapper';
 import type { KbLifeBanner } from '@app/shared';
 import {
+  dedupeKbLifeBanners,
+  KB_LIFE_BANNER_LIMIT,
   selectKbLifeCareBanners,
   selectKbLifeCareBannersFromMini,
 } from './kb-life-banner.service';
@@ -147,6 +149,31 @@ export function careCampusFromLocation(location: string): string {
   return campusCodeFromLocation(location);
 }
 
+/** KB Life 顶栏：汇总配置里的全部园区，与小程序当前选中的 location 无关 */
+function listCareCampusCodesForKbLifeBanners(): string[] {
+  const locations = getFixtures().kbLifeEntries.locations ?? [];
+  const codes = locations.map((location) => careCampusFromLocation(location));
+  return [...new Set([defaultCareCampus(), ...codes])];
+}
+
+function publishedAtForKbLifeBanner(banner: KbLifeBanner): string {
+  const careId = banner.careId ?? banner.id;
+  const match = careId.match(/(\d+)$/);
+  const num = match ? Number(match[1]) : Number.NaN;
+  const article = Number.isFinite(num) ? getCachedMiniCareArticle(num) : undefined;
+  return article?.publishedAt ?? '';
+}
+
+function finalizeKbLifeBanners(banners: KbLifeBanner[]): KbLifeBanner[] {
+  return dedupeKbLifeBanners(banners)
+    .sort(
+      (a, b) =>
+        publishedAtForKbLifeBanner(b).localeCompare(publishedAtForKbLifeBanner(a)) ||
+        a.id.localeCompare(b.id),
+    )
+    .slice(0, KB_LIFE_BANNER_LIMIT);
+}
+
 /** 顶栏 Banner / 关怀页共用：Live 有已发布稿时用 Live，否则 fixture（仅 Live 关闭时） */
 export async function resolveEmployeeCareData(campus = defaultCareCampus()): Promise<EmployeeCareData> {
   const fallback = getFixtures().employeeCare;
@@ -163,30 +190,41 @@ export async function resolveEmployeeCareData(campus = defaultCareCampus()): Pro
   };
 }
 
-/** KB Life 顶栏：本地/全球关怀中配置了 Banner 的已发布稿（global.banner、local.banner、showOnKbLifeBanner） */
-export async function resolveKbLifeCareBanners(campus = defaultCareCampus()): Promise<KbLifeBanner[]> {
+/**
+ * KB Life 顶栏：本地/全球关怀中配置了 Banner 的已发布稿（global.banner、showOnKbLifeBanner 等）。
+ * 与园区选择无关：聚合各 campus 的 Mini 响应后去重（全球稿 + 各园区勾选顶栏的本地稿）。
+ */
+export async function resolveKbLifeCareBanners(): Promise<KbLifeBanner[]> {
   if (isLocalGlobalCareEnabled()) {
-    try {
-      const mini = await fetchMiniLocalGlobalCare(campus);
-      if (mini) {
-        rememberMiniCareArticles(collectMiniCareArticles(mini), { replace: true });
-        const fromMini = selectKbLifeCareBannersFromMini(mini);
-        if (fromMini.length > 0) {
-          return fromMini;
+    const campuses = listCareCampusCodesForKbLifeBanners();
+    const collected: KbLifeBanner[] = [];
+    const allArticles: MiniCareArticleDto[] = [];
+    for (const campus of campuses) {
+      try {
+        const mini = await fetchMiniLocalGlobalCare(campus);
+        if (!mini) {
+          continue;
         }
+        allArticles.push(...collectMiniCareArticles(mini));
+        collected.push(...selectKbLifeCareBannersFromMini(mini));
+      } catch (error: unknown) {
+        const message = error instanceof Error ? error.message : String(error);
+        logWarn('KB Life care banners from Mini API failed', { campus, message });
       }
-    } catch (error: unknown) {
-      const message = error instanceof Error ? error.message : String(error);
-      logWarn('KB Life care banners from Mini API failed', { campus, message });
     }
+    if (allArticles.length > 0) {
+      rememberMiniCareArticles(allArticles, { replace: true });
+    }
+    const merged = finalizeKbLifeBanners(collected);
+    if (merged.length > 0) {
+      return merged;
+    }
+    const care = await resolveEmployeeCareData(defaultCareCampus());
+    const fromCare = selectKbLifeCareBanners(care.initiatives);
+    if (fromCare.length > 0) {
+      return fromCare;
+    }
+    return [];
   }
-  const care = await resolveEmployeeCareData(campus);
-  const fromCare = selectKbLifeCareBanners(care.initiatives);
-  if (fromCare.length > 0) {
-    return fromCare;
-  }
-  if (!isLocalGlobalCareEnabled()) {
-    return selectKbLifeCareBanners(getFixtures().employeeCare.initiatives);
-  }
-  return [];
+  return selectKbLifeCareBanners(getFixtures().employeeCare.initiatives);
 }

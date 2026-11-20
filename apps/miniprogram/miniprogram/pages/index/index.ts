@@ -1,9 +1,7 @@
-import { getCurrentEnvVersion, getApiBaseUrl } from '../../config/env';
 import { getHome, readPersistedHomeView } from '../../services/home.service';
-import { getHealth } from '../../services/api';
 import type { HomeBanner, HomeData, NewsSummary, QuickEntry } from '../../types/home';
 import { fallbackImageUrl } from '../../utils/format';
-import { friendlyUnavailablePageData, logPageLoadIssue } from '../../utils/friendly-page-error';
+import { friendlyUnavailablePageData } from '../../utils/friendly-page-error';
 
 const ENTRY_PATHS: Record<string, string> = {
   news: '/pages/news/index',
@@ -26,19 +24,11 @@ Page({
     errorText: '',
     pageAlive: true,
     requesting: false,
-    showDevTools: false,
-    apiBaseUrl: '',
-    checking: false,
-    statusText: '尚未检查',
-    statusType: 'idle' as 'idle' | 'loading' | 'success' | 'error',
   },
 
   onLoad() {
-    const envVersion = getCurrentEnvVersion();
     this.setData({
       pageAlive: true,
-      showDevTools: envVersion === 'develop',
-      apiBaseUrl: getApiBaseUrl(),
     });
     const persisted = readPersistedHomeView();
     if (persisted) {
@@ -55,6 +45,12 @@ Page({
       });
     }
     void this.loadHome(Boolean(persisted));
+  },
+
+  onShow() {
+    if (this.data.pageStatus === 'success') {
+      void this.loadHome(true);
+    }
   },
 
   onUnload() {
@@ -183,51 +179,5 @@ Page({
     wx.navigateTo({
       url: '/pages/news/index',
     });
-  },
-
-  async onCheckHealth() {
-    if (this.data.checking) {
-      return;
-    }
-
-    this.setData({
-      checking: true,
-      statusType: 'loading',
-      statusText: '正在检查 Mock API 服务…',
-    });
-
-    try {
-      const result = await getHealth();
-      if (!this.data.pageAlive) {
-        return;
-      }
-      if (result.status === 'ok') {
-        this.setData({
-          statusType: 'success',
-          statusText: result.service ? `${result.service} 连接成功` : '服务连接成功',
-        });
-        return;
-      }
-
-      this.setData({
-        statusType: 'error',
-        statusText: '服务返回异常',
-      });
-    } catch (error) {
-      if (!this.data.pageAlive) {
-        return;
-      }
-      console.warn('[home-health]', error instanceof Error ? error.message : error);
-      this.setData({
-        statusType: 'error',
-        statusText: '暂无法连接服务，请稍后再试',
-      });
-    } finally {
-      if (this.data.pageAlive) {
-        this.setData({
-          checking: false,
-        });
-      }
-    }
   },
 });

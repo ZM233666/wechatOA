@@ -47,7 +47,7 @@ WeTalk / 员工手册为 Employee 专属；员工关怀与园区服务同级，C
 
 ### KB Life 顶栏 Banner
 
-`GET /kb-life/entries` 的 `banners[]` 仅来自**本地/全球关怀**中配置了顶栏 Banner 的已发布稿（`global.banner` / `local.banner`、`showOnKbLifeBanner`，最多 5 条）。Live 无匹配稿时回退 `fixtures/kb-life/care.json` 中带 `showOnKbLifeBanner` 的条目（开发联调）；**不会**使用 `entries.json` 里的企业文化静态轮播图。
+`GET /kb-life/entries` 的 `banners[]` 仅来自**本地/全球关怀**中配置了顶栏 Banner 的已发布稿（`global.banner` / `local.banner`、`showOnKbLifeBanner`，最多 5 条）。**与小程序当前选择的园区 location 无关**：Mock 会聚合 `entries.json` 中全部园区向 Mini API 拉取并去重。Live 无匹配稿时回退 `fixtures/kb-life/care.json` 中带 `showOnKbLifeBanner` 的条目（仅 `LOCAL_GLOBAL_CARE_ENABLED` 关闭时）；**不会**使用 `entries.json` 里的企业文化静态轮播图。
 
 Banner 项含 `careId`、`targetUrl`（跳转关怀列表页，可带 `initiativeId` query）。
 

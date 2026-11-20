@@ -6,6 +6,7 @@ import {
 } from '../constants/tab-cache';
 import type { ImageResource } from '../types/content';
 import { MY_DASHBOARD_MODULES } from '../mock/services';
+import { enrichOnlineStatusFromExternalUrl } from '../utils/external-url';
 import { toAssetUrl } from '../utils/format';
 import { getIdentitySessionRevision } from './identity-session.service';
 import { API_ENDPOINTS } from './endpoints';
@@ -22,7 +23,9 @@ export interface ServiceHeroCard {
   image: string;
   icon: string;
   iconTone: 'blue' | 'gold';
+  /** 仅当配置了 externalUrl 且探测可达时为 true */
   showOnline?: boolean;
+  externalUrl?: string;
 }
 
 export interface MyDashboardModule {
@@ -31,6 +34,8 @@ export interface MyDashboardModule {
   subtitle: string;
   icon: string;
   iconBg: string;
+  externalUrl?: string;
+  showOnline?: boolean;
 }
 
 export interface InsightCover {
@@ -96,7 +101,8 @@ interface ServiceDto {
   coverImage: ImageResource;
   icon: ImageResource;
   iconTone: 'blue' | 'gold';
-  showOnline: boolean;
+  showOnline?: boolean;
+  externalUrl?: string;
   kicker?: string;
   english?: string;
   caption?: string;
@@ -164,6 +170,25 @@ function mapInsightCover(item: {
   };
 }
 
+function mapMyDashboardModule(item: {
+  id: string;
+  title: string;
+  subtitle: string;
+  icon: ImageResource | string;
+  iconBg: string;
+  externalUrl?: string;
+}): MyDashboardModule {
+  return {
+    id: item.id,
+    title: item.title,
+    subtitle: item.subtitle,
+    icon: typeof item.icon === 'string' ? item.icon : toAssetUrl(item.icon),
+    iconBg: item.iconBg,
+    externalUrl: item.externalUrl?.trim() || undefined,
+    showOnline: false,
+  };
+}
+
 export async function getMyDashboardModules(): Promise<MyDashboardModule[]> {
   const data = await get<{
     items: Array<{
@@ -172,18 +197,12 @@ export async function getMyDashboardModules(): Promise<MyDashboardModule[]> {
       subtitle: string;
       icon: ImageResource;
       iconBg: string;
+      externalUrl?: string;
     }>;
   }>(API_ENDPOINTS.serviceMyDashboardModules, await getLoginCodeQueryParams());
-  if (!data.items.length) {
-    return MY_DASHBOARD_MODULES;
-  }
-  return data.items.map((item) => ({
-    id: item.id,
-    title: item.title,
-    subtitle: item.subtitle,
-    icon: toAssetUrl(item.icon),
-    iconBg: item.iconBg,
-  }));
+  const source = data.items.length ? data.items : MY_DASHBOARD_MODULES;
+  const mapped = source.map((item) => mapMyDashboardModule(item));
+  return enrichOnlineStatusFromExternalUrl(mapped);
 }
 
 export type ServicesPageView = {
@@ -196,25 +215,34 @@ export function readPersistedServicesView(): ServicesPageView | null {
   return readPersistedSnapshot<ServicesPageView>(key, TAB_CACHE_MAX_AGE_MS);
 }
 
+export async function enrichHeroCardsOnlineStatus(
+  cards: ServiceHeroCard[],
+): Promise<ServiceHeroCard[]> {
+  return enrichOnlineStatusFromExternalUrl(cards);
+}
+
 export async function getServices(): Promise<ServicesPageView> {
   const identityRevision = getIdentitySessionRevision();
   const cacheKey = TAB_CACHE_KEYS.services(identityRevision);
   return withPersistedStaleWhileRevalidate(cacheKey, TAB_CACHE_FRESH_MS, TAB_CACHE_STALE_MS, async () => {
-      const data = await get<ServicesPageDto>(API_ENDPOINTS.services);
-      return {
-        heroCards: data.heroCards.map((item) => ({
-          id: item.id,
-          title: item.title,
-          subtitle: item.subtitle,
-          footerTitle: item.footerTitle,
-          footerHint: item.footerHint,
-          image: toAssetUrl(item.coverImage),
-          icon: toAssetUrl(item.icon),
-          iconTone: item.iconTone,
-          showOnline: item.showOnline,
-        })),
-        insightCovers: data.insightCovers.map((item) => mapInsightCover(item)),
-      };
+    const data = await get<ServicesPageDto>(API_ENDPOINTS.services);
+    const heroCards = data.heroCards.map((item) => ({
+      id: item.id,
+      title: item.title,
+      subtitle: item.subtitle,
+      footerTitle: item.footerTitle,
+      footerHint: item.footerHint,
+      image: toAssetUrl(item.coverImage),
+      icon: toAssetUrl(item.icon),
+      iconTone: item.iconTone,
+      externalUrl: item.externalUrl?.trim() || undefined,
+      showOnline: false,
+    }));
+    const heroCardsWithOnline = await enrichHeroCardsOnlineStatus(heroCards);
+    return {
+      heroCards: heroCardsWithOnline,
+      insightCovers: data.insightCovers.map((item) => mapInsightCover(item)),
+    };
   });
 }
 

@@ -18,6 +18,10 @@
       data-id="{{item.id}}"
       data-title="{{item.title}}"
     >
+      <view wx:if="{{item.showOnline}}" class="module-card__online">
+        <view class="module-card__online-dot"></view>
+        <text class="module-card__online-text">ONLINE</text>
+      </view>
       <view class="module-card__icon-wrap" style="background: {{item.iconBg}};">
         <image class="module-card__icon" src="{{item.icon}}" mode="aspectFit"></image>
       </view>

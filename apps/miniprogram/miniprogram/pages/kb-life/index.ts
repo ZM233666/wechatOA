@@ -32,6 +32,8 @@ import {
 } from '../../utils/friendly-page-error';
 
 const KB_LIFE_REFRESH_INTERVAL_MS = 60_000;
+/** 与 WeTalk 二级页 Magazine 卡片封面一致 */
+const WETALK_MAGAZINE_COVER = '/subpackages/kb-life/assets/images/wetalk-coverpage.png';
 
 Page({
   data: {
@@ -54,6 +56,7 @@ Page({
     readerSource: 'wetalk' as 'wetalk' | 'campus-map' | 'shuttle-bus',
     /** 上层页面展示的最近 1 期 */
     wetalkFeatured: null as WetalkCover | null,
+    wetalkMagazineCover: WETALK_MAGAZINE_COVER,
     shareTitle: 'WeTalk News',
     shareImage: '',
   },

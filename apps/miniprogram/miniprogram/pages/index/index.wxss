@@ -76,7 +76,7 @@ page {
   flex-direction: row;
   justify-content: space-between;
   align-items: flex-start;
-  padding: 40rpx 32rpx 36rpx;
+  padding: 44rpx 32rpx 40rpx;
   border-bottom: 1rpx solid #f3f4f6;
   background: #ffffff;
 }

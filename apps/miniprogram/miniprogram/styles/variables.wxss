@@ -22,6 +22,9 @@ page {
   --kb-tab-inactive: #8a94a3;
 
   --kb-page-padding-x: 32rpx;
+  /** 四个 Tab 主内容区纵向内边距与区块间距 */
+  --kb-tab-page-padding-y: 32rpx;
+  --kb-tab-section-gap: 28rpx;
   --kb-radius-card: 24rpx;
   --kb-radius-sm: 16rpx;
   --kb-radius-xs: 12rpx;

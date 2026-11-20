@@ -83,14 +83,5 @@
       </view>
     </view>
     </block>
-
-    <status-feedback
-      wx:if="{{showDevTools}}"
-      api-base-url="{{apiBaseUrl}}"
-      checking="{{checking}}"
-      status-type="{{statusType}}"
-      status-text="{{statusText}}"
-      bind:check="onCheckHealth"
-    ></status-feedback>
   </view>
 </view>

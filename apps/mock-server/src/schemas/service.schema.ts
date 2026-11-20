@@ -11,7 +11,8 @@ export const serviceSummarySchema = z.object({
   coverImage: imageResourceSchema,
   icon: imageResourceSchema,
   iconTone: z.enum(['blue', 'gold']),
-  showOnline: z.boolean(),
+  showOnline: z.boolean().optional(),
+  externalUrl: z.string().min(1).optional(),
   kind: z.enum(['hero', 'insight']),
   kicker: z.string().optional(),
   english: z.string().optional(),
@@ -80,6 +81,7 @@ export const myDashboardModuleSchema = z.object({
   subtitle: z.string().min(1),
   icon: imageResourceSchema,
   iconBg: z.string().min(1),
+  externalUrl: z.string().min(1).optional(),
 });
 
 export const servicesFileSchema = z.object({

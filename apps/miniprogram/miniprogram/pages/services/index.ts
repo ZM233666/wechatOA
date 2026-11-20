@@ -1,5 +1,6 @@
 import { COMING_SOON_TOAST, MY_DASHBOARD_PAGE_PATH } from '../../constants/routes';
 import {
+  enrichHeroCardsOnlineStatus,
   getInsightReports,
   getServices,
   readPersistedServicesView,

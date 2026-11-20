@@ -198,7 +198,7 @@ page {
 }
 
 .life-body {
-  padding: 24rpx 24rpx calc(24rpx + env(safe-area-inset-bottom));
+  padding: var(--kb-tab-page-padding-y) 24rpx calc(var(--kb-tab-page-padding-y) + env(safe-area-inset-bottom));
 }
 
 .life-row {

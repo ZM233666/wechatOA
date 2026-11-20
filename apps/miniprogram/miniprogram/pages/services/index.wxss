@@ -17,7 +17,7 @@ page {
 }
 
 .services {
-  padding: 24rpx 24rpx calc(24rpx + env(safe-area-inset-bottom));
+  padding: var(--kb-tab-page-padding-y) 24rpx calc(var(--kb-tab-page-padding-y) + env(safe-area-inset-bottom));
 }
 
 .insights-panel {
@@ -202,7 +202,7 @@ page {
 }
 
 .insights-card {
-  margin-top: 8rpx;
+  margin-top: 12rpx;
   background: #ffffff;
   border-radius: 24rpx;
   overflow: hidden;

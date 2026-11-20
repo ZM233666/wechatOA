@@ -56,7 +56,7 @@ export const QUICK_ENTRIES: QuickEntry[] = [
   },
 ];
 
-export const LATEST_NEWS: NewsSummary[] = NEWS_ITEMS.slice(0, 3).map((item) => ({
+export const LATEST_NEWS: NewsSummary[] = NEWS_ITEMS.slice(0, 4).map((item) => ({
   id: item.id,
   title: item.title,
   date: item.date,

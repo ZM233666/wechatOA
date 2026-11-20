@@ -4,7 +4,7 @@ import type { NewsArticleFixture } from '../schemas/news.schema';
 import { getMockNow } from '../utils/clock';
 import { shouldPreferNewsRichContentBlocks } from './news-body-presentation';
 
-const HOME_NEWS_LIMIT = 3;
+const HOME_NEWS_LIMIT = 4;
 const HOME_BANNER_LIMIT = 5;
 
 export function isPubliclyVisible(article: NewsArticleFixture, at: Date = getMockNow()): boolean {

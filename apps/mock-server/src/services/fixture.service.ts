@@ -1105,8 +1105,8 @@ export function assertFixtureIntegrity(data: MockFixtureStore): void {
     });
   });
 
-  if (data.home.latestNews.length > 3) {
-    errors.push('首页最新资讯超过 3 条');
+  if (data.home.latestNews.length > 4) {
+    errors.push('首页最新资讯超过 4 条');
   }
   data.home.latestNews.forEach((item) => {
     if (!newsListIds.has(item.id)) {

@@ -12,7 +12,10 @@ export interface ServiceSummary {
   coverImage: ImageResource;
   icon: ImageResource;
   iconTone: ServiceIconTone;
-  showOnline: boolean;
+  /** @deprecated 由客户端根据 externalUrl 探测结果决定，勿再写死 */
+  showOnline?: boolean;
+  /** 卡片绑定外链（将来可跳出小程序打开）；连通时才展示 ONLINE */
+  externalUrl?: string;
   kind: 'hero' | 'insight';
   kicker?: string;
   english?: string;
@@ -37,6 +40,8 @@ export interface MyDashboardModule {
   subtitle: string;
   icon: ImageResource;
   iconBg: string;
+  /** 模块外链；连通时客户端展示 ONLINE */
+  externalUrl?: string;
 }
 
 export interface ServicesPageData {
