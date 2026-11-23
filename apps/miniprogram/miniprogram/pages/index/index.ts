@@ -1,4 +1,5 @@
 import { getHome, readPersistedHomeView } from '../../services/home.service';
+import { prefetchNewsDetails } from '../../services/news.service';
 import type { HomeBanner, HomeData, NewsSummary, QuickEntry } from '../../types/home';
 import { fallbackImageUrl } from '../../utils/format';
 import { friendlyUnavailablePageData } from '../../utils/friendly-page-error';
@@ -81,7 +82,8 @@ Page({
         newsList: home.newsList,
         pageStatus: empty ? 'empty' : 'success',
       });
-    } catch (error) {
+      prefetchNewsDetails(home.newsList.slice(0, 3).map((item) => item.id));
+    } catch {
       if (!this.data.pageAlive) {
         return;
       }
@@ -170,6 +172,7 @@ Page({
     if (!id) {
       return;
     }
+    prefetchNewsDetails([id]);
     wx.navigateTo({
       url: `/pages/news/detail?id=${id}`,
     });

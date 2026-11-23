@@ -2,6 +2,8 @@
  * 小程序 Mini API 资源路径（不含前缀）。
  * - Mock：`{apiBaseUrl}` + `/api` + path  → 例 http://127.0.0.1:3100/api/home
  * - Django：`{apiBaseUrl}` + `/api/v1/mini` + path
+ *
+ * 与 `apps/miniprogram/.../services/endpoints.ts`、Mock 路由表对齐；改路径须同步三处。
  */
 export const MINI_API_RESOURCE_PATHS = [
   '/health',
@@ -23,7 +25,6 @@ export const MINI_API_RESOURCE_PATHS = [
   '/kb-life/shuttle',
   '/kb-life/shuttle/trip-plan',
   '/kb-life/activities',
-  '/kb-life/wetalk',
   '/kb-life/campus-map',
   '/kb-life/holiday-calendar',
   '/kb-life/handbook',
@@ -31,6 +32,9 @@ export const MINI_API_RESOURCE_PATHS = [
   '/kb-life/financial-handbook',
   '/kb-life/care',
   '/kb-life/open-positions',
+  /** WeTalk 已从 /kb-life/wetalk 迁到独立 /wetalk 前缀 */
+  '/wetalk/news',
+  '/wetalk/emagazines',
   '/profile',
   '/profile/identity-binding',
 ] as const;
@@ -45,9 +49,14 @@ export const MINI_API_DYNAMIC_ROUTE_TEMPLATES = [
   '/cases/:id',
   '/services/:id',
   '/services/insights/:id',
-  '/kb-life/wetalk/:id',
+  '/kb-life/care/:id',
   '/kb-life/highlight-moments/albums/:id',
   '/kb-life/open-positions/:id',
+  '/wetalk/news/:id',
+  '/wetalk/emagazines/:id',
+  '/wetalk/:resource/:id/cover',
+  '/wetalk/:resource/:id/reader',
+  '/wetalk/:resource/:id/reader/pages/:version/:page',
   '/profile/identity-binding',
 ] as const;
 

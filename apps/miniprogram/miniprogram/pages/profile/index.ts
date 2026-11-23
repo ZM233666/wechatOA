@@ -126,12 +126,12 @@ Page({
   },
 
   async syncIdentityAndProfile() {
-    await syncIdentitySession();
-    await this.loadProfile();
+    await Promise.all([syncIdentitySession(), this.loadProfile()]);
   },
 
   async loadProfile() {
-    if (this.data.pageStatus !== 'success') {
+    const keepContent = this.data.pageStatus === 'success';
+    if (!keepContent) {
       this.setData({ pageStatus: 'loading', errorText: '' });
     }
     try {
@@ -140,7 +140,10 @@ Page({
         user: result.user,
         pageStatus: 'success',
       });
-    } catch (error) {
+    } catch {
+      if (keepContent) {
+        return;
+      }
       this.setData({
         pageStatus: 'empty',
         ...friendlyUnavailablePageData(),

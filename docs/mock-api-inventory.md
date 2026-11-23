@@ -29,8 +29,13 @@
 | GET | `/api/kb-life/shuttle` | 班车 | `location` | `ShuttleData` | `MinIO `suzhou/shuttle-bus/` / 本地 Shuttlebus/*.pdf`（Suzhou）或 `locations/*/shuttle.json` | 未实现 | 苏州优先解析 PDF |
 | GET | `/api/kb-life/activities` | 活动入口（含 `highlightMoments` 相册列表） | - | `ActivitiesData` | `fixtures/kb-life/activities.json` + `highlight-moments-albums.json` | 未实现 | 列表仅镜像封面；字段说明见 [kb-life-highlight-moments-api.md](./kb-life-highlight-moments-api.md) |
 | GET | `/api/kb-life/highlight-moments/albums/:id` | 精彩瞬间单本相册 | `id` | `HighlightMomentsAlbum` | 同上 live / fixture | 未实现 | 按相册镜像照片；小程序相册页优先使用 |
-| GET | `/api/kb-life/wetalk` | WeTalk 列表 | - | `{ items: WetalkIssueSummary[] }` | `fixtures/kb-life/wetalk/*.json` + MinIO `wetalk/`（缓存 `runtime/minio/wetalk/`）/ 可选本地 `files/*.pdf` | 未实现 | 有 `pdfFile` 时返回绝对化 `pdfUrl` |
-| GET | `/api/kb-life/wetalk/:id` | WeTalk 详情 | `id` | `WetalkIssue` | 同上 | 未实现 | PDF 渲成 `sheet` 页走页内阅读器；无 PDF 时回退 JSON `pages` |
+| GET | `/api/wetalk/news` | WeTalk 新闻列表 | 分页 / loginCode | 列表 DTO | Django WeTalk + Mock BFF | 未实现 | 已从 `/kb-life/wetalk` 迁出；正式路径 `/api/v1/mini/wetalk/news` |
+| GET | `/api/wetalk/news/:id` | WeTalk 新闻详情 | `id` | 详情 DTO | 同上 | 未实现 | |
+| GET | `/api/wetalk/emagazines` | WeTalk 电子刊列表 | 分页 / loginCode | 列表 DTO | 同上 | 未实现 | |
+| GET | `/api/wetalk/emagazines/:id` | WeTalk 电子刊详情 | `id` | 详情 DTO | 同上 | 未实现 | |
+| GET | `/api/wetalk/:resource/:id/reader` | WeTalk 阅读会话 | `resource`,`id` | reader meta + pages | PDF 渲页 | 未实现 | `resource`=`news`\|`emagazines` |
+| GET | `/api/wetalk/:resource/:id/cover` | WeTalk 封面 | 同上 | 图片 | 同上 | 未实现 | |
+| GET | `/api/wetalk/:resource/:id/reader/pages/:version/:page` | WeTalk 单页图 | 同上 | 图片 | 同上 | 未实现 | |
 | GET | `/api/kb-life/campus-map` | 园区地图 | `location` | `CampusMapData` | `CAMPUS_MAP_ENABLED` 时 `GET /api/campus-map/files/`（PDF 或图片）+ fixture 标题/封面；否则 `locations/*/campus-map.json` + `Map/*.{pdf,png,jpg,...}` | 未实现 | 有 `pages` 时前端走阅读器；PDF 时额外返回 `pdfUrl` |
 | GET | `/api/kb-life/holiday-calendar` | 假日日历 | `location` | `HolidayCalendarData` | npm `chinese-days@1.5.10` → `dist/years/{year}.json`（全国统一法定假日+调休，各园区仅 `location` 不同） | 未实现 | |
 | GET | `/api/kb-life/guidance-documents` | 指导文件入口列表 | — | `GuidanceDocumentsData` | `fixtures/kb-life/guidance-documents.json` | 未实现 | **访客可读** |

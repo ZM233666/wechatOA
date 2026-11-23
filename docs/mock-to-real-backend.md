@@ -15,11 +15,13 @@
 | 页面与 Service 不重写 | 小程序页面与 `services/*.service.ts` 业务逻辑保持不变；迁移不借机重写 UI |
 | 配置切换为主 | 正式上线主要通过环境配置，将 `apiBaseUrl` 从 Mock Server 切到 Django Mini API |
 | 响应兼容 | Mock 与 Django 的**公开**接口响应保持字段与行为兼容（见第 4 节） |
-| Mock 长期保留 | `apps/mock-server` 在正式后端完成后**仍保留**，用于前端独立开发、异常场景演示与自动化测试 |
+| 嵌入而非双后端长期并存 | 把 Mock 的 Mini 契约与适配逻辑**嵌入 Django**；生产只跑 Django。Mock 切换前保留作对照与前端独立开发 |
 | 单一业务后端 | Mini / Admin 共用 Django；禁止再为小程序单独建一套后端 |
 | NestJS 不承接 | 禁止在 `apps/server` 实现正式业务 |
 
 正式路径统一前缀：`/api/v1/mini/*`（小程序）与 `/api/v1/admin/*`（Portal）。
+
+准备工作清单（可移植模块、Admin→Mini 映射、优先级）：见 [miniprogram-backend-prep.md](./miniprogram-backend-prep.md)。
 
 ---
 
@@ -81,14 +83,31 @@ WeChat Miniprogram
 | `/api/cases/:id` | `/api/v1/mini/cases/:id` | GET | 否 | `cases` | 未实现 | |
 | `/api/services` | `/api/v1/mini/services` | GET | 否 | `services` | 未实现 | Digital CBM / MyDashboard / Insights |
 | `/api/services/:id` | `/api/v1/mini/services/:id` | GET | 否 | `services` | 未实现 | 预留 |
+| `/api/services/my-dashboard/modules` | `/api/v1/mini/services/my-dashboard/modules` | GET | 是（已绑定） | `services` | 未实现 | |
+| `/api/services/insights` | `/api/v1/mini/services/insights` | GET | 否 | `services` | 未实现 | PDF 列表 |
+| `/api/services/insights/:id` | `/api/v1/mini/services/insights/:id` | GET | 视 gating | `services` | 未实现 | PDF→sheet |
 | `/api/kb-life/entries` | `/api/v1/mini/kb-life/entries` | GET | 否 | `kb_life` | 未实现 | |
-| `/api/kb-life/canteen` | `/api/v1/mini/kb-life/canteen` | GET | 否 | `kb_life` | 未实现 | |
-| `/api/kb-life/shuttle` | `/api/v1/mini/kb-life/shuttle` | GET | 否 | `kb_life` | 未实现 | |
+| `/api/kb-life/canteen` | `/api/v1/mini/kb-life/canteen` | GET | 是（已绑定） | `kb_life` | 未实现 | |
+| `/api/kb-life/shuttle` | `/api/v1/mini/kb-life/shuttle` | GET | 是（已绑定） | `kb_life` | 未实现 | |
+| `/api/kb-life/shuttle/trip-plan` | `/api/v1/mini/kb-life/shuttle/trip-plan` | GET | 是（已绑定） | `kb_life` | 未实现 | 腾讯地图仅服务端 |
 | `/api/kb-life/holiday-calendar` | `/api/v1/mini/kb-life/holiday-calendar` | GET | 是（已绑定） | `kb_life` | 未实现 | 法定假日见 [§6 假期日历数据源](#6-假期日历数据源) |
-| `/api/kb-life/activities` | `/api/v1/mini/kb-life/activities` | GET | 否 | `kb_life` | 未实现 | |
+| `/api/kb-life/activities` | `/api/v1/mini/kb-life/activities` | GET | 否 | `kb_life` | 未实现 | 含 highlightMoments |
+| `/api/kb-life/highlight-moments/albums/:id` | `/api/v1/mini/kb-life/highlight-moments/albums/:id` | GET | 否 | `kb_life` | 未实现 | |
+| `/api/kb-life/campus-map` | `/api/v1/mini/kb-life/campus-map` | GET | 是（已绑定） | `kb_life` | 未实现 | |
 | `/api/kb-life/handbook` | `/api/v1/mini/kb-life/handbook` | GET | 是（Employee） | `kb_life` | 未实现 | Query `loginCode` / JWT |
-| `/api/kb-life/care` | `/api/v1/mini/kb-life/care` | GET | 是（已绑定） | `kb_life` | 未实现 | Query `loginCode` / JWT；见 [employee-care-api.md](./employee-care-api.md) |
+| `/api/kb-life/guidance-documents` | `/api/v1/mini/kb-life/guidance-documents` | GET | 否 | `kb_life` | 未实现 | 访客可读 |
+| `/api/kb-life/financial-handbook` | `/api/v1/mini/kb-life/financial-handbook` | GET | 否 | `kb_life` | 未实现 | 访客可读 |
+| `/api/kb-life/care` | `/api/v1/mini/kb-life/care` | GET | 是（已绑定） | `kb_life` | 未实现 | 见 [employee-care-api.md](./employee-care-api.md) |
+| `/api/kb-life/care/:id` | `/api/v1/mini/kb-life/care/:id` | GET | 是（已绑定） | `kb_life` | 未实现 | |
+| `/api/kb-life/open-positions` | `/api/v1/mini/kb-life/open-positions` | GET | 否 | `kb_life` | 未实现 | 访客可读 |
+| `/api/kb-life/open-positions/:id` | `/api/v1/mini/kb-life/open-positions/:id` | GET | 否 | `kb_life` | 未实现 | |
+| `/api/wetalk/news` | `/api/v1/mini/wetalk/news` | GET | 是（Employee） | `wetalk` | 未实现 | 已从 `/kb-life/wetalk` 迁出 |
+| `/api/wetalk/news/:id` | `/api/v1/mini/wetalk/news/:id` | GET | 是（Employee） | `wetalk` | 未实现 | |
+| `/api/wetalk/emagazines` | `/api/v1/mini/wetalk/emagazines` | GET | 是（Employee） | `wetalk` | 未实现 | |
+| `/api/wetalk/emagazines/:id` | `/api/v1/mini/wetalk/emagazines/:id` | GET | 是（Employee） | `wetalk` | 未实现 | |
+| `/api/wetalk/:resource/:id/reader` | `/api/v1/mini/wetalk/:resource/:id/reader` | GET | 是（Employee） | `wetalk` | 未实现 | PDF 阅读会话 |
 | `/api/profile` | `/api/v1/mini/profile` | GET | 可选 / 登录后需要 | `profile` / `accounts` | 未实现 | **禁止**移植 `?loggedIn=true`；真实会话鉴权 |
+| `/api/profile/identity-binding` | `/api/v1/mini/profile/identity-binding` | GET/POST | 是 | `profile` | 未实现 | `loginCode` → openid |
 
 说明：
 
@@ -235,6 +254,9 @@ KB Life「假期日历」面向员工展示**全国统一法定节假日与国�
 | 查询参数 `__scenario` | 同上 |
 | `GET /api/profile?role=` / `loggedIn=` | 已废弃的 Mock 角色切换 |
 | `normal` / `empty` / `error` / `slow` / `unauthorized` / `not-found` | 场景控制本身 |
+| `IDENTITY_GUARD_DISABLED=true` | develop 游客放行；**禁止**进生产 |
+| 管理员 JWT 代拉管理端再映射 | 嵌入后改为 Django 内部读模型 |
+| 本地 `runtime/` 媒体镜像、fixture 兜底 | 正式用 CDN + DB |
 
 约束：
 
@@ -407,9 +429,10 @@ develop 本地仍可随时切回 `pnpm dev:mock`，与生产回滚路径分离�
 - 不让正式 Mini API 返回草稿、审核流水或未到发布时间的内容
 - 不暴露数据库自增主键、AppSecret、存储密钥
 - 不为迁移而重写已有页面
-- **不删除** `apps/mock-server`（正式后端完成后仍保留）
+- **生产不依赖**独立 Mock 进程；`apps/mock-server` 在切换完成前保留作对照与前端独立开发，切完可降级为测试工具
 - **不继续**在 `apps/server` 中实现正式业务
 - 不把「迁移到 NestJS」写回文档或当作目标
+- 不让小程序直连管理端 Admin API 或对象存储私有地址
 
 ---
 

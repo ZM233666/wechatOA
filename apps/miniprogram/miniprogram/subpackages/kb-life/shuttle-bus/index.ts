@@ -137,10 +137,24 @@ Page({
 
   onSearchInput(event: WechatMiniprogram.Input) {
     const keyword = event.detail.value;
-    this.setData({
-      keyword,
-      routes: filterShuttleRoutes(this.data.allRoutes, keyword),
-    });
+    const self = this as WechatMiniprogram.Page.TrivialInstance & { _searchTimer?: number };
+    this.setData({ keyword });
+    if (self._searchTimer) {
+      clearTimeout(self._searchTimer);
+    }
+    self._searchTimer = setTimeout(() => {
+      self._searchTimer = undefined;
+      this.setData({
+        routes: filterShuttleRoutes(this.data.allRoutes, this.data.keyword),
+      });
+    }, 250) as unknown as number;
+  },
+
+  onUnload() {
+    const self = this as WechatMiniprogram.Page.TrivialInstance & { _searchTimer?: number };
+    if (self._searchTimer) {
+      clearTimeout(self._searchTimer);
+    }
   },
 
   onSwitchSchedule() {

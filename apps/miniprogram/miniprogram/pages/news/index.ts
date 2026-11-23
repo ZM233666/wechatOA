@@ -4,7 +4,7 @@ import {
   prefetchNewsDetails,
   type NewsCategoryView,
   type NewsListItemView,
-} from './news.service';
+} from '../../services/news.service';
 import { fallbackImageUrl } from '../../utils/format';
 import { friendlyUnavailablePageData, logPageLoadIssue } from '../../utils/friendly-page-error';
 

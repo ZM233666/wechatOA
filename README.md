@@ -4,6 +4,8 @@
 
 > **重要**：小程序前端必须使用「微信开发者工具」导入、编译和预览。不要在浏览器中预览，也不要为小程序启动 Vite / Webpack Dev Server。
 
+**Mock → Django 迁移**：见根目录 [README-MIGRATION.md](./README-MIGRATION.md)（嵌入 Mini API、分阶段清单与验收要点）。
+
 ## 当前实现 vs 目标架构
 
 | 状态 | 目录 / 组件 | 说明 |

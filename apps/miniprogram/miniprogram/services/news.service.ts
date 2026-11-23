@@ -1,7 +1,7 @@
-import type { ArticleContentBlock, ImageResource, PaginatedData } from '../../types/content';
-import { formatDisplayDate, toAssetUrl } from '../../utils/format';
-import { API_ENDPOINTS } from '../../services/endpoints';
-import { get } from '../../services/request';
+import type { ArticleContentBlock, ImageResource, PaginatedData } from '../types/content';
+import { formatDisplayDate, toAssetUrl } from '../utils/format';
+import { API_ENDPOINTS } from './endpoints';
+import { get } from './request';
 
 export interface NewsListQuery {
   page?: number;

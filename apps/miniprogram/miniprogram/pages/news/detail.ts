@@ -1,4 +1,4 @@
-import { getNewsDetail, type NewsDetailView } from './news.service';
+import { getNewsDetail, type NewsDetailView } from '../../services/news.service';
 import { fallbackImageUrl } from '../../utils/format';
 import { shouldRenderArticleAsBlocks } from './rich-content';
 import { friendlyUnavailablePageData, logPageLoadIssue } from '../../utils/friendly-page-error';

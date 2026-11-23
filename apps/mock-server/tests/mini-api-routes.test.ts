@@ -31,9 +31,10 @@ const MOCK_SERVER_STATIC_GET_PATHS = [
   '/kb-life/shuttle',
   '/kb-life/shuttle/trip-plan',
   '/kb-life/activities',
-  '/kb-life/wetalk',
   '/kb-life/campus-map',
   '/kb-life/holiday-calendar',
+  '/wetalk/news',
+  '/wetalk/emagazines',
   '/profile',
   '/profile/identity-binding',
 ] as const;
