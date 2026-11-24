@@ -1,3 +1,5 @@
+import { absolutizeMediaUrl } from '../../../utils/format';
+
 const IMG_FIT_STYLE = 'max-width:100%;width:100%;height:auto;display:block;margin:12px 0';
 const TABLE_FIT_STYLE = 'max-width:100%;width:100%;border-collapse:collapse';
 
@@ -32,7 +34,12 @@ function fitHtmlToScreen(html: string): string {
     .replace(/<script\b[\s\S]*?<\/script>/gi, '')
     .replace(/@keyframes\s+[\w-]+\s*\{(?:[^{}]|\{[^{}]*\})*\}/g, '')
     .replace(/<img\b([^>]*?)(\/?)\s*>/gi, (_full, attrs: string, closing: string) => {
-      return `<img${withFitStyle(attrs, IMG_FIT_STYLE)} width="100%"${closing}>`;
+      const rewritten = attrs.replace(
+        /(\ssrc\s*=\s*)(['"])(.*?)\2/i,
+        (_match, prefix: string, quote: string, src: string) =>
+          `${prefix}${quote}${absolutizeMediaUrl(src)}${quote}`,
+      );
+      return `<img${withFitStyle(rewritten, IMG_FIT_STYLE)} width="100%"${closing}>`;
     })
     .replace(/<table\b([^>]*?)>/gi, (_full, attrs: string) => {
       return `<table${withFitStyle(attrs, TABLE_FIT_STYLE)}>`;

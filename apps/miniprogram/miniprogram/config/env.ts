@@ -20,15 +20,15 @@ export interface ApiEnvironmentConfig {
  * 真机调试请在开发者工具中把 apiBaseUrl 临时改为电脑局域网 IP，
  * 例如 http://192.168.x.x:3100，不要把某台机器的固定 IP 提交进仓库。
  *
- * Mock-only：`mockScenario`、`X-Mock-Scenario` 仅允许 develop 使用。
+ * develop 直接连接本地 Django；trial/release 配置正式 HTTPS API。
  */
 const API_ENV_MAP: Record<MiniProgramEnvVersion, ApiEnvironmentConfig> = {
   develop: {
-    apiBaseUrl: 'http://127.0.0.1:3100',
-    miniApiPathPrefix: '/api',
+    apiBaseUrl: 'http://127.0.0.1:8000',
+    miniApiPathPrefix: '/api/v1/mini',
     timeout: 15000,
     enableDebugLog: true,
-    dataSource: 'mock-server',
+    dataSource: 'real-server',
   },
   trial: {
     apiBaseUrl: 'https://api-trial.example.com',
@@ -157,7 +157,7 @@ export function getCurrentEnvVersion(): MiniProgramEnvVersion {
   return resolveEnvVersion();
 }
 
-/** develop 联调：跳过身份/角色门禁，游客可访问全部功能（与 Mock IDENTITY_GUARD_DISABLED 对齐） */
+/** 正式后端联调不绕过身份/角色门禁。 */
 export function isIdentityGuardBypassEnabled(): boolean {
-  return getCurrentEnvVersion() === 'develop';
+  return false;
 }

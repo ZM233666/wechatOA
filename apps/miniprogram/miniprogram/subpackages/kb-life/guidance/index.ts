@@ -1,5 +1,6 @@
 import { getGuidanceDocuments } from '../../../services/kb-life.service';
 import { friendlyUnavailablePageData, logPageLoadIssue } from '../../../utils/friendly-page-error';
+import { isIdentityAuthError, openIdentityBindingGuide } from '../../../utils/identity-access';
 
 Page({
   data: {
@@ -52,6 +53,10 @@ Page({
       });
     } catch (error) {
       logPageLoadIssue('guidance', error);
+      if (isIdentityAuthError(error)) {
+        openIdentityBindingGuide('Guidance Docs');
+        return;
+      }
       this.setData(friendlyUnavailablePageData());
     }
   },

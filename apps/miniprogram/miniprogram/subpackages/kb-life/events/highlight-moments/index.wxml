@@ -2,10 +2,8 @@
   <nav-brand title="Highlights" show-back="{{true}}"></nav-brand>
 
   <view wx:if="{{pageStatus === 'loading'}}" class="event-detail__state">加载中…</view>
-  <empty-state wx:elif="{{pageStatus === 'empty'}}" title="{{emptyTitle || '暂无内容'}}" description="{{emptyDesc}}"></empty-state>
-  <view wx:elif="{{pageStatus === 'empty'}}" class="event-detail__state">暂无已发布的相册</view>
 
-  <view class="event-detail" wx:elif="{{pageStatus === 'success'}}">
+  <view class="event-detail" wx:else>
     <view class="event-detail__card">
       <view class="event-detail__hero event-detail__hero--highlights">
         <image
@@ -14,9 +12,11 @@
           mode="aspectFit"
         ></image>
         <text class="event-detail__hero-title">{{section.title}}</text>
+        <text class="event-detail__hero-subtitle" wx:if="{{section.subtitle}}">{{section.subtitle}}</text>
       </view>
 
       <view class="event-detail__body highlight-albums">
+        <view wx:if="{{!section.albums.length}}" class="event-detail__state highlight-intro__empty">更多精彩，即将与你分享</view>
         <view
           class="highlight-album tap-feedback"
           wx:for="{{section.albums}}"

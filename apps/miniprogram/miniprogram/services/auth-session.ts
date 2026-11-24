@@ -1,11 +1,33 @@
 const ACCESS_TOKEN_STORAGE_KEY = 'mini_access_token';
+const REFRESH_TOKEN_STORAGE_KEY = 'mini_refresh_token';
+const TEMP_BIND_TOKEN_STORAGE_KEY = 'mini_temp_bind_token';
 
-/** 正式后端 JWT（Django /api/token/ 等）；Mock 开发期通常不需要 */
 export function getAccessToken(): string {
   try {
     return String(wx.getStorageSync(ACCESS_TOKEN_STORAGE_KEY) || '').trim();
   } catch {
     return '';
+  }
+}
+
+function getStoredToken(key: string): string {
+  try {
+    return String(wx.getStorageSync(key) || '').trim();
+  } catch {
+    return '';
+  }
+}
+
+function setStoredToken(key: string, token: string): void {
+  const value = token.trim();
+  try {
+    if (value) {
+      wx.setStorageSync(key, value);
+    } else {
+      wx.removeStorageSync(key);
+    }
+  } catch {
+    // ignore storage errors
   }
 }
 
@@ -22,6 +44,22 @@ export function setAccessToken(token: string): void {
   }
 }
 
+export function getRefreshToken(): string {
+  return getStoredToken(REFRESH_TOKEN_STORAGE_KEY);
+}
+
+export function setRefreshToken(token: string): void {
+  setStoredToken(REFRESH_TOKEN_STORAGE_KEY, token);
+}
+
+export function getTempBindToken(): string {
+  return getStoredToken(TEMP_BIND_TOKEN_STORAGE_KEY);
+}
+
+export function setTempBindToken(token: string): void {
+  setStoredToken(TEMP_BIND_TOKEN_STORAGE_KEY, token);
+}
+
 export function clearAccessToken(): void {
   try {
     wx.removeStorageSync(ACCESS_TOKEN_STORAGE_KEY);
@@ -30,10 +68,16 @@ export function clearAccessToken(): void {
   }
 }
 
+export function clearAuthSession(): void {
+  clearAccessToken();
+  setRefreshToken('');
+  setTempBindToken('');
+}
+
 export function buildAuthorizationHeader(): Record<string, string> {
   const token = getAccessToken();
   if (!token) {
     return {};
   }
-  return { Authorization: `JWT ${token}` };
+  return { Authorization: `Bearer ${token}` };
 }

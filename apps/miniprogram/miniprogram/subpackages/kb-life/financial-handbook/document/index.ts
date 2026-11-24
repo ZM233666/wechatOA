@@ -3,6 +3,7 @@ import {
   type FinancialGuidanceSectionId,
 } from '../../../../services/kb-life.service';
 import { friendlyUnavailablePageData, logPageLoadIssue } from '../../../../utils/friendly-page-error';
+import { isIdentityAuthError, openIdentityBindingGuide } from '../../../../utils/identity-access';
 
 const NAV_TITLE: Record<FinancialGuidanceSectionId, string> = {
   notes: 'Fin Notes',
@@ -59,6 +60,10 @@ Page({
       });
     } catch (error) {
       logPageLoadIssue('financial-handbook-document', error);
+      if (isIdentityAuthError(error)) {
+        openIdentityBindingGuide('Guidance Docs');
+        return;
+      }
       this.setData(friendlyUnavailablePageData({ title: '暂无文档' }));
     }
   },

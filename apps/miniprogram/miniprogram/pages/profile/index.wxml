@@ -88,13 +88,25 @@
           bindinput="onBindEmailInput"
           bindconfirm="onSubmitBindEmail"
         />
+        <input
+          wx:if="{{bindCodeSent}}"
+          class="bind-panel__input bind-panel__code-input {{bindEmailError ? 'bind-panel__input--error' : ''}}"
+          type="number"
+          maxlength="8"
+          value="{{bindVerificationCode}}"
+          placeholder="请输入邮箱验证码"
+          placeholder-class="bind-panel__placeholder"
+          confirm-type="done"
+          bindinput="onBindCodeInput"
+          bindconfirm="onSubmitBindEmail"
+        />
         <text wx:if="{{bindEmailError}}" class="bind-panel__error">{{bindEmailError}}</text>
         <view class="bind-panel__actions">
           <view class="bind-panel__btn bind-panel__btn--ghost tap-feedback" bindtap="onCloseBindSheet">取消</view>
           <view
             class="bind-panel__btn bind-panel__btn--primary {{bindSubmitting ? 'bind-panel__btn--disabled' : 'tap-feedback'}}"
             bindtap="onSubmitBindEmail"
-          >{{bindSubmitting ? '提交中…' : '提交验证'}}</view>
+          >{{bindSubmitting ? '提交中…' : (bindCodeSent ? '确认绑定' : '发送验证码')}}</view>
         </view>
       </view>
     </block>

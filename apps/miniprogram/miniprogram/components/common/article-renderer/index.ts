@@ -1,6 +1,7 @@
 import { normalizeCarouselIntervalMs } from '../../../constants/design';
 import type { ArticleContentBlock, RichTextSpan } from '../../../types/content';
 import { getCurrentEnvVersion } from '../../../config/env';
+import { absolutizeMediaUrl } from '../../../utils/format';
 
 const KNOWN_TYPES = new Set([
   'heading',
@@ -98,7 +99,7 @@ function toRenderBlocks(blocks: ArticleContentBlock[]): RenderBlock[] {
         return {
           id: block.id,
           type: block.type,
-          image: block.image,
+          image: { ...block.image, url: absolutizeMediaUrl(block.image.url) },
           caption: block.caption,
           layout: block.layout || 'normal',
           imageFailed: false,
@@ -109,7 +110,7 @@ function toRenderBlocks(blocks: ArticleContentBlock[]): RenderBlock[] {
           id: block.id,
           type: block.type,
           slides: block.slides.map((slide) => ({
-            url: slide.url,
+            url: absolutizeMediaUrl(slide.url),
             alt: slide.alt || '轮播配图',
           })),
           caption: block.caption,
@@ -122,8 +123,8 @@ function toRenderBlocks(blocks: ArticleContentBlock[]): RenderBlock[] {
         return {
           id: block.id,
           type: block.type,
-          src: block.src,
-          poster: block.poster,
+          src: absolutizeMediaUrl(block.src),
+          poster: block.poster ? absolutizeMediaUrl(block.poster) : block.poster,
           caption: block.caption,
         };
       }

@@ -1,6 +1,7 @@
 import { getApiBaseUrl, getApiEnvironment, getCurrentEnvVersion, isForbiddenProductionApiBaseUrl } from '../config/env';
 import type { InsightReportView } from './services.service';
 import { API_ENDPOINTS } from './endpoints';
+import { buildAuthorizationHeader, getAccessToken } from './auth-session';
 import { getLoginCodeQueryParams } from './identity-binding.service';
 import {
   TAB_CACHE_FRESH_MS,
@@ -53,6 +54,7 @@ function withCoverIdentity(url: string, headers: Record<string, string>): string
   if (!needsAuth) {
     return url;
   }
+  // Cover 在 Django 侧对已发布内容允许匿名；Mock 仍可用 loginCode。
   const code = headers['X-Login-Code'];
   if (!code || url.includes('loginCode=')) {
     return url;
@@ -96,8 +98,12 @@ function toWetalkCover(item: WetalkItem, headers: Record<string, string>): Wetal
   };
 }
 
-// Same KB Life session code, sent as a header so request debug logs do not print it.
+/** real-server 走 Mini JWT；Mock 兼容 X-Login-Code。 */
 async function identityHeaders(): Promise<Record<string, string>> {
+  const env = getApiEnvironment();
+  if (env.dataSource === 'real-server') {
+    return buildAuthorizationHeader();
+  }
   const identity = await getLoginCodeQueryParams();
   return identity.loginCode ? { 'X-Login-Code': identity.loginCode } : {};
 }
@@ -191,7 +197,7 @@ export async function getWetalkBook(type: WetalkType, id: string): Promise<Insig
   if (!/^[1-9]\d*$/.test(id)) throw new RequestError('无效的 WeTalk ID', 404);
   const resource = type === 'news' ? 'news' : 'emagazines';
   const headers = await identityHeaders();
-  const identityScope = headers['X-Login-Code'] || 'anonymous';
+  const identityScope = headers['X-Login-Code'] || getAccessToken() || 'anonymous';
   return withRequestCache(`wetalk-book:${type}:${id}:${identityScope}`, 30_000, async () => {
     const data = await get<WetalkBookManifest>(
       API_ENDPOINTS.kbLifeWetalkReader(resource, id),
@@ -226,7 +232,11 @@ export async function downloadWetalkReaderImage(imagePath: string): Promise<stri
   const env = getApiEnvironment();
   if (isForbiddenProductionApiBaseUrl(getCurrentEnvVersion(), env.apiBaseUrl)) throw new RequestError('尚未配置正式阅读服务地址');
   const headers = await identityHeaders();
-  const key = JSON.stringify([env.apiBaseUrl, imagePath, headers['X-Login-Code'] || '']);
+  const key = JSON.stringify([
+    env.apiBaseUrl,
+    imagePath,
+    headers['X-Login-Code'] || headers.Authorization || '',
+  ]);
   readerImages.forEach((value, entry) => {
     if (value.expires <= Date.now()) readerImages.delete(entry);
   });

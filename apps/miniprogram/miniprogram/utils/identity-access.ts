@@ -6,6 +6,7 @@
 import { isIdentityGuardBypassEnabled } from '../config/env';
 import type { IdentityBindingRecord } from '../services/identity-binding.service';
 import { getStoredIdentityBinding } from '../services/identity-binding.service';
+import { RequestError } from '../types/api';
 
 export type IdentityAccessTier = 'visitor' | 'customer' | 'employee';
 
@@ -178,4 +179,31 @@ export function rejectEmployeeOnlyAccess(title = 'WeTalk'): boolean {
 /** 指导文件相关页入口拦截（develop 不拦截访客） */
 export function rejectGuidanceDocumentsAccess(): boolean {
   return rejectWhenEmployeeGated(shouldBlockGuidanceDocumentsForNonEmployee);
+}
+
+const IDENTITY_AUTH_CODES = new Set([
+  '4000',
+  '401',
+  'UNAUTHORIZED',
+  'TOKEN_EXPIRED',
+  'not_authenticated',
+]);
+
+/** Django / DRF 未带身份：code 4000 或「身份认证信息未提供」 */
+export function isIdentityAuthError(error: unknown): boolean {
+  if (!(error instanceof RequestError)) {
+    return false;
+  }
+  if (error.statusCode === 401) {
+    return true;
+  }
+  if (error.code && IDENTITY_AUTH_CODES.has(error.code)) {
+    return true;
+  }
+  return /身份认证|认证信息未提供|未登录/.test(error.message);
+}
+
+/** 与园区服务、My Dashboard 相同：进入通用无权限页，并提供「前往身份绑定」 */
+export function openIdentityBindingGuide(title = ''): void {
+  openAccessDeniedPage({ kind: 'unbound', title });
 }

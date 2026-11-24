@@ -262,6 +262,10 @@ page {
   color: #111827;
 }
 
+.bind-panel__code-input {
+  margin-top: 16rpx;
+}
+
 .bind-panel__input--error {
   border-color: #ef4444;
   background: #fef2f2;

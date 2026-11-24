@@ -30,6 +30,9 @@ export const MINI_API_RESOURCE_PATHS = [
   '/kb-life/handbook',
   '/kb-life/guidance-documents',
   '/kb-life/financial-handbook',
+  /** Django Mini 正式路径；小程序 real-server 使用 */
+  '/kb-life/local-global-care',
+  /** Mock 历史路径，仅对照保留 */
   '/kb-life/care',
   '/kb-life/open-positions',
   /** WeTalk 已从 /kb-life/wetalk 迁到独立 /wetalk 前缀 */
@@ -49,6 +52,7 @@ export const MINI_API_DYNAMIC_ROUTE_TEMPLATES = [
   '/cases/:id',
   '/services/:id',
   '/services/insights/:id',
+  '/kb-life/local-global-care/articles/:id',
   '/kb-life/care/:id',
   '/kb-life/highlight-moments/albums/:id',
   '/kb-life/open-positions/:id',

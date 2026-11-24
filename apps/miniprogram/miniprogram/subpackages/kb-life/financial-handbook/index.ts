@@ -3,6 +3,7 @@ import {
   type FinancialGuidanceSectionView,
 } from '../../../services/kb-life.service';
 import { friendlyUnavailablePageData, logPageLoadIssue } from '../../../utils/friendly-page-error';
+import { isIdentityAuthError, openIdentityBindingGuide } from '../../../utils/identity-access';
 
 Page({
   data: {
@@ -53,6 +54,11 @@ Page({
         pageStatus: 'success',
       });
     } catch (error) {
+      logPageLoadIssue('financial-handbook', error);
+      if (isIdentityAuthError(error)) {
+        openIdentityBindingGuide('Guidance Docs');
+        return;
+      }
       this.setData({
         pageStatus: 'empty',
         ...friendlyUnavailablePageData(),

@@ -1,6 +1,12 @@
 import { getApiEnvironment, getCurrentEnvVersion, isForbiddenProductionApiBaseUrl } from '../config/env';
 import { RequestError, type ApiResponse, type RequestOptions } from '../types/api';
-import { buildAuthorizationHeader, clearAccessToken } from './auth-session';
+import {
+  buildAuthorizationHeader,
+  clearAuthSession,
+  getRefreshToken,
+  setAccessToken,
+} from './auth-session';
+import { API_ENDPOINTS } from './endpoints';
 
 const responseCache = new Map<string, { value: unknown; expiresAt: number }>();
 const inFlightRequests = new Map<string, Promise<unknown>>();
@@ -10,6 +16,7 @@ const staleResponseCache = new Map<
   { value: unknown; expiresAt: number; staleUntil: number }
 >();
 const staleRefreshRequests = new Map<string, Promise<unknown>>();
+let tokenRefreshPromise: Promise<boolean> | null = null;
 
 function joinUrl(baseUrl: string, path: string): string {
   const normalizedBase = baseUrl.replace(/\/+$/, '');
@@ -46,22 +53,11 @@ function compactRequestData(
 }
 
 function buildHeader(customHeader?: Record<string, string>): Record<string, string> {
-  const env = getApiEnvironment();
-  const version = getCurrentEnvVersion();
-  const header: Record<string, string> = {
+  return {
     'Content-Type': 'application/json',
     ...buildAuthorizationHeader(),
     ...customHeader,
   };
-  // Mock-only：trial/release 禁止附加 X-Mock-Scenario。
-  if (version !== 'develop') {
-    delete header['X-Mock-Scenario'];
-    delete header['x-mock-scenario'];
-  }
-  if (version === 'develop' && env.dataSource === 'mock-server' && env.mockScenario) {
-    header['X-Mock-Scenario'] = env.mockScenario;
-  }
-  return header;
 }
 
 function isSuccessStatus(statusCode: number): boolean {
@@ -72,23 +68,116 @@ function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === 'object' && value !== null;
 }
 
-function unwrapResponse<T>(statusCode: number, raw: unknown): T {
-  if (!isRecord(raw) || typeof raw.success !== 'boolean') {
-    throw new RequestError('响应格式无效', statusCode, raw);
+function readErrorMessage(raw: unknown, fallback: string): string {
+  if (!isRecord(raw)) {
+    return fallback;
   }
-  const payload = raw as unknown as ApiResponse<T>;
-  if (!payload.success) {
-    throw new RequestError(
-      payload.message || `请求失败（HTTP ${statusCode}）`,
-      statusCode,
-      payload,
-      payload.error?.code,
-    );
+  if (typeof raw.message === 'string' && raw.message.trim()) {
+    return raw.message;
   }
-  return payload.data;
+  if (typeof raw.msg === 'string' && raw.msg.trim()) {
+    return raw.msg;
+  }
+  return fallback;
 }
 
-export function request<T>(options: RequestOptions): Promise<T> {
+function readErrorCode(raw: unknown): string | undefined {
+  if (!isRecord(raw)) {
+    return undefined;
+  }
+  if (typeof raw.code === 'string' && raw.code) {
+    return raw.code;
+  }
+  if (typeof raw.code === 'number' && Number.isFinite(raw.code)) {
+    return String(raw.code);
+  }
+  if (isRecord(raw.error) && typeof raw.error.code === 'string') {
+    return raw.error.code;
+  }
+  return undefined;
+}
+
+function unwrapResponse<T>(statusCode: number, raw: unknown): T {
+  if (!isRecord(raw)) {
+    throw new RequestError('响应格式无效', statusCode, raw);
+  }
+  if (typeof raw.success === 'boolean') {
+    const payload = raw as unknown as ApiResponse<T>;
+    if (!payload.success) {
+      throw new RequestError(
+        payload.message || readErrorMessage(raw, `请求失败（HTTP ${statusCode}）`),
+        statusCode,
+        payload,
+        payload.error?.code || readErrorCode(raw),
+      );
+    }
+    return payload.data;
+  }
+  if (typeof raw.code === 'string') {
+    if (raw.code === 'OK') {
+      return raw.data as T;
+    }
+    throw new RequestError(
+      readErrorMessage(raw, `请求失败（HTTP ${statusCode}）`),
+      statusCode,
+      raw,
+      raw.code,
+    );
+  }
+  if (typeof raw.code === 'number') {
+    throw new RequestError(
+      readErrorMessage(raw, `请求失败（HTTP ${statusCode}）`),
+      statusCode,
+      raw,
+      String(raw.code),
+    );
+  }
+  throw new RequestError('响应格式无效', statusCode, raw);
+}
+
+function refreshAccessToken(): Promise<boolean> {
+  if (tokenRefreshPromise) {
+    return tokenRefreshPromise;
+  }
+  const refresh = getRefreshToken();
+  if (!refresh) {
+    return Promise.resolve(false);
+  }
+  const env = getApiEnvironment();
+  const current = new Promise<boolean>((resolve) => {
+    wx.request({
+      url: joinUrl(env.apiBaseUrl, API_ENDPOINTS.authRefresh),
+      method: 'POST',
+      data: { refresh },
+      header: { 'Content-Type': 'application/json' },
+      timeout: env.timeout,
+      success(res) {
+        try {
+          const data = unwrapResponse<{ access: string }>(res.statusCode, res.data);
+          setAccessToken(data.access);
+          resolve(true);
+        } catch {
+          clearAuthSession();
+          resolve(false);
+        }
+      },
+      fail() {
+        clearAuthSession();
+        resolve(false);
+      },
+    });
+  });
+  tokenRefreshPromise = current;
+  const clearPending = () => {
+    if (tokenRefreshPromise === current) {
+      tokenRefreshPromise = null;
+    }
+  };
+  void current.then(clearPending, clearPending);
+  return current;
+}
+
+function executeRequest<T>(options: RequestOptions, retried: boolean): Promise<T> {
   const env = getApiEnvironment();
   const version = getCurrentEnvVersion();
   if (isForbiddenProductionApiBaseUrl(version, env.apiBaseUrl)) {
@@ -116,16 +205,21 @@ export function request<T>(options: RequestOptions): Promise<T> {
         try {
           if (!isSuccessStatus(res.statusCode)) {
             const raw = res.data;
-            const message =
-              isRecord(raw) && typeof raw.message === 'string'
-                ? raw.message
-                : `请求失败（HTTP ${res.statusCode}）`;
-            const code =
-              isRecord(raw) && isRecord(raw.error) && typeof raw.error.code === 'string'
-                ? raw.error.code
-                : undefined;
-            if (res.statusCode === 401 || code === 'UNAUTHORIZED') {
-              clearAccessToken();
+            const message = readErrorMessage(raw, `请求失败（HTTP ${res.statusCode}）`);
+            const code = readErrorCode(raw);
+            if (!retried && (res.statusCode === 401 || code === 'TOKEN_EXPIRED')) {
+              void refreshAccessToken().then((refreshed) => {
+                if (refreshed) {
+                  executeRequest<T>(options, true).then(resolve, reject);
+                  return;
+                }
+                clearAuthSession();
+                reject(new RequestError(message, res.statusCode, res.data, code));
+              });
+              return;
+            }
+            if (res.statusCode === 401 || code === 'UNAUTHORIZED' || code === 'TOKEN_EXPIRED') {
+              clearAuthSession();
             }
             reject(new RequestError(message, res.statusCode, res.data, code));
             return;
@@ -142,6 +236,10 @@ export function request<T>(options: RequestOptions): Promise<T> {
       },
     });
   });
+}
+
+export function request<T>(options: RequestOptions): Promise<T> {
+  return executeRequest<T>(options, false);
 }
 
 export function get<T>(

@@ -2,17 +2,16 @@ import {
   getCompanyActivities,
   type HighlightMomentAlbumSummaryView,
 } from '../../../../services/kb-life.service';
-import { friendlyUnavailablePageData, logPageLoadIssue } from '../../../../utils/friendly-page-error';
+import { logPageLoadIssue } from '../../../../utils/friendly-page-error';
 
 Page({
   data: {
     pageStatus: 'loading' as 'loading' | 'success' | 'empty',
-    emptyTitle: '',
-    emptyDesc: '',
     errorText: '',
     section: {
-      title: '',
-      subtitle: '',
+      title: '精彩瞬间',
+      subtitle: 'Highlights',
+      intro: '',
       albums: [] as HighlightMomentAlbumSummaryView[],
     },
   },
@@ -55,10 +54,6 @@ Page({
     }
     try {
       const result = await getCompanyActivities();
-      if (!result.highlightMoments?.albums.length) {
-        this.setData(friendlyUnavailablePageData({ title: '暂无活动相册' }));
-        return;
-      }
       this.setData({
         section: result.highlightMoments,
         pageStatus: 'success',
@@ -68,7 +63,7 @@ Page({
         return;
       }
       logPageLoadIssue('highlight-moments', error);
-      this.setData(friendlyUnavailablePageData({ title: '暂无活动相册' }));
+      this.setData({ pageStatus: 'success' });
     }
   },
 

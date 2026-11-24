@@ -9,6 +9,12 @@ function p(resourcePath: string): string {
  * 页面与 service 只引用此处，禁止硬编码 /api/...。
  */
 export const API_ENDPOINTS = {
+  authWxLogin: '/api/auth/wx-login/',
+  authRefresh: '/api/auth/refresh/',
+  authEmailCode: '/api/auth/email-code/',
+  authIdentityPreview: '/api/auth/identity/preview/',
+  authBind: '/api/auth/bind/',
+  miniappSessionMe: '/api/miniapp/session/me/',
   get health() {
     return p('/health');
   },
@@ -102,9 +108,10 @@ export const API_ENDPOINTS = {
     return p('/kb-life/financial-handbook');
   },
   get kbLifeCare() {
-    return p('/kb-life/care');
+    return p('/kb-life/local-global-care');
   },
-  kbLifeCareDetail: (id: string) => p(`/kb-life/care/${encodeURIComponent(id)}`),
+  kbLifeCareDetail: (id: string) =>
+    p(`/kb-life/local-global-care/articles/${encodeURIComponent(id)}`),
   get kbLifeOpenPositions() {
     return p('/kb-life/open-positions');
   },

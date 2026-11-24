@@ -151,9 +151,9 @@ P5  profile / identity-binding（关闭游客全开）
 | 组件 | 状态 |
 | --- | --- |
 | `apps/miniprogram` | 已按 Mini 前缀可切换 |
-| `apps/mock-server` | 开发联调 BFF（仍在用） |
+| `apps/mock-server` | 仅对照/离线 UI；develop 已切 Django，常规联调不再启动 |
 | `packages/shared` | DTO + 路径登记 |
-| `apps/backend` | **尚未接入**（Django 正式后端） |
-| `apps/portal` | **尚未接入**（DVAdmin 管理端） |
+| Django（`wechat_management`） | Mini 只读层已按业务模块落地；develop 小程序直连 `http://127.0.0.1:8000/api/v1/mini` |
+| 身份 | `/api/auth/*` + `/api/miniapp/session/me/`（小程序已适配） |
 
-下一步：在 Django 侧创建 Mini 应用层，从 **P0 health** 与 **P1 news/home** 开始，对照 Mock 逐接口嵌入。
+生产 / trial 请配置真实 HTTPS `apiBaseUrl` 后停用 Mock。对照清单见管理端仓库 `docs/mini-api-contract-inventory.md` 与 `docs/mock-server-cutover.md`。

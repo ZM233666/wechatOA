@@ -45,6 +45,8 @@ Page({
     basicInfoErrorText: '',
     bindSheetVisible: false,
     bindCompanyEmail: '',
+    bindVerificationCode: '',
+    bindCodeSent: false,
     bindEmailError: '',
     identityBound: false,
     boundIdentity: null as IdentityBindingRecord | null,
@@ -89,6 +91,8 @@ Page({
       settingView: 'identity-binding',
       navTitle: '身份绑定',
       bindCompanyEmail: '',
+      bindVerificationCode: '',
+      bindCodeSent: false,
       bindEmailError: '',
       bindSheetVisible: false,
     });
@@ -201,6 +205,8 @@ Page({
     }
     this.setData({
       bindSheetVisible: true,
+      bindVerificationCode: '',
+      bindCodeSent: false,
       bindEmailError: '',
     });
   },
@@ -208,6 +214,8 @@ Page({
   onCloseBindSheet() {
     this.setData({
       bindSheetVisible: false,
+      bindVerificationCode: '',
+      bindCodeSent: false,
       bindEmailError: '',
     });
   },
@@ -215,6 +223,15 @@ Page({
   onBindEmailInput(event: WechatMiniprogram.Input) {
     this.setData({
       bindCompanyEmail: event.detail.value,
+      bindVerificationCode: '',
+      bindCodeSent: false,
+      bindEmailError: '',
+    });
+  },
+
+  onBindCodeInput(event: WechatMiniprogram.Input) {
+    this.setData({
+      bindVerificationCode: event.detail.value,
       bindEmailError: '',
     });
   },
@@ -234,11 +251,16 @@ Page({
     }
     this.setData({ bindSubmitting: true, bindEmailError: '' });
     try {
-      const record = await submitIdentityBinding(email);
+      const record = await submitIdentityBinding(
+        email,
+        this.data.bindVerificationCode.trim() || undefined,
+      );
       applyIdentityBindingToSession(record);
       this.applyIdentityBindingRecord(record);
       this.setData({
         bindCompanyEmail: '',
+        bindVerificationCode: '',
+        bindCodeSent: false,
       });
       wx.showToast({
         title: '绑定成功',
@@ -248,8 +270,10 @@ Page({
         void this.loadProfile();
       }
     } catch (error) {
+      const codeRequired = error instanceof RequestError && error.code === 'CODE_REQUIRED';
       this.setData({
         bindEmailError: error instanceof RequestError ? error.message : '绑定失败，请稍后重试',
+        bindCodeSent: codeRequired || this.data.bindCodeSent,
       });
     } finally {
       this.setData({ bindSubmitting: false });

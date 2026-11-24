@@ -1,7 +1,8 @@
 import type { ImageResource } from '../types/content';
+import { getApiEnvironment } from '../config/env';
 import { toAssetUrl } from '../utils/format';
 import { API_ENDPOINTS } from './endpoints';
-import { getSessionLoginCode } from './identity-login.service';
+import { ensureMiniSession, getSessionLoginCode } from './identity-login.service';
 import { get, withRequestCache } from './request';
 import {
   getWeChatAvatarFromStorage,
@@ -45,6 +46,15 @@ interface ProfileDto {
     value: string;
     icon: ImageResource;
   }>;
+}
+
+interface MiniSessionProfileDto {
+  email: string;
+  identityType: string;
+  company: { name?: string } | null;
+  displayName: string;
+  department: string;
+  roleLabel: string;
 }
 
 const emptyUser: ProfileUser = {
@@ -91,9 +101,43 @@ function mapProfile(data: ProfileDto): {
   };
 }
 
-/** 拉取个人资料；服务端按 wx.login code 关联身份绑定（Mock/Django 同一约定） */
+/** 拉取个人资料；真实后端读 Mini JWT 会话，Mock 保留 loginCode 契约。 */
 export async function getProfile() {
   await trySyncWeChatAvatarFromAuth();
+  if (getApiEnvironment().dataSource === 'real-server') {
+    const authenticated = await ensureMiniSession();
+    if (!authenticated) {
+      return {
+        user: {
+          ...emptyUser,
+          avatar: pickUserDisplayAvatar('', getWeChatAvatarFromStorage()),
+        },
+        fields: [],
+        isLoggedIn: false,
+      };
+    }
+    return withRequestCache('profile:mini-session', 60_000, async () => {
+      const data = await get<MiniSessionProfileDto>(API_ENDPOINTS.miniappSessionMe);
+      const department = data.department || data.company?.name || '';
+      return {
+        isLoggedIn: true,
+        user: {
+          chineseName: data.displayName,
+          name: data.displayName,
+          titleCn: data.roleLabel || data.identityType,
+          titleEn: data.identityType,
+          department,
+          role: data.identityType,
+          avatar: pickUserDisplayAvatar('', getWeChatAvatarFromStorage()),
+        },
+        fields: [
+          { id: 'email', labelCn: '邮箱', labelEn: 'Email', value: data.email, icon: '' },
+          { id: 'department', labelCn: '部门', labelEn: 'Department', value: department, icon: '' },
+          { id: 'identityType', labelCn: '身份', labelEn: 'Identity', value: data.identityType, icon: '' },
+        ],
+      };
+    });
+  }
   let loginCode = '';
   try {
     loginCode = await getSessionLoginCode();

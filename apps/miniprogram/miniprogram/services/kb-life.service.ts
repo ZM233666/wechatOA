@@ -749,7 +749,21 @@ export interface HighlightMomentAlbumSummaryView {
 export interface HighlightMomentsView {
   title: string;
   subtitle: string;
+  intro: string;
   albums: HighlightMomentAlbumSummaryView[];
+}
+
+const HIGHLIGHT_MOMENTS_MODULE = {
+  title: '精彩瞬间',
+  subtitle: 'Highlights',
+  intro: '',
+};
+
+export function emptyHighlightMomentsView(): HighlightMomentsView {
+  return {
+    ...HIGHLIGHT_MOMENTS_MODULE,
+    albums: [],
+  };
 }
 
 export interface HighlightMomentAlbumImageView {
@@ -790,6 +804,8 @@ interface ActivitiesDto {
   highlightMoments: {
     title: string;
     subtitle: string;
+    intro?: string;
+    description?: string;
     albums: Array<{
       id: string;
       title: string;
@@ -805,9 +821,11 @@ interface ActivitiesDto {
 function mapHighlightMomentsSection(
   section: NonNullable<ActivitiesDto['highlightMoments']>,
 ): HighlightMomentsView {
+  const intro = (section.intro || section.description || '').trim();
   return {
-    title: section.title,
-    subtitle: '',
+    title: section.title.trim() || HIGHLIGHT_MOMENTS_MODULE.title,
+    subtitle: section.subtitle.trim() || HIGHLIGHT_MOMENTS_MODULE.subtitle,
+    intro: intro || HIGHLIGHT_MOMENTS_MODULE.intro,
     albums: section.albums.map((album) => ({
       id: album.id,
       title: album.title,
@@ -860,7 +878,7 @@ export async function getCompanyActivities(): Promise<{
   annualDinner: AnnualDinnerView | null;
   outings: OutingActivityView[];
   health: HealthCheckupView | null;
-  highlightMoments: HighlightMomentsView | null;
+  highlightMoments: HighlightMomentsView;
 }> {
   const data = await getActivitiesDto();
   return {
@@ -878,7 +896,9 @@ export async function getCompanyActivities(): Promise<{
           images: data.health.images.map((image) => toAssetUrl(image)),
         }
       : null,
-    highlightMoments: data.highlightMoments ? mapHighlightMomentsSection(data.highlightMoments) : null,
+    highlightMoments: data.highlightMoments
+      ? mapHighlightMomentsSection(data.highlightMoments)
+      : emptyHighlightMomentsView(),
   };
 }
 

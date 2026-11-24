@@ -4,6 +4,10 @@
   padding-top: 8rpx;
 }
 
+.highlight-intro__empty {
+  padding-top: 16rpx;
+}
+
 .highlight-album {
   display: flex;
   flex-direction: row;
