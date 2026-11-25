@@ -7,7 +7,7 @@ import {
 import { get, post } from './request';
 import { RequestError } from '../types/api';
 import { getApiEnvironment } from '../config/env';
-import { getTempBindToken } from './auth-session';
+import { getTempBindToken, setAccessToken, setRefreshToken, setTempBindToken } from './auth-session';
 
 export type IdentityBindingRecord = {
   companyEmail: string;
@@ -108,10 +108,15 @@ export async function fetchIdentityBindingFromServer(): Promise<IdentityBindingR
   if (getApiEnvironment().dataSource === 'real-server') {
     const authenticated = await ensureMiniSession();
     if (!authenticated) {
-      clearIdentityBinding();
-      return null;
+      // 微信换票失败时保留上次绑定，避免每次打开都要求重新绑定。
+      return getStoredIdentityBinding();
     }
-    const session = await get<MiniSessionMe>(API_ENDPOINTS.miniappSessionMe);
+    let session: MiniSessionMe;
+    try {
+      session = await get<MiniSessionMe>(API_ENDPOINTS.miniappSessionMe);
+    } catch {
+      return getStoredIdentityBinding();
+    }
     if (!session.email) {
       clearIdentityBinding();
       return null;
@@ -140,23 +145,20 @@ export async function fetchIdentityBindingFromServer(): Promise<IdentityBindingR
 }
 
 /**
- * 提交公司邮箱绑定：后端校验完整邮箱或域名后缀，成功后将 openid 与邮箱关联。
+ * 提交公司邮箱绑定。发码只请求 email-code，由后端先检查邮箱再发信。
  */
-export async function previewIdentity(companyEmail: string): Promise<{
-  email: string;
-  identityType: string;
-  company: Record<string, unknown> | null;
-}> {
-  return post(API_ENDPOINTS.authIdentityPreview, { email: companyEmail.trim() });
-}
-
 export async function sendIdentityEmailCode(companyEmail: string): Promise<{
   expires_in: number;
 }> {
-  return post(API_ENDPOINTS.authEmailCode, {
-    email: companyEmail.trim(),
-    scene: 'BIND',
-  });
+  return post(
+    API_ENDPOINTS.authEmailCode,
+    {
+      email: companyEmail.trim(),
+      scene: 'BIND',
+    },
+    undefined,
+    { auth: false, timeout: 60_000 },
+  );
 }
 
 export async function submitIdentityBinding(
@@ -165,7 +167,6 @@ export async function submitIdentityBinding(
 ): Promise<IdentityBindingRecord> {
   const email = companyEmail.trim();
   if (getApiEnvironment().dataSource === 'real-server') {
-    await previewIdentity(email);
     const code = verificationCode?.trim();
     if (!code) {
       await sendIdentityEmailCode(email);
@@ -176,18 +177,23 @@ export async function submitIdentityBinding(
         'CODE_REQUIRED',
       );
     }
-    const tempToken = getTempBindToken();
+    let tempToken = getTempBindToken();
     if (!tempToken) {
       await loginMiniSession();
+      tempToken = getTempBindToken();
     }
-    const currentTempToken = getTempBindToken();
-    if (!currentTempToken) {
+    if (!tempToken) {
       throw new RequestError('绑定会话已失效，请重试', undefined, undefined, 'UNAUTHORIZED');
     }
-    await post(API_ENDPOINTS.authBind, { email, code }, {
-      Authorization: `Bearer ${currentTempToken}`,
-    });
-    await loginMiniSession();
+    const session = await post<{ access: string; refresh: string }>(
+      API_ENDPOINTS.authBind,
+      { email, code },
+      { Authorization: `JWT ${tempToken}` },
+      { auth: false },
+    );
+    setAccessToken(session.access);
+    setRefreshToken(session.refresh);
+    setTempBindToken('');
     const record = await fetchIdentityBindingFromServer();
     if (!record) {
       throw new RequestError('绑定成功，但登录会话刷新失败，请重试');

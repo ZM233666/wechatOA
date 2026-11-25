@@ -3,7 +3,7 @@ import {
   type EmployeeCareHeroView,
   type EmployeeCareInitiativeView,
 } from '../../../services/kb-life.service';
-import { rejectUnboundIdentityAccess } from '../../../utils/identity-access';
+import { handleIdentityAccessFailure, rejectUnboundIdentityAccess } from '../../../utils/identity-access';
 import {
   CONTENT_UNAVAILABLE_DESC,
   friendlyUnavailablePageData,
@@ -79,6 +79,9 @@ Page({
         return;
       }
       logPageLoadIssue('employee-care', error);
+      if (handleIdentityAccessFailure(error, { title: 'Employee Care' })) {
+        return;
+      }
       this.setData(
         friendlyUnavailablePageData({ title: '暂无关怀活动', description: CONTENT_UNAVAILABLE_DESC }),
       );

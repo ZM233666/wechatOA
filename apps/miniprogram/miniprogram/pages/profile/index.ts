@@ -272,7 +272,11 @@ Page({
     } catch (error) {
       const codeRequired = error instanceof RequestError && error.code === 'CODE_REQUIRED';
       this.setData({
-        bindEmailError: error instanceof RequestError ? error.message : '绑定失败，请稍后重试',
+        bindEmailError: codeRequired
+          ? ''
+          : error instanceof RequestError
+            ? error.message
+            : '绑定失败，请稍后重试',
         bindCodeSent: codeRequired || this.data.bindCodeSent,
       });
     } finally {

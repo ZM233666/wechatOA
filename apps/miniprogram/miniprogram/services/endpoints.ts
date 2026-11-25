@@ -12,7 +12,6 @@ export const API_ENDPOINTS = {
   authWxLogin: '/api/auth/wx-login/',
   authRefresh: '/api/auth/refresh/',
   authEmailCode: '/api/auth/email-code/',
-  authIdentityPreview: '/api/auth/identity/preview/',
   authBind: '/api/auth/bind/',
   miniappSessionMe: '/api/miniapp/session/me/',
   get health() {

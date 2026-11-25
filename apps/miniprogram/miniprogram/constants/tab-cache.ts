@@ -7,6 +7,6 @@ export const TAB_CACHE_KEYS = {
   /** v2：首页 latestNews 上限 4 条（失效旧版 3 条持久化快照） */
   home: 'home:v2',
   services: (identityRevision: number) => `services:${identityRevision}`,
-  kbLifeEntries: (location: string) => `kb-life:entries:v7:${location}`,
+  kbLifeEntries: (location: string) => `kb-life:entries:v8:${location}`,
   kbLifeWetalkFeatured: 'kb-life:wetalk:featured:v1',
 } as const;

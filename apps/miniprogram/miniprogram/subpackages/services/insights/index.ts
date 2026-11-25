@@ -1,5 +1,6 @@
 import { getInsightReports, type InsightCover } from '../../../services/services.service';
 import { openInsightContent } from '../../../utils/insights';
+import { handleIdentityAccessFailure } from '../../../utils/identity-access';
 import { friendlyUnavailablePageData, logPageLoadIssue } from '../../../utils/friendly-page-error';
 
 Page({
@@ -33,6 +34,9 @@ Page({
       });
     } catch (error) {
       logPageLoadIssue('insights', error);
+      if (handleIdentityAccessFailure(error, { title: 'KB Insights' })) {
+        return;
+      }
       this.setData(friendlyUnavailablePageData());
     }
   },

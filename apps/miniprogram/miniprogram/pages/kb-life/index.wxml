@@ -20,7 +20,12 @@
     <view class="wetalk-denied__icon">
       <text class="wetalk-denied__icon-text">!</text>
     </view>
-    <block wx:if="{{deniedKind === 'campus'}}">
+    <block wx:if="{{identityBound}}">
+      <text class="wetalk-denied__title">无访问权限</text>
+      <text class="wetalk-denied__desc">您没有访问此内容的权限。</text>
+      <text class="wetalk-denied__desc-en">You do not have permission to view this content.</text>
+    </block>
+    <block wx:elif="{{deniedKind === 'campus'}}">
       <text class="wetalk-denied__title">Identity Binding Required</text>
       <text class="wetalk-denied__desc">园区地图、班车、食堂菜单与假期日历需完成身份绑定后访问。</text>
       <text class="wetalk-denied__desc-en">Campus map, shuttle bus, cafeteria menu, and holiday calendar require identity binding.</text>
@@ -30,7 +35,7 @@
       <text class="wetalk-denied__desc">此功能仅面向KB员工开放。</text>
       <text class="wetalk-denied__desc-en">This feature is only open to KB employees.</text>
     </block>
-    <view class="wetalk-denied__btn tap-feedback" bindtap="onGoIdentityBinding">
+    <view wx:if="{{!identityBound}}" class="wetalk-denied__btn tap-feedback" bindtap="onGoIdentityBinding">
       <text class="wetalk-denied__btn-text">前往身份绑定</text>
     </view>
   </view>

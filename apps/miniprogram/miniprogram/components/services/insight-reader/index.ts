@@ -5,6 +5,7 @@ import {
 } from '../../../services/services.service';
 import { getCampusMapAsReport, getWetalkIssueAsReport } from '../../../services/kb-life.service';
 import { friendlyUnavailablePageData, logPageLoadIssue } from '../../../utils/friendly-page-error';
+import { handleIdentityAccessFailure } from '../../../utils/identity-access';
 
 type ReaderPage = InsightReportPageView & { thumbLabel: string };
 
@@ -295,6 +296,17 @@ Component({
           self._loadingReportId = '';
         }
         logPageLoadIssue('insight-reader', error);
+        const source = String(this.properties.source || 'insights');
+        const denied =
+          source === 'wetalk'
+            ? { kind: 'employee' as const, title: 'WeTalk' }
+            : source === 'campus-map'
+              ? { title: 'Campus Map' }
+              : { title: 'KB Insights' };
+        if (handleIdentityAccessFailure(error, denied)) {
+          this.triggerEvent('close');
+          return;
+        }
         this.setData(friendlyUnavailablePageData());
       }
     },

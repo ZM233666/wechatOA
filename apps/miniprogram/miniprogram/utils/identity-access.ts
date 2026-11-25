@@ -14,6 +14,27 @@ function normalizeRoleLabel(label: string): string {
   return label.trim().toLowerCase();
 }
 
+/** 内部员工：中英文角色名都视为 employee，从而开放全部信息页 */
+function isEmployeeRoleLabel(label: string): boolean {
+  const role = normalizeRoleLabel(label);
+  if (!role) {
+    return false;
+  }
+  if (
+    role === 'employee' ||
+    role === 'internal' ||
+    role === 'staff' ||
+    role === 'kb-employee' ||
+    role === 'kb_employee' ||
+    role === '内部' ||
+    role === '内部员工' ||
+    role === '员工'
+  ) {
+    return true;
+  }
+  return role.includes('employee') || role.includes('内部员工') || role.includes('内部');
+}
+
 /** 由绑定记录推导内外部身份（启动同步后各页只读本地，不再逐功能请求后端） */
 export function resolveIdentityAccessTier(
   binding: IdentityBindingRecord | null,
@@ -22,16 +43,16 @@ export function resolveIdentityAccessTier(
     return 'visitor';
   }
   const role = normalizeRoleLabel(binding.roleLabel);
-  if (role === 'employee') {
+  if (isEmployeeRoleLabel(role)) {
     return 'employee';
   }
-  if (role === 'customer') {
+  if (role === 'customer' || role === '客户' || role.includes('customer')) {
     return 'customer';
   }
   return 'visitor';
 }
 
-/** 未绑定或未知 roleLabel 视为访客 */
+/** 未识别 roleLabel 时不做员工/客户细分，但仍可能已绑定 */
 export function getIdentityAccessTier(): IdentityAccessTier {
   if (isIdentityGuardBypassEnabled()) {
     return 'employee';
@@ -39,19 +60,19 @@ export function getIdentityAccessTier(): IdentityAccessTier {
   return resolveIdentityAccessTier(getStoredIdentityBinding());
 }
 
+/**
+ * 是否已完成企业身份绑定（仅读本地快照，不受 develop 门禁绕过影响）。
+ * 有绑定记录即视为已绑定，与 Setting 页一致，不因 roleLabel 未识别而再引导绑定。
+ */
+export function hasStoredIdentityBinding(): boolean {
+  return getStoredIdentityBinding() !== null;
+}
+
 export function isIdentityBound(): boolean {
   if (isIdentityGuardBypassEnabled()) {
     return true;
   }
-  return getIdentityAccessTier() !== 'visitor';
-}
-
-/**
- * 是否已完成企业身份绑定（仅读本地快照，不受 develop 门禁绕过影响）。
- * 用于功能介绍、绑定引导等 UI，应与 Setting 页展示一致。
- */
-export function hasStoredIdentityBinding(): boolean {
-  return resolveIdentityAccessTier(getStoredIdentityBinding()) !== 'visitor';
+  return hasStoredIdentityBinding();
 }
 
 export function isEmployeeIdentity(): boolean {
@@ -61,20 +82,20 @@ export function isEmployeeIdentity(): boolean {
   return getIdentityAccessTier() === 'employee';
 }
 
-/** 园区地图 / 班车 / 食堂 / 假期日历：仅已绑定身份（员工或客户）可访问 */
+/** 园区地图 / 班车 / 食堂 / 假期日历：仅已绑定身份（员工或客户）可访问；内部员工始终可访问 */
 export function shouldBlockCampusServicesForUnbound(): boolean {
-  if (isIdentityGuardBypassEnabled()) {
+  if (isIdentityGuardBypassEnabled() || isEmployeeIdentity()) {
     return false;
   }
   return !isIdentityBound();
 }
 
-/** WeTalk：仅 Employee 身份可访问 */
+/** WeTalk：仅 Employee 身份可访问；内部员工始终可访问 */
 export function shouldBlockWetalkForNonEmployee(): boolean {
-  if (isIdentityGuardBypassEnabled()) {
+  if (isIdentityGuardBypassEnabled() || isEmployeeIdentity()) {
     return false;
   }
-  return !isEmployeeIdentity();
+  return true;
 }
 
 /** 指导文件（列表 / 员工手册 / 财务指导手册）：访客与所有身份均可访问 */
@@ -82,9 +103,9 @@ export function shouldBlockGuidanceDocumentsForNonEmployee(): boolean {
   return false;
 }
 
-/** KB Insights（gating）：未绑定身份不可访问 */
+/** KB Insights（gating）：未绑定身份不可访问；内部员工始终可访问 */
 export function shouldBlockGatedInsightForUnbound(gating = false): boolean {
-  if (isIdentityGuardBypassEnabled()) {
+  if (isIdentityGuardBypassEnabled() || isEmployeeIdentity()) {
     return false;
   }
   return gating && !isIdentityBound();
@@ -143,9 +164,9 @@ export function openIdentityBindingInProfile(): void {
   wx.switchTab({ url: '/pages/profile/index' });
 }
 
-/** My Dashboard、园区服务等：未绑定身份不可访问 */
+/** My Dashboard、园区服务等：未绑定身份不可访问；内部员工始终可访问 */
 export function shouldBlockMyDashboardForUnbound(): boolean {
-  if (isIdentityGuardBypassEnabled()) {
+  if (isIdentityGuardBypassEnabled() || isEmployeeIdentity()) {
     return false;
   }
   return !isIdentityBound();
@@ -203,7 +224,26 @@ export function isIdentityAuthError(error: unknown): boolean {
   return /身份认证|认证信息未提供|未登录/.test(error.message);
 }
 
-/** 与园区服务、My Dashboard 相同：进入通用无权限页，并提供「前往身份绑定」 */
+/**
+ * 身份校验失败时进入统一无权限页。
+ * 已绑定只说明无权限；未绑定才引导去绑定。
+ */
+export function handleIdentityAccessFailure(
+  error: unknown,
+  options?: { kind?: AccessDeniedKind; title?: string },
+): boolean {
+  if (!isIdentityAuthError(error) || isEmployeeIdentity()) {
+    return false;
+  }
+  openAccessDeniedPage({
+    kind: options?.kind ?? 'unbound',
+    title: options?.title ?? '',
+    mode: 'redirect',
+  });
+  return true;
+}
+
+/** 与园区服务、My Dashboard 相同：进入通用无权限页 */
 export function openIdentityBindingGuide(title = ''): void {
   openAccessDeniedPage({ kind: 'unbound', title });
 }

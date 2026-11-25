@@ -1,0 +1,23 @@
+function imageSrc(url) {
+  if (!url) {
+    return '';
+  }
+  var signed = url.indexOf('X-Amz-Signature=');
+  if (signed < 0) {
+    return url;
+  }
+  var mark = '&v=';
+  var start = url.indexOf(mark);
+  if (start < 0) {
+    return url;
+  }
+  var rest = url.indexOf('&', start + 1);
+  if (rest < 0) {
+    return url.substring(0, start);
+  }
+  return url.substring(0, start) + url.substring(rest);
+}
+
+module.exports = {
+  imageSrc: imageSrc,
+};

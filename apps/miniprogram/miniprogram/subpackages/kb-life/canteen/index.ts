@@ -2,6 +2,7 @@ import { getCanteen, type CanteenSection } from '../../../services/kb-life.servi
 import { KB_LIFE_NO_CONTENT_DESC, KB_LIFE_NO_CONTENT_TITLE } from '../../../constants/kb-life-empty';
 import { friendlyUnavailablePageData, logPageLoadIssue } from '../../../utils/friendly-page-error';
 import { resolveCampusLocation } from '../../../utils/campus-location';
+import { handleIdentityAccessFailure } from '../../../utils/identity-access';
 import { rejectVisitorCampusAccess } from '../../../utils/kb-life-access';
 
 Page({
@@ -46,6 +47,9 @@ Page({
       });
     } catch (error) {
       logPageLoadIssue('canteen', error);
+      if (handleIdentityAccessFailure(error, { title: 'Canteen' })) {
+        return;
+      }
       this.setData(
         friendlyUnavailablePageData({
           title: KB_LIFE_NO_CONTENT_TITLE,

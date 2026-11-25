@@ -1,5 +1,5 @@
 import { getWetalkDetail, type WetalkItem } from '../../../services/wetalk.service';
-import { rejectEmployeeOnlyAccess } from '../../../utils/identity-access';
+import { handleIdentityAccessFailure, rejectEmployeeOnlyAccess } from '../../../utils/identity-access';
 import { friendlyUnavailablePageData, logPageLoadIssue } from '../../../utils/friendly-page-error';
 
 Page({
@@ -24,6 +24,9 @@ Page({
       this.setData({ article, pageStatus: 'success' });
     } catch (error) {
       logPageLoadIssue('wetalk-detail', error);
+      if (handleIdentityAccessFailure(error, { kind: 'employee', title: 'WeTalk' })) {
+        return;
+      }
       this.setData(friendlyUnavailablePageData());
     }
   },

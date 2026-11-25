@@ -1,8 +1,13 @@
-import { getWetalkIssues, type WetalkCover } from '../../../services/wetalk.service';
-import { rejectEmployeeOnlyAccess } from '../../../utils/identity-access';
+import { getWetalkIssues, getWetalkMagazines, type WetalkCover } from '../../../services/wetalk.service';
+import { handleIdentityAccessFailure, rejectEmployeeOnlyAccess } from '../../../utils/identity-access';
 import { friendlyUnavailablePageData, logPageLoadIssue } from '../../../utils/friendly-page-error';
 
 type PageStatus = 'loading' | 'success' | 'empty' | 'error';
+type WetalkListItem = WetalkCover & { listKey: string };
+
+function withListKey(items: WetalkCover[]): WetalkListItem[] {
+  return items.map((item) => ({ ...item, listKey: `${item.type}:${item.id}` }));
+}
 
 function extractYear(date: string): number | null {
   const match = String(date || '').match(/(20\d{2}|19\d{2})/);
@@ -31,11 +36,11 @@ function buildYearOptions(items: WetalkCover[]): string[] {
       years.add(year);
     }
   });
-  return ['全部'].concat(Array.from(years).sort((a, b) => b - a).map(String));
+  return ['All'].concat(Array.from(years).sort((a, b) => b - a).map(String));
 }
 
-function filterByYear(items: WetalkCover[], yearLabel: string): WetalkCover[] {
-  if (!yearLabel || yearLabel === '全部') {
+function filterByYear<T extends WetalkCover>(items: T[], yearLabel: string): T[] {
+  if (!yearLabel || yearLabel === 'All') {
     return items;
   }
   return items.filter((item) => String(extractYear(item.date) || '') === yearLabel);
@@ -46,11 +51,11 @@ Page({
     pageStatus: 'loading' as PageStatus,
     readerVisible: false, readerIssueId: '',
     errorText: '',
-    allItems: [] as WetalkCover[],
-    displayItems: [] as WetalkCover[],
-    yearOptions: ['全部'] as string[],
+    allItems: [] as WetalkListItem[],
+    displayItems: [] as WetalkListItem[],
+    yearOptions: ['All'] as string[],
     yearIndex: 0,
-    selectedYear: '全部',
+    selectedYear: 'All',
     shareTitle: 'WeTalk News',
     shareImage: '',
   },
@@ -85,10 +90,11 @@ Page({
       this.setData({ pageStatus: 'loading', errorText: '' });
     }
     try {
-      const items = sortByDateDesc(await getWetalkIssues());
+      const [news, magazines] = await Promise.all([getWetalkIssues(), getWetalkMagazines()]);
+      const items = withListKey(sortByDateDesc(news.concat(magazines)));
       const yearOptions = buildYearOptions(items);
       const yearIndex = Math.min(this.data.yearIndex, Math.max(yearOptions.length - 1, 0));
-      const selectedYear = yearOptions[yearIndex] || '全部';
+      const selectedYear = yearOptions[yearIndex] || 'All';
       const displayItems = filterByYear(items, selectedYear);
       this.setData({
         allItems: items,
@@ -105,13 +111,16 @@ Page({
         return;
       }
       logPageLoadIssue('wetalk', error);
+      if (handleIdentityAccessFailure(error, { kind: 'employee', title: 'WeTalk' })) {
+        return;
+      }
       this.setData(friendlyUnavailablePageData());
     }
   },
 
   onYearChange(event: WechatMiniprogram.PickerChange) {
     const yearIndex = Number(event.detail.value);
-    const selectedYear = this.data.yearOptions[yearIndex] || '全部';
+    const selectedYear = this.data.yearOptions[yearIndex] || 'All';
     const displayItems = filterByYear(this.data.allItems, selectedYear);
     this.setData({
       yearIndex,
@@ -123,20 +132,18 @@ Page({
 
   onNewsTap(event: WechatMiniprogram.TouchEvent) {
     const id = String(event.currentTarget.dataset.id || '');
+    const type = String(event.currentTarget.dataset.type || 'news');
     if (!id) return;
-    const item = this.data.allItems.find(value => value.id === id);
-    if (item?.kind === 'pdf') {
-      this.setData({ readerVisible: true, readerIssueId: `news:${id}` });
+    const item = this.data.allItems.find(value => value.id === id && value.type === type);
+    if (item?.type === 'emagazine' || item?.kind === 'pdf') {
+      const readerType = item.type === 'emagazine' ? 'emagazine' : 'news';
+      this.setData({ readerVisible: true, readerIssueId: `${readerType}:${id}` });
       return;
     }
     wx.navigateTo({ url: `/subpackages/kb-life/wetalk/detail?id=${encodeURIComponent(id)}` });
   },
 
   onReaderClose() { this.setData({ readerVisible: false, readerIssueId: '' }); },
-
-  onMagazineReadMore() {
-    wx.navigateTo({ url: '/subpackages/kb-life/wetalk/magazine' });
-  },
 
   onRetry() {
     void this.loadList();

@@ -2,7 +2,7 @@ import { buildServiceFeatureIntroUrl } from '../../../constants/routes';
 import { getMyDashboardModules, type MyDashboardModule } from '../../../services/services.service';
 import { enrichOnlineStatusFromExternalUrl } from '../../../utils/external-url';
 import { showComingSoonModal } from '../coming-soon';
-import { rejectUnboundIdentityAccess } from '../../../utils/identity-access';
+import { handleIdentityAccessFailure, rejectUnboundIdentityAccess } from '../../../utils/identity-access';
 import { friendlyUnavailablePageData, logPageLoadIssue } from '../../../utils/friendly-page-error';
 
 Page({
@@ -29,6 +29,9 @@ Page({
       });
     } catch (error) {
       logPageLoadIssue('my-dashboard', error);
+      if (handleIdentityAccessFailure(error, { title: 'My Dashboard' })) {
+        return;
+      }
       this.setData(friendlyUnavailablePageData());
     }
   },

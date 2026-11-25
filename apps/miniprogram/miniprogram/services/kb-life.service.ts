@@ -188,6 +188,17 @@ export type KbLifeEntriesView = {
   employeeServices: CampusService[];
 };
 
+function mapLifeBanners(items: KbLifeEntriesDto['banners']): LifeBanner[] {
+  return items.map((item) => ({
+    id: item.id,
+    title: item.title,
+    subtitle: item.subtitle,
+    image: toAssetUrl(item.image),
+    careId: item.careId,
+    targetUrl: item.targetUrl,
+  }));
+}
+
 export function readPersistedKbLifeEntries(): KbLifeEntriesView | null {
   const location = getStoredCampusLocation();
   const key = TAB_CACHE_KEYS.kbLifeEntries(location);
@@ -198,19 +209,16 @@ export async function getKbLifeEntries(): Promise<KbLifeEntriesView> {
   const location = getStoredCampusLocation();
   const cacheKey = TAB_CACHE_KEYS.kbLifeEntries(location);
   return withPersistedStaleWhileRevalidate(cacheKey, TAB_CACHE_FRESH_MS, TAB_CACHE_STALE_MS, async () => {
-    const data = await get<KbLifeEntriesDto>(API_ENDPOINTS.kbLifeEntries, { location });
+    const [scoped, shared] = await Promise.all([
+      get<KbLifeEntriesDto>(API_ENDPOINTS.kbLifeEntries, { location }),
+      get<KbLifeEntriesDto>(API_ENDPOINTS.kbLifeEntries),
+    ]);
+    const bannerSource = shared.banners.length ? shared.banners : scoped.banners;
     return {
-      banners: data.banners.map((item) => ({
-        id: item.id,
-        title: item.title,
-        subtitle: item.subtitle,
-        image: toAssetUrl(item.image),
-        careId: item.careId,
-        targetUrl: item.targetUrl,
-      })),
-      locations: data.locations,
-      campusServices: data.campusServices.map(mapService),
-      employeeServices: data.employeeServices.map(mapService),
+      banners: mapLifeBanners(bannerSource),
+      locations: scoped.locations.length ? scoped.locations : shared.locations,
+      campusServices: scoped.campusServices.map(mapService),
+      employeeServices: scoped.employeeServices.map(mapService),
     };
   });
 }
@@ -866,7 +874,7 @@ function mapEventNavItem(item: ActivitiesDto['items'][number]): CompanyEventNavI
 }
 
 function getActivitiesDto(): Promise<ActivitiesDto> {
-  return withRequestCache('kb-life:activities:v6', 2 * 60_000, () =>
+  return withRequestCache('kb-life:activities:v7', 2 * 60_000, () =>
     get<ActivitiesDto>(API_ENDPOINTS.kbLifeActivities),
   );
 }

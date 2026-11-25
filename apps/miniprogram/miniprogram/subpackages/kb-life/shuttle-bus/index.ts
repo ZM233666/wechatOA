@@ -9,6 +9,7 @@ import {
 import { KB_LIFE_NO_CONTENT_DESC, KB_LIFE_NO_CONTENT_TITLE } from '../../../constants/kb-life-empty';
 import { friendlyUnavailablePageData, logPageLoadIssue } from '../../../utils/friendly-page-error';
 import { resolveCampusLocation } from '../../../utils/campus-location';
+import { handleIdentityAccessFailure } from '../../../utils/identity-access';
 import { rejectVisitorCampusAccess } from '../../../utils/kb-life-access';
 import {
   buildShuttleMapView,
@@ -110,6 +111,9 @@ Page({
       }
     } catch (error) {
       logPageLoadIssue('shuttle-bus', error);
+      if (handleIdentityAccessFailure(error, { title: 'Shuttle Bus' })) {
+        return;
+      }
       this.setData(
         friendlyUnavailablePageData({
           title: KB_LIFE_NO_CONTENT_TITLE,

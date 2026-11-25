@@ -31,6 +31,8 @@ export interface RequestOptions {
   data?: WechatMiniprogram.IAnyObject | string | ArrayBuffer;
   header?: Record<string, string>;
   timeout?: number;
+  /** 为 false 时不附带登录 token。发送绑定验证码必须匿名。 */
+  auth?: boolean;
 }
 
 export class RequestError extends Error {

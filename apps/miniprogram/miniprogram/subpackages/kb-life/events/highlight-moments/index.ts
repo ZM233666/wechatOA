@@ -1,8 +1,26 @@
 import {
   getCompanyActivities,
   type HighlightMomentAlbumSummaryView,
+  type HighlightMomentsView,
 } from '../../../../services/kb-life.service';
 import { logPageLoadIssue } from '../../../../utils/friendly-page-error';
+
+function stripPresignedVersion(url: string): string {
+  if (!url || url.indexOf('X-Amz-Signature=') < 0) {
+    return url;
+  }
+  return url.replace(/&v=[^&#]*/gi, '');
+}
+
+function cleanSection(section: HighlightMomentsView): HighlightMomentsView {
+  return {
+    ...section,
+    albums: section.albums.map((album) => ({
+      ...album,
+      coverImage: stripPresignedVersion(album.coverImage),
+    })),
+  };
+}
 
 Page({
   data: {
@@ -55,7 +73,7 @@ Page({
     try {
       const result = await getCompanyActivities();
       this.setData({
-        section: result.highlightMoments,
+        section: cleanSection(result.highlightMoments),
         pageStatus: 'success',
       });
     } catch (error) {

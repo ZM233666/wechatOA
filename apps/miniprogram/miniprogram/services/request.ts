@@ -52,10 +52,10 @@ function compactRequestData(
   return compact;
 }
 
-function buildHeader(customHeader?: Record<string, string>): Record<string, string> {
+function buildHeader(customHeader?: Record<string, string>, auth = true): Record<string, string> {
   return {
     'Content-Type': 'application/json',
-    ...buildAuthorizationHeader(),
+    ...(auth ? buildAuthorizationHeader() : {}),
     ...customHeader,
   };
 }
@@ -135,7 +135,7 @@ function unwrapResponse<T>(statusCode: number, raw: unknown): T {
   throw new RequestError('响应格式无效', statusCode, raw);
 }
 
-function refreshAccessToken(): Promise<boolean> {
+export function refreshAccessToken(): Promise<boolean> {
   if (tokenRefreshPromise) {
     return tokenRefreshPromise;
   }
@@ -187,7 +187,7 @@ function executeRequest<T>(options: RequestOptions, retried: boolean): Promise<T
     console.error('[api]', message);
     return Promise.reject(new RequestError(message));
   }
-  const { url, method = 'GET', header, timeout = env.timeout } = options;
+  const { url, method = 'GET', header, timeout = env.timeout, auth = true } = options;
   const data = compactRequestData(options.data);
   const fullUrl = joinUrl(env.apiBaseUrl, url);
 
@@ -199,7 +199,7 @@ function executeRequest<T>(options: RequestOptions, retried: boolean): Promise<T
       url: fullUrl,
       method: method as WechatMiniprogram.RequestOption['method'],
       data,
-      header: buildHeader(header),
+      header: buildHeader(header, auth),
       timeout,
       success(res) {
         try {
@@ -395,8 +395,13 @@ export function invalidateRequestCache(prefix?: string): void {
   }
 }
 
-export function post<T>(url: string, data?: RequestOptions['data'], header?: Record<string, string>) {
-  return request<T>({ url, method: 'POST', data, header });
+export function post<T>(
+  url: string,
+  data?: RequestOptions['data'],
+  header?: Record<string, string>,
+  options?: Pick<RequestOptions, 'auth' | 'timeout'>,
+) {
+  return request<T>({ url, method: 'POST', data, header, ...options });
 }
 
 export function put<T>(url: string, data?: RequestOptions['data'], header?: Record<string, string>) {

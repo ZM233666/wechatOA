@@ -1,3 +1,4 @@
+<wxs src="../../../../../utils/media-url.wxs" module="media" />
 <view class="page page--event-detail">
   <nav-brand title="Album" show-back="{{true}}"></nav-brand>
 
@@ -19,7 +20,7 @@
         <image
           wx:if="{{album.coverImage}}"
           class="album-detail__cover"
-          src="{{album.coverImage}}"
+          src="{{media.imageSrc(album.coverImage)}}"
           mode="widthFix"
         ></image>
         <text class="album-detail__content" wx:if="{{album.content}}">{{album.content}}</text>
@@ -30,7 +31,7 @@
             class="album-grid__item tap-feedback"
             wx:for="{{album.images}}"
             wx:key="url"
-            src="{{item.url}}"
+            src="{{media.imageSrc(item.url)}}"
             mode="aspectFill"
             lazy-load="{{true}}"
             show-menu-by-longpress="{{item.allowDownload}}"

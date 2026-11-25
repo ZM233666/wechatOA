@@ -262,8 +262,35 @@ page {
   color: #111827;
 }
 
+.bind-panel__input--locked {
+  color: #6b7280;
+  background: #f3f4f6;
+  border-color: #e5e7eb;
+}
+
+.bind-code {
+  margin-top: 20rpx;
+}
+
+.bind-code__label {
+  display: block;
+  font-size: 28rpx;
+  font-weight: 700;
+  color: #003b70;
+  line-height: 1.35;
+}
+
+.bind-code__hint {
+  display: block;
+  margin-top: 6rpx;
+  margin-bottom: 16rpx;
+  font-size: 22rpx;
+  color: #6b7280;
+  line-height: 1.4;
+}
+
 .bind-panel__code-input {
-  margin-top: 16rpx;
+  margin-top: 0;
 }
 
 .bind-panel__input--error {

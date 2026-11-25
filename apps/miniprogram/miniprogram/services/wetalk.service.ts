@@ -19,7 +19,7 @@ export type WetalkContentKind = 'article' | 'pdf';
 export interface WetalkItem {
   id: number; type: WetalkType; title: string; volumeNo: string;
   summary: string; author: string; coverUrl: string; pdfUrl: string;
-  pdfFileName: string; publishTime: string; views: number;
+  pdfFileName: string; publishTime: string; issueDate?: string; views: number;
 }
 export interface WetalkCover {
   id: string; type: WetalkType; title: string; volumeNo: string;
@@ -85,13 +85,21 @@ function assertItem(value: WetalkItem, type: WetalkType): void {
   }
 }
 
+function magazineIssueDate(item: WetalkItem): string {
+  const issueDate = typeof item.issueDate === 'string' ? item.issueDate.trim() : '';
+  if (item.type === 'emagazine' && issueDate) {
+    return issueDate;
+  }
+  return item.publishTime;
+}
+
 function toWetalkCover(item: WetalkItem, headers: Record<string, string>): WetalkCover {
   return {
     id: String(item.id),
     type: item.type,
     title: item.title,
     volumeNo: item.volumeNo,
-    date: item.publishTime,
+    date: magazineIssueDate(item),
     image: resolveWetalkCoverImage(item, headers),
     kind: item.pdfUrl ? 'pdf' : 'article',
     kindLabel: item.pdfUrl ? 'PDF' : 'News',

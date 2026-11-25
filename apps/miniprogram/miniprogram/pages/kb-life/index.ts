@@ -17,7 +17,11 @@ import {
   isVisitorRestrictedCampusService,
   shouldBlockCampusServicesForVisitor,
 } from '../../utils/kb-life-access';
-import { openAccessDeniedPage, openIdentityBindingInProfile } from '../../utils/identity-access';
+import {
+  hasStoredIdentityBinding,
+  openAccessDeniedPage,
+  openIdentityBindingInProfile,
+} from '../../utils/identity-access';
 import {
   bindIdentitySessionRefresh,
   refreshIfIdentitySessionChanged,
@@ -51,6 +55,7 @@ Page({
     listVisible: false,
     deniedVisible: false,
     deniedKind: '' as '' | 'wetalk' | 'campus',
+    identityBound: false,
     readerVisible: false,
     readerIssueId: '',
     readerSource: 'wetalk' as 'wetalk' | 'campus-map' | 'shuttle-bus',
@@ -93,6 +98,7 @@ Page({
   },
 
   onShow() {
+    this.setData({ identityBound: hasStoredIdentityBinding() });
     const identityChanged = refreshIfIdentitySessionChanged(this, () => {
       void this.loadEntries();
     });
@@ -142,7 +148,7 @@ Page({
       setStoredCampusLocation(selectedLocation, result.locations);
       (this as unknown as { _lastEntriesLoadedAt?: number })._lastEntriesLoadedAt = Date.now();
       this.setData({
-        banners: result.banners,
+        banners: result.banners.length ? result.banners : this.data.banners,
         locations: result.locations,
         locationIndex,
         selectedLocation,

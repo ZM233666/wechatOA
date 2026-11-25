@@ -1,8 +1,27 @@
 import {
   getHighlightMomentAlbum,
+  type HighlightMomentAlbumDetailView,
   type HighlightMomentAlbumImageView,
 } from '../../../../../services/kb-life.service';
 import { friendlyUnavailablePageData, logPageLoadIssue } from '../../../../../utils/friendly-page-error';
+
+function stripPresignedVersion(url: string): string {
+  if (!url || url.indexOf('X-Amz-Signature=') < 0) {
+    return url;
+  }
+  return url.replace(/&v=[^&#]*/gi, '');
+}
+
+function cleanAlbum(album: HighlightMomentAlbumDetailView): HighlightMomentAlbumDetailView {
+  return {
+    ...album,
+    coverImage: stripPresignedVersion(album.coverImage),
+    images: album.images.map((image) => ({
+      ...image,
+      url: stripPresignedVersion(image.url),
+    })),
+  };
+}
 
 Page({
   data: {
@@ -55,7 +74,7 @@ Page({
         this.setData(friendlyUnavailablePageData({ title: '暂无相册' }));
         return;
       }
-      this.setData({ album, pageStatus: 'success' });
+      this.setData({ album: cleanAlbum(album), pageStatus: 'success' });
     } catch (error) {
       if (keepContent) {
         return;

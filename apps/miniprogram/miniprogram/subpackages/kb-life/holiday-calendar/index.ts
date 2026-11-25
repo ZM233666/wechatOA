@@ -11,6 +11,7 @@ import {
 } from '../holiday-calendar.data';
 import { getHolidayCalendar } from '../../../services/kb-life.service';
 import { resolveCampusLocation } from '../../../utils/campus-location';
+import { handleIdentityAccessFailure } from '../../../utils/identity-access';
 import { rejectVisitorCampusAccess } from '../../../utils/kb-life-access';
 import { friendlyUnavailablePageData, logPageLoadIssue } from '../../../utils/friendly-page-error';
 
@@ -69,6 +70,10 @@ Page({
         ...getMonthView(year, getDefaultMonthIndex(), result.marks, todayKey),
       });
     } catch (error) {
+      logPageLoadIssue('holiday-calendar', error);
+      if (handleIdentityAccessFailure(error, { title: 'Holiday' })) {
+        return;
+      }
       this.setData({
         pageStatus: 'empty',
         ...friendlyUnavailablePageData(),

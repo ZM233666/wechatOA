@@ -2,12 +2,13 @@ import { RequestError } from '../types/api';
 import {
   clearAuthSession,
   getAccessToken,
+  getRefreshToken,
   setAccessToken,
   setRefreshToken,
   setTempBindToken,
 } from './auth-session';
 import { API_ENDPOINTS } from './endpoints';
-import { post } from './request';
+import { post, refreshAccessToken } from './request';
 
 /** 微信 login code 有效期约 5 分钟，会话内复用以减少 wx.login 次数 */
 const LOGIN_CODE_TTL_MS = 4 * 60 * 1000;
@@ -98,6 +99,12 @@ export async function loginMiniSession(): Promise<MiniSession | null> {
 export async function ensureMiniSession(): Promise<boolean> {
   if (getAccessToken()) {
     return true;
+  }
+  if (getRefreshToken()) {
+    const refreshed = await refreshAccessToken();
+    if (refreshed && getAccessToken()) {
+      return true;
+    }
   }
   return Boolean(await loginMiniSession());
 }

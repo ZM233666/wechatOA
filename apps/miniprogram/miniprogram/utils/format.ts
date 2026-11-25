@@ -37,8 +37,21 @@ function isLocalPackagePath(url: string): boolean {
   );
 }
 
+/**
+ * 预签名 URL 的 query 已包含在签名里。额外的 v 会使 MinIO 返回 SignatureDoesNotMatch（403）。
+ */
+function stripUnsignedPresignVersion(url: string): string {
+  if (!/X-Amz-Signature=/i.test(url)) {
+    return url;
+  }
+  return url
+    .replace(/&v=[^&#]*/gi, '')
+    .replace(/\?v=[^&#]*&/i, '?')
+    .replace(/\?v=[^&#]*$/i, '');
+}
+
 export function absolutizeMediaUrl(url: string): string {
-  const trimmed = url.trim();
+  const trimmed = stripUnsignedPresignVersion(url.trim());
   if (!trimmed || /^(https?:|data:|wxfile:|cloud:)/i.test(trimmed)) {
     return trimmed;
   }

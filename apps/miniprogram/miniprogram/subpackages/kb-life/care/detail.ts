@@ -2,7 +2,7 @@ import { getEmployeeCareDetail, type EmployeeCareArticleDetailView } from '../..
 import { invalidateRequestCache } from '../../../services/request';
 import { RequestError } from '../../../types/api';
 import type { ArticleContentBlock } from '../../../types/content';
-import { rejectUnboundIdentityAccess } from '../../../utils/identity-access';
+import { handleIdentityAccessFailure, rejectUnboundIdentityAccess } from '../../../utils/identity-access';
 import { friendlyUnavailablePageData, logPageLoadIssue } from '../../../utils/friendly-page-error';
 
 const NATIVE_BLOCK_TYPES = new Set(['carousel', 'video']);
@@ -81,6 +81,9 @@ Page({
         invalidateRequestCache('kb-life:entries');
       }
       logPageLoadIssue('care-detail', error);
+      if (handleIdentityAccessFailure(error, { title: 'Employee Care' })) {
+        return;
+      }
       this.setData({
         ...friendlyUnavailablePageData(),
         article: null,

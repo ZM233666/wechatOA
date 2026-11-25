@@ -79,8 +79,9 @@
         <text class="bind-panel__title">输入登记邮箱</text>
         <text class="bind-panel__subtitle">Enter your registered email to verify identity</text>
         <input
-          class="bind-panel__input {{bindEmailError ? 'bind-panel__input--error' : ''}}"
+          class="bind-panel__input {{bindCodeSent ? 'bind-panel__input--locked' : ''}} {{bindEmailError && !bindCodeSent ? 'bind-panel__input--error' : ''}}"
           type="text"
+          disabled="{{bindCodeSent}}"
           value="{{bindCompanyEmail}}"
           placeholder="name@registered-email.com"
           placeholder-class="bind-panel__placeholder"
@@ -88,18 +89,22 @@
           bindinput="onBindEmailInput"
           bindconfirm="onSubmitBindEmail"
         />
-        <input
-          wx:if="{{bindCodeSent}}"
-          class="bind-panel__input bind-panel__code-input {{bindEmailError ? 'bind-panel__input--error' : ''}}"
-          type="number"
-          maxlength="8"
-          value="{{bindVerificationCode}}"
-          placeholder="请输入邮箱验证码"
-          placeholder-class="bind-panel__placeholder"
-          confirm-type="done"
-          bindinput="onBindCodeInput"
-          bindconfirm="onSubmitBindEmail"
-        />
+        <view wx:if="{{bindCodeSent}}" class="bind-code">
+          <text class="bind-code__label">输入验证码</text>
+          <text class="bind-code__hint">验证码已发送到该邮箱</text>
+          <input
+            class="bind-panel__input bind-panel__code-input {{bindEmailError ? 'bind-panel__input--error' : ''}}"
+            type="number"
+            maxlength="8"
+            focus="{{bindCodeSent}}"
+            value="{{bindVerificationCode}}"
+            placeholder="请输入邮箱验证码"
+            placeholder-class="bind-panel__placeholder"
+            confirm-type="done"
+            bindinput="onBindCodeInput"
+            bindconfirm="onSubmitBindEmail"
+          />
+        </view>
         <text wx:if="{{bindEmailError}}" class="bind-panel__error">{{bindEmailError}}</text>
         <view class="bind-panel__actions">
           <view class="bind-panel__btn bind-panel__btn--ghost tap-feedback" bindtap="onCloseBindSheet">取消</view>

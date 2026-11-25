@@ -13,7 +13,7 @@
         </view>
         <picker mode="selector" range="{{yearOptions}}" value="{{yearIndex}}" bindchange="onYearChange">
           <view class="wetalk-year tap-feedback">
-            <text class="wetalk-year__text">{{selectedYear}}</text>
+            <text class="wetalk-year__text">{{selectedYear === 'All' ? 'Period' : selectedYear}}</text>
             <text class="wetalk-year__arrow">▾</text>
           </view>
         </picker>
@@ -30,48 +30,22 @@
             <view
               class="news-card tap-feedback"
               wx:for="{{displayItems}}"
-              wx:key="id"
+              wx:key="listKey"
               data-id="{{item.id}}"
+              data-type="{{item.type}}"
               data-kind="{{item.kind}}"
               bindtap="onNewsTap"
             >
               <image wx:if="{{item.image}}" class="news-card__image" src="{{item.image}}" mode="aspectFill" lazy-load="{{true}}"></image>
               <view wx:else class="news-card__image"></view>
               <view class="news-card__body">
-                <text class="news-card__badge">WeTalk</text>
+                <text class="news-card__badge">{{item.type === 'emagazine' ? 'Magazine' : 'WeTalk'}}</text>
                 <text class="news-card__title">{{item.title}}</text>
                 <text class="news-card__date">{{item.date}}</text>
               </view>
             </view>
         </block>
       </scroll-view>
-    </view>
-
-    <view class="wetalk-magazine">
-      <view class="wetalk-section-head wetalk-section-head--magazine">
-        <view class="wetalk-section-head__left">
-          <view class="wetalk-section-head__bar wetalk-section-head__bar--gold"></view>
-          <text class="wetalk-section-head__title">Magazine</text>
-        </view>
-      </view>
-      <view class="magazine-card tap-feedback" bindtap="onMagazineReadMore">
-        <view class="magazine-card__cover">
-          <image
-            class="magazine-card__image"
-            src="/subpackages/kb-life/assets/images/wetalk-coverpage.png"
-            mode="aspectFill"
-          ></image>
-          <view class="magazine-card__mask"></view>
-        </view>
-        <view class="magazine-card__body">
-          <text class="magazine-card__kicker">E-Magazine</text>
-          <text class="magazine-card__title">One Magazine-WeTalk</text>
-          <text class="magazine-card__desc">浏览电子杂志合集，了解更多企业动态与服务故事</text>
-          <view class="magazine-card__btn">
-            <text class="magazine-card__btn-text">阅读更多</text>
-          </view>
-        </view>
-      </view>
     </view>
   </view>
 

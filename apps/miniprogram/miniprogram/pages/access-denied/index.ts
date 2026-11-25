@@ -1,8 +1,23 @@
-import { openIdentityBindingInProfile } from '../../utils/identity-access';
+import { hasStoredIdentityBinding, openIdentityBindingInProfile } from '../../utils/identity-access';
 
 type AccessDeniedKind = 'unbound' | 'employee';
 
-function resolveCopy(kind: AccessDeniedKind, title: string) {
+function resolveCopy(kind: AccessDeniedKind, title: string, bound: boolean) {
+  if (bound) {
+    const employeeOnly = kind === 'employee';
+    return {
+      navTitle: title || '无访问权限',
+      headline: '无访问权限',
+      subtitle: title,
+      desc: employeeOnly
+        ? '您没有访问此内容的权限。此功能仅面向 KB 员工开放。'
+        : '您没有访问此内容的权限。',
+      descEn: employeeOnly
+        ? 'You do not have permission to view this content. It is only available to KB employees.'
+        : 'You do not have permission to view this content.',
+      showBindButton: false,
+    };
+  }
   if (kind === 'employee') {
     return {
       navTitle: title || 'Access Denied',
@@ -36,7 +51,7 @@ Page({
   onLoad(query: Record<string, string | undefined>) {
     const kind = (query.kind === 'employee' ? 'employee' : 'unbound') as AccessDeniedKind;
     const title = decodeURIComponent((query.title || '').trim());
-    this.setData(resolveCopy(kind, title));
+    this.setData(resolveCopy(kind, title, hasStoredIdentityBinding()));
   },
 
   onGoIdentityBinding() {

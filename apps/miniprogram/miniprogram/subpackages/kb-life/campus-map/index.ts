@@ -2,6 +2,7 @@ import { getCampusMap } from '../../../services/kb-life.service';
 import { KB_LIFE_NO_CONTENT_DESC, KB_LIFE_NO_CONTENT_TITLE } from '../../../constants/kb-life-empty';
 import { friendlyUnavailablePageData, logPageLoadIssue } from '../../../utils/friendly-page-error';
 import { resolveCampusLocation } from '../../../utils/campus-location';
+import { handleIdentityAccessFailure } from '../../../utils/identity-access';
 import { rejectVisitorCampusAccess } from '../../../utils/kb-life-access';
 
 const SCALE_MIN = 0.5;
@@ -84,6 +85,9 @@ Page({
       });
     } catch (error) {
       logPageLoadIssue('campus-map', error);
+      if (handleIdentityAccessFailure(error, { title: 'Campus Map' })) {
+        return;
+      }
       this.setData({
         useReader: false,
         readerVisible: false,

@@ -1,3 +1,4 @@
+<wxs src="../../../../utils/media-url.wxs" module="media" />
 <view class="page page--event-detail">
   <nav-brand title="Highlights" show-back="{{true}}"></nav-brand>
 
@@ -25,7 +26,7 @@
           hover-stop-propagation="{{true}}"
           catchtap="onAlbumTap"
         >
-          <image class="highlight-album__cover" src="{{item.coverImage}}" mode="aspectFill"></image>
+          <image class="highlight-album__cover" src="{{media.imageSrc(item.coverImage)}}" mode="aspectFill"></image>
           <view class="highlight-album__meta">
             <text class="highlight-album__title">{{item.title}}</text>
             <text class="highlight-album__subtitle" wx:if="{{item.subtitle}}">{{item.subtitle}}</text>

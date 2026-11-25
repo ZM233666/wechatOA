@@ -33,7 +33,7 @@ function buildSnapshot(binding: IdentityBindingRecord | null, ready: boolean): I
     ready,
     syncing: Boolean(identitySyncPromise),
     tier,
-    bound: tier !== 'visitor',
+    bound: Boolean(binding?.companyEmail),
     binding,
   };
 }
