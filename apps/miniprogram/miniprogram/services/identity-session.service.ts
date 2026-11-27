@@ -1,4 +1,5 @@
 import type { IdentityAccessTier } from '../utils/identity-access';
+import { invalidateRequestCache } from './request';
 import { resolveIdentityAccessTier } from '../utils/identity-access';
 import {
   clearIdentityBinding,
@@ -127,6 +128,7 @@ export async function syncIdentitySession(options?: {
 export function applyIdentityBindingToSession(record: IdentityBindingRecord): void {
   saveIdentityBinding(record);
   lastIdentitySyncAt = Date.now();
+  invalidateRequestCache('profile:');
   publishSnapshot(record, true);
 }
 

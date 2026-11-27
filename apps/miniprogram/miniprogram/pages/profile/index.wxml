@@ -7,7 +7,7 @@
   ></nav-brand>
 
   <view wx:if="{{settingView === 'main'}}" class="profile">
-    <empty-state wx:if="{{pageStatus === 'loading'}}" title="正在加载个人中心"></empty-state>
+    <content-skeleton wx:if="{{pageStatus === 'loading'}}" variant="profile"></content-skeleton>
     <empty-state wx:elif="{{pageStatus === 'empty'}}" title="{{emptyTitle || '暂无内容'}}" description="{{emptyDesc}}"></empty-state>
     <block wx:else>
       <view class="profile-hero">
@@ -17,8 +17,8 @@
           mode="aspectFill"
           binderror="onAvatarError"
         ></image>
-        <text class="profile-hero__name">{{user.chineseName}} · {{user.name}}</text>
-        <text class="profile-hero__title">{{user.titleCn}} / {{user.titleEn}}</text>
+        <text class="profile-hero__name">{{user.name}}</text>
+        <text wx:if="{{user.titleCn}}" class="profile-hero__title">{{user.titleCn}}</text>
         <text class="profile-hero__dept">{{user.department}}</text>
       </view>
 
@@ -78,6 +78,14 @@
       <view wx:if="{{bindSheetVisible}}" class="bind-panel">
         <text class="bind-panel__title">输入登记邮箱</text>
         <text class="bind-panel__subtitle">Enter your registered email to verify identity</text>
+        <view class="privacy-notice">
+          <text class="privacy-notice__title">用户隐私保护指引</text>
+          <text class="privacy-notice__body">为完成企业身份绑定，我们会收集你填写的登记邮箱，并向该邮箱发送验证码。验证通过后，页面将展示企业档案中的姓名与部门，用于确认身份并开放相应功能。这些信息只用于身份核验和权限控制。</text>
+        </view>
+        <view class="privacy-notice__agree tap-feedback" bindtap="onTogglePrivacyAgree">
+          <view class="privacy-notice__check {{privacyAgreed ? 'privacy-notice__check--on' : ''}}">{{privacyAgreed ? '✓' : ''}}</view>
+          <text class="privacy-notice__agree-text">我已阅读并同意《用户隐私保护指引》</text>
+        </view>
         <input
           class="bind-panel__input {{bindCodeSent ? 'bind-panel__input--locked' : ''}} {{bindEmailError && !bindCodeSent ? 'bind-panel__input--error' : ''}}"
           type="text"

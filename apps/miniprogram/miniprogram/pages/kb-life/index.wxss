@@ -14,10 +14,11 @@ page {
   flex-direction: column;
   overflow: hidden;
   box-sizing: border-box;
+  padding-bottom: calc(116rpx + env(safe-area-inset-bottom));
 }
 
 .wetalk-panel {
-  padding: 24rpx 32rpx calc(32rpx + env(safe-area-inset-bottom));
+  padding: 24rpx 32rpx calc(32rpx + 116rpx + env(safe-area-inset-bottom));
 }
 
 .wetalk-panel__grid {
@@ -164,6 +165,10 @@ page {
   display: block;
 }
 
+.life-banner__image--placeholder {
+  height: 340rpx;
+}
+
 .life-banner__mask {
   position: absolute;
   left: 0;
@@ -198,7 +203,7 @@ page {
 }
 
 .life-body {
-  padding: var(--kb-tab-page-padding-y) 24rpx calc(var(--kb-tab-page-padding-y) + env(safe-area-inset-bottom));
+  padding: var(--kb-tab-page-padding-y) 24rpx calc(var(--kb-tab-page-padding-y) + 116rpx + env(safe-area-inset-bottom));
 }
 
 .life-row {
@@ -353,6 +358,10 @@ page {
   flex-wrap: wrap;
   justify-content: space-between;
   flex: 1;
+}
+
+.campus__item--disabled {
+  opacity: 0.38;
 }
 
 .campus__item {

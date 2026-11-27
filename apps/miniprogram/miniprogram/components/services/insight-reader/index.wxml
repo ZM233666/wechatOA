@@ -6,7 +6,7 @@
 >
   <empty-state wx:if="{{pageStatus === 'loading'}}" title="{{isMapMode ? '正在打开园区地图' : (isBookMode ? '正在打开刊物' : '正在打开报告')}}"></empty-state>
   <view wx:elif="{{pageStatus === 'empty'}}" class="insight-reader__error" bindtap="onClose">
-    <empty-state title="{{emptyTitle || '暂无内容'}}" description="{{emptyDesc}}"></empty-state>
+    <empty-state title="{{emptyTitle || '更多内容，即将与你分享'}}" description="{{emptyDesc}}"></empty-state>
   </view>
 
   <block wx:elif="{{pageStatus === 'success' && report}}">

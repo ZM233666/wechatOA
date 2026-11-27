@@ -4,7 +4,7 @@
   <empty-state wx:if="{{pageStatus === 'loading'}}" title="正在加载财务指导手册"></empty-state>
   <empty-state
     wx:elif="{{pageStatus === 'empty'}}"
-    title="{{emptyTitle || '暂无内容'}}"
+    title="{{emptyTitle || '更多内容，即将与你分享'}}"
     description="{{emptyDesc}}"
   ></empty-state>
 

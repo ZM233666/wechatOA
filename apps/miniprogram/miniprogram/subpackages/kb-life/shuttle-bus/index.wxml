@@ -107,7 +107,7 @@
       <empty-state wx:if="{{pageStatus === 'loading'}}" title="正在加载线路图"></empty-state>
       <empty-state
         wx:elif="{{pageStatus === 'empty'}}"
-        title="{{emptyTitle || '暂无内容'}}"
+        title="{{emptyTitle || '更多内容，即将与你分享'}}"
         description="{{emptyDesc}}"
       ></empty-state>
       <empty-state wx:elif="{{mapRoutes.length === 0}}" title="暂无线路图" description="请先在管理端维护站点经纬度"></empty-state>

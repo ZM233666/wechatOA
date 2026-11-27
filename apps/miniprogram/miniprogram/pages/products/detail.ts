@@ -1,4 +1,4 @@
-import { getProductDetail, type ProductCategoryView } from './products.service';
+import { getProductDetail, peekProductDetail, type ProductCategoryView } from './products.service';
 import { fallbackImageUrl } from '../../utils/format';
 import { friendlyUnavailablePageData, logPageLoadIssue } from '../../utils/friendly-page-error';
 
@@ -21,7 +21,7 @@ Page({
     this.data.pageAlive = false;
   },
 
-  async loadDetail() {
+  async loadDetail(force = false) {
     if (!this.data.pageAlive || this.data.requesting) {
       return;
     }
@@ -30,8 +30,16 @@ Page({
       this.setData({ pageStatus: 'empty', category: null });
       return;
     }
+    const cached = force ? null : peekProductDetail(id);
+    if (cached) {
+      this.setData({ category: cached, pageStatus: 'success', requesting: false, errorText: '' });
+      return;
+    }
+    const keepContent = Boolean(this.data.category);
     this.data.requesting = true;
-    this.setData({ requesting: true, pageStatus: 'loading', errorText: '' });
+    this.setData(
+      keepContent ? { requesting: true, errorText: '' } : { requesting: true, pageStatus: 'loading', errorText: '' },
+    );
     try {
       const category = await getProductDetail(id);
       if (!this.data.pageAlive) {
@@ -45,6 +53,10 @@ Page({
       }
       this.data.requesting = false;
       logPageLoadIssue('product-detail', error);
+      if (this.data.category) {
+        this.setData({ requesting: false });
+        return;
+      }
       this.setData({
         category: null,
         requesting: false,
@@ -54,7 +66,7 @@ Page({
   },
 
   onRetry() {
-    void this.loadDetail();
+    void this.loadDetail(true);
   },
 
   onCoverImageError() {

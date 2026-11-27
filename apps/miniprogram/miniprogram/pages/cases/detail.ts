@@ -1,4 +1,4 @@
-import { getCaseDetail, type ProjectCaseView } from './cases.service';
+import { getCaseDetail, peekCaseDetail, type ProjectCaseView } from './cases.service';
 import { fallbackImageUrl } from '../../utils/format';
 import { friendlyUnavailablePageData, logPageLoadIssue } from '../../utils/friendly-page-error';
 
@@ -21,7 +21,7 @@ Page({
     this.data.pageAlive = false;
   },
 
-  async loadDetail() {
+  async loadDetail(force = false) {
     if (!this.data.pageAlive || this.data.requesting) {
       return;
     }
@@ -30,8 +30,14 @@ Page({
       this.setData({ pageStatus: 'empty', item: null });
       return;
     }
+    const cached = force ? null : peekCaseDetail(id);
+    if (cached) {
+      this.setData({ item: cached, pageStatus: 'success', requesting: false, errorText: '' });
+      return;
+    }
+    const keepContent = Boolean(this.data.item);
     this.data.requesting = true;
-    this.setData({ requesting: true, pageStatus: 'loading', errorText: '' });
+    this.setData(keepContent ? { requesting: true, errorText: '' } : { requesting: true, pageStatus: 'loading', errorText: '' });
     try {
       const item = await getCaseDetail(id);
       if (!this.data.pageAlive) {
@@ -45,6 +51,10 @@ Page({
       }
       this.data.requesting = false;
       logPageLoadIssue('case-detail', error);
+      if (this.data.item) {
+        this.setData({ requesting: false });
+        return;
+      }
       this.setData({
         item: null,
         requesting: false,
@@ -54,7 +64,7 @@ Page({
   },
 
   onRetry() {
-    void this.loadDetail();
+    void this.loadDetail(true);
   },
 
   onCoverImageError() {

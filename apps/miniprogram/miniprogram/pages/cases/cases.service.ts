@@ -1,7 +1,7 @@
 import type { ArticleContentBlock, ImageResource, PaginatedData } from '../../types/content';
 import { toAssetUrl } from '../../utils/format';
 import { API_ENDPOINTS } from '../../services/endpoints';
-import { get, withRequestCache } from '../../services/request';
+import { get, peekRequestCache, withRequestCache } from '../../services/request';
 
 export interface ProjectCaseView {
   id: string;
@@ -12,6 +12,8 @@ export interface ProjectCaseView {
   background: string;
   solution: string;
   richContent: ArticleContentBlock[];
+  contentHtml: string;
+  bodyFormat?: 'html' | 'blocks';
 }
 
 interface CaseSummaryDto {
@@ -28,6 +30,8 @@ interface CaseDetailDto extends CaseSummaryDto {
   background: string;
   solution: string;
   richContent: ArticleContentBlock[];
+  contentHtml?: string;
+  bodyFormat?: 'html' | 'blocks';
 }
 
 function formatWriterMeta(author: string): string {
@@ -50,7 +54,18 @@ export async function getCases(): Promise<ProjectCaseView[]> {
       background: '',
       solution: '',
       richContent: [],
+      contentHtml: '',
     }));
+  });
+}
+
+export function peekCaseDetail(id: string): ProjectCaseView | null {
+  return peekRequestCache<ProjectCaseView>(`cases:detail:${id}`);
+}
+
+export function prefetchCaseDetail(id: string): void {
+  void getCaseDetail(id).catch(() => {
+    // 预取失败不影响列表；进入详情时仍可重试。
   });
 }
 
@@ -65,7 +80,9 @@ export async function getCaseDetail(id: string): Promise<ProjectCaseView> {
       meta: formatWriterMeta(data.region),
       background: data.background,
       solution: data.solution,
-      richContent: data.richContent,
+      richContent: data.richContent ?? [],
+      contentHtml: data.contentHtml ?? '',
+      bodyFormat: data.bodyFormat,
     };
   });
 }

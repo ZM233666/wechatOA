@@ -6,15 +6,17 @@
     <view class="case-detail__body">
       <text class="case-detail__title">{{item.title}}</text>
       <text wx:if="{{item.meta}}" class="case-detail__meta">{{item.meta}}</text>
-      <article-renderer wx:if="{{item.richContent.length}}" blocks="{{item.richContent}}"></article-renderer>
+      <article-body
+        blocks="{{item.richContent}}"
+        html="{{item.contentHtml}}"
+        body-format="{{item.bodyFormat}}"
+      ></article-body>
     </view>
   </view>
 
-  <view wx:elif="{{pageStatus === 'loading'}}">
-    <empty-state title="正在加载案例"></empty-state>
-  </view>
+  <content-skeleton wx:elif="{{pageStatus === 'loading'}}" variant="detail"></content-skeleton>
   <view wx:elif="{{pageStatus === 'empty'}}" bindtap="onRetry">
-    <empty-state title="{{emptyTitle || '暂无内容'}}" description="{{emptyDesc}}"></empty-state>
+    <empty-state title="{{emptyTitle || '更多内容，即将与你分享'}}" description="{{emptyDesc}}"></empty-state>
   </view>
   <view wx:else class="case-empty">
     <empty-state title="未找到该项目案例"></empty-state>

@@ -1,3 +1,5 @@
+import { rejectNonEmployeeAccess } from '../../../utils/identity-access';
+
 Page({
   data: {
     reportId: '',
@@ -5,6 +7,9 @@ Page({
   },
 
   onLoad(query: Record<string, string | undefined>) {
+    if (rejectNonEmployeeAccess('KB Insights')) {
+      return;
+    }
     const id = query.id ?? '';
     this.setData({ reportId: id });
     if (!id) {

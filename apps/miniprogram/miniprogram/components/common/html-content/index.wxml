@@ -1,4 +1,22 @@
 <view class="html-content">
-  <rich-text wx:if="{{nodes}}" nodes="{{nodes}}"></rich-text>
-  <text wx:else class="html-content__empty">暂无正文</text>
+  <block wx:for="{{parts}}" wx:key="id">
+    <rich-text wx:if="{{item.kind === 'html'}}" nodes="{{item.nodes}}"></rich-text>
+    <view wx:elif="{{item.kind === 'carousel'}}" class="html-content__carousel">
+      <swiper
+        class="html-content__swiper"
+        indicator-dots="{{item.slides.length > 1}}"
+        indicator-color="rgba(255, 255, 255, 0.45)"
+        indicator-active-color="#003B70"
+        autoplay="{{item.autoplay}}"
+        interval="{{item.interval}}"
+        circular="{{item.loop}}"
+        duration="400"
+      >
+        <swiper-item wx:for="{{item.slides}}" wx:for-item="slide" wx:key="url">
+          <image class="html-content__slide" src="{{slide.url}}" mode="aspectFit"></image>
+        </swiper-item>
+      </swiper>
+    </view>
+  </block>
+  <text wx:if="{{!parts.length}}" class="html-content__empty">暂无正文</text>
 </view>

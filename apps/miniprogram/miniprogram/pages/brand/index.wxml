@@ -3,7 +3,7 @@
 
   <empty-state wx:if="{{pageStatus === 'loading'}}" title="正在加载品牌介绍"></empty-state>
   <view wx:elif="{{pageStatus === 'empty'}}" bindtap="onRetry">
-    <empty-state title="{{emptyTitle || '暂无内容'}}" description="{{emptyDesc}}"></empty-state>
+    <empty-state title="{{emptyTitle || '更多内容，即将与你分享'}}" description="{{emptyDesc}}"></empty-state>
   </view>
   <empty-state
     wx:elif="{{pageStatus === 'empty'}}"

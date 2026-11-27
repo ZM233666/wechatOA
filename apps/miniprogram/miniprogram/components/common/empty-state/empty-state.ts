@@ -1,3 +1,5 @@
+import { CONTENT_STANDBY_TITLE } from '../../../constants/content-unavailable';
+
 Component({
   properties: {
     title: {
@@ -7,6 +9,14 @@ Component({
     description: {
       type: String,
       value: '',
+    },
+  },
+  data: {
+    standby: false,
+  },
+  observers: {
+    title(title: string) {
+      this.setData({ standby: title === CONTENT_STANDBY_TITLE });
     },
   },
 });

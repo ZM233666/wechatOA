@@ -42,7 +42,7 @@
 
   <view wx:if="{{!readerVisible && !deniedVisible}}" class="life">
     <empty-state wx:if="{{pageStatus === 'loading'}}" title="正在加载 KB Life"></empty-state>
-    <empty-state wx:elif="{{pageStatus === 'empty'}}" title="{{emptyTitle || '暂无内容'}}" description="{{emptyDesc}}"></empty-state>
+    <empty-state wx:elif="{{pageStatus === 'empty'}}" title="{{emptyTitle || '更多内容，即将与你分享'}}" description="{{emptyDesc}}"></empty-state>
     <block wx:if="{{pageStatus === 'success'}}">
     <view wx:if="{{banners.length > 0}}" class="life-banner">
       <swiper
@@ -65,6 +65,13 @@
           </view>
         </swiper-item>
       </swiper>
+    </view>
+    <view wx:else class="life-banner" bindtap="onCarePlaceholderTap">
+      <image
+        class="life-banner__image life-banner__image--placeholder"
+        src="/assets/images/kb-life/activities-in-china.png"
+        mode="aspectFill"
+      ></image>
     </view>
 
     <view class="life-body">
@@ -105,19 +112,27 @@
           </view>
 
           <view class="campus__grid">
-            <view
-              class="campus__item tap-feedback"
-              wx:for="{{campusServices}}"
-              wx:key="id"
-              data-id="{{item.id}}"
-              bindtap="onCampusTap"
-            >
-              <view class="campus__icon-wrap">
-                <image class="campus__icon" src="{{item.icon}}" mode="aspectFit"></image>
+            <block wx:for="{{campusServices}}" wx:key="id">
+              <view
+                wx:if="{{item.openable}}"
+                class="campus__item tap-feedback"
+                data-id="{{item.id}}"
+                bindtap="onCampusTap"
+              >
+                <view class="campus__icon-wrap">
+                  <image class="campus__icon" src="{{item.icon}}" mode="aspectFit"></image>
+                </view>
+                <text class="campus__item-title">{{item.title}}</text>
+                <text class="campus__item-sub">{{item.subtitle}}</text>
               </view>
-              <text class="campus__item-title">{{item.title}}</text>
-              <text class="campus__item-sub">{{item.subtitle}}</text>
-            </view>
+              <view wx:else class="campus__item campus__item--disabled">
+                <view class="campus__icon-wrap">
+                  <image class="campus__icon" src="{{item.icon}}" mode="aspectFit"></image>
+                </view>
+                <text class="campus__item-title">{{item.title}}</text>
+                <text class="campus__item-sub">{{item.subtitle}}</text>
+              </view>
+            </block>
           </view>
         </view>
       </view>
@@ -128,19 +143,27 @@
           <text class="employee__subtitle">Employee Services</text>
         </view>
         <view class="employee__grid">
-          <view
-            class="employee__item tap-feedback"
-            wx:for="{{employeeServices}}"
-            wx:key="id"
-            data-id="{{item.id}}"
-            bindtap="onEmployeeTap"
-          >
-            <view class="employee__icon-wrap">
-              <image class="employee__icon" src="{{item.icon}}" mode="aspectFit"></image>
+          <block wx:for="{{employeeServices}}" wx:key="id">
+            <view
+              wx:if="{{item.path}}"
+              class="employee__item tap-feedback"
+              data-id="{{item.id}}"
+              bindtap="onEmployeeTap"
+            >
+              <view class="employee__icon-wrap">
+                <image class="employee__icon" src="{{item.icon}}" mode="aspectFit"></image>
+              </view>
+              <text class="employee__item-title">{{item.title}}</text>
+              <text class="employee__item-sub">{{item.subtitle}}</text>
             </view>
-            <text class="employee__item-title">{{item.title}}</text>
-            <text class="employee__item-sub">{{item.subtitle}}</text>
-          </view>
+            <view wx:else class="employee__item">
+              <view class="employee__icon-wrap">
+                <image class="employee__icon" src="{{item.icon}}" mode="aspectFit"></image>
+              </view>
+              <text class="employee__item-title">{{item.title}}</text>
+              <text class="employee__item-sub">{{item.subtitle}}</text>
+            </view>
+          </block>
         </view>
       </view>
     </view>

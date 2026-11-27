@@ -1,5 +1,5 @@
 import type { ArticleContentBlock, ImageResource, PaginatedData } from '../types/content';
-import { formatDisplayDate, toAssetUrl } from '../utils/format';
+import { firstNewsCover, formatDisplayDate } from '../utils/format';
 import { API_ENDPOINTS } from './endpoints';
 import { get } from './request';
 
@@ -90,7 +90,7 @@ function mapListItem(item: NewsSummaryDto): NewsListItemView {
     title: item.title,
     summary: (item.summary || '').trim(),
     date: formatDisplayDate(item.publishedAt),
-    image: toAssetUrl(item.thumbnailImage ?? item.coverImage),
+    image: firstNewsCover(item.thumbnailImage, item.coverImage),
     category: item.category.name,
     featured: item.featured,
     pinned: item.pinned,
@@ -123,7 +123,7 @@ export async function getNewsList(query: NewsListQuery = {}): Promise<{
 
 async function fetchNewsDetail(id: string): Promise<NewsDetailView> {
   const data = await get<NewsDetailDto>(API_ENDPOINTS.newsDetail(id));
-  const cover = toAssetUrl(data.coverImage);
+  const cover = firstNewsCover(data.coverImage);
   return {
     id: data.id,
     title: data.title,
@@ -140,8 +140,16 @@ async function fetchNewsDetail(id: string): Promise<NewsDetailView> {
     bodyFormat: data.bodyFormat,
     shareTitle: data.share?.title || data.title,
     shareSummary: data.share?.summary || data.summary,
-    shareImage: data.share?.imageUrl ? toAssetUrl(data.share.imageUrl) : cover,
+    shareImage: firstNewsCover(data.share?.imageUrl, data.coverImage),
   };
+}
+
+export function peekNewsDetail(id: string): NewsDetailView | null {
+  const cached = newsDetailCache.get(id);
+  if (!cached || cached.expiresAt <= Date.now()) {
+    return null;
+  }
+  return cached.value;
 }
 
 export async function getNewsDetail(id: string): Promise<NewsDetailView> {

@@ -12,6 +12,7 @@
       "name": "services",
       "pages": [
         "my-dashboard/index",
+        "digital-cbm/index",
         "feature-intro/index",
         "insights/index",
         "insights/reader",
@@ -65,8 +66,8 @@
   ],
   "preloadRule": {
     "pages/index/index": {
-      "network": "all",
-      "packages": ["news", "brand", "products", "cases", "services", "kb-life"]
+      "network": "wifi",
+      "packages": ["news", "brand"]
     },
     "pages/services/index": {
       "network": "all",
@@ -85,6 +86,7 @@
     "backgroundColor": "#F5F7FA"
   },
   "tabBar": {
+    "custom": true,
     "color": "#8A94A3",
     "selectedColor": "#003B70",
     "backgroundColor": "#FFFFFF",

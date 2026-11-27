@@ -1,3 +1,4 @@
+<wxs src="../../utils/media-url.wxs" module="media" />
 <view class="page page--home">
   <nav-brand title="Home"></nav-brand>
   <view class="home">
@@ -7,7 +8,7 @@
       description="正在从 Mock API 获取数据"
     ></empty-state>
     <view wx:elif="{{pageStatus === 'empty'}}" bindtap="onRetry">
-      <empty-state title="{{emptyTitle || '暂无内容'}}" description="{{emptyDesc}}"></empty-state>
+      <empty-state title="{{emptyTitle || '更多内容，即将与你分享'}}" description="{{emptyDesc}}"></empty-state>
     </view>
     <empty-state
       wx:elif="{{pageStatus === 'empty'}}"
@@ -46,6 +47,7 @@
         wx:for="{{entries}}"
         wx:key="id"
         data-id="{{item.id}}"
+        bindtouchstart="onEntryTouchStart"
         bindtap="onEntryTap"
       >
         <view class="home-entry__icon-wrap">
@@ -72,9 +74,10 @@
           wx:for="{{newsList}}"
           wx:key="id"
           data-id="{{item.id}}"
+          bindtouchstart="onNewsTouchStart"
           bindtap="onNewsTap"
         >
-          <image class="home-news__thumb" src="{{item.image}}" mode="aspectFill" data-id="{{item.id}}" binderror="onNewsImageError"></image>
+          <image class="home-news__thumb" src="{{media.imageSrc(item.image, apiBaseUrl)}}" mode="aspectFill" data-id="{{item.id}}" binderror="onNewsImageError"></image>
           <view class="home-news__meta">
             <text class="home-news__title text-ellipsis-2">{{item.title}}</text>
             <text class="home-news__date">{{item.date}}</text>

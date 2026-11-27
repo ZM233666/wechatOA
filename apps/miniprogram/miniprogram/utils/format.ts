@@ -1,6 +1,8 @@
 import { getApiBaseUrl } from '../config/env';
 
 export const IMAGE_FALLBACK = '/assets/images/placeholders/placeholder.png';
+/** 新闻封面地址为空时使用的本地占位图 */
+export const NEWS_COVER_FALLBACK = '/assets/images/news/news-cover-fallback.jpg';
 
 const MONTHS = [
   'January',
@@ -38,6 +40,22 @@ function isLocalPackagePath(url: string): boolean {
 }
 
 /**
+ * 正文里的媒体地址有时写死了另一台主机。开发环境应跟当前 API 走，本地才有这些文件。
+ */
+function rebaseApiMediaUrl(url: string): string {
+  const match = /^https?:\/\/[^/?#]+(\/api\/v1\/mini\/media\/[^?#]*)(\?[^#]*)?/i.exec(url);
+  if (!match) {
+    return url;
+  }
+  const path = match[1].replace(
+    /\/api\/v1\/mini\/media\/api\/v1\/mini\/media\//i,
+    '/api/v1/mini/media/',
+  );
+  const base = getApiBaseUrl().replace(/\/+$/, '');
+  return `${base}${path}${match[2] || ''}`;
+}
+
+/**
  * 预签名 URL 的 query 已包含在签名里。额外的 v 会使 MinIO 返回 SignatureDoesNotMatch（403）。
  */
 function stripUnsignedPresignVersion(url: string): string {
@@ -51,7 +69,7 @@ function stripUnsignedPresignVersion(url: string): string {
 }
 
 export function absolutizeMediaUrl(url: string): string {
-  const trimmed = stripUnsignedPresignVersion(url.trim());
+  const trimmed = rebaseApiMediaUrl(stripUnsignedPresignVersion(url.trim()));
   if (!trimmed || /^(https?:|data:|wxfile:|cloud:)/i.test(trimmed)) {
     return trimmed;
   }
@@ -71,6 +89,19 @@ export function toAssetUrl(value: { url: string } | string | undefined): string 
   }
   const raw = typeof value === 'string' ? value : value.url;
   return absolutizeMediaUrl(raw || '');
+}
+
+/** 按顺序取第一个非空封面；全部为空时用新闻占位图 */
+export function firstNewsCover(
+  ...values: Array<{ url: string } | string | undefined | null>
+): string {
+  for (const value of values) {
+    const url = toAssetUrl(value ?? undefined);
+    if (url) {
+      return url;
+    }
+  }
+  return NEWS_COVER_FALLBACK;
 }
 
 export function fallbackImageUrl(current: string): string {

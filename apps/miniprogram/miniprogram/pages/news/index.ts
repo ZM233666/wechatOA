@@ -5,11 +5,13 @@ import {
   type NewsCategoryView,
   type NewsListItemView,
 } from '../../services/news.service';
+import { getApiBaseUrl } from '../../config/env';
 import { fallbackImageUrl } from '../../utils/format';
-import { friendlyUnavailablePageData, logPageLoadIssue } from '../../utils/friendly-page-error';
+import { friendlyUnavailablePageData, logPageLoadIssue, standbyContentFields } from '../../utils/friendly-page-error';
 
 Page({
   data: {
+    apiBaseUrl: getApiBaseUrl(),
     newsList: [] as NewsListItemView[],
     categories: [] as NewsCategoryView[],
     activeCategory: 'all',
@@ -19,6 +21,7 @@ Page({
     page: 1,
     hasNext: false,
     loadingMore: false,
+    listRefreshing: false,
     pageAlive: true,
     requesting: false,
   },
@@ -69,18 +72,31 @@ Page({
       return;
     }
     this.data.requesting = true;
+    const keepList = reset && this.data.newsList.length > 0;
     if (reset) {
       this.data.hasNext = false;
       this.data.loadingMore = false;
-      this.setData({
-        requesting: true,
-        pageStatus: 'loading',
-        errorText: '',
-        page: 1,
-        newsList: [],
-        hasNext: false,
-        loadingMore: false,
-      });
+      this.setData(
+        keepList
+          ? {
+              requesting: true,
+              listRefreshing: true,
+              errorText: '',
+              page: 1,
+              hasNext: false,
+              loadingMore: false,
+            }
+          : {
+              requesting: true,
+              listRefreshing: false,
+              pageStatus: 'loading',
+              errorText: '',
+              page: 1,
+              newsList: [],
+              hasNext: false,
+              loadingMore: false,
+            },
+      );
     } else {
       this.data.loadingMore = true;
       this.setData({ requesting: true, loadingMore: true });
@@ -105,8 +121,14 @@ Page({
         page: result.page,
         hasNext: result.hasNext,
         loadingMore: false,
+        listRefreshing: false,
         requesting: false,
         pageStatus: newsList.length === 0 ? 'empty' : 'success',
+        ...(newsList.length === 0
+          ? !this.data.keyword.trim() && this.data.activeCategory === 'all'
+            ? standbyContentFields()
+            : { emptyTitle: '暂无匹配资讯', emptyDesc: '换个分类或关键词再试试', errorText: '' }
+          : { emptyTitle: '', emptyDesc: '', errorText: '' }),
       });
       prefetchNewsDetails(result.items.slice(0, 3).map((item) => item.id));
     } catch (error) {
@@ -115,11 +137,17 @@ Page({
       }
       this.data.requesting = false;
       this.data.loadingMore = false;
+      if (keepList) {
+        this.setData({ loadingMore: false, listRefreshing: false, requesting: false });
+        wx.showToast({ title: '刷新失败，请稍后重试', icon: 'none' });
+        return;
+      }
       if (reset) {
         logPageLoadIssue('news-list', error);
       }
       this.setData({
         loadingMore: false,
+        listRefreshing: false,
         requesting: false,
         ...(reset ? friendlyUnavailablePageData() : {}),
       });
@@ -157,6 +185,14 @@ Page({
         item.id === id ? { ...item, image: fallbackImageUrl(item.image) } : item,
       ),
     });
+  },
+
+  onNewsTouchStart(event: WechatMiniprogram.TouchEvent) {
+    const { id } = event.currentTarget.dataset as { id?: string };
+    if (!id) {
+      return;
+    }
+    prefetchNewsDetails([id]);
   },
 
   onNewsTap(event: WechatMiniprogram.TouchEvent) {

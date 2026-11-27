@@ -5,7 +5,7 @@ import {
   TAB_CACHE_STALE_MS,
 } from '../constants/tab-cache';
 import type { HomeBanner, HomeData, NewsSummary, QuickEntry } from '../types/home';
-import { formatDisplayDate, toAssetUrl } from '../utils/format';
+import { firstNewsCover, formatDisplayDate, toAssetUrl } from '../utils/format';
 import { API_ENDPOINTS } from './endpoints';
 import { readPersistedSnapshot, withPersistedStaleWhileRevalidate } from './persisted-swr';
 import { get } from './request';
@@ -45,7 +45,7 @@ export async function getHome(): Promise<HomeViewData> {
         id: item.id,
         title: item.title,
         date: formatDisplayDate(item.publishedAt),
-        image: toAssetUrl(item.coverImage),
+        image: firstNewsCover(item.coverImage),
         category: item.category.name,
       })),
     };

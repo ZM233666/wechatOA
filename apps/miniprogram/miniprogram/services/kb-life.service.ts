@@ -167,6 +167,29 @@ function mapShuttleRoute(item: ShuttleDto['routes'][number]): ShuttleRoute {
   };
 }
 
+const KB_LIFE_MAIN_PACKAGE_ICONS = new Set([
+  'map.png',
+  'bus.png',
+  'cafeteria.png',
+  'calendar.png',
+  'positions.png',
+  'handbook.png',
+  'care.png',
+  'events.png',
+]);
+
+/**
+ * 入口页在主包，接口给出的图标在 kb-life 分包。
+ * 真机不允许主包页面加载分包图片，开发者工具却能显示，所以改走主包副本。
+ */
+function localizeKbLifeIcon(url: string): string {
+  const fileName = url.split('?')[0]?.split('/').pop() ?? '';
+  if (!KB_LIFE_MAIN_PACKAGE_ICONS.has(fileName)) {
+    return url;
+  }
+  return `/assets/images/kb-life/${fileName}`;
+}
+
 function mapService(
   item: { id: string; title: string; subtitle: string; icon: ImageResource; path?: string },
 ): CampusService {
@@ -176,7 +199,7 @@ function mapService(
     id: item.id,
     title,
     subtitle: item.subtitle,
-    icon: toAssetUrl(item.icon),
+    icon: localizeKbLifeIcon(toAssetUrl(item.icon)),
     path: item.path,
   };
 }
@@ -199,16 +222,31 @@ function mapLifeBanners(items: KbLifeEntriesDto['banners']): LifeBanner[] {
   }));
 }
 
+function withMainPackageIcons(view: KbLifeEntriesView): KbLifeEntriesView {
+  return {
+    ...view,
+    campusServices: view.campusServices.map((item) => ({
+      ...item,
+      icon: localizeKbLifeIcon(item.icon),
+    })),
+    employeeServices: view.employeeServices.map((item) => ({
+      ...item,
+      icon: localizeKbLifeIcon(item.icon),
+    })),
+  };
+}
+
 export function readPersistedKbLifeEntries(): KbLifeEntriesView | null {
   const location = getStoredCampusLocation();
   const key = TAB_CACHE_KEYS.kbLifeEntries(location);
-  return readPersistedSnapshot<KbLifeEntriesView>(key, TAB_CACHE_MAX_AGE_MS);
+  const snapshot = readPersistedSnapshot<KbLifeEntriesView>(key, TAB_CACHE_MAX_AGE_MS);
+  return snapshot ? withMainPackageIcons(snapshot) : null;
 }
 
 export async function getKbLifeEntries(): Promise<KbLifeEntriesView> {
   const location = getStoredCampusLocation();
   const cacheKey = TAB_CACHE_KEYS.kbLifeEntries(location);
-  return withPersistedStaleWhileRevalidate(cacheKey, TAB_CACHE_FRESH_MS, TAB_CACHE_STALE_MS, async () => {
+  const view = await withPersistedStaleWhileRevalidate(cacheKey, TAB_CACHE_FRESH_MS, TAB_CACHE_STALE_MS, async () => {
     const [scoped, shared] = await Promise.all([
       get<KbLifeEntriesDto>(API_ENDPOINTS.kbLifeEntries, { location }),
       get<KbLifeEntriesDto>(API_ENDPOINTS.kbLifeEntries),
@@ -221,6 +259,7 @@ export async function getKbLifeEntries(): Promise<KbLifeEntriesView> {
       employeeServices: scoped.employeeServices.map(mapService),
     };
   });
+  return withMainPackageIcons(view);
 }
 
 export async function getCanteen(

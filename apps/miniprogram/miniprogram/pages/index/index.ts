@@ -1,5 +1,8 @@
+import { syncCustomTabBar } from '../../utils/custom-tab-bar';
+import { getApiBaseUrl } from '../../config/env';
 import { getHome, readPersistedHomeView } from '../../services/home.service';
 import { prefetchNewsDetails } from '../../services/news.service';
+import { preDownloadSubpackage, preDownloadSubpackagesOnWifi } from '../../utils/preload';
 import type { HomeBanner, HomeData, NewsSummary, QuickEntry } from '../../types/home';
 import { fallbackImageUrl } from '../../utils/format';
 import { friendlyUnavailablePageData } from '../../utils/friendly-page-error';
@@ -11,12 +14,20 @@ const ENTRY_PATHS: Record<string, string> = {
   cases: '/pages/cases/index',
 };
 
+const ENTRY_PACKAGES: Record<string, string> = {
+  news: 'news',
+  brand: 'brand',
+  product: 'products',
+  cases: 'cases',
+};
+
 function isMiniProgramPagePath(url: string): boolean {
   return url.startsWith('/pages/') || url.startsWith('/subpackages/');
 }
 
 Page({
   data: {
+    apiBaseUrl: getApiBaseUrl(),
     newsStatus: null as HomeData['newsStatus'] | null,
     banners: [] as HomeBanner[],
     entries: [] as QuickEntry[],
@@ -49,6 +60,7 @@ Page({
   },
 
   onShow() {
+    syncCustomTabBar('home');
     if (this.data.pageStatus === 'success') {
       void this.loadHome(true);
     }
@@ -83,6 +95,7 @@ Page({
         pageStatus: empty ? 'empty' : 'success',
       });
       prefetchNewsDetails(home.newsList.slice(0, 3).map((item) => item.id));
+      preDownloadSubpackagesOnWifi(['news', 'brand']);
     } catch {
       if (!this.data.pageAlive) {
         return;
@@ -158,6 +171,14 @@ Page({
     }
   },
 
+  onEntryTouchStart(event: WechatMiniprogram.TouchEvent) {
+    const { id } = event.currentTarget.dataset as { id?: string };
+    const packageName = id ? ENTRY_PACKAGES[id] : undefined;
+    if (packageName) {
+      preDownloadSubpackage(packageName);
+    }
+  },
+
   onEntryTap(event: WechatMiniprogram.TouchEvent) {
     const { id } = event.currentTarget.dataset as { id?: string };
     const path = id ? ENTRY_PATHS[id] : undefined;
@@ -165,6 +186,14 @@ Page({
       return;
     }
     wx.navigateTo({ url: path });
+  },
+
+  onNewsTouchStart(event: WechatMiniprogram.TouchEvent) {
+    const { id } = event.currentTarget.dataset as { id?: string };
+    if (!id) {
+      return;
+    }
+    prefetchNewsDetails([id]);
   },
 
   onNewsTap(event: WechatMiniprogram.TouchEvent) {

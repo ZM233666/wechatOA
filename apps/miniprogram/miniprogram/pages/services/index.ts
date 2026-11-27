@@ -1,3 +1,4 @@
+import { syncCustomTabBar } from '../../utils/custom-tab-bar';
 import { COMING_SOON_TOAST, MY_DASHBOARD_PAGE_PATH } from '../../constants/routes';
 import {
   enrichHeroCardsOnlineStatus,
@@ -7,18 +8,19 @@ import {
   type InsightCover,
   type ServiceHeroCard,
 } from '../../services/services.service';
-import { hasStoredIdentityBinding } from '../../utils/identity-access';
+import { hasStoredIdentityBinding, isEmployeeIdentity } from '../../utils/identity-access';
 import {
   bindIdentitySessionRefresh,
   refreshIfIdentitySessionChanged,
   unbindIdentitySessionRefresh,
 } from '../../utils/identity-session-refresh';
 import { openInsightContent } from '../../utils/insights';
-import { friendlyUnavailablePageData, logPageLoadIssue } from '../../utils/friendly-page-error';
+import { friendlyUnavailablePageData, logPageLoadIssue, standbyContentFields } from '../../utils/friendly-page-error';
 import {
   openServiceFeatureIntro,
   resolveServiceHeroFeature,
 } from '../../utils/service-hero-navigation';
+import { preDownloadSubpackage } from '../../utils/preload';
 
 Page({
   data: {
@@ -38,6 +40,7 @@ Page({
   },
 
   onLoad() {
+    preDownloadSubpackage('services');
     bindIdentitySessionRefresh(this, () => {
       void this.reloadServicesForIdentity();
     });
@@ -58,6 +61,7 @@ Page({
   },
 
   onShow() {
+    syncCustomTabBar('services');
     refreshIfIdentitySessionChanged(this, () => {
       void this.reloadServicesForIdentity();
     });
@@ -96,6 +100,7 @@ Page({
         heroCards: result.heroCards,
         insightCovers: result.insightCovers,
         pageStatus: empty ? 'empty' : 'success',
+        ...(empty ? standbyContentFields() : {}),
       });
     } catch (error) {
       if (!keepContent) {
@@ -114,6 +119,7 @@ Page({
       this.setData({
         insightItems: items,
         listStatus: items.length ? 'success' : 'empty',
+        ...(items.length ? {} : standbyContentFields()),
       });
     } catch (error) {
       logPageLoadIssue('services-insights', error);
@@ -175,6 +181,10 @@ Page({
       Number.isInteger(cardIndex) && cardIndex >= 0 ? this.data.heroCards[cardIndex] : undefined;
     const feature = resolveServiceHeroFeature(heroId || card?.id, title || card?.title);
     if (feature === 'digital-cbm') {
+      if (isEmployeeIdentity()) {
+        wx.navigateTo({ url: '/subpackages/services/digital-cbm/index' });
+        return;
+      }
       openServiceFeatureIntro('digital-cbm');
       return;
     }

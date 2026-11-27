@@ -1,3 +1,4 @@
+import { syncCustomTabBar } from '../../utils/custom-tab-bar';
 import {
   getStoredIdentityBinding,
   submitIdentityBinding,
@@ -28,7 +29,6 @@ Page({
     settingView: 'main' as SettingView,
     navTitle: 'Setting',
     user: {
-      chineseName: '',
       name: '',
       titleCn: '',
       titleEn: '',
@@ -48,6 +48,7 @@ Page({
     bindVerificationCode: '',
     bindCodeSent: false,
     bindEmailError: '',
+    privacyAgreed: false,
     identityBound: false,
     boundIdentity: null as IdentityBindingRecord | null,
     boundAtDisplay: '',
@@ -56,6 +57,7 @@ Page({
   },
 
   onShow() {
+    syncCustomTabBar('profile');
     if (this.consumeOpenIdentityBindingRequest()) {
       return;
     }
@@ -94,6 +96,7 @@ Page({
       bindVerificationCode: '',
       bindCodeSent: false,
       bindEmailError: '',
+      privacyAgreed: false,
       bindSheetVisible: false,
     });
     void this.loadIdentityBindingState();
@@ -134,8 +137,21 @@ Page({
   },
 
   async loadProfile() {
-    const keepContent = this.data.pageStatus === 'success';
-    if (!keepContent) {
+    const stored = getStoredIdentityBinding();
+    let keepContent = this.data.pageStatus === 'success';
+    if (!keepContent && stored?.displayName) {
+      keepContent = true;
+      this.setData({
+        pageStatus: 'success',
+        errorText: '',
+        user: {
+          ...this.data.user,
+          name: stored.displayName,
+          titleCn: stored.roleLabel,
+          department: stored.department,
+        },
+      });
+    } else if (!keepContent) {
       this.setData({ pageStatus: 'loading', errorText: '' });
     }
     try {
@@ -149,7 +165,6 @@ Page({
         return;
       }
       this.setData({
-        pageStatus: 'empty',
         ...friendlyUnavailablePageData(),
       });
     }
@@ -171,6 +186,7 @@ Page({
   },
 
   onSettingBack() {
+    const stored = getStoredIdentityBinding();
     this.setData({
       settingView: 'main',
       navTitle: 'Setting',
@@ -178,7 +194,20 @@ Page({
       bindSheetVisible: false,
       bindCompanyEmail: '',
       bindEmailError: '',
+      privacyAgreed: false,
+      ...(stored
+        ? {
+            pageStatus: 'success' as const,
+            user: {
+              ...this.data.user,
+              name: stored.displayName || stored.companyEmail,
+              titleCn: stored.roleLabel,
+              department: stored.department,
+            },
+          }
+        : {}),
     });
+    void this.loadProfile();
   },
 
   onBasicInfoTap() {
@@ -195,6 +224,7 @@ Page({
       navTitle: '身份绑定',
       bindCompanyEmail: '',
       bindEmailError: '',
+      privacyAgreed: false,
     });
     void this.loadIdentityBindingState();
   },
@@ -208,6 +238,7 @@ Page({
       bindVerificationCode: '',
       bindCodeSent: false,
       bindEmailError: '',
+      privacyAgreed: false,
     });
   },
 
@@ -216,6 +247,14 @@ Page({
       bindSheetVisible: false,
       bindVerificationCode: '',
       bindCodeSent: false,
+      bindEmailError: '',
+      privacyAgreed: false,
+    });
+  },
+
+  onTogglePrivacyAgree() {
+    this.setData({
+      privacyAgreed: !this.data.privacyAgreed,
       bindEmailError: '',
     });
   },
@@ -237,6 +276,10 @@ Page({
   },
 
   async onSubmitBindEmail() {
+    if (!this.data.privacyAgreed) {
+      this.setData({ bindEmailError: '请先阅读并同意《用户隐私保护指引》' });
+      return;
+    }
     const email = this.data.bindCompanyEmail.trim();
     if (!email) {
       this.setData({ bindEmailError: '请输入登记邮箱' });
@@ -261,14 +304,19 @@ Page({
         bindCompanyEmail: '',
         bindVerificationCode: '',
         bindCodeSent: false,
+        pageStatus: 'success',
+        user: {
+          ...this.data.user,
+          name: record.displayName || record.companyEmail,
+          titleCn: record.roleLabel,
+          department: record.department,
+        },
       });
       wx.showToast({
         title: '绑定成功',
         icon: 'success',
       });
-      if (this.data.settingView === 'main') {
-        void this.loadProfile();
-      }
+      void this.loadProfile();
     } catch (error) {
       const codeRequired = error instanceof RequestError && error.code === 'CODE_REQUIRED';
       this.setData({

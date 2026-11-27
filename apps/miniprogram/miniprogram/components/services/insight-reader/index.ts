@@ -25,10 +25,10 @@ function getNavHeaderHeight(): number {
   return statusBarHeight + navBarHeight;
 }
 
-/** 与 app-tab-bar placeholder：100rpx + safe-area-inset-bottom 对齐 */
+/** 与 app-tab-bar placeholder：116rpx + safe-area-inset-bottom 对齐 */
 function getTabBarHeight(): number {
   const windowInfo = wx.getWindowInfo();
-  const tabBarRpx = 100;
+  const tabBarRpx = 116;
   const tabBarPx = (tabBarRpx / 750) * windowInfo.windowWidth;
   const safeBottom = Math.max(
     (windowInfo.screenHeight || windowInfo.windowHeight) -

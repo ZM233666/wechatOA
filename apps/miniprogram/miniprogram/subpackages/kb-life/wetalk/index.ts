@@ -1,12 +1,34 @@
 import { getWetalkIssues, getWetalkMagazines, type WetalkCover } from '../../../services/wetalk.service';
 import { handleIdentityAccessFailure, rejectEmployeeOnlyAccess } from '../../../utils/identity-access';
-import { friendlyUnavailablePageData, logPageLoadIssue } from '../../../utils/friendly-page-error';
+import { friendlyUnavailablePageData, logPageLoadIssue, standbyContentFields } from '../../../utils/friendly-page-error';
 
 type PageStatus = 'loading' | 'success' | 'empty' | 'error';
-type WetalkListItem = WetalkCover & { listKey: string };
+type WetalkListItem = WetalkCover & { listKey: string; issueLabel: string; displayDate: string };
+
+function formatYearMonthDay(date: string): string {
+  const match = String(date || '').match(/(20\d{2}|19\d{2})[-/.](\d{1,2})[-/.](\d{1,2})/);
+  if (!match) {
+    return date;
+  }
+  return `${match[1]}-${match[2].padStart(2, '0')}-${match[3].padStart(2, '0')}`;
+}
+
+function issueLabelFromDate(date: string): string {
+  const match = String(date || '').match(/(20\d{2}|19\d{2})[-/.](\d{1,2})/);
+  if (!match) {
+    return '';
+  }
+  const month = match[2].padStart(2, '0');
+  return `${match[1]}.${month}`;
+}
 
 function withListKey(items: WetalkCover[]): WetalkListItem[] {
-  return items.map((item) => ({ ...item, listKey: `${item.type}:${item.id}` }));
+  return items.map((item) => ({
+    ...item,
+    listKey: `${item.type}:${item.id}`,
+    issueLabel: item.type === 'emagazine' ? issueLabelFromDate(item.date) : '',
+    displayDate: formatYearMonthDay(item.date),
+  }));
 }
 
 function extractYear(date: string): number | null {
@@ -96,6 +118,7 @@ Page({
       const yearIndex = Math.min(this.data.yearIndex, Math.max(yearOptions.length - 1, 0));
       const selectedYear = yearOptions[yearIndex] || 'All';
       const displayItems = filterByYear(items, selectedYear);
+      const moduleEmpty = items.length === 0;
       this.setData({
         allItems: items,
         displayItems,
@@ -103,6 +126,11 @@ Page({
         yearIndex,
         selectedYear,
         pageStatus: displayItems.length ? 'success' : 'empty',
+        ...(displayItems.length
+          ? { emptyTitle: '', emptyDesc: '' }
+          : moduleEmpty
+            ? standbyContentFields()
+            : { emptyTitle: '当前年份没有可展示的内容', emptyDesc: '换一个年份再看看', errorText: '' }),
         shareTitle: items[0]?.title || 'WeTalk News',
         shareImage: items[0]?.image || '',
       });

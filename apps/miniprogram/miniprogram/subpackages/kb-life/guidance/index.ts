@@ -1,6 +1,6 @@
 import { getGuidanceDocuments } from '../../../services/kb-life.service';
-import { friendlyUnavailablePageData, logPageLoadIssue } from '../../../utils/friendly-page-error';
-import { isIdentityAuthError, openIdentityBindingGuide } from '../../../utils/identity-access';
+import { friendlyUnavailablePageData, logPageLoadIssue, standbyContentFields } from '../../../utils/friendly-page-error';
+import { isIdentityAuthError, openIdentityBindingGuide, rejectNonEmployeeAccess } from '../../../utils/identity-access';
 
 Page({
   data: {
@@ -22,6 +22,9 @@ Page({
   navLockTimer: 0 as number,
 
   onLoad() {
+    if (rejectNonEmployeeAccess('Guidance Documents')) {
+      return;
+    }
     void this.loadItems();
   },
 
@@ -47,9 +50,11 @@ Page({
     this.setData({ pageStatus: 'loading', errorText: '' });
     try {
       const result = await getGuidanceDocuments();
+      const empty = result.items.length === 0;
       this.setData({
         items: result.items,
-        pageStatus: 'success',
+        pageStatus: empty ? 'empty' : 'success',
+        ...(empty ? standbyContentFields() : { emptyTitle: '', emptyDesc: '' }),
       });
     } catch (error) {
       logPageLoadIssue('guidance', error);

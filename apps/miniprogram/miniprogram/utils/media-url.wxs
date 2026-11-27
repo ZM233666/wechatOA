@@ -1,7 +1,4 @@
-function imageSrc(url) {
-  if (!url) {
-    return '';
-  }
+function stripPresignVersion(url) {
   var signed = url.indexOf('X-Amz-Signature=');
   if (signed < 0) {
     return url;
@@ -16,6 +13,32 @@ function imageSrc(url) {
     return url.substring(0, start);
   }
   return url.substring(0, start) + url.substring(rest);
+}
+
+function imageSrc(url, apiBase) {
+  if (!url) {
+    return '';
+  }
+  url = stripPresignVersion(url);
+  var marker = '/api/v1/mini/media/';
+  var index = url.indexOf(marker);
+  if (index < 0 || !apiBase) {
+    return url;
+  }
+  var path = url.substring(index);
+  var hash = path.indexOf('#');
+  if (hash >= 0) {
+    path = path.substring(0, hash);
+  }
+  var doubled = '/api/v1/mini/media/api/v1/mini/media/';
+  if (path.indexOf(doubled) === 0) {
+    path = marker + path.substring(doubled.length);
+  }
+  var base = apiBase;
+  while (base.charAt(base.length - 1) === '/') {
+    base = base.substring(0, base.length - 1);
+  }
+  return base + path;
 }
 
 module.exports = {

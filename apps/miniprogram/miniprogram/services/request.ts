@@ -278,6 +278,14 @@ export function get<T>(
   return current;
 }
 
+export function peekRequestCache<T>(key: string): T | null {
+  const cached = responseCache.get(key);
+  if (!cached || cached.expiresAt <= Date.now()) {
+    return null;
+  }
+  return cached.value as T;
+}
+
 export async function withRequestCache<T>(
   key: string,
   ttlMs: number,

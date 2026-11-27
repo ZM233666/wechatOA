@@ -1,3 +1,4 @@
+/* 以下样式属于备用本地/全球关怀页（index.backup.wxml.txt），临时 web-view 不使用。 */
 page {
   background: #f5f7fa;
 }

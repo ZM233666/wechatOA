@@ -3,9 +3,9 @@
   "backgroundColor": "#FFFFFF",
   "usingComponents": {
     "nav-brand": "/components/common/nav-brand/nav-brand",
-    "article-renderer": "/components/common/article-renderer/index",
-    "html-content": "/components/common/html-content/index",
+    "article-body": "/components/common/article-body/index",
     "empty-state": "/components/common/empty-state/empty-state",
+    "content-skeleton": "/components/common/content-skeleton/index",
     "app-tab-bar": "/components/common/app-tab-bar/app-tab-bar"
   }
 }

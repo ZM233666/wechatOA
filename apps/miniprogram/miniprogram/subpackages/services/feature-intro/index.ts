@@ -7,7 +7,6 @@ import {
   refreshIfIdentitySessionChanged,
   unbindIdentitySessionRefresh,
 } from '../../../utils/identity-session-refresh';
-import { showComingSoonModal } from '../coming-soon';
 import {
   parseServiceFeatureKey,
   SERVICE_FEATURE_INTROS,
@@ -65,7 +64,12 @@ Page({
     openIdentityBindingInProfile();
   },
 
-  onComingSoon() {
-    showComingSoonModal(this.data.navTitle);
+  onViewDescription() {
+    wx.showModal({
+      title: this.data.navTitle || '功能说明',
+      content: this.data.descZh,
+      showCancel: false,
+      confirmText: '知道了',
+    });
   },
 });

@@ -11,6 +11,13 @@ page {
   padding: 24rpx 32rpx calc(32rpx + env(safe-area-inset-bottom));
 }
 
+.cases__hint {
+  text-align: center;
+  font-size: 22rpx;
+  color: #9ca3af;
+  padding: 0 0 16rpx;
+}
+
 .cases__heading {
   display: block;
   font-size: 36rpx;

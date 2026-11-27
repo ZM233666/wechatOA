@@ -1,7 +1,7 @@
 import { getInsightReports, type InsightCover } from '../../../services/services.service';
 import { openInsightContent } from '../../../utils/insights';
-import { handleIdentityAccessFailure } from '../../../utils/identity-access';
-import { friendlyUnavailablePageData, logPageLoadIssue } from '../../../utils/friendly-page-error';
+import { handleIdentityAccessFailure, rejectNonEmployeeAccess } from '../../../utils/identity-access';
+import { friendlyUnavailablePageData, logPageLoadIssue, standbyContentFields } from '../../../utils/friendly-page-error';
 
 Page({
   data: {
@@ -14,6 +14,9 @@ Page({
   },
 
   onLoad() {
+    if (rejectNonEmployeeAccess('KB Insights')) {
+      return;
+    }
     void this.loadInsights();
   },
 
@@ -31,6 +34,7 @@ Page({
       this.setData({
         items,
         pageStatus: items.length ? 'success' : 'empty',
+        ...(items.length ? { emptyTitle: '', emptyDesc: '' } : standbyContentFields()),
       });
     } catch (error) {
       logPageLoadIssue('insights', error);

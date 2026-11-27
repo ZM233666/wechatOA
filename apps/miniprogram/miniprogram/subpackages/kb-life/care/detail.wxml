@@ -3,7 +3,7 @@
 
   <empty-state wx:if="{{pageStatus === 'loading'}}" title="正在加载文章"></empty-state>
   <view wx:elif="{{pageStatus === 'empty'}}" bindtap="onRetry">
-    <empty-state title="{{emptyTitle || '暂无内容'}}" description="{{emptyDesc}}"></empty-state>
+    <empty-state title="{{emptyTitle || '更多内容，即将与你分享'}}" description="{{emptyDesc}}"></empty-state>
   </view>
   <empty-state wx:elif="{{pageStatus === 'empty'}}" title="未找到该文章"></empty-state>
 
@@ -18,23 +18,12 @@
       <text class="care-detail__badge">{{article.category}}</text>
       <text class="care-detail__title">{{article.title}}</text>
       <text class="care-detail__meta">{{article.dateLabel}}</text>
-      <article-renderer
-        wx:if="{{useBlockBody}}"
+      <article-body
         class="care-detail__html"
         blocks="{{article.richContent}}"
-        carousel-preview="{{false}}"
-      ></article-renderer>
-      <html-content
-        wx:elif="{{article.contentHtml}}"
-        class="care-detail__html"
         html="{{article.contentHtml}}"
-      ></html-content>
-      <article-renderer
-        wx:else
-        class="care-detail__html"
-        blocks="{{article.richContent}}"
-        carousel-preview="{{false}}"
-      ></article-renderer>
+        body-format="{{article.bodyFormat}}"
+      ></article-body>
     </view>
   </view>
 

@@ -4,6 +4,7 @@ import {
   type HighlightMomentsView,
 } from '../../../../services/kb-life.service';
 import { logPageLoadIssue } from '../../../../utils/friendly-page-error';
+import { rejectNonEmployeeAccess } from '../../../../utils/identity-access';
 
 function stripPresignedVersion(url: string): string {
   if (!url || url.indexOf('X-Amz-Signature=') < 0) {
@@ -39,6 +40,9 @@ Page({
   skipShowRefresh: true,
 
   onLoad() {
+    if (rejectNonEmployeeAccess('Highlights')) {
+      return;
+    }
     void this.loadAlbums();
   },
 

@@ -1,12 +1,17 @@
-import { COMING_SOON_TOAST } from '../../constants/routes';
+import { syncCustomTabBar } from '../../utils/custom-tab-bar';
 import {
+  getCampusMap,
+  getCanteen,
+  getHolidayCalendar,
   getKbLifeEntries,
+  getShuttle,
   getWetalkFeatured,
   readPersistedKbLifeEntries,
   type CampusService,
   type LifeBanner,
   type WetalkCover,
 } from '../../services/kb-life.service';
+import { RequestError } from '../../types/api';
 import { readPersistedWetalkFeatured } from '../../services/wetalk.service';
 import {
   getStoredCampusLocation,
@@ -34,8 +39,37 @@ import {
   friendlyUnavailablePageData,
   logPageLoadIssue,
 } from '../../utils/friendly-page-error';
+import { preDownloadSubpackage } from '../../utils/preload';
 
 const KB_LIFE_REFRESH_INTERVAL_MS = 60_000;
+const LOCATION_CAMPUS_IDS = new Set(['campus-map', 'shuttle-bus', 'cafeteria', 'holiday']);
+
+type CampusServiceItem = CampusService & { openable: boolean };
+
+function withCampusOpenable(
+  services: CampusService[],
+  availability: Record<string, boolean> | null,
+  checking: boolean,
+): CampusServiceItem[] {
+  const visitor = shouldBlockCampusServicesForVisitor();
+  return services.map((item) => {
+    const scoped = LOCATION_CAMPUS_IDS.has(item.id);
+    const openable =
+      Boolean(item.path) && (visitor || !scoped || (!checking && availability?.[item.id] === true));
+    return { ...item, openable };
+  });
+}
+
+async function locationHasContent(load: () => Promise<boolean>): Promise<boolean> {
+  try {
+    return await load();
+  } catch (error) {
+    if (error instanceof RequestError && (error.statusCode === 404 || error.statusCode === 400)) {
+      return false;
+    }
+    return true;
+  }
+}
 /** 与 WeTalk 二级页 Magazine 卡片封面一致 */
 const WETALK_MAGAZINE_COVER = '/subpackages/kb-life/assets/images/wetalk-coverpage.png';
 
@@ -45,7 +79,7 @@ Page({
     locations: [] as string[],
     locationIndex: 0,
     selectedLocation: '',
-    campusServices: [] as CampusService[],
+    campusServices: [] as CampusServiceItem[],
     employeeServices: [] as CampusService[],
     pageStatus: 'loading' as 'loading' | 'success' | 'empty',
     emptyTitle: CONTENT_UNAVAILABLE_TITLE,
@@ -67,6 +101,7 @@ Page({
   },
 
   onLoad() {
+    preDownloadSubpackage('kb-life');
     bindIdentitySessionRefresh(this, () => {
       void this.loadEntries();
     });
@@ -81,7 +116,7 @@ Page({
         locations: persisted.locations,
         locationIndex,
         selectedLocation,
-        campusServices: persisted.campusServices,
+        campusServices: withCampusOpenable(persisted.campusServices, null, true),
         employeeServices: persisted.employeeServices,
         pageStatus: 'success',
         wetalkFeatured,
@@ -98,6 +133,7 @@ Page({
   },
 
   onShow() {
+    syncCustomTabBar('kbLife');
     this.setData({ identityBound: hasStoredIdentityBinding() });
     const identityChanged = refreshIfIdentitySessionChanged(this, () => {
       void this.loadEntries();
@@ -148,14 +184,15 @@ Page({
       setStoredCampusLocation(selectedLocation, result.locations);
       (this as unknown as { _lastEntriesLoadedAt?: number })._lastEntriesLoadedAt = Date.now();
       this.setData({
-        banners: result.banners.length ? result.banners : this.data.banners,
+        banners: result.banners,
         locations: result.locations,
         locationIndex,
         selectedLocation,
-        campusServices: result.campusServices,
+        campusServices: withCampusOpenable(result.campusServices, null, true),
         employeeServices: result.employeeServices,
         pageStatus: 'success',
       });
+      void this.refreshCampusAvailability(selectedLocation, result.campusServices);
     } catch (error) {
       if (keepContent) {
         return;
@@ -223,8 +260,53 @@ Page({
     }
   },
 
+  async refreshCampusAvailability(location: string, services: CampusService[]) {
+    const seq = ((this as unknown as { _campusAvailabilitySeq?: number })._campusAvailabilitySeq ?? 0) + 1;
+    (this as unknown as { _campusAvailabilitySeq?: number })._campusAvailabilitySeq = seq;
+    if (shouldBlockCampusServicesForVisitor()) {
+      this.setData({ campusServices: withCampusOpenable(services, null, false) });
+      return;
+    }
+    const [campusMap, shuttle, canteen, holiday] = await Promise.all([
+      locationHasContent(async () => {
+        const result = await getCampusMap(location);
+        return result.pages.length > 0 || Boolean(result.image);
+      }),
+      locationHasContent(async () => {
+        const result = await getShuttle(location);
+        return result.routes.length > 0 || (result.map?.routes.length ?? 0) > 0;
+      }),
+      locationHasContent(async () => {
+        const result = await getCanteen(location);
+        return result.sections.length > 0;
+      }),
+      locationHasContent(async () => {
+        await getHolidayCalendar(location);
+        return true;
+      }),
+    ]);
+    if ((this as unknown as { _campusAvailabilitySeq?: number })._campusAvailabilitySeq !== seq) {
+      return;
+    }
+    if (this.data.selectedLocation !== location) {
+      return;
+    }
+    this.setData({
+      campusServices: withCampusOpenable(services, {
+        'campus-map': campusMap,
+        'shuttle-bus': shuttle,
+        cafeteria: canteen,
+        holiday,
+      }, false),
+    });
+  },
+
   onCampusTap(event: WechatMiniprogram.TouchEvent) {
     const { id } = event.currentTarget.dataset as { id?: string };
+    const target = this.data.campusServices.find((item) => item.id === id);
+    if (!target?.openable) {
+      return;
+    }
     if (isVisitorRestrictedCampusService(id) && shouldBlockCampusServicesForVisitor()) {
       const titles: Record<string, string> = {
         'campus-map': 'Campus Map',
@@ -239,14 +321,12 @@ Page({
       void this.openCampusMapReader();
       return;
     }
-    const target = this.data.campusServices.find((item) => item.id === id);
-    if (target?.path) {
-      wx.navigateTo({
-        url: withCampusLocationQuery(target.path, this.data.selectedLocation),
-      });
+    if (!target.path) {
       return;
     }
-    this.onComingSoon();
+    wx.navigateTo({
+      url: withCampusLocationQuery(target.path, this.data.selectedLocation),
+    });
   },
 
   /** 先展示阅读器加载态，由阅读器统一获取地图，避免点击前阻塞和重复请求。 */
@@ -267,6 +347,14 @@ Page({
     });
   },
 
+  onCarePlaceholderTap() {
+    if (shouldBlockCampusServicesForVisitor()) {
+      openAccessDeniedPage({ kind: 'unbound', title: 'Employee Care', mode: 'navigate' });
+      return;
+    }
+    wx.navigateTo({ url: '/subpackages/kb-life/care/index' });
+  },
+
   onEmployeeTap(event: WechatMiniprogram.TouchEvent) {
     const { id } = event.currentTarget.dataset as { id?: string };
     if (id === 'care' && shouldBlockCampusServicesForVisitor()) {
@@ -274,11 +362,10 @@ Page({
       return;
     }
     const target = this.data.employeeServices.find((item) => item.id === id);
-    if (target?.path) {
-      wx.navigateTo({ url: target.path });
+    if (!target?.path) {
       return;
     }
-    this.onComingSoon();
+    wx.navigateTo({ url: target.path });
   },
 
   onWetalkTap() {
@@ -311,10 +398,4 @@ Page({
     });
   },
 
-  onComingSoon() {
-    wx.showToast({
-      title: COMING_SOON_TOAST,
-      icon: 'none',
-    });
-  },
 });

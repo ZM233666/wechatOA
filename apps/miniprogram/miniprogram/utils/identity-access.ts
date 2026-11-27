@@ -23,6 +23,7 @@ function isEmployeeRoleLabel(label: string): boolean {
   if (
     role === 'employee' ||
     role === 'internal' ||
+    role === 'internal employee' ||
     role === 'staff' ||
     role === 'kb-employee' ||
     role === 'kb_employee' ||
@@ -46,7 +47,7 @@ export function resolveIdentityAccessTier(
   if (isEmployeeRoleLabel(role)) {
     return 'employee';
   }
-  if (role === 'customer' || role === '客户' || role.includes('customer')) {
+  if (role === 'customer' || role === 'external' || role === '客户' || role.includes('customer')) {
     return 'customer';
   }
   return 'visitor';
@@ -82,12 +83,12 @@ export function isEmployeeIdentity(): boolean {
   return getIdentityAccessTier() === 'employee';
 }
 
-/** 园区地图 / 班车 / 食堂 / 假期日历：仅已绑定身份（员工或客户）可访问；内部员工始终可访问 */
+/** 园区地图 / 班车 / 食堂 / 假期日历：仅内部员工可访问 */
 export function shouldBlockCampusServicesForUnbound(): boolean {
   if (isIdentityGuardBypassEnabled() || isEmployeeIdentity()) {
     return false;
   }
-  return !isIdentityBound();
+  return true;
 }
 
 /** WeTalk：仅 Employee 身份可访问；内部员工始终可访问 */
@@ -98,17 +99,20 @@ export function shouldBlockWetalkForNonEmployee(): boolean {
   return true;
 }
 
-/** 指导文件（列表 / 员工手册 / 财务指导手册）：访客与所有身份均可访问 */
+/** 指导文件（列表 / 员工手册 / 财务指导手册）：仅内部员工可访问 */
 export function shouldBlockGuidanceDocumentsForNonEmployee(): boolean {
-  return false;
-}
-
-/** KB Insights（gating）：未绑定身份不可访问；内部员工始终可访问 */
-export function shouldBlockGatedInsightForUnbound(gating = false): boolean {
   if (isIdentityGuardBypassEnabled() || isEmployeeIdentity()) {
     return false;
   }
-  return gating && !isIdentityBound();
+  return true;
+}
+
+/** Services 内的洞察与功能页：仅内部员工可访问 */
+export function shouldBlockGatedInsightForUnbound(_gating = false): boolean {
+  if (isIdentityGuardBypassEnabled() || isEmployeeIdentity()) {
+    return false;
+  }
+  return true;
 }
 
 /** Setting Tab 打开「身份绑定」视图的一次性标记 */
@@ -164,12 +168,25 @@ export function openIdentityBindingInProfile(): void {
   wx.switchTab({ url: '/pages/profile/index' });
 }
 
-/** My Dashboard、园区服务等：未绑定身份不可访问；内部员工始终可访问 */
+/** Services、园区服务等：仅内部员工可访问 */
 export function shouldBlockMyDashboardForUnbound(): boolean {
   if (isIdentityGuardBypassEnabled() || isEmployeeIdentity()) {
     return false;
   }
-  return !isIdentityBound();
+  return true;
+}
+
+function nonEmployeeDeniedKind(): AccessDeniedKind {
+  return hasStoredIdentityBinding() ? 'employee' : 'unbound';
+}
+
+/** 非内部员工拦截。未绑定引导去绑定，已绑定只说明无权限。 */
+export function rejectNonEmployeeAccess(title = ''): boolean {
+  if (isIdentityGuardBypassEnabled() || isEmployeeIdentity()) {
+    return false;
+  }
+  openAccessDeniedPage({ kind: nonEmployeeDeniedKind(), title });
+  return true;
 }
 
 /** 独立子页入口拦截（My Dashboard / Employee Care 等） */
@@ -177,18 +194,14 @@ export function rejectUnboundIdentityAccess(
   _fallbackTab = '/pages/services/index',
   title = '',
 ): boolean {
-  if (!shouldBlockMyDashboardForUnbound()) {
-    return false;
-  }
-  openAccessDeniedPage({ kind: 'unbound', title });
-  return true;
+  return rejectNonEmployeeAccess(title);
 }
 
 function rejectWhenEmployeeGated(shouldBlock: () => boolean, title = ''): boolean {
   if (!shouldBlock()) {
     return false;
   }
-  openAccessDeniedPage({ kind: 'employee', title });
+  openAccessDeniedPage({ kind: nonEmployeeDeniedKind(), title });
   return true;
 }
 

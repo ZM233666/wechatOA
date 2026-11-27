@@ -26,10 +26,10 @@
 
       <view wx:else class="intro__bound">
         <text class="intro__bound-title">您已完成身份绑定</text>
-        <text class="intro__bound-desc">完整业务功能将在下一阶段开放，敬请期待。</text>
-        <text class="intro__bound-desc-en">Full capabilities will be available in an upcoming release.</text>
-        <view class="intro__btn intro__btn--ghost tap-feedback" bindtap="onComingSoon">
-          <text class="intro__btn-text intro__btn-text--ghost">了解后续规划</text>
+        <text class="intro__bound-desc">可在本页查阅该能力的功能介绍，了解它解决的问题与适用场景。</text>
+        <text class="intro__bound-desc-en">Your enterprise identity is linked. This page introduces the capability, the problems it addresses, and where it applies.</text>
+        <view class="intro__btn intro__btn--ghost tap-feedback" bindtap="onViewDescription">
+          <text class="intro__btn-text intro__btn-text--ghost">查看功能说明</text>
         </view>
       </view>
     </view>

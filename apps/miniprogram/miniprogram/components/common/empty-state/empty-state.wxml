@@ -1,4 +1,15 @@
-<view class="empty-state">
+<view wx:if="{{standby}}" class="standby">
+  <view class="standby__mark">
+    <view class="standby__arc"></view>
+    <view class="standby__core">
+      <view class="standby__line"></view>
+      <view class="standby__line standby__line--short"></view>
+    </view>
+  </view>
+  <text class="standby__title">更多内容，即将与你分享</text>
+  <text class="standby__desc">More to share with you soon</text>
+</view>
+<view wx:else class="empty-state">
   <view class="empty-state__icon"></view>
   <text class="empty-state__title">{{title}}</text>
   <text wx:if="{{description}}" class="empty-state__desc">{{description}}</text>

@@ -2,6 +2,7 @@ import type { ImageResource } from '../types/content';
 import { getApiEnvironment } from '../config/env';
 import { toAssetUrl } from '../utils/format';
 import { API_ENDPOINTS } from './endpoints';
+import { getStoredIdentityBinding } from './identity-binding.service';
 import { ensureMiniSession, getSessionLoginCode } from './identity-login.service';
 import { get, withRequestCache } from './request';
 import {
@@ -11,7 +12,6 @@ import {
 } from './wechat-user.service';
 
 export interface ProfileUser {
-  chineseName: string;
   name: string;
   titleCn: string;
   titleEn: string;
@@ -58,7 +58,6 @@ interface MiniSessionProfileDto {
 }
 
 const emptyUser: ProfileUser = {
-  chineseName: '访客',
   name: 'Guest',
   titleCn: '未登录',
   titleEn: 'Guest',
@@ -76,7 +75,6 @@ function mapProfile(data: ProfileDto): {
     isLoggedIn: data.isLoggedIn,
     user: data.user
       ? {
-          chineseName: data.user.chineseName,
           name: data.user.name,
           titleCn: data.user.titleCn,
           titleEn: data.user.titleEn,
@@ -107,6 +105,21 @@ export async function getProfile() {
   if (getApiEnvironment().dataSource === 'real-server') {
     const authenticated = await ensureMiniSession();
     if (!authenticated) {
+      const stored = getStoredIdentityBinding();
+      if (stored?.displayName || stored?.companyEmail) {
+        return {
+          user: {
+            ...emptyUser,
+            name: stored.displayName || stored.companyEmail,
+            titleCn: stored.roleLabel,
+            department: stored.department,
+            role: '',
+            avatar: pickUserDisplayAvatar('', getWeChatAvatarFromStorage()),
+          },
+          fields: [],
+          isLoggedIn: true,
+        };
+      }
       return {
         user: {
           ...emptyUser,
@@ -116,16 +129,15 @@ export async function getProfile() {
         isLoggedIn: false,
       };
     }
-    return withRequestCache('profile:mini-session', 60_000, async () => {
+    return withRequestCache('profile:mini-session:role-label', 60_000, async () => {
       const data = await get<MiniSessionProfileDto>(API_ENDPOINTS.miniappSessionMe);
       const department = data.department || data.company?.name || '';
       return {
         isLoggedIn: true,
         user: {
-          chineseName: data.displayName,
           name: data.displayName,
-          titleCn: data.roleLabel || data.identityType,
-          titleEn: data.identityType,
+          titleCn: data.roleLabel || '',
+          titleEn: '',
           department,
           role: data.identityType,
           avatar: pickUserDisplayAvatar('', getWeChatAvatarFromStorage()),

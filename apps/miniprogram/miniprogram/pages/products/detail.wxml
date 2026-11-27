@@ -5,6 +5,11 @@
     <text wx:if="{{category.title}}" class="product-detail__title">{{category.title}}</text>
     <image wx:if="{{category.image}}" class="product-detail__cover" src="{{category.image}}" mode="aspectFill" binderror="onCoverImageError"></image>
     <text wx:if="{{category.desc}}" class="product-detail__desc">{{category.desc}}</text>
+    <article-body
+      blocks="{{category.richContent}}"
+      html="{{category.contentHtml}}"
+      body-format="{{category.bodyFormat}}"
+    ></article-body>
 
     <text class="product-detail__section">Core Products</text>
     <view class="core-item" wx:for="{{category.products}}" wx:key="name">
@@ -20,11 +25,9 @@
     </view>
   </view>
 
-  <view wx:elif="{{pageStatus === 'loading'}}">
-    <empty-state title="正在加载产品"></empty-state>
-  </view>
+  <content-skeleton wx:elif="{{pageStatus === 'loading'}}" variant="detail"></content-skeleton>
   <view wx:elif="{{pageStatus === 'empty'}}" bindtap="onRetry">
-    <empty-state title="{{emptyTitle || '暂无内容'}}" description="{{emptyDesc}}"></empty-state>
+    <empty-state title="{{emptyTitle || '更多内容，即将与你分享'}}" description="{{emptyDesc}}"></empty-state>
   </view>
   <view wx:else class="product-empty">
     <empty-state title="未找到该产品分类"></empty-state>

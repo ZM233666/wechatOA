@@ -1,0 +1,7 @@
+{
+  "component": true,
+  "usingComponents": {
+    "article-renderer": "/components/common/article-renderer/index",
+    "html-content": "/components/common/html-content/index"
+  }
+}

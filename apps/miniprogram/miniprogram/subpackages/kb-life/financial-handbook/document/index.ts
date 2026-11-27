@@ -3,7 +3,7 @@ import {
   type FinancialGuidanceSectionId,
 } from '../../../../services/kb-life.service';
 import { friendlyUnavailablePageData, logPageLoadIssue } from '../../../../utils/friendly-page-error';
-import { isIdentityAuthError, openIdentityBindingGuide } from '../../../../utils/identity-access';
+import { isIdentityAuthError, openIdentityBindingGuide, rejectNonEmployeeAccess } from '../../../../utils/identity-access';
 
 const NAV_TITLE: Record<FinancialGuidanceSectionId, string> = {
   notes: 'Fin Notes',
@@ -28,6 +28,9 @@ Page({
   },
 
   onLoad(query: Record<string, string | undefined>) {
+    if (rejectNonEmployeeAccess('Financial Handbook')) {
+      return;
+    }
     const section = query.section;
     if (section !== 'notes' && section !== 'manual') {
       this.setData(friendlyUnavailablePageData({ title: '暂无文档' }));

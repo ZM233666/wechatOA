@@ -1,12 +1,13 @@
-import { getCases, type ProjectCaseView } from './cases.service';
+import { getCases, prefetchCaseDetail, type ProjectCaseView } from './cases.service';
 import { fallbackImageUrl } from '../../utils/format';
-import { friendlyUnavailablePageData, logPageLoadIssue } from '../../utils/friendly-page-error';
+import { friendlyUnavailablePageData, logPageLoadIssue, standbyContentFields } from '../../utils/friendly-page-error';
 
 Page({
   data: {
     cases: [] as ProjectCaseView[],
     pageStatus: 'loading' as 'loading' | 'success' | 'empty' | 'error',
     errorText: '',
+    listRefreshing: false,
     pageAlive: true,
     requesting: false,
   },
@@ -25,7 +26,12 @@ Page({
       return;
     }
     this.data.requesting = true;
-    this.setData({ requesting: true, pageStatus: 'loading', errorText: '' });
+    const keepList = this.data.cases.length > 0;
+    this.setData(
+      keepList
+        ? { requesting: true, listRefreshing: true, errorText: '' }
+        : { requesting: true, listRefreshing: false, pageStatus: 'loading', errorText: '' },
+    );
     try {
       const cases = await getCases();
       if (!this.data.pageAlive) {
@@ -35,16 +41,24 @@ Page({
       this.setData({
         cases,
         requesting: false,
+        listRefreshing: false,
         pageStatus: cases.length === 0 ? 'empty' : 'success',
+        ...(cases.length === 0 ? standbyContentFields() : { emptyTitle: '', emptyDesc: '' }),
       });
     } catch (error) {
       if (!this.data.pageAlive) {
         return;
       }
       this.data.requesting = false;
+      logPageLoadIssue('cases', error);
+      if (keepList) {
+        this.setData({ requesting: false, listRefreshing: false });
+        wx.showToast({ title: '刷新失败，请稍后重试', icon: 'none' });
+        return;
+      }
       this.setData({
         requesting: false,
-        pageStatus: 'empty',
+        listRefreshing: false,
         ...friendlyUnavailablePageData(),
       });
     }
@@ -66,11 +80,20 @@ Page({
     });
   },
 
+  onCaseTouchStart(event: WechatMiniprogram.TouchEvent) {
+    const { id } = event.currentTarget.dataset as { id?: string };
+    if (!id) {
+      return;
+    }
+    prefetchCaseDetail(id);
+  },
+
   onCaseTap(event: WechatMiniprogram.TouchEvent) {
     const { id } = event.currentTarget.dataset as { id?: string };
     if (!id) {
       return;
     }
+    prefetchCaseDetail(id);
     wx.navigateTo({
       url: `/pages/cases/detail?id=${id}`,
     });

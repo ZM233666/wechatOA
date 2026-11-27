@@ -2,8 +2,8 @@ import {
   getFinancialGuidanceHandbook,
   type FinancialGuidanceSectionView,
 } from '../../../services/kb-life.service';
-import { friendlyUnavailablePageData, logPageLoadIssue } from '../../../utils/friendly-page-error';
-import { isIdentityAuthError, openIdentityBindingGuide } from '../../../utils/identity-access';
+import { friendlyUnavailablePageData, logPageLoadIssue, standbyContentFields } from '../../../utils/friendly-page-error';
+import { isIdentityAuthError, openIdentityBindingGuide, rejectNonEmployeeAccess } from '../../../utils/identity-access';
 
 Page({
   data: {
@@ -12,7 +12,7 @@ Page({
     introCn: '',
     introEn: '',
     sections: [] as FinancialGuidanceSectionView[],
-    pageStatus: 'loading' as 'loading' | 'success' | 'error',
+    pageStatus: 'loading' as 'loading' | 'success' | 'empty' | 'error',
     errorText: '',
   },
 
@@ -20,6 +20,9 @@ Page({
   navLockTimer: 0 as number,
 
   onLoad() {
+    if (rejectNonEmployeeAccess('Financial Handbook')) {
+      return;
+    }
     void this.loadHandbook();
   },
 
@@ -45,13 +48,18 @@ Page({
     this.setData({ pageStatus: 'loading', errorText: '' });
     try {
       const result = await getFinancialGuidanceHandbook();
+      const empty =
+        !(result.introCn || '').trim() &&
+        !(result.introEn || '').trim() &&
+        result.sections.length === 0;
       this.setData({
         title: result.title,
         edition: result.edition,
         introCn: result.introCn,
         introEn: result.introEn,
         sections: result.sections,
-        pageStatus: 'success',
+        pageStatus: empty ? 'empty' : 'success',
+        ...(empty ? standbyContentFields() : {}),
       });
     } catch (error) {
       logPageLoadIssue('financial-handbook', error);

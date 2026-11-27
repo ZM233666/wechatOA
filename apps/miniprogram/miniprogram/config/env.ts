@@ -20,25 +20,26 @@ export interface ApiEnvironmentConfig {
  * 真机调试请在开发者工具中把 apiBaseUrl 临时改为电脑局域网 IP，
  * 例如 http://192.168.x.x:3100，不要把某台机器的固定 IP 提交进仓库。
  *
- * develop 直接连接本地 Django；trial/release 配置正式 HTTPS API。
+ * 开发者工具的 develop 与 trial/release 都连接已部署的后端。
+ * 需要再连本机 Django 时，把 develop.apiBaseUrl 改回 http://127.0.0.1:8000。
  */
 const API_ENV_MAP: Record<MiniProgramEnvVersion, ApiEnvironmentConfig> = {
   develop: {
-    apiBaseUrl: 'http://127.0.0.1:8000',
+    apiBaseUrl: 'https://ljvbmpvvaakh.sealosgzg.site',
     miniApiPathPrefix: '/api/v1/mini',
     timeout: 15000,
     enableDebugLog: true,
     dataSource: 'real-server',
   },
   trial: {
-    apiBaseUrl: 'https://api-trial.example.com',
+    apiBaseUrl: 'https://ljvbmpvvaakh.sealosgzg.site',
     miniApiPathPrefix: '/api/v1/mini',
     timeout: 15000,
     enableDebugLog: false,
     dataSource: 'real-server',
   },
   release: {
-    apiBaseUrl: 'https://api.example.com',
+    apiBaseUrl: 'https://ljvbmpvvaakh.sealosgzg.site',
     miniApiPathPrefix: '/api/v1/mini',
     timeout: 15000,
     enableDebugLog: false,

@@ -60,9 +60,9 @@ miniprogram/config/env.ts
 
 | 环境 | 默认地址 |
 | --- | --- |
-| `develop` | `http://127.0.0.1:3100`（Mock API Server） |
-| `trial` | `https://api-trial.example.com`（TODO 占位） |
-| `release` | `https://api.example.com`（TODO 占位） |
+| `develop` | `http://127.0.0.1:8000`（本地 Django Mini API） |
+| `trial` | `https://ljvbmpvvaakh.sealosgzg.site` |
+| `release` | `https://ljvbmpvvaakh.sealosgzg.site` |
 
 所有 API 地址集中在此文件配置，不要散落在页面代码中。
 

@@ -2,6 +2,16 @@ import type { ArticleContentBlock } from '../../types/content';
 
 const NATIVE_BLOCK_TYPES = new Set(['carousel', 'video']);
 
+/** CMS 动图仍留在 HTML 里时，必须走 html-content，不能改用只有文字的 blocks。 */
+export function contentHtmlHasAnimatedGallery(html?: string): boolean {
+  if (!html) {
+    return false;
+  }
+  return /\baa-svg-gallery\b|data-aa-svg-gallery\s*=|\b(?:kb-carousel|kb-media-carousel|wx-svg-carousel)\b|data-kb-block\s*=\s*(['"])(?:carousel|svg-carousel|media-carousel)\1/i.test(
+    html,
+  );
+}
+
 export function isPlaceholderArticleHtml(html?: string): boolean {
   if (!html?.trim()) {
     return true;
@@ -16,6 +26,9 @@ export function shouldRenderArticleAsBlocks(
   blocks: ArticleContentBlock[] | undefined,
   contentHtml?: string,
 ): boolean {
+  if (contentHtmlHasAnimatedGallery(contentHtml)) {
+    return false;
+  }
   if (bodyFormat === 'blocks') {
     return true;
   }

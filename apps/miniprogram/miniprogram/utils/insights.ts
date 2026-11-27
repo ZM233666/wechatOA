@@ -1,4 +1,4 @@
-import { openAccessDeniedPage, shouldBlockGatedInsightForUnbound } from './identity-access';
+import { openAccessDeniedPage, shouldBlockGatedInsightForUnbound, hasStoredIdentityBinding } from './identity-access';
 
 export function shouldBlockInsightForVisitor(gating = false): boolean {
   return shouldBlockGatedInsightForUnbound(gating);
@@ -6,7 +6,11 @@ export function shouldBlockInsightForVisitor(gating = false): boolean {
 
 /** 打开独立权限页；未绑定 + gating 使用 */
 export function openInsightAccessDenied(_id: string): void {
-  openAccessDeniedPage({ kind: 'unbound', title: 'KB Insights', mode: 'navigate' });
+  openAccessDeniedPage({
+    kind: hasStoredIdentityBinding() ? 'employee' : 'unbound',
+    title: 'KB Insights',
+    mode: 'navigate',
+  });
 }
 
 /**

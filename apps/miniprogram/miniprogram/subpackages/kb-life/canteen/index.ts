@@ -1,6 +1,6 @@
 import { getCanteen, type CanteenSection } from '../../../services/kb-life.service';
 import { KB_LIFE_NO_CONTENT_DESC, KB_LIFE_NO_CONTENT_TITLE } from '../../../constants/kb-life-empty';
-import { friendlyUnavailablePageData, logPageLoadIssue } from '../../../utils/friendly-page-error';
+import { friendlyUnavailablePageData, logPageLoadIssue, standbyContentFields } from '../../../utils/friendly-page-error';
 import { resolveCampusLocation } from '../../../utils/campus-location';
 import { handleIdentityAccessFailure } from '../../../utils/identity-access';
 import { rejectVisitorCampusAccess } from '../../../utils/kb-life-access';
@@ -44,6 +44,7 @@ Page({
         coverImage: result.coverImage,
         sections: result.sections,
         pageStatus: hasMenu ? 'success' : 'empty',
+        ...(hasMenu ? {} : standbyContentFields()),
       });
     } catch (error) {
       logPageLoadIssue('canteen', error);

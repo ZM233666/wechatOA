@@ -7,7 +7,7 @@ page {
 }
 
 .home {
-  padding-bottom: 8rpx;
+  padding-bottom: calc(116rpx + env(safe-area-inset-bottom));
 }
 
 .home-banner {

@@ -10,7 +10,7 @@ page {
 .profile,
 .basic-info,
 .identity-binding {
-  padding: var(--kb-tab-page-padding-y) 24rpx calc(32rpx + env(safe-area-inset-bottom));
+  padding: var(--kb-tab-page-padding-y) 24rpx calc(32rpx + 116rpx + env(safe-area-inset-bottom));
 }
 
 .profile-hero {
@@ -246,9 +246,65 @@ page {
 .bind-panel__subtitle {
   display: block;
   margin-top: 8rpx;
-  margin-bottom: 24rpx;
   font-size: 22rpx;
   color: #6b7280;
+  line-height: 1.45;
+}
+
+.privacy-notice {
+  margin-top: 20rpx;
+  margin-bottom: 16rpx;
+  padding: 20rpx 24rpx;
+  background: #f4f7fa;
+  border-radius: 16rpx;
+}
+
+.privacy-notice__title {
+  display: block;
+  font-size: 26rpx;
+  font-weight: 700;
+  color: #003b70;
+  line-height: 1.4;
+}
+
+.privacy-notice__body {
+  display: block;
+  margin-top: 8rpx;
+  font-size: 24rpx;
+  color: #374151;
+  line-height: 1.55;
+}
+
+.privacy-notice__agree {
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+  margin-bottom: 20rpx;
+}
+
+.privacy-notice__check {
+  width: 32rpx;
+  height: 32rpx;
+  margin-top: 2rpx;
+  margin-right: 12rpx;
+  border: 2rpx solid #9ca3af;
+  border-radius: 8rpx;
+  font-size: 22rpx;
+  line-height: 32rpx;
+  text-align: center;
+  color: #ffffff;
+  flex-shrink: 0;
+}
+
+.privacy-notice__check--on {
+  background: #003b70;
+  border-color: #003b70;
+}
+
+.privacy-notice__agree-text {
+  flex: 1;
+  font-size: 24rpx;
+  color: #111827;
   line-height: 1.45;
 }
 

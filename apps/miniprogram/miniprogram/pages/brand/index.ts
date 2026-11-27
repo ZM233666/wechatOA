@@ -1,5 +1,5 @@
 import { getBrand, type BrandValue } from './brand.service';
-import { friendlyUnavailablePageData, logPageLoadIssue } from '../../utils/friendly-page-error';
+import { friendlyUnavailablePageData, logPageLoadIssue, standbyContentFields } from '../../utils/friendly-page-error';
 
 Page({
   data: {
@@ -42,6 +42,7 @@ Page({
           vision: '',
           values: [],
           brands: [],
+          ...standbyContentFields(),
         });
         return;
       }

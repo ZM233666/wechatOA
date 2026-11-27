@@ -1,0 +1,101 @@
+// 备用：小程序内本地/全球关怀页。恢复时用本文件覆盖 index.ts。
+import {
+  getEmployeeCare,
+  type EmployeeCareHeroView,
+  type EmployeeCareInitiativeView,
+} from '../../../services/kb-life.service';
+import { handleIdentityAccessFailure, rejectUnboundIdentityAccess } from '../../../utils/identity-access';
+import {
+  CONTENT_UNAVAILABLE_DESC,
+  friendlyUnavailablePageData,
+  logPageLoadIssue,
+  standbyContentFields,
+} from '../../../utils/friendly-page-error';
+
+Page({
+  data: {
+    hero: {
+      title: '',
+      subtitle: '',
+      image: '',
+    } as EmployeeCareHeroView,
+    initiatives: [] as EmployeeCareInitiativeView[],
+    pageStatus: 'loading' as 'loading' | 'success' | 'empty',
+    emptyTitle: '暂无关怀活动',
+    emptyDesc: CONTENT_UNAVAILABLE_DESC,
+    errorText: '',
+  },
+
+  pendingInitiativeId: '' as string,
+  accessAllowed: false,
+  skipNextShowLoad: false,
+
+  onLoad(query: Record<string, string | undefined>) {
+    if (rejectUnboundIdentityAccess('/pages/kb-life/index', 'Employee Care')) {
+      return;
+    }
+    this.accessAllowed = true;
+    this.skipNextShowLoad = true;
+    this.pendingInitiativeId = (query.initiativeId ?? '').trim();
+    void this.loadCare();
+  },
+
+  onShow() {
+    if (!this.accessAllowed) {
+      return;
+    }
+    if (this.skipNextShowLoad) {
+      this.skipNextShowLoad = false;
+      return;
+    }
+    void this.loadCare({ silent: true });
+  },
+
+  async loadCare(options?: { silent?: boolean }) {
+    const keepContent =
+      Boolean(options?.silent) &&
+      this.data.pageStatus === 'success' &&
+      this.data.initiatives.length > 0;
+    if (!keepContent) {
+      this.setData({ pageStatus: 'loading', errorText: '' });
+    }
+    try {
+      const result = await getEmployeeCare();
+      const empty = !result.initiatives.length;
+      this.setData({
+        hero: result.hero,
+        initiatives: result.initiatives,
+        pageStatus: empty ? 'empty' : 'success',
+        ...(empty ? standbyContentFields() : { emptyTitle: '', emptyDesc: '' }),
+      });
+      const jumpId = this.pendingInitiativeId;
+      if (jumpId && result.initiatives.some((item) => item.id === jumpId)) {
+        this.pendingInitiativeId = '';
+        wx.navigateTo({
+          url: `/subpackages/kb-life/care/detail?id=${encodeURIComponent(jumpId)}`,
+        });
+      }
+    } catch (error) {
+      if (keepContent) {
+        return;
+      }
+      logPageLoadIssue('employee-care', error);
+      if (handleIdentityAccessFailure(error, { title: 'Employee Care' })) {
+        return;
+      }
+      this.setData(
+        friendlyUnavailablePageData({ title: '暂无关怀活动', description: CONTENT_UNAVAILABLE_DESC }),
+      );
+    }
+  },
+
+  onReadMore(event: WechatMiniprogram.TouchEvent) {
+    const { id } = event.currentTarget.dataset as { id?: string };
+    if (!id) {
+      return;
+    }
+    wx.navigateTo({
+      url: `/subpackages/kb-life/care/detail?id=${encodeURIComponent(id)}`,
+    });
+  },
+});

@@ -119,9 +119,11 @@
       </view>
     </view>
 
+    <!-- 提审前暂时隐藏 Ask me，恢复时去掉这段注释
     <view class="ask-btn tap-feedback" bindtap="onComingSoon">
       <text class="ask-btn__text">Have questions? Ask me anytime!</text>
     </view>
+    -->
     </block>
   </view>
 </view>

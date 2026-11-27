@@ -3,7 +3,7 @@
   <nav-brand title="Album" show-back="{{true}}"></nav-brand>
 
   <view wx:if="{{pageStatus === 'loading'}}" class="event-detail__state">加载中…</view>
-  <empty-state wx:elif="{{pageStatus === 'empty'}}" title="{{emptyTitle || '暂无内容'}}" description="{{emptyDesc}}"></empty-state>
+  <empty-state wx:elif="{{pageStatus === 'empty'}}" title="{{emptyTitle || '更多内容，即将与你分享'}}" description="{{emptyDesc}}"></empty-state>
   <view class="event-detail" wx:elif="{{pageStatus === 'success'}}">
     <view class="event-detail__card">
       <view class="event-detail__hero event-detail__hero--highlights album-detail__hero">

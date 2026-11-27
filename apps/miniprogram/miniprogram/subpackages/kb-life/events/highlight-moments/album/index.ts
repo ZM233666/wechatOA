@@ -3,7 +3,8 @@ import {
   type HighlightMomentAlbumDetailView,
   type HighlightMomentAlbumImageView,
 } from '../../../../../services/kb-life.service';
-import { friendlyUnavailablePageData, logPageLoadIssue } from '../../../../../utils/friendly-page-error';
+import { friendlyUnavailablePageData, logPageLoadIssue, standbyPageData } from '../../../../../utils/friendly-page-error';
+import { rejectNonEmployeeAccess } from '../../../../../utils/identity-access';
 
 function stripPresignedVersion(url: string): string {
   if (!url || url.indexOf('X-Amz-Signature=') < 0) {
@@ -44,10 +45,13 @@ Page({
   skipShowRefresh: true,
 
   onLoad(query: Record<string, string | undefined>) {
+    if (rejectNonEmployeeAccess('Highlights')) {
+      return;
+    }
     const albumId = query.id?.trim() ?? '';
     this.setData({ albumId });
     if (!albumId) {
-      this.setData(friendlyUnavailablePageData({ title: '暂无相册' }));
+      this.setData(standbyPageData());
       return;
     }
     void this.loadAlbum();
@@ -71,7 +75,7 @@ Page({
     try {
       const album = await getHighlightMomentAlbum(this.data.albumId);
       if (!album) {
-        this.setData(friendlyUnavailablePageData({ title: '暂无相册' }));
+        this.setData(standbyPageData());
         return;
       }
       this.setData({ album: cleanAlbum(album), pageStatus: 'success' });
@@ -80,7 +84,7 @@ Page({
         return;
       }
       logPageLoadIssue('highlight-moment-album', error);
-      this.setData(friendlyUnavailablePageData({ title: '暂无相册' }));
+      this.setData(friendlyUnavailablePageData());
     }
   },
 

@@ -1,0 +1,9 @@
+<block wx:if="{{hasBody}}">
+  <article-renderer
+    wx:if="{{useBlocks}}"
+    blocks="{{blocks}}"
+    carousel-preview="{{false}}"
+  ></article-renderer>
+  <html-content wx:elif="{{html}}" html="{{html}}"></html-content>
+  <article-renderer wx:else blocks="{{blocks}}" carousel-preview="{{false}}"></article-renderer>
+</block>

@@ -1,7 +1,7 @@
 import type { ArticleContentBlock, ImageResource, PaginatedData } from '../../types/content';
 import { toAssetUrl } from '../../utils/format';
 import { API_ENDPOINTS } from '../../services/endpoints';
-import { get, withRequestCache } from '../../services/request';
+import { get, peekRequestCache, withRequestCache } from '../../services/request';
 
 const PRODUCT_SYSTEM_ALIASES: Record<string, string> = {
   braking: 'braking',
@@ -61,6 +61,8 @@ export interface ProductCategoryView {
   image: string;
   products: ProductItem[];
   richContent: ArticleContentBlock[];
+  contentHtml: string;
+  bodyFormat?: 'html' | 'blocks';
 }
 
 export interface ProductListItemView {
@@ -104,6 +106,8 @@ interface ProductDetailDto {
   coverImage: ImageResource;
   relatedProducts: Array<{ name: string; description: string; image: ImageResource }>;
   richContent: ArticleContentBlock[];
+  contentHtml?: string;
+  bodyFormat?: 'html' | 'blocks';
 }
 
 interface ProductSummaryDto {
@@ -151,6 +155,7 @@ export async function getProductCategories(): Promise<{
         image: item.coverImage.url ? toAssetUrl(item.coverImage) : '',
         products: [],
         richContent: [],
+        contentHtml: '',
       }));
     return {
       slides: data.slides.map((item) => ({
@@ -159,6 +164,16 @@ export async function getProductCategories(): Promise<{
       })),
       categories,
     };
+  });
+}
+
+export function peekProductDetail(id: string): ProductCategoryView | null {
+  return peekRequestCache<ProductCategoryView>(`products:detail:${id}`);
+}
+
+export function prefetchProductDetail(id: string): void {
+  void getProductDetail(id).catch(() => {
+    // 预取失败不影响列表；进入详情时仍可重试。
   });
 }
 
@@ -177,7 +192,9 @@ export async function getProductDetail(id: string): Promise<ProductCategoryView>
         desc: item.description,
         img: toAssetUrl(item.image),
       })),
-      richContent: [],
+      richContent: data.richContent ?? [],
+      contentHtml: data.contentHtml ?? '',
+      bodyFormat: data.bodyFormat,
     };
   });
 }
