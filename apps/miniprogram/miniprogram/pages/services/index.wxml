@@ -31,12 +31,10 @@
           <view class="insight-cover__meta">
             <text class="insight-cover__kicker">{{item.kicker}}</text>
             <text class="insight-cover__name">{{item.title}}</text>
-            <text class="insight-cover__en">{{item.english}}</text>
           </view>
           <image class="insight-cover__image" src="{{item.image}}" mode="aspectFill"></image>
           <text wx:if="{{item.tag || item.pdfUrl}}" class="insight-cover__tag">{{item.tag || 'PDF'}}</text>
         </view>
-        <text class="insight-cover__caption">{{item.caption}}</text>
       </view>
     </view>
   </view>
@@ -104,12 +102,10 @@
             <view class="insight-cover__meta">
               <text class="insight-cover__kicker">{{item.kicker}}</text>
               <text class="insight-cover__name">{{item.title}}</text>
-              <text class="insight-cover__en">{{item.english}}</text>
             </view>
             <image class="insight-cover__image" src="{{item.image}}" mode="aspectFill"></image>
             <text wx:if="{{item.tag || item.pdfUrl}}" class="insight-cover__tag">{{item.tag || 'PDF'}}</text>
           </view>
-          <text class="insight-cover__caption">{{item.caption}}</text>
         </view>
       </view>
       </view>

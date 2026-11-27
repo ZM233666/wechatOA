@@ -26,12 +26,20 @@ function withFitStyle(attrs: string, extra: string): string {
   return `${cleaned} style="${extra}"`;
 }
 
+function collapseMiniMediaPath(path: string): string {
+  const doubled = /\/api\/v1\/mini\/media\/api\/v1\/mini\/media\//i;
+  let next = path;
+  while (doubled.test(next)) {
+    next = next.replace(doubled, '/api/v1/mini/media/');
+  }
+  return next;
+}
+
 function rewriteEmbeddedMedia(html: string): string {
   const base = getApiBaseUrl().replace(/\/+$/, '');
   return html.replace(
     /https?:\/\/[^/"'\s]+(\/api\/v1\/mini\/media\/[^"'\\\s)]+)/gi,
-    (_match, path: string) =>
-      `${base}${path.replace(/\/api\/v1\/mini\/media\/api\/v1\/mini\/media\//i, '/api/v1/mini/media/')}`,
+    (_match, path: string) => `${base}${collapseMiniMediaPath(path)}`,
   );
 }
 

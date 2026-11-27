@@ -42,15 +42,22 @@ function isLocalPackagePath(url: string): boolean {
 /**
  * 正文里的媒体地址有时写死了另一台主机。开发环境应跟当前 API 走，本地才有这些文件。
  */
+/** 后台有时把媒体前缀拼了多次，只留一段才能命中文件。 */
+function collapseMiniMediaPath(path: string): string {
+  const doubled = /\/api\/v1\/mini\/media\/api\/v1\/mini\/media\//i;
+  let next = path;
+  while (doubled.test(next)) {
+    next = next.replace(doubled, '/api/v1/mini/media/');
+  }
+  return next;
+}
+
 function rebaseApiMediaUrl(url: string): string {
   const match = /^https?:\/\/[^/?#]+(\/api\/v1\/mini\/media\/[^?#]*)(\?[^#]*)?/i.exec(url);
   if (!match) {
     return url;
   }
-  const path = match[1].replace(
-    /\/api\/v1\/mini\/media\/api\/v1\/mini\/media\//i,
-    '/api/v1/mini/media/',
-  );
+  const path = collapseMiniMediaPath(match[1]);
   const base = getApiBaseUrl().replace(/\/+$/, '');
   return `${base}${path}${match[2] || ''}`;
 }

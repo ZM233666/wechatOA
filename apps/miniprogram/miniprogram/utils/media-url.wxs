@@ -31,8 +31,10 @@ function imageSrc(url, apiBase) {
     path = path.substring(0, hash);
   }
   var doubled = '/api/v1/mini/media/api/v1/mini/media/';
-  if (path.indexOf(doubled) === 0) {
-    path = marker + path.substring(doubled.length);
+  var at = path.indexOf(doubled);
+  while (at >= 0) {
+    path = path.substring(0, at) + marker + path.substring(at + doubled.length);
+    at = path.indexOf(doubled);
   }
   var base = apiBase;
   while (base.charAt(base.length - 1) === '/') {

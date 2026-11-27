@@ -144,6 +144,21 @@ interface ServicesPageDto {
   insightCovers: ServiceDto[];
 }
 
+/** 列表里的 coverImage 经常是空的，封面用阅读器第一页。 */
+async function withInsightPageCover(cover: InsightCover): Promise<InsightCover> {
+  if (cover.image) {
+    return cover;
+  }
+  try {
+    const detail = await get<InsightReportDto>(API_ENDPOINTS.serviceInsightDetail(cover.id));
+    const page = detail.pages?.find((item) => item.coverImage?.url);
+    const image = page?.coverImage ? toAssetUrl(page.coverImage) : '';
+    return image ? { ...cover, image } : cover;
+  } catch {
+    return cover;
+  }
+}
+
 function mapInsightCover(item: {
   id: string;
   title: string;
@@ -241,7 +256,9 @@ export async function getServices(): Promise<ServicesPageView> {
     const heroCardsWithOnline = await enrichHeroCardsOnlineStatus(heroCards);
     return {
       heroCards: heroCardsWithOnline,
-      insightCovers: data.insightCovers.map((item) => mapInsightCover(item)),
+      insightCovers: await Promise.all(
+        data.insightCovers.map((item) => withInsightPageCover(mapInsightCover(item))),
+      ),
     };
   });
 }
@@ -250,7 +267,7 @@ export async function getInsightReports(): Promise<InsightCover[]> {
   const data = await get<{ items: Array<Omit<InsightReportDto, 'pages'>> }>(
     API_ENDPOINTS.serviceInsights,
   );
-  return data.items.map((item) => mapInsightCover(item));
+  return Promise.all(data.items.map((item) => withInsightPageCover(mapInsightCover(item))));
 }
 
 export async function getInsightReport(id: string): Promise<InsightReportView> {
